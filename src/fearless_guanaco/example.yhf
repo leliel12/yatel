@@ -1,0 +1,44 @@
+# Yaml Haplotypes Format
+
+# "example.yhf" is part of "Fearless Guanaco"
+#                                    (http://code.google.com/p/fearlessguanaco/)
+# Copyright (C) 2010 UTN-KDD Group <UTN_KDD@googlegroups.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Definition
+
+Mal de Rio Cuarto:
+    description: Un mal que acecha por ahi
+    attributes:
+        - 1:
+            description: Significa que wawawa
+            valid_values: "1b5"
+        - 3:
+            description: Significa que wawawa
+            valid_values: null
+        - 2:
+            description: Significa que wawawa
+            valid_values: "1b5?"
+    haplotypes:
+        - tito:
+            description: "alguna cosa"
+            value: 1b5
+        - tita: 
+            description: "alguna cosa"
+            value: 1Z? #debe fallar Z no es un valor valido de la banda "2"
+        - tite:
+            description: "alguna cosa"
+            value: 1b?
+        

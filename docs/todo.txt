@@ -1,0 +1,22 @@
+plugin.py
+    
+    constante "METRIC_PLUGIN="metric_plugin""
+
+	clase "AbstractPlugin": debe ser la estructura generica para todos los
+    plugins los metodos que debe poseer (sin implementar) son:
+        setup: llamado previamente a ejecutar el lugin
+        task: ejecuta la tarea en particular
+        teardown: ejecutado post ejecucion del task
+        has_gui: devuelve true o false si tiene ui este plugin
+        get_gui: devuelve una instancia del gui a ejecutar
+        get_plugin_type:  devuelve la constante 
+        
+    
+    clase MetricPlugin herda de AbstractPlugin:
+        redefine el metodo get_plugin_type y devuelve siempre el valor de la
+        constante METRIC_PLUGIN
+        
+    
+    funcion "load_plugin(folder_path)": examina un path en particular y devuelve
+    todas las clases heredadas de AbstractPlugin.
+
