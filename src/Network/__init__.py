@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-# coding=utf-8
+#-*-coding:utf-8-*-
 
-# "__init__.py" is part of "Fearless Guanaco"
-#                                    (http://code.google.com/p/fearlessguanaco/)
-# Copyright (C) 2010 UTN-KDD Group <UTN_KDD@googlegroups.com>
+# Copyright (C) 2010 Juan BC <jbc dot develop at gmail dot com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -23,19 +21,36 @@
 # DOCS
 ################################################################################
 
-"""Haplotypes Net Analizator"""
+"""
+    
+    
+"""
 
 
 ################################################################################
 # META
 ################################################################################
 
-__prj__ = "Fearless Guanaco"
 __version__ = "0.1"
 __license__ = "GPL3"
-__author__ = "JBC"
+__author__ = "JB <jbc dot develop at gmail dot com>"
 __since__ = "0.1"
-__date__ = "2010/04/19"
+__date__ = "2010-08-04"
+
+
+################################################################################
+# IMPORTS
+################################################################################
+
+
+################################################################################
+# CLASSES
+################################################################################
+
+
+################################################################################
+# FUNCTIONS
+################################################################################
 
 
 ################################################################################
@@ -44,3 +59,4 @@ __date__ = "2010/04/19"
 
 if __name__ == "__main__":
     print __doc__
+
