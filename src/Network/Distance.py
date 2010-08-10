@@ -54,11 +54,28 @@ __date__ = "2010-08-04"
 # CLASSES
 ################################################################################
 
+class Distance(object):
+    
+    def distance_of(self, seq0, seq1):
+        raise NotImplemetedError()
 
-################################################################################
-# FUNCTIONS
-################################################################################
 
+class DefaultDistance(Distance):
+    
+    def distance_of(self, seq0, seq1):
+        d = abs(len(seq0) - len(seq1))
+        for e0, e1 in zip(seq0, seq1):
+            if e0 != e1:
+                d +=1
+        return d
+
+
+class GarciaDistance(DefaultDistance):
+    
+    def distance_of(self, seq0, seq1):
+        d = super(self.__class__, self).distance_of(seq0, seq1)
+        return d / 3
+        
 
 ################################################################################
 # MAIN

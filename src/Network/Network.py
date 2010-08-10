@@ -3,18 +3,26 @@
 
 # Copyright (C) 2010 Juan BC <jbc dot develop at gmail dot com>
 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Biopython License Agreement
 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
+# Permission to use, copy, modify, and distribute this software and its
+# documentation with or without modifications and for any purpose and
+# without fee is hereby granted, provided that any copyright notices
+# appear in all copies and that both those copyright notices and this
+# permission notice appear in supporting documentation, and that the
+# names of the contributors or copyright holders not be used in
+# advertising or publicity pertaining to distribution of the software
+# without specific prior permission.
 
-# You should have received a copy of the GNU Lesser General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# THE CONTRIBUTORS AND COPYRIGHT HOLDERS OF THIS SOFTWARE DISCLAIM ALL
+# WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL THE
+# CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY SPECIAL, INDIRECT
+# OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+# OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
+# OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE
+# OR PERFORMANCE OF THIS SOFTWARE.
+
 
 
 ################################################################################
@@ -22,8 +30,8 @@
 ################################################################################
 
 """
-    
-    
+
+
 """
 
 
@@ -31,9 +39,9 @@
 # META
 ################################################################################
 
-__version__ = "0.1"
+__version__ = "Biopython License"
 __license__ = "GPL3"
-__author__ = "JB <jbc dot develop at gmail dot com>"
+__author__ = "JBC <jbc dot develop at gmail dot com>"
 __since__ = "0.1"
 __date__ = "2010-08-04"
 
@@ -43,47 +51,105 @@ __date__ = "2010-08-04"
 ################################################################################
 
 from Bio import Seq
+from Bio import Alphabet
 
 import Distance
 
 ################################################################################
-# CLASSES
+# NODE CLASS
 ################################################################################
 
-class SeqNetwork(object):
-    
-    def __init__(self, iterable, distance=None):
+class NetworkHash(object):
+
+    def __init__(self, descriptor, seq):
+        assert isinstance(descriptor, basestring), \
+               "descriptor must be str or unicode"
+        assert isinstance(seq, Seq.Seq), "seq must be Seq instance"
+        super(self.__class__, self).__init__()
+        self._desc = desc
+        self._seq = seq
+
+    def repr(self, obj):
+        return "<%s instance (%s, %s) at %s>" % (self.__class__.__name__,
+                                                 self._desc,
+                                                 repr(self._seq),
+                                                 hex(id(self)))
+
+    def __hash__(self):
+        return hash(self._desc)
+
+    def __eq__(self, obj):
+        return isinstance(obj, (self.__class__, basestring)) \
+               and hash(self) == hash(obj)
+               
+    def __neq__(self, obj):
+        return not self == obj
+
+    def _get_seq(self):
+        return self._seq
+
+    seq = property(_get_seq)
+
+    def _get_desc(self):
+        return self._desc
+
+    descriptor = property(_get_desc)
+
+
+################################################################################
+# NETWORK CLASS
+################################################################################
+
+class Network(object):
+
+    def __init__(self, alphabet, distance=None):
+        assert isinstance(alphabet, Alphabet.Alphabet), \
+               "alphabet must be Alphabet Instance"
+        assert isinstance(distance, Distance.Distance) or distance == None, \
+               "distance must be Distance instance or None"
         self._mtx = {}
-        self.distance = distance \
-                        if distance != None \
-                        else Distance.DefaultDistance()
-        for i in iterable:
-            self.add(i)
-    
-    def re_calculate_distances(self):
-        for seq0, distances in self._mtx.items():
-            for seq1, distance in distances.items():
-                distances[seq1] = self._distance.distance_of(seq0, seq1)
-    
-    def add(self, seq0):
-        assert isinstance(seq, Seq.Seq), "seq0 must be Seq instance"
-        if seq0 not in self._mtx:
-            self._mtx[seq0] = {}
-            for seq1, distances in self._mtx.items():
-                if seq0 != seq1:
-                    distances[seq0] = self._distance.distance_of(seq1, seq0)
-                self._mtx[seq0][seq1] = self._distance.distance_of(seq0, seq1)
+        self._distance = distance \
+                         if distance != None \
+                         else Distance.DefaultDistance()
+        self._alphabet = alphabet
+
+    def __repr__(self):
+        return  "<%s instance (%s records, %s) at %s>" % (self.__class__.__name__,
+                                                          len(self._mtx),
+                                                          repr(self._alphabet),
+                                                          hex(id(self)))
+    def __getitem__(self, descriptor):
+        return self._mtx[descriptor]
         
+    def __len__(self):
+        return len(self._mtx)
+
+    def __str__(self):
+        return repr(self)
+        
+    def __iter__(self):
+        for  sh, distances in self._mtx.items():
+            yield (sh.seq, distances)
+
+    def add_sequence(self, descriptor, seq):
+        assert isinstance(seq, basestring), "seq0 must be str or unicode"
+        if descriptor not in self._mtx:
+            sh0 = NetworkHash(descriptor, Seq.Seq(seq, self._alphabet))
+            self._mtx[sh0] = {}
+            for sh1, distances in self._mtx.items():
+                if sh0 != sh1:
+                    distances[sh0] = self._distance(sh1.seq, sh0.seq)
+                self._mtx[sh0][sh1] = self._distance(sh0.seq, sh1.seq)
+
     def _get_distance(self):
         return self._distance
-        
-    def _set_distance(self, d):
-        assert isinstance(d, Distance.Distance), \
-               "distance must be Distance instance"
-        self._distance = d
-        
-    distance = property(_get_distance, _set_distance)
 
+    distance = property(_get_distance)
+
+    def _get_alphabet(self):
+        return self._alphabet
+
+    alphabet = property(_get_alphabet)
 
 ################################################################################
 # MAIN
