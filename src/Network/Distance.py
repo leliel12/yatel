@@ -49,6 +49,8 @@ __date__ = "2010-08-04"
 # IMPORTS
 ################################################################################
 
+from Bio import Seq
+
 
 ################################################################################
 # CLASSES
@@ -70,11 +72,21 @@ class DefaultDistance(Distance):
         return d
 
 
-class GarciaDistance(DefaultDistance):
+class ExpertDistance(Distance):
+    
+    def __init__(self):
+        self._distances = {}
+    
+    def set_distance(self, seq0, seq1, distance):
+        assert isinstance(seq0, Seq.Seq), "seq0 must be Seq instance"
+        assert isinstance(seq1, Seq.Seq), "seq1 must be Seq instance"
+        assert isinstance(distance, (int, float)), "distance must be int or float"
+        key = (seq0, seq1)
+        self._distances[key] = distance
     
     def distance_of(self, seq0, seq1):
-        d = super(self.__class__, self).distance_of(seq0, seq1)
-        return d / 3
+        key = (seq0, seq1)
+        return self._distances.get(key)
         
 
 ################################################################################
