@@ -66,10 +66,10 @@ class NetworkHash(object):
                "descriptor must be str or unicode"
         assert isinstance(seq, Seq.Seq), "seq must be Seq instance"
         super(self.__class__, self).__init__()
-        self._desc = desc
+        self._desc = descriptor
         self._seq = seq
 
-    def repr(self, obj):
+    def __repr__(self):
         return "<%s instance (%s, %s) at %s>" % (self.__class__.__name__,
                                                  self._desc,
                                                  repr(self._seq),
@@ -118,6 +118,7 @@ class Network(object):
                                                           len(self._mtx),
                                                           repr(self._alphabet),
                                                           hex(id(self)))
+    
     def __getitem__(self, descriptor):
         return self._mtx[descriptor]
         
@@ -129,7 +130,14 @@ class Network(object):
         
     def __iter__(self):
         for  sh, distances in self._mtx.items():
-            yield (sh.seq, distances)
+            ds = [(nh.descriptor, nh.seq, d) for nh, d in distances.items()]
+            yield (sh.descriptor, sh.seq, ds)
+
+    def transform(self, new_distance):
+        new_network = Network(self._alphabet, new_distance)
+        for descriptor, seq, _ in self:
+            new_network.add_sequence(descriptor, str(seq))
+        return new_network
 
     def add_sequence(self, descriptor, seq):
         assert isinstance(seq, basestring), "seq0 must be str or unicode"
@@ -138,8 +146,8 @@ class Network(object):
             self._mtx[sh0] = {}
             for sh1, distances in self._mtx.items():
                 if sh0 != sh1:
-                    distances[sh0] = self._distance(sh1.seq, sh0.seq)
-                self._mtx[sh0][sh1] = self._distance(sh0.seq, sh1.seq)
+                    distances[sh0] = self._distance.distance_of(sh1.seq, sh0.seq)
+                self._mtx[sh0][sh1] = self._distance.distance_of(sh0.seq, sh1.seq)
 
     def _get_distance(self):
         return self._distance
@@ -150,6 +158,7 @@ class Network(object):
         return self._alphabet
 
     alphabet = property(_get_alphabet)
+
 
 ################################################################################
 # MAIN
