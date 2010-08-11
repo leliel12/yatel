@@ -70,10 +70,10 @@ class NetworkHash(object):
         self._seq = seq
 
     def __repr__(self):
-        return "<%s instance (%s, %s) at %s>" % (self.__class__.__name__,
-                                                 self._desc,
-                                                 repr(self._seq),
-                                                 hex(id(self)))
+        return "%s instance (%s, %s) at %s" % (self.__class__.__name__,
+                                               self._desc,
+                                               repr(self._seq),
+                                               hex(id(self)))
 
     def __hash__(self):
         return hash(self._desc)
@@ -114,7 +114,7 @@ class Network(object):
         self._alphabet = alphabet
 
     def __repr__(self):
-        return  "<%s instance (%s records, %s) at %s>" % (self.__class__.__name__,
+        return  "%s instance (%s records, %s) at %s" % (self.__class__.__name__,
                                                           len(self._mtx),
                                                           repr(self._alphabet),
                                                           hex(id(self)))
