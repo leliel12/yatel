@@ -115,9 +115,9 @@ class Network(object):
 
     def __repr__(self):
         return  "%s instance (%s records, %s) at %s" % (self.__class__.__name__,
-                                                          len(self._mtx),
-                                                          repr(self._alphabet),
-                                                          hex(id(self)))
+                                                        len(self._mtx),
+                                                        repr(self._alphabet),
+                                                        hex(id(self)))
     
     def __getitem__(self, descriptor):
         return self._mtx[descriptor]
