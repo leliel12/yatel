@@ -56,47 +56,6 @@ from Bio import Alphabet
 import Distance
 
 ################################################################################
-# NODE CLASS
-################################################################################
-
-class NetworkHash(object):
-
-    def __init__(self, descriptor, seq):
-        assert isinstance(descriptor, basestring), \
-               "descriptor must be str or unicode"
-        assert isinstance(seq, Seq.Seq), "seq must be Seq instance"
-        super(self.__class__, self).__init__()
-        self._desc = descriptor
-        self._seq = seq
-
-    def __repr__(self):
-        return "%s instance (%s, %s) at %s" % (self.__class__.__name__,
-                                               self._desc,
-                                               repr(self._seq),
-                                               hex(id(self)))
-
-    def __hash__(self):
-        return hash(self._desc)
-
-    def __eq__(self, obj):
-        return isinstance(obj, (self.__class__, basestring)) \
-               and hash(self) == hash(obj)
-               
-    def __neq__(self, obj):
-        return not self == obj
-
-    def _get_seq(self):
-        return self._seq
-
-    seq = property(_get_seq)
-
-    def _get_desc(self):
-        return self._desc
-
-    descriptor = property(_get_desc)
-
-
-################################################################################
 # NETWORK CLASS
 ################################################################################
 
@@ -108,6 +67,7 @@ class Network(object):
         assert isinstance(distance, Distance.Distance) or distance == None, \
                "distance must be Distance instance or None"
         self._mtx = {}
+        self._descs = {}
         self._distance = distance \
                          if distance != None \
                          else Distance.DefaultDistance()
@@ -120,7 +80,7 @@ class Network(object):
                                                         hex(id(self)))
     
     def __getitem__(self, descriptor):
-        return self._mtx[descriptor]
+        return self._descs[descriptor]
         
     def __len__(self):
         return len(self._mtx)
@@ -129,9 +89,8 @@ class Network(object):
         return repr(self)
         
     def __iter__(self):
-        for  sh, distances in self._mtx.items():
-            ds = [(nh.descriptor, nh.seq, d) for nh, d in distances.items()]
-            yield (sh.descriptor, sh.seq, ds)
+        for  r, distances in self._mtx.items():
+            yield (sh.seq, distances.items())
 
     def transform(self, new_distance):
         new_network = Network(self._alphabet, new_distance)
@@ -140,24 +99,29 @@ class Network(object):
         return new_network
 
     def add_sequence(self, descriptor, seq):
-        assert isinstance(seq, basestring), "seq0 must be str or unicode"
-        if descriptor not in self._mtx:
-            sh0 = NetworkHash(descriptor, Seq.Seq(seq, self._alphabet))
-            self._mtx[sh0] = {}
-            for sh1, distances in self._mtx.items():
-                if sh0 != sh1:
-                    distances[sh0] = self._distance.distance_of(sh1.seq, sh0.seq)
-                self._mtx[sh0][sh1] = self._distance.distance_of(sh0.seq, sh1.seq)
+        assert isinstance(seq, basestring), "seq must be str or unicode"
+        assert isinstance(descriptor, basestring), "descriptor must be str or unicode"
+        
+        if descriptor not in self._descs:
+            r0 = SeqRecord(Seq(seq, self._alphabet), 
+                           id=descriptor, description=descriptor)
 
-    def _get_distance(self):
+            self._descs[descriptor] = self._mtx[r0] = {}
+            
+            for r1, distances in self._mtx.items():
+                if r0 != r1:
+                    d = self._distance.distance_of(r1, r0)
+                    distances[r0] = abs(d) if d != None else d
+                d = self._distance.distance_of(r0, r1)
+                self._mtx[r0][r1] = abs(d) if d != None else d
+    
+    @property
+    def distance(self):
         return self._distance
 
-    distance = property(_get_distance)
-
-    def _get_alphabet(self):
+    @property
+    def alphabet(self):
         return self._alphabet
-
-    alphabet = property(_get_alphabet)
 
 
 ################################################################################

@@ -49,43 +49,63 @@ __date__ = "2010-08-04"
 # IMPORTS
 ################################################################################
 
+import abc
+
 from Bio import Seq
 
 
 ################################################################################
-# CLASSES
+# BASE CLASS
 ################################################################################
 
 class Distance(object):
+    """Base class for all Distances classes
     
-    def distance_of(self, seq0, seq1):
+    You need to impelment distance_of(seq0, seq1) method.
+    
+    """
+    
+    __metaclass__ = abc.ABCMeta
+    
+    @abc.abstractmethod    
+    def distance_of(self, seq_record0, seq_record1):
+        """Returns the distances between seq_record0 and seq_record1"""
         raise NotImplemetedError()
 
 
+################################################################################
+# DEFAULT DISTANCE CLASS
+################################################################################
+
 class DefaultDistance(Distance):
     
-    def distance_of(self, seq0, seq1):
-        d = abs(len(seq0) - len(seq1))
+    def distance_of(self, seq_record0, seq_record1):
+        d = abs(len(seq_record0) - len(seq_record1))
         for e0, e1 in zip(seq0, seq1):
             if e0 != e1:
                 d +=1
         return d
 
 
+################################################################################
+# EXPERT DISTANCE CLASS
+################################################################################
+
 class ExpertDistance(Distance):
     
     def __init__(self):
         self._distances = {}
     
-    def set_distance(self, seq0, seq1, distance):
-        assert isinstance(seq0, Seq.Seq), "seq0 must be Seq instance"
-        assert isinstance(seq1, Seq.Seq), "seq1 must be Seq instance"
-        assert isinstance(distance, (int, float)), "distance must be int or float"
+    def set_distance(self, str_seq0, str_seq1, distance):
+        assert isinstance(seq0, basestring), "str_seq0 must be str or unicode"
+        assert isinstance(seq1, basestring), "str_seq1 must be str or unicode"
+        assert isinstance(distance, (int, float)) or distances == None, \
+              "distance must be int or float or None"
         key = (seq0, seq1)
         self._distances[key] = distance
     
-    def distance_of(self, seq0, seq1):
-        key = (seq0, seq1)
+    def distance_of(self, seq_record0, seq_record1):
+        key = (str(seq_record0.seq), str(seq_record1.seq))
         return self._distances.get(key)
         
 

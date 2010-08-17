@@ -50,13 +50,15 @@ __date__ = "2010-08-04"
 # IMPORTS
 ################################################################################
 
+import numpy
+
 import NetWork
 
 ################################################################################
 # NODE CLASS
 ################################################################################
 
-class NetworkHash(object):
+class NetworkInfo(object):
 
     def __init__(self, network):
         assert isinstance(network, Network.Network), \
@@ -65,10 +67,56 @@ class NetworkHash(object):
         self._nw = network
 
     def __repr__(self):
-        return "%s instance (%s) at %s" % (self.__class__.__name__,
+        return "%s instance of %s at %s" % (self.__class__.__name__,
                                            repr(self._nw),
                                            hex(id(self)))
-
+    @property
+    def distances(self):
+        all_d = []
+        for _, distances in self._network:
+            for d in distances.values():
+                if d != None:
+                    all_d.append(d)
+        return all_d
+                    
+    @property
+    def distance_avg(self):
+        return numpy.average(self.distances)
+    
+    @property
+    def distance_std(self):
+        return numpy.std(self.distances)
+        
+    @property
+    def distance_max(self):
+        return max(self.distances)
+    
+    @property
+    def distance_min(self):
+        return min(self.distances)
+    
+    @property
+    def distance_frequency(self):
+        """Return a list of tuples where all elements have"""
+        freq = {}
+        for d in self.distances:
+            if d not in freq:
+                freq[d] = 0
+            freq[d] += 1
+        return freq.items()
+    
+    @property
+    def distance_mode(self):
+        freq = self.distance_frequency
+        mode = max(freq.values())
+        return tuple([d for d, count in freq.items() if count >= mode])
+        
+    @property
+    def distance_anti_mode(self):
+        freq = self.distance_frequency
+        mode = min(freq.values())
+        return tuple([d for d, count in freq.items() if count <= mode])
+        
 
 ################################################################################
 # MAIN
