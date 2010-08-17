@@ -83,7 +83,7 @@ class DefaultDistance(Distance):
         d = abs(len(seq_record0) - len(seq_record1))
         for e0, e1 in zip(seq0, seq1):
             if e0 != e1:
-                d +=1
+                d += 1
         return d
 
 

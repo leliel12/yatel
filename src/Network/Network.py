@@ -103,7 +103,7 @@ class Network(object):
         assert isinstance(descriptor, basestring), "descriptor must be str or unicode"
         
         if descriptor not in self._descs:
-            r0 = SeqRecord(Seq(seq, self._alphabet), 
+            r0 = SeqRecord(Seq(seq, self._alphabet),
                            id=descriptor, description=descriptor)
 
             self._descs[descriptor] = self._mtx[r0] = {}
