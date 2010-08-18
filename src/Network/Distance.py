@@ -70,7 +70,7 @@ class Distance(object):
     @abc.abstractmethod    
     def distance_of(self, seq_record0, seq_record1):
         """Returns the distances between seq_record0 and seq_record1"""
-        raise NotImplemetedError()
+        raise NotImplementedError()
 
 
 ################################################################################
@@ -81,7 +81,7 @@ class DefaultDistance(Distance):
     
     def distance_of(self, seq_record0, seq_record1):
         d = abs(len(seq_record0) - len(seq_record1))
-        for e0, e1 in zip(seq0, seq1):
+        for e0, e1 in zip(seq_record0, seq_record1):
             if e0 != e1:
                 d += 1
         return d
@@ -97,11 +97,11 @@ class ExpertDistance(Distance):
         self._distances = {}
     
     def set_distance(self, str_seq0, str_seq1, distance):
-        assert isinstance(seq0, basestring), "str_seq0 must be str or unicode"
-        assert isinstance(seq1, basestring), "str_seq1 must be str or unicode"
-        assert isinstance(distance, (int, float)) or distances == None, \
+        assert isinstance(str_seq0, basestring), "str_seq0 must be str or unicode"
+        assert isinstance(str_seq1, basestring), "str_seq1 must be str or unicode"
+        assert isinstance(distance, (int, float)) or distance == None, \
               "distance must be int or float or None"
-        key = (seq0, seq1)
+        key = (str_seq0, str_seq1)
         self._distances[key] = distance
     
     def distance_of(self, seq_record0, seq_record1):

@@ -50,6 +50,7 @@ __date__ = "2010-08-04"
 # IMPORTS
 ################################################################################
 
+from Bio import SeqIO
 from Bio import Seq
 from Bio import Alphabet
 
@@ -90,21 +91,21 @@ class Network(object):
         
     def __iter__(self):
         for  r, distances in self._mtx.items():
-            yield (sh.seq, distances.items())
+            yield (r, distances.items())
 
     def transform(self, new_distance):
         new_network = Network(self._alphabet, new_distance)
-        for descriptor, seq, _ in self:
-            new_network.add_sequence(descriptor, str(seq))
+        for r in self._mtx.keys():
+            new_network.add_sequence(r.id, str(r.seq))
         return new_network
 
-    def add_sequence(self, descriptor, seq):
-        assert isinstance(seq, basestring), "seq must be str or unicode"
+    def add_sequence(self, descriptor, str_seq):
+        assert isinstance(str_seq, basestring), "str_seq must be str or unicode"
         assert isinstance(descriptor, basestring), "descriptor must be str or unicode"
         
         if descriptor not in self._descs:
-            r0 = SeqRecord(Seq(seq, self._alphabet),
-                           id=descriptor, description=descriptor)
+            r0 = SeqIO.SeqRecord(Seq.Seq(str_seq, self._alphabet),
+                                 id=descriptor, description=descriptor)
 
             self._descs[descriptor] = self._mtx[r0] = {}
             

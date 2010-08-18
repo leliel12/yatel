@@ -24,23 +24,18 @@
 # OR PERFORMANCE OF THIS SOFTWARE.
 
 
-
 ################################################################################
 # DOCS
 ################################################################################
 
-"""
-
-
-"""
-
+"""Yatel Tests"""
 
 ################################################################################
 # META
 ################################################################################
 
-__version__ = "Biopython License"
-__license__ = "GPL3"
+__version__ = "0.1"
+__license__ = "Biopython License"
 __author__ = "JBC <jbc dot develop at gmail dot com>"
 __since__ = "0.1"
 __date__ = "2010-08-04"
@@ -50,79 +45,56 @@ __date__ = "2010-08-04"
 # IMPORTS
 ################################################################################
 
-import numpy
+import unittest
 
-import Network
+from Bio import Alphabet
+
+from Network import Network
+from Network import Distance
+from Network import NetworkInfo
 
 
 ################################################################################
-# NODE CLASS
+# CONSTANTS
 ################################################################################
 
-class NetworkInfo(object):
+_SEQS = ["111", "222", "333", "444", "555", "666", "777", "888", "999"]
 
-    def __init__(self, network):
-        assert isinstance(network, Network.Network), \
-               "network must be Network instance"
-        super(self.__class__, self).__init__()
-        self._nw = network
+_NW = None
 
-    def __repr__(self):
-        return "%s instance of %s at %s" % (self.__class__.__name__,
-                                           repr(self._nw),
-                                           hex(id(self)))
-    @property
-    def distances(self):
-        all_d = []
-        for _, distances in self._network:
-            for d in distances.values():
-                if d != None:
-                    all_d.append(d)
-        return all_d
-                    
-    @property
-    def distance_avg(self):
-        return numpy.average(self.distances)
+################################################################################
+# NETWORK TESTS
+################################################################################
+
+class NetworkTest(unittest.TestCase):
     
-    @property
-    def distance_std(self):
-        return numpy.std(self.distances)
+    def setUp(self):
+        self.nw = Network.Network(Alphabet.Alphabet())
+        for s in _SEQS:
+            self.nw.add_sequence(s, s)
         
-    @property
-    def distance_max(self):
-        return max(self.distances)
-    
-    @property
-    def distance_min(self):
-        return min(self.distances)
-    
-    @property
-    def distance_frequency(self):
-        """Return a list of tuples where all elements have"""
-        freq = {}
-        for d in self.distances:
-            if d not in freq:
-                freq[d] = 0
-            freq[d] += 1
-        return freq.items()
-    
-    @property
-    def distance_mode(self):
-        freq = self.distance_frequency
-        mode = max(freq.values())
-        return tuple([d for d, count in freq.items() if count >= mode])
+    def test_getitem(self):
+        for s in _SEQS:
+            self.assertTrue(self.nw[s] != None)
+        try:
+            self.nw["000"]
+        except KeyError:
+            pass
+        else:
+            self.fail("000 do not exist")
+            
+    def test_len(self):
+        self.assertEqual(len(self.nw), len(_SEQS))
         
-    @property
-    def distance_anti_mode(self):
-        freq = self.distance_frequency
-        mode = min(freq.values())
-        return tuple([d for d, count in freq.items() if count <= mode])
-        
+    def test_transform(self):
+        self.nw.transform(Distance.DefaultDistance())
+
 
 ################################################################################
 # MAIN
 ################################################################################
 
 if __name__ == "__main__":
-    print __doc__
+    unittest.main()
+
 
