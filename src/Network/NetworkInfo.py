@@ -63,8 +63,7 @@ class NetworkInfo(object):
 
     def __init__(self, network):
         assert isinstance(network, Network.Network), \
-               "network must be Network instance"
-        super(self.__class__, self).__init__()
+               "network must be Network instance find: " % str(type(network))
         self._nw = network
 
     def __repr__(self):
@@ -72,10 +71,14 @@ class NetworkInfo(object):
                                            repr(self._nw),
                                            hex(id(self)))
     @property
+    def network(self):
+        return self._nw                                       
+    
+    @property
     def distances(self):
         all_d = []
-        for _, distances in self._network:
-            for d in distances.values():
+        for _, distances in self._nw:  # seq y lista (seq, len)
+            for _, d in distances:
                 if d != None:
                     all_d.append(d)
         return all_d
@@ -104,7 +107,7 @@ class NetworkInfo(object):
             if d not in freq:
                 freq[d] = 0
             freq[d] += 1
-        return freq.items()
+        return freq
     
     @property
     def distance_mode(self):

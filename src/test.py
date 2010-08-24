@@ -60,7 +60,6 @@ from Network import NetworkInfo
 
 _SEQS = ["111", "222", "333", "444", "555", "666", "777", "888", "999"]
 
-_NW = None
 
 ################################################################################
 # NETWORK TESTS
@@ -88,6 +87,46 @@ class NetworkTest(unittest.TestCase):
         
     def test_transform(self):
         self.nw.transform(Distance.DefaultDistance())
+
+
+################################################################################
+# NETWORK INFO TESTS
+################################################################################
+
+class NetworkInfoTest(unittest.TestCase):
+
+    def setUp(self):
+        self.nw = Network.Network(Alphabet.Alphabet())
+        for s in _SEQS:
+            self.nw.add_sequence(s, s)
+        self.ni = NetworkInfo.NetworkInfo(self.nw)
+    
+    def test_distance_anti_mode(self):
+        self.ni.distance_anti_mode
+
+    def test_distance_avg(self):
+        self.ni.distance_avg
+
+    def test_distance_frequency(self):
+        self.ni.distance_frequency
+
+    def test_distance_max(self):
+        self.ni.distance_max
+
+    def test_distance_min(self):
+        self.ni.distance_min
+
+    def test_distance_mode(self):
+        self.ni.distance_mode
+
+    def test_distance_std(self):
+        self.ni.distance_std
+
+    def test_distances(self):
+        self.ni.distances
+
+    def test_network(self):
+        self.ni.network
 
 
 ################################################################################
