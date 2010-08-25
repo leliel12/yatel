@@ -52,6 +52,9 @@ __date__ = "2010-08-04"
 import abc
 
 from Bio import Seq
+from Bio import SeqRecord
+
+
 
 
 ################################################################################
@@ -93,19 +96,28 @@ class DefaultDistance(Distance):
 
 class ExpertDistance(Distance):
     
-    def __init__(self):
+    def __init__(self, key_extractor):
+        assert callable(key_extractor), "key_extractor must be callable"
         self._distances = {}
+        self._ke = key_extractor
     
-    def set_distance(self, str_seq0, str_seq1, distance):
-        assert isinstance(str_seq0, basestring), "str_seq0 must be str or unicode"
-        assert isinstance(str_seq1, basestring), "str_seq1 must be str or unicode"
+    def _get_key(self, seq_record0, seq_record1):
+        k0 = self._ke(seq_record0)
+        k1 = self._ke(seq_record1)
+        return k0, k1
+    
+    def set_distance(self, seq_record0, seq_record1, distance):
+        assert isinstance(seq_record0, SeqRecord.SeqRecord), \
+               "seq_record0 must be SeqRecord"
+        assert isinstance(seq_record1, SeqRecord.SeqRecord), \
+               "seq_record1 must be SeqRecord"
         assert isinstance(distance, (int, float)) or distance == None, \
               "distance must be int or float or None"
-        key = (str_seq0, str_seq1)
+        key = self._get_key(seq_record0, seq_record1)
         self._distances[key] = distance
     
     def distance_of(self, seq_record0, seq_record1):
-        key = (str(seq_record0.seq), str(seq_record1.seq))
+        key = self._get_key(seq_record0, seq_record1)
         return self._distances.get(key)
         
 
