@@ -85,8 +85,8 @@ class NetworkTest(unittest.TestCase):
     def test_len(self):
         self.assertEqual(len(self.nw), len(_SEQS))
         
-    def test_transform(self):
-        self.nw.transform(Distance.DefaultDistance())
+    def test_new_network(self):
+        self.nw.new_network(Distance.DefaultDistance())
 
 
 ################################################################################
