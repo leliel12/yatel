@@ -50,7 +50,7 @@ __date__ = "2010-08-04"
 # IMPORTS
 ################################################################################
 
-from Bio import SeqIO
+from Bio import SeqRecord
 from Bio import Seq
 from Bio import Alphabet
 
@@ -62,18 +62,16 @@ import Distance
 
 class Network(object):
 
-    def __init__(self, alphabet, distance=None):
+    def __init__(self, alphabet, distance):
         assert isinstance(alphabet, Alphabet.Alphabet), \
                "alphabet must be Alphabet Instance"
         assert isinstance(distance, Distance.Distance) or distance == None, \
                "distance must be Distance instance or None"
         self._mtx = {}
         self._descs = {}
-        self._distance = distance \
-                         if distance != None \
-                         else Distance.DefaultDistance()
+        self._distance = distance
         self._alphabet = alphabet
-
+        
     def __repr__(self):
         return  "%s instance (%s records, %s) at %s" % (self.__class__.__name__,
                                                         len(self._mtx),
@@ -81,7 +79,8 @@ class Network(object):
                                                         hex(id(self)))
     
     def __getitem__(self, descriptor):
-        return self._descs[descriptor]
+        r = self._descs[descriptor]
+        return self._mtx[r]
         
     def __len__(self):
         return len(self._mtx)
@@ -93,21 +92,32 @@ class Network(object):
         for  r, distances in self._mtx.items():
             yield (r, distances.items())
 
-    def transform(self, new_distance):
+    def new_network(self, new_distance,):
         new_network = Network(self._alphabet, new_distance)
         for r in self._mtx.keys():
-            new_network.add_sequence(r.id, str(r.seq))
+                new_network.add_sequence(r.id, str(r.seq))
         return new_network
+
+    def remove_sequence(self, descriptor):
+        assert isinstance(descriptor, basestring), "descriptor must be str or unicode"
+        r = self._descs[descriptor]
+        self._mtx.pop(r)
+        for v in self._mtx.values():
+            v.pop(r)
+        return self._descs.pop(r)
+                
 
     def add_sequence(self, descriptor, str_seq):
         assert isinstance(str_seq, basestring), "str_seq must be str or unicode"
         assert isinstance(descriptor, basestring), "descriptor must be str or unicode"
         
         if descriptor not in self._descs:
-            r0 = SeqIO.SeqRecord(Seq.Seq(str_seq, self._alphabet),
-                                 id=descriptor, description=descriptor)
+            r0 = SeqRecord.SeqRecord(Seq.Seq(str_seq, self._alphabet),
+                                    id=descriptor, description=descriptor)
 
-            self._descs[descriptor] = self._mtx[r0] = {}
+            self._descs[descriptor] = r0
+            
+            self._mtx[r0] = {}
             
             for r1, distances in self._mtx.items():
                 if r0 != r1:
