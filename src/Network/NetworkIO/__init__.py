@@ -101,8 +101,7 @@ def write(sequences, handle, format):
            "sequences must be an iterable of SeqRecords"
     return _parsers[format](handle).write(sequences)
 
-f=open("/home/juan/kw.txt")
-read(f, "nyd")
+
 ################################################################################
 # MAIN
 ################################################################################
