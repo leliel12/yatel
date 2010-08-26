@@ -57,20 +57,25 @@ from Bio import Alphabet
 import Distance
 
 ################################################################################
-# NETWORK CLASS
+# BASE CLASS
 ################################################################################
 
-class Network(object):
+class BaseNetwork(object):
 
-    def __init__(self, alphabet, distance):
+    def __init__(self, seq_records, alphabet, distance):
+        assert all(map(lambda r: isinstance(r, SeqRecord.SeqRecord), seq_records)), \
+           "sequences must be an iterable of SeqRecords"
         assert isinstance(alphabet, Alphabet.Alphabet), \
                "alphabet must be Alphabet Instance"
         assert isinstance(distance, Distance.Distance) or distance == None, \
                "distance must be Distance instance or None"
+        
         self._mtx = {}
-        self._descs = {}
         self._distance = distance
         self._alphabet = alphabet
+        for sqr in seq_records:
+            self._add(sqr)
+        
         
     def __repr__(self):
         return  "%s instance (%s records, %s) at %s" % (self.__class__.__name__,
@@ -78,9 +83,8 @@ class Network(object):
                                                         repr(self._alphabet),
                                                         hex(id(self)))
     
-    def __getitem__(self, descriptor):
-        r = self._descs[descriptor]
-        return self._mtx[r]
+    def __getitem__(self, seq_record):
+        return self._mtx[seq_record]
         
     def __len__(self):
         return len(self._mtx)
@@ -89,42 +93,40 @@ class Network(object):
         return repr(self)
         
     def __iter__(self):
-        for  r, distances in self._mtx.items():
-            yield (r, distances.items())
-
-    def new_network(self, new_distance,):
-        new_network = Network(self._alphabet, new_distance)
-        for r in self._mtx.keys():
-                new_network.add_sequence(r.id, str(r.seq))
-        return new_network
-
-    def remove_sequence(self, descriptor):
-        assert isinstance(descriptor, basestring), "descriptor must be str or unicode"
-        r = self._descs[descriptor]
-        self._mtx.pop(r)
-        for v in self._mtx.values():
-            v.pop(r)
-        return self._descs.pop(r)
+        return iter(self._mtx)
                 
-
-    def add_sequence(self, descriptor, str_seq):
-        assert isinstance(str_seq, basestring), "str_seq must be str or unicode"
-        assert isinstance(descriptor, basestring), "descriptor must be str or unicode"
+    def _add(self, r0):
+        assert isinstance(r0, SeqRecord.SeqRecord), "r0 must be a SeqRecordInstance"
+            
+        self._mtx[r0] = {}
         
-        if descriptor not in self._descs:
-            r0 = SeqRecord.SeqRecord(Seq.Seq(str_seq, self._alphabet),
-                                    id=descriptor, description=descriptor)
+        for r1, distances in self._mtx.items():
+            if r0 != r1:
+                d = self._distance.distance_of(r1, r0)
+                distances[r0] = abs(d) if d != None else d
+            d = self._distance.distance_of(r0, r1)
+            self._mtx[r0][r1] = abs(d) if d != None else d
+    
+    def distance_of(self, seq_record0, seq_record1):
+        assert seq_record0 in self._mtx, "seq_record0 not in this %s" % \
+               self.__class__.__name__
+        assert seq_record1 in self._mtx, "seq_record1 not in this %s" % \
+               self.__class__.__name__
+        return self._mtx[seq_record0].get(seq_record1, None)
+    
+    def keys(self):
+        return self._mtx.iterkeys()
+    
+    def items(self):
+        for k, v in self._mtx.iteritems():
+            yield k, dict(d)
 
-            self._descs[descriptor] = r0
-            
-            self._mtx[r0] = {}
-            
-            for r1, distances in self._mtx.items():
-                if r0 != r1:
-                    d = self._distance.distance_of(r1, r0)
-                    distances[r0] = abs(d) if d != None else d
-                d = self._distance.distance_of(r0, r1)
-                self._mtx[r0][r1] = abs(d) if d != None else d
+    def values(self):
+        for d in self._mtx.itervalues():
+            yield dict(d)
+        
+    def get(self, seq_record, default):
+        return self._mtx.get(seq_record, default)
     
     @property
     def distance(self):
@@ -134,6 +136,34 @@ class Network(object):
     def alphabet(self):
         return self._alphabet
 
+################################################################################
+# NETWORK
+################################################################################
+
+class Network(BaseNetwork):
+    
+    def tomutable(self):
+        return MutableNetwork(self.keys(), self.alphabet, self.distance)
+
+
+################################################################################
+# MUTABLE NETWORK
+################################################################################
+
+class MutableNetwork(BaseNetwork):
+    
+    def add(self, seq_record):
+        self._add(seq_record)
+        
+    def pop(self, seq_record):
+        pop = self._mtx.pop(seq_record)
+        for v in self._mtx.values:
+            v.pop(seq_record)
+        return pop
+        
+    def tonetwork(self):
+        return Network(self.keys(), self.alphabet, self.distance)
+        
 
 ################################################################################
 # MAIN

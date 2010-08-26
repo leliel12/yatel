@@ -102,23 +102,17 @@ class ExpertDistance(Distance):
         self._ke = key_extractor
     
     def _get_key(self, seq_record0, seq_record1):
-        k0 = self._ke(seq_record0)
-        k1 = self._ke(seq_record1)
+
         return k0, k1
     
-    def set_distance(self, seq_record0, seq_record1, distance):
-        assert isinstance(seq_record0, SeqRecord.SeqRecord), \
-               "seq_record0 must be SeqRecord"
-        assert isinstance(seq_record1, SeqRecord.SeqRecord), \
-               "seq_record1 must be SeqRecord"
-        assert isinstance(distance, (int, float)) or distance == None, \
-              "distance must be int or float or None"
+    def add_distance(self, key0, key1, distance):
         key = self._get_key(seq_record0, seq_record1)
-        self._distances[key] = distance
+        self._distances[(key0, key1)] = distance
     
     def distance_of(self, seq_record0, seq_record1):
-        key = self._get_key(seq_record0, seq_record1)
-        return self._distances.get(key)
+        k0 = self._ke(seq_record0)
+        k1 = self._ke(seq_record1)
+        return self._distances.get((key0, key1))
         
 
 ################################################################################
