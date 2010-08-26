@@ -49,27 +49,50 @@ __date__ = "2010-08-04"
 # IMPORTS
 ################################################################################
 
-import abstract
+import json
+
+import base
+
 
 ################################################################################
 # CLASSES
 ################################################################################
 
-class NYDFileHandler(abstract.AbstractNetworkFileHandler):
-       
-    def read(self):
+src = {
+    
+    "sequences":
+        {
+            "1":
+                {"seq": "00001", "description": "lalalal"},
+            "2":
+                {"seq": "11110", "description": "lololol"}
+        },
+        
+    "distances":
+        [
+            [(1, 2, 3), (2,1,2)],
+            [(1, 2, 3), (2,1,2)]
+        ]
+}
+import StringIO
+
+src = StringIO.StringIO(json.dumps(src))
+
+class NJDFileHandler(base.AbstractNetworkFileHandler):
+    
+    def read(self, handle):
         pass
     
-    def parse(self):
-        pass
+    def parse(self, handle):
+        data = json.load(handle)
+        sequences = []
+        if "sequences" in data:
+            print data["sequences"]
     
-    def write(self, sequences):
+    def write(self, sequences, handle):
         pass
 
-################################################################################
-# FUNCTIONS
-################################################################################
-
+NJDFileHandler().parse(src)
 
 ################################################################################
 # MAIN

@@ -49,57 +49,28 @@ __date__ = "2010-08-04"
 # IMPORTS
 ################################################################################
 
-from Bio import SeqRecord 
-
-import base
-
-import njd
-
+import abc
 
 ################################################################################
-# REGISTER
+# CLASSES
 ################################################################################
 
-_parsers = {}
-
-def register_parser(name, parser_class):
-    assert issubclass(parser_class, base.AbstractNetworkFileHandler), \
-           "parser_class must be 'AbstractNetworkFileHandler' instance find: %s" \
-           % str(type(parser_class))
-    assert isinstance(name, basestring), \
-           "name must be str or unicode instance find: %s" % str(type(name))
-    _parsers[name] = parser_class
+class AbstractNetworkFileHandler(object):
     
+    __metaclass__ = abc.ABCMeta
 
-def unregister_parser(name):
-    _parsers.pop(name)
+    @abc.abstractmethod
+    def read(self, handle):
+        raise NotImplementedError()
     
-
-################################################################################
-# CHARGE
-################################################################################
-
-register_parser("njd", nyd.NJDFileHandler)
-
-
-################################################################################
-# FUNCTIONS
-################################################################################
-
-def read(handle, format):
-    assert isinstance(handle, file), "handle must be file intance"
-    return _parsers[format]().read(handle)
-
-def parse(handle, format):
-    assert isinstance(handle, file), "handle must be file intance"
-    return _parsers[format]().parse(handle)
-
-def write(sequences, handle, format):
-    assert isinstance(handle, file), "handle must be file intance"
-    assert all(map(lambda r: isinstance(r, SeqRecord.SeqRecord), sequences)), \
-           "sequences must be an iterable of SeqRecords"
-    return _parsers[format]().write(sequences, handle)
-
+    @abc.abstractmethod
+    def parse(self, handle):
+        raise NotImplementedError()
+    
+    @abc.abstractmethod
+    def write(self, sequences, handle):
+        raise NotImplementedError()
+    
 
 ################################################################################
 # MAIN
