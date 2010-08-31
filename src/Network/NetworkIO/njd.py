@@ -68,10 +68,10 @@ src = {
                 {"seq": "11110", "description": "lololol"}
         },
         
-    "distances":
+    "networks":
         [
-            [(1, 2, 3), (2,1,2)],
-            [(1, 2, 3), (2,1,2)]
+            [(1, 2, 3), (2, 1, 2)],
+            [(1, 2, 3), (2, 1, 2)]
         ]
 }
 import StringIO

@@ -77,10 +77,9 @@ class NetworkInfo(object):
     @property
     def distances(self):
         all_d = []
-        for _, distances in self._nw:  # seq y lista (seq, len)
-            for _, d in distances:
-                if d != None:
-                    all_d.append(d)
+        for srd_dict in self._nw.values():
+            distances = [d for d in srd_dict.values() if isinstance(d, (float, int))]
+            all_d.extend(distances)
         return all_d
                     
     @property

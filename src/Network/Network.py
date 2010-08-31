@@ -60,63 +60,63 @@ import Distance
 # BASE CLASS
 ################################################################################
 
-class BaseNetwork(object):
+class Network(object):
 
-    def __init__(self, seq_records, alphabet, distance):
+    def __init__(self, alphabet, distance, seq_records=[]):
         assert all(map(lambda r: isinstance(r, SeqRecord.SeqRecord), seq_records)), \
            "sequences must be an iterable of SeqRecords"
         assert isinstance(alphabet, Alphabet.Alphabet), \
                "alphabet must be Alphabet Instance"
         assert isinstance(distance, Distance.Distance) or distance == None, \
                "distance must be Distance instance or None"
-        
+
         self._mtx = {}
         self._distance = distance
         self._alphabet = alphabet
         for sqr in seq_records:
             self._add(sqr)
-        
-        
+
+
     def __repr__(self):
         return  "%s instance (%s records, %s) at %s" % (self.__class__.__name__,
                                                         len(self._mtx),
                                                         repr(self._alphabet),
                                                         hex(id(self)))
-    
+
     def __getitem__(self, seq_record):
-        return self._mtx[seq_record]
-        
+        return dict(self._mtx[seq_record])
+
     def __len__(self):
         return len(self._mtx)
 
     def __str__(self):
         return repr(self)
-        
+
     def __iter__(self):
         return iter(self._mtx)
-                
+
     def _add(self, r0):
         assert isinstance(r0, SeqRecord.SeqRecord), "r0 must be a SeqRecordInstance"
-            
+
         self._mtx[r0] = {}
-        
+
         for r1, distances in self._mtx.items():
             if r0 != r1:
                 d = self._distance.distance_of(r1, r0)
                 distances[r0] = abs(d) if d != None else d
             d = self._distance.distance_of(r0, r1)
             self._mtx[r0][r1] = abs(d) if d != None else d
-    
+
     def distance_of(self, seq_record0, seq_record1):
         assert seq_record0 in self._mtx, "seq_record0 not in this %s" % \
                self.__class__.__name__
         assert seq_record1 in self._mtx, "seq_record1 not in this %s" % \
                self.__class__.__name__
         return self._mtx[seq_record0].get(seq_record1, None)
-    
+
     def keys(self):
         return self._mtx.iterkeys()
-    
+
     def items(self):
         for k, v in self._mtx.iteritems():
             yield k, dict(d)
@@ -124,10 +124,23 @@ class BaseNetwork(object):
     def values(self):
         for d in self._mtx.itervalues():
             yield dict(d)
-        
+
     def get(self, seq_record, default):
-        return self._mtx.get(seq_record, default)
-    
+        v = self._mtx.get(seq_record, default)
+        if isinstance(v, dict):
+            v = dict(v)
+        return v
+
+
+    def add(self, seq_record):
+        self._add(seq_record)
+
+    def pop(self, seq_record):
+        pop = self._mtx.pop(seq_record)
+        for v in self._mtx.values:
+            v.pop(seq_record)
+        return pop
+
     @property
     def distance(self):
         return self._distance
@@ -136,34 +149,6 @@ class BaseNetwork(object):
     def alphabet(self):
         return self._alphabet
 
-################################################################################
-# NETWORK
-################################################################################
-
-class Network(BaseNetwork):
-    
-    def tomutable(self):
-        return MutableNetwork(self.keys(), self.alphabet, self.distance)
-
-
-################################################################################
-# MUTABLE NETWORK
-################################################################################
-
-class MutableNetwork(BaseNetwork):
-    
-    def add(self, seq_record):
-        self._add(seq_record)
-        
-    def pop(self, seq_record):
-        pop = self._mtx.pop(seq_record)
-        for v in self._mtx.values:
-            v.pop(seq_record)
-        return pop
-        
-    def tonetwork(self):
-        return Network(self.keys(), self.alphabet, self.distance)
-        
 
 ################################################################################
 # MAIN

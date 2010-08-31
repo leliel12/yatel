@@ -48,6 +48,8 @@ __date__ = "2010-08-04"
 import unittest
 
 from Bio import Alphabet
+from Bio import SeqRecord
+from Bio import Seq
 
 from Network import Network
 from Network import Distance
@@ -68,12 +70,18 @@ _SEQS = ["111", "222", "333", "444", "555", "666", "777", "888", "999"]
 class NetworkTest(unittest.TestCase):
     
     def setUp(self):
-        self.nw = Network.Network(Alphabet.Alphabet())
-        for s in _SEQS:
-            self.nw.add_sequence(s, s)
+        self.sqrs = []
+        for i, s in enumerate(_SEQS):
+            seq = Seq.Seq(s) 
+            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
+            self.sqrs.append(seqr)
+        self.nw = Network.Network(Alphabet.Alphabet(),
+                                  Distance.DefaultDistance(),
+                                  self.sqrs)
+        
         
     def test_getitem(self):
-        for s in _SEQS:
+        for s in self.sqrs:
             self.assertTrue(self.nw[s] != None)
         try:
             self.nw["000"]
@@ -84,9 +92,6 @@ class NetworkTest(unittest.TestCase):
             
     def test_len(self):
         self.assertEqual(len(self.nw), len(_SEQS))
-        
-    def test_new_network(self):
-        self.nw.new_network(Distance.DefaultDistance())
 
 
 ################################################################################
@@ -96,9 +101,14 @@ class NetworkTest(unittest.TestCase):
 class NetworkInfoTest(unittest.TestCase):
 
     def setUp(self):
-        self.nw = Network.Network(Alphabet.Alphabet())
-        for s in _SEQS:
-            self.nw.add_sequence(s, s)
+        self.sqrs = []
+        for i, s in enumerate(_SEQS):
+            seq = Seq.Seq(s) 
+            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
+            self.sqrs.append(seqr)
+        self.nw = Network.Network(Alphabet.Alphabet(),
+                                  Distance.DefaultDistance(),
+                                  self.sqrs)
         self.ni = NetworkInfo.NetworkInfo(self.nw)
     
     def test_distance_anti_mode(self):
