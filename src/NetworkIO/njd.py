@@ -93,7 +93,8 @@ class NJDFileHandler(base.AbstractNetworkFileHandler):
         ok = True
         for nw in self.parse(handle):
             if ok:
-                return nw
+                yield nw
+                ok = False
             else:
                 raise NJDError("More than one network")
         raise StopIteration() 
@@ -103,22 +104,24 @@ class NJDFileHandler(base.AbstractNetworkFileHandler):
             data = json.load(handle)
             seqs_r = {} 
             for id, seq_data in data["sequences"].items():
-                seq = Seq.Seq(seq_data["seq"])
                 id = str(id)
-                name = seq_data.get("name", "")
-                desc = seq_data.get("description", "")
-                annt = seq_data.get("annotations", {})
-                l_annt = seq_data.get("letter_annotations", {})
-                dbxrefs = seq_data.get("dbxrefs", [])
-                features = seq_data.get("features", []) 
-                seq_r = SeqRecord.SeqRecord(seq=seq,
-                                            id=id,
-                                            name=name,
-                                            description=desc,
-                                            dbxrefs=dbxrefs,
-                                            features=features,
-                                            annotations=annt,
-                                            letter_annotations=l_annt)
+                if id not in seqs_r:
+                    seq = Seq.Seq(seq_data["seq"])
+                    name = seq_data.get("name", "")
+                    desc = seq_data.get("description", "")
+                    annt = seq_data.get("annotations", {})
+                    l_annt = seq_data.get("letter_annotations", {})
+                    dbxrefs = seq_data.get("dbxrefs", [])
+                    seq_r = SeqRecord.SeqRecord(seq=seq,
+                                                id=id,
+                                                name=name,
+                                                description=desc,
+                                                dbxrefs=dbxrefs,
+                                                annotations=annt,
+                                                letter_annotations=l_annt)
+                else:
+                    msg = "Duplicated ID '%s'" % id
+                    raise NJDError(msg)
                 seqs_r[id] = seq_r
             for network in data["networks"]:
                 distance = Distance.ExpertDistance()
