@@ -62,19 +62,14 @@ import Distance
 
 class Network(object):
 
-    def __init__(self, alphabet, distance, seq_records=[]):
-        assert all(map(lambda r: isinstance(r, SeqRecord.SeqRecord), seq_records)), \
-           "sequences must be an iterable of SeqRecords"
+    def __init__(self, alphabet, distance):
         assert isinstance(alphabet, Alphabet.Alphabet), \
                "alphabet must be Alphabet Instance"
         assert isinstance(distance, Distance.Distance) or distance == None, \
                "distance must be Distance instance or None"
-
         self._mtx = {}
         self._distance = distance
         self._alphabet = alphabet
-        for sqr in seq_records:
-            self._add(sqr)
 
 
     def __repr__(self):
@@ -95,18 +90,6 @@ class Network(object):
     def __iter__(self):
         return iter(self._mtx)
 
-    def _add(self, r0):
-        assert isinstance(r0, SeqRecord.SeqRecord), "r0 must be a SeqRecordInstance"
-
-        self._mtx[r0] = {}
-
-        for r1, distances in self._mtx.items():
-            if r0 != r1:
-                d = self._distance.distance_of(r1, r0)
-                distances[r0] = abs(d) if d != None else d
-            d = self._distance.distance_of(r0, r1)
-            self._mtx[r0][r1] = abs(d) if d != None else d
-
     def distance_of(self, seq_record0, seq_record1):
         assert seq_record0 in self._mtx, "seq_record0 not in this %s" % \
                self.__class__.__name__
@@ -119,7 +102,7 @@ class Network(object):
 
     def items(self):
         for k, v in self._mtx.iteritems():
-            yield k, dict(d)
+            yield k, dict(v)
 
     def values(self):
         for d in self._mtx.itervalues():
@@ -131,9 +114,17 @@ class Network(object):
             v = dict(v)
         return v
 
+    def add(self, r0):
+        assert isinstance(r0, SeqRecord.SeqRecord), "r0 must be a SeqRecordInstance"
 
-    def add(self, seq_record):
-        self._add(seq_record)
+        self._mtx[r0] = {}
+
+        for r1, distances in self._mtx.items():
+            if r0 != r1:
+                d = self._distance.distance_of(r1, r0)
+                distances[r0] = abs(d) if d != None else d
+            d = self._distance.distance_of(r0, r1)
+            self._mtx[r0][r1] = abs(d) if d != None else d
 
     def pop(self, seq_record):
         pop = self._mtx.pop(seq_record)

@@ -71,13 +71,14 @@ class NetworkTest(unittest.TestCase):
     
     def setUp(self):
         self.sqrs = []
+        self.nw = Network.Network(Alphabet.Alphabet(),
+                                  Distance.DefaultDistance())
         for i, s in enumerate(_SEQS):
             seq = Seq.Seq(s) 
             seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
             self.sqrs.append(seqr)
-        self.nw = Network.Network(Alphabet.Alphabet(),
-                                  Distance.DefaultDistance(),
-                                  self.sqrs)
+            self.nw.add(seqr)
+
         
         
     def test_getitem(self):
@@ -102,13 +103,13 @@ class NetworkInfoTest(unittest.TestCase):
 
     def setUp(self):
         self.sqrs = []
+        self.nw = Network.Network(Alphabet.Alphabet(),
+                                  Distance.DefaultDistance())
         for i, s in enumerate(_SEQS):
             seq = Seq.Seq(s) 
             seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
             self.sqrs.append(seqr)
-        self.nw = Network.Network(Alphabet.Alphabet(),
-                                  Distance.DefaultDistance(),
-                                  self.sqrs)
+            self.nw.add(seqr)
         self.ni = NetworkInfo.NetworkInfo(self.nw)
     
     def test_distance_anti_mode(self):

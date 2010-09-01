@@ -96,23 +96,15 @@ class DefaultDistance(Distance):
 
 class ExpertDistance(Distance):
     
-    def __init__(self, key_extractor):
-        assert callable(key_extractor), "key_extractor must be callable"
+    def __init__(self):
         self._distances = {}
-        self._ke = key_extractor
-    
-    def _get_key(self, seq_record0, seq_record1):
-
-        return k0, k1
     
     def add_distance(self, key0, key1, distance):
-        key = self._get_key(seq_record0, seq_record1)
         self._distances[(key0, key1)] = distance
     
     def distance_of(self, seq_record0, seq_record1):
-        k0 = self._ke(seq_record0)
-        k1 = self._ke(seq_record1)
-        return self._distances.get((key0, key1))
+        k = (seq_record0, seq_record1)
+        return self._distances.get(k)
         
 
 ################################################################################
