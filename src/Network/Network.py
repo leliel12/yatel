@@ -62,15 +62,30 @@ import Distance
 
 class Network(object):
 
-    def __init__(self, alphabet, distance):
+    def __init__(self, alphabet, distance,
+                 sequences=[], name="", description="", annotations={}):
         assert isinstance(alphabet, Alphabet.Alphabet), \
                "alphabet must be Alphabet Instance"
-        assert isinstance(distance, Distance.Distance) or distance == None, \
-               "distance must be Distance instance or None"
+        assert isinstance(distance, Distance.Distance), \
+               "distance must be Distance instance"
+        assert isinstance(name, basestring), \
+               "name must be a str or unicode instance"
+        assert isinstance(description, basestring), \
+               "description must be a str or unicode instance"
+        assert isinstance(annotations, dict), \
+               "annotations must be a dict instance"
+        assert isinstance(sequences, (list, tuple)), \
+               "sequences must be a list or tuple"
         self._mtx = {}
+        self._description = description
+        self._annotations = {}
         self._distance = distance
         self._alphabet = alphabet
-
+        self._name = name
+        for k, v in annotations.items():
+            self.add_annotation(k, v)
+        for s in sequences:
+            self.add(s)
 
     def __repr__(self):
         return  "%s instance (%s records, %s) at %s" % (self.__class__.__name__,
@@ -131,6 +146,16 @@ class Network(object):
         for v in self._mtx.values:
             v.pop(seq_record)
         return pop
+    
+    def add_annotaion(self, name, value):
+        assert isinstance(name, basestring), \
+               "name must be a unicode or str instance"
+        assert isinstance(value, basestring), \
+               "value must be a unicode or str instance"
+        self._annotations[name] = value
+        
+    def del_annotation(self, name):
+        return self._annotations.pop(name)
 
     @property
     def distance(self):
@@ -139,7 +164,30 @@ class Network(object):
     @property
     def alphabet(self):
         return self._alphabet
+    
+    @property
+    def name(self):
+        return self._name
+    
+    @name.setter
+    def name(self, n):
+        assert isinstance(n, basestring), \
+               "name must be a str or unicode instance"
+        self._name = n
+        
+    @property
+    def description(self):
+        return self._description
+    
+    @description.setter
+    def description(self, d):
+        assert isinstance(d, basestring), \
+               "description must be a unicode or str instance"
+        self._description = d
 
+    @annotations
+    def annotations(self):
+        return dict(self._annotations) 
 
 ################################################################################
 # MAIN

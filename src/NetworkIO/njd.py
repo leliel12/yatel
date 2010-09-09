@@ -75,8 +75,15 @@ src = {
         
     "networks":
         [
-            [("1", "2", 3), ("2", "1", 2)],
-            [("1", "2", 3), ("2", "1", 2)]
+            {"name":"name1",
+             "description": "desc2",
+             "annotations": {"a":"a"},
+             "distances": [("1", "2", 3), ("2", "1", 2)]},
+             
+            {"name":"name2",
+             "description": "desc2",
+             "annotations": {"a2":"a2"},
+             "distances": [("1", "4", 3), ("2", "1", 2)]},
         ]
 }
 
@@ -84,8 +91,10 @@ import StringIO
 
 src = StringIO.StringIO(json.dumps(src))
 
+
 class NJDError(BaseException):
     pass
+
 
 class NJDFileHandler(base.AbstractNetworkFileHandler):
     
@@ -123,7 +132,7 @@ class NJDFileHandler(base.AbstractNetworkFileHandler):
                     msg = "Duplicated ID '%s'" % id
                     raise NJDError(msg)
                 seqs_r[id] = seq_r
-            for network in data["networks"]:
+            for network in data["distances"]:
                 distance = Distance.ExpertDistance()
                 for id0, id1, d in network:
                     s0 = seqs_r[id0]
@@ -140,8 +149,23 @@ class NJDFileHandler(base.AbstractNetworkFileHandler):
         except Exception as err:
             raise NJDError(str(err))
         
-    def write(self, sequences, handle):
-        pass
+    def write(self, networks, handle):
+        data = {"sequences": {}, "distances": {}}
+        try:
+            for nw in networks:
+                for seqr in nw.keys():
+                    id = seqr.id
+                    seq = str(seqr.seq)
+                    name = seqr.name or ""
+                    description = seq.description or ""
+                    annotations = seqr.annotations or {}
+                    letter_annotations = seqr.letter_annotations o {}
+                    dbxrefs = seqr.dbxrefs or [] 
+            return json.dumps(data, handle, indent=True)
+        except Exception as err:
+            raise NJDError(str(err))
+            
+        
 
 for nw in NJDFileHandler().parse(src):
     for d in nw.items():
