@@ -51,9 +51,10 @@ from Bio import Alphabet
 from Bio import SeqRecord
 from Bio import Seq
 
-from Network import Network
-from Network import Distance
-from Network import NetworkInfo
+from yatel import Network
+from yatel import Distance
+from yatel import NetworkInfo
+from yatel import NetworkIO
 
 
 ################################################################################
@@ -71,7 +72,7 @@ class NetworkTest(unittest.TestCase):
     
     def setUp(self):
         self.sqrs = []
-        self.nw = Network.Network(Alphabet.Alphabet(),
+        self.nw = Network.Network("test", Alphabet.Alphabet(),
                                   Distance.DefaultDistance())
         for i, s in enumerate(_SEQS):
             seq = Seq.Seq(s) 
@@ -103,7 +104,7 @@ class NetworkInfoTest(unittest.TestCase):
 
     def setUp(self):
         self.sqrs = []
-        self.nw = Network.Network(Alphabet.Alphabet(),
+        self.nw = Network.Network("test2", Alphabet.Alphabet(),
                                   Distance.DefaultDistance())
         for i, s in enumerate(_SEQS):
             seq = Seq.Seq(s) 
@@ -138,6 +139,21 @@ class NetworkInfoTest(unittest.TestCase):
 
     def test_network(self):
         self.ni.network
+        
+class NetworkIOTest(unittest.TestCase):
+    
+    def setUp(self):
+        self.sqrs = []
+        self.nw = Network.Network("test", Alphabet.Alphabet(),
+                                  Distance.DefaultDistance())
+        for i, s in enumerate(_SEQS):
+            seq = Seq.Seq(s) 
+            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
+            self.sqrs.append(seqr)
+            self.nw.add(seqr)
+            
+    def test_write(self):
+        print NetworkIO.write([self.nw], open("/tmp/test.njd", "w"), "njd")
 
 
 ################################################################################

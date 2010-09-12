@@ -55,12 +55,14 @@ import base
 
 import njd
 
+from .. import Network
 
 ################################################################################
 # REGISTER
 ################################################################################
 
 _parsers = {}
+
 
 def register_parser(name, parser_class):
     assert issubclass(parser_class, base.AbstractNetworkFileHandler), \
@@ -73,13 +75,21 @@ def register_parser(name, parser_class):
 
 def unregister_parser(name):
     _parsers.pop(name)
-    
+
+
+def parsers():
+    return _parsers.keys()
+
+
+def get_parser(parser_name):
+    return _parsers[parser_name]
+
 
 ################################################################################
 # CHARGE
 ################################################################################
 
-register_parser("njd", nyd.NJDFileHandler)
+register_parser("njd", njd.NJDFileHandler)
 
 
 ################################################################################
@@ -94,11 +104,11 @@ def parse(handle, format):
     assert isinstance(handle, file), "handle must be file intance"
     return _parsers[format]().parse(handle)
 
-def write(sequences, handle, format):
+def write(networks, handle, format):
     assert isinstance(handle, file), "handle must be file intance"
-    assert all(map(lambda r: isinstance(r, SeqRecord.SeqRecord), sequences)), \
-           "sequences must be an iterable of SeqRecords"
-    return _parsers[format]().write(sequences, handle)
+    assert all(map(lambda r: isinstance(r, Network.Network), networks)), \
+           "networks must be an iterable of SeqRecords"
+    return _parsers[format]().write(networks, handle)
 
 
 ################################################################################

@@ -62,8 +62,10 @@ import Distance
 
 class Network(object):
 
-    def __init__(self, alphabet, distance,
-                 sequences=[], name="", description="", annotations={}):
+    def __init__(self, id, alphabet, distance,
+                 name="", description="", annotations={}, sequences=[]):
+        assert isinstance(id, basestring), \
+               "id must be a str or unicode instance"        
         assert isinstance(alphabet, Alphabet.Alphabet), \
                "alphabet must be Alphabet Instance"
         assert isinstance(distance, Distance.Distance), \
@@ -77,11 +79,12 @@ class Network(object):
         assert isinstance(sequences, (list, tuple)), \
                "sequences must be a list or tuple"
         self._mtx = {}
+        self._id = id
+        self._alphabet = alphabet
+        self._distance = distance        
+        self._name = name
         self._description = description
         self._annotations = {}
-        self._distance = distance
-        self._alphabet = alphabet
-        self._name = name
         for k, v in annotations.items():
             self.add_annotation(k, v)
         for s in sequences:
@@ -131,9 +134,7 @@ class Network(object):
 
     def add(self, r0):
         assert isinstance(r0, SeqRecord.SeqRecord), "r0 must be a SeqRecordInstance"
-
         self._mtx[r0] = {}
-
         for r1, distances in self._mtx.items():
             if r0 != r1:
                 d = self._distance.distance_of(r1, r0)
@@ -156,6 +157,10 @@ class Network(object):
         
     def del_annotation(self, name):
         return self._annotations.pop(name)
+
+    @property
+    def id(self):
+        return self._id
 
     @property
     def distance(self):
@@ -185,9 +190,10 @@ class Network(object):
                "description must be a unicode or str instance"
         self._description = d
 
-    @annotations
+    @property
     def annotations(self):
         return dict(self._annotations) 
+
 
 ################################################################################
 # MAIN
