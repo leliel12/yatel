@@ -46,6 +46,7 @@ __date__ = "2010-08-04"
 ################################################################################
 
 import unittest
+import StringIO
 
 from Bio import Alphabet
 from Bio import SeqRecord
@@ -72,28 +73,28 @@ class NetworkTest(unittest.TestCase):
     
     def setUp(self):
         self.sqrs = []
-        self.nw = Network.Network("test", Alphabet.Alphabet(),
+        self.nwa = Network.Network("test", Alphabet.Alphabet(),
                                   Distance.DefaultDistance())
         for i, s in enumerate(_SEQS):
             seq = Seq.Seq(s) 
             seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
             self.sqrs.append(seqr)
-            self.nw.add(seqr)
+            self.nwa.add(seqr)
 
         
         
     def test_getitem(self):
         for s in self.sqrs:
-            self.assertTrue(self.nw[s] != None)
+            self.assertTrue(self.nwa[s] != None)
         try:
-            self.nw["000"]
+            self.nwa["000"]
         except KeyError:
             pass
         else:
             self.fail("000 do not exist")
             
     def test_len(self):
-        self.assertEqual(len(self.nw), len(_SEQS))
+        self.assertEqual(len(self.nwa), len(_SEQS))
 
 
 ################################################################################
@@ -104,14 +105,14 @@ class NetworkInfoTest(unittest.TestCase):
 
     def setUp(self):
         self.sqrs = []
-        self.nw = Network.Network("test2", Alphabet.Alphabet(),
+        self.nwa = Network.Network("test2", Alphabet.Alphabet(),
                                   Distance.DefaultDistance())
         for i, s in enumerate(_SEQS):
             seq = Seq.Seq(s) 
             seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
             self.sqrs.append(seqr)
-            self.nw.add(seqr)
-        self.ni = NetworkInfo.NetworkInfo(self.nw)
+            self.nwa.add(seqr)
+        self.ni = NetworkInfo.NetworkInfo(self.nwa)
     
     def test_distance_anti_mode(self):
         self.ni.distance_anti_mode
@@ -139,21 +140,44 @@ class NetworkInfoTest(unittest.TestCase):
 
     def test_network(self):
         self.ni.network
-        
+
+
+################################################################################
+# NETWORK IO TESTS
+################################################################################
+
 class NetworkIOTest(unittest.TestCase):
     
     def setUp(self):
         self.sqrs = []
-        self.nw = Network.Network("test", Alphabet.Alphabet(),
-                                  Distance.DefaultDistance())
+        self.nwa = Network.Network("test3a", Alphabet.Alphabet(),
+                                   Distance.DefaultDistance())
         for i, s in enumerate(_SEQS):
             seq = Seq.Seq(s) 
             seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
             self.sqrs.append(seqr)
-            self.nw.add(seqr)
+            self.nwa.add(seqr)
+        self.nwb = Network.Network("test3a", Alphabet.Alphabet(),
+                                   Distance.DefaultDistance())
+        for i, s in enumerate(_SEQS):
+            seq = Seq.Seq(s) 
+            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
+            self.sqrs.append(seqr)
+            self.nwb.add(seqr)
+        
+
             
     def test_write(self):
-        print NetworkIO.write([self.nw], open("/tmp/test.njd", "w"), "njd")
+        handler = StringIO.StringIO()
+        NetworkIO.write([self.nwa], handler, "njd")
+        NetworkIO.write([self.nwa, self.nwb], handler, "njd")
+        try:
+            handler = StringIO.StringIO()
+            NetworkIO.write([self.nwa, self.nwa], handler, "njd")
+        except NetworkIO.NetworkFileHandlerError:
+            pass
+        else:
+            self.fail("2 Networks with same id")
 
 
 ################################################################################

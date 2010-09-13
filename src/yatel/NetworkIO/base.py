@@ -71,6 +71,10 @@ class AbstractNetworkFileHandler(object):
     def write(self, sequences, handle):
         raise NotImplementedError()
     
+    
+class NetworkFileHandlerError(BaseException):
+    pass
+    
 
 ################################################################################
 # MAIN

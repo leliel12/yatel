@@ -51,11 +51,13 @@ __date__ = "2010-08-04"
 
 from Bio import SeqRecord 
 
-import base
+from .. import Network
+
+from base import AbstractNetworkFileHandler
+from base import NetworkFileHandlerError
 
 import njd
 
-from .. import Network
 
 ################################################################################
 # REGISTER
@@ -65,7 +67,7 @@ _parsers = {}
 
 
 def register_parser(name, parser_class):
-    assert issubclass(parser_class, base.AbstractNetworkFileHandler), \
+    assert issubclass(parser_class, AbstractNetworkFileHandler), \
            "parser_class must be 'AbstractNetworkFileHandler' instance find: %s" \
            % str(type(parser_class))
     assert isinstance(name, basestring), \
@@ -86,29 +88,28 @@ def get_parser(parser_name):
 
 
 ################################################################################
-# CHARGE
-################################################################################
-
-register_parser("njd", njd.NJDFileHandler)
-
-
-################################################################################
 # FUNCTIONS
 ################################################################################
 
 def read(handle, format):
-    assert isinstance(handle, file), "handle must be file intance"
     return _parsers[format]().read(handle)
 
+
 def parse(handle, format):
-    assert isinstance(handle, file), "handle must be file intance"
     return _parsers[format]().parse(handle)
 
+
 def write(networks, handle, format):
-    assert isinstance(handle, file), "handle must be file intance"
     assert all(map(lambda r: isinstance(r, Network.Network), networks)), \
            "networks must be an iterable of SeqRecords"
     return _parsers[format]().write(networks, handle)
+
+
+################################################################################
+# CHARGE
+################################################################################
+
+register_parser("njd", njd.NJDFileHandler)
 
 
 ################################################################################

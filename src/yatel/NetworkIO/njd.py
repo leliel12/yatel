@@ -55,7 +55,6 @@ from Bio import Alphabet
 from .. import Distance
 from .. import Network
 
-
 import base
 
 
@@ -63,7 +62,7 @@ import base
 # CLASSES
 ################################################################################
 
-class NJDError(BaseException):
+class NJDError(base.NetworkFileHandlerError):
     pass
 
 
@@ -121,9 +120,14 @@ class NJDFileHandler(base.AbstractNetworkFileHandler):
         
     def write(self, networks, handle):
         sequence_dicts = {}
-        not_repeated_seqs = {}
         network_dicts = {}
+        
         for nw in networks:
+            
+            if nw.id in network_dicts:
+                msg = "Duplicated Network id '%s'" % str(nw.id)
+                raise NJDError(msg)
+            
             nw_dict = {}
             nw_dict["name"] = nw.name
             nw_dict["description"] = nw.description
@@ -131,31 +135,29 @@ class NJDFileHandler(base.AbstractNetworkFileHandler):
             nw_dict["relations"] = []
             
             for seqr, distances in nw.items():
-                seq_id = seqr.id
                 
-                if seq_id not in not_repeated_seqs:
-                    seq_dict = {}
-                    seq_dict["seq"] = str(seqr.seq)
-                    seq_dict["name"] = seqr.name or ""
-                    seq_dict["description"] = seqr.description or ""
-                    seq_dict["annotations"] = seqr.annotations or {}
-                    seq_dict["letter_annotations"] = seqr.letter_annotations or {}
-                    seq_dict["dbxrefs"] = seqr.dbxrefs or []
-                    sequence_dicts[seq_id] = seq_dict
-                    not_repeated_seqs[seq_id] = seqr
-                    
-                    for to, d in distances.items():
-                        if d != None:
-                          nw_dict["relations"].append((seq_id, to.id, d))
-                
-                elif not_repeated_seqs[seq_id] != seqr:
-                    msg = "duplicated seq_id '%s' for %s and %s" % (str(seq_id), repr(seqr),
-                                                                    repr(not_repeated_seqs[seq_id]))
+                if seqr.id in sequence_dicts:
+                    msg = "Duplicated SequenceRecord id '%s'" % str(seqr.id)
                     raise NJDError(msg)
+                
+                seq_dict = {}
+                seq_dict["seq"] = str(seqr.seq)
+                seq_dict["name"] = seqr.name or ""
+                seq_dict["description"] = seqr.description or ""
+                seq_dict["annotations"] = seqr.annotations or {}
+                seq_dict["letter_annotations"] = seqr.letter_annotations or {}
+                seq_dict["dbxrefs"] = seqr.dbxrefs or []
+                sequence_dicts[seqr.id] = seq_dict
+                
+                for to, d in distances.items():
+                    if d != None:
+                        nw_dict["relations"].append((seqr.id, to.id, d))
+
+                    
             network_dicts[nw.id] = nw_dict
         
         data = {"sequence_dicts":sequence_dicts, "networks": network_dicts}
-        json.dump(data, handle, indent=False)
+        json.dump(data, handle, indent=True)
         return len(network_dicts)
 
             
