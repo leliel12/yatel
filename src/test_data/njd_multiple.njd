@@ -825,7 +825,7 @@
    "description": ""
   }
  }, 
- "sequence_dicts": {
+ "sequences": {
   "4_": {
    "letter_annotations": {}, 
    "dbxrefs": [], 

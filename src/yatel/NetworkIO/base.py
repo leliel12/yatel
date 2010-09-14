@@ -59,9 +59,14 @@ class AbstractNetworkFileHandler(object):
     
     __metaclass__ = abc.ABCMeta
 
-    @abc.abstractmethod
     def read(self, handle):
-        raise NotImplementedError()
+        fnw = None
+        for nw in self.parse(handle):
+            if not fnw:
+                fnw = nw
+            else:
+                raise NetworkFileHandlerError("More than one Network")
+        return fnw 
     
     @abc.abstractmethod
     def parse(self, handle):

@@ -413,7 +413,7 @@
    "description": ""
   }
  }, 
- "sequence_dicts": {
+ "sequences": {
   "1": {
    "letter_annotations": {}, 
    "dbxrefs": [], 

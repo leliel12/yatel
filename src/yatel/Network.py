@@ -74,10 +74,6 @@ class Network(object):
                "name must be a str or unicode instance"
         assert isinstance(description, basestring), \
                "description must be a str or unicode instance"
-        assert isinstance(annotations, dict), \
-               "annotations must be a dict instance"
-        assert isinstance(sequences, (list, tuple)), \
-               "sequences must be a list or tuple"
         self._mtx = {}
         self._id = id
         self._alphabet = alphabet

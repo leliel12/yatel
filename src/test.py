@@ -63,7 +63,8 @@ from yatel import NetworkIO
 # CONSTANTS
 ################################################################################
 
-_TEST_DATA = _PATH = os.path.abspath(os.path.dirname(__file__)) + os.path.sep + "test_data"
+_TEST_DATA = _PATH = os.path.abspath(os.path.dirname(__file__)) + \
+            os.path.sep + "test_data" + os.path.sep
 
 
 _SEQS = ["111", "222", "333", "444", "555", "666", "777", "888", "999"]
@@ -177,14 +178,21 @@ class NetworkIOTest(unittest.TestCase):
             seqr = SeqRecord.SeqRecord(seq=seq, id=str(i) + "_", name=s, description=s)
             self.sqrs.append(seqr)
             self.nwc.add(seqr)
-         
+            
+        self.njd_simple_path = _TEST_DATA + "njd_simple.njd"
+        self.njd_multiple_path = _TEST_DATA + "njd_multiple.njd"         
          
     def test_write(self):
-        NetworkIO.write([self.nwa], StringIO.StringIO(), "njd")
-        NetworkIO.write([self.nwb], StringIO.StringIO(), "njd")
-        NetworkIO.write([self.nwc], StringIO.StringIO(), "njd")
-        NetworkIO.write([self.nwa, self.nwc], StringIO.StringIO(), "njd")
-        NetworkIO.write([self.nwb, self.nwc], StringIO.StringIO(), "njd")
+        non = NetworkIO.write([self.nwa], StringIO.StringIO(), "njd")
+        self.assertEqual(non, 1)
+        non = NetworkIO.write([self.nwb], StringIO.StringIO(), "njd")
+        self.assertEqual(non, 1)
+        non = NetworkIO.write([self.nwc], StringIO.StringIO(), "njd")
+        self.assertEqual(non, 1)
+        non = NetworkIO.write([self.nwa, self.nwc], StringIO.StringIO(), "njd")
+        self.assertEqual(non, 2)
+        non = NetworkIO.write([self.nwb, self.nwc], StringIO.StringIO(), "njd")
+        self.assertEqual(non, 2)
         try:
             NetworkIO.write([self.nwa, self.nwb], StringIO.StringIO(), "njd")
         except NetworkIO.NetworkFileHandlerError:
@@ -197,6 +205,28 @@ class NetworkIOTest(unittest.TestCase):
             pass
         else:
             self.fail("2 Networks with same id")
+            
+    def test_parse(self):
+        count = None
+        for c, nw in enumerate(NetworkIO.parse(open(self.njd_simple_path, "r"), "njd")):
+            self.assertTrue(isinstance(nw, Network.Network))
+            count = c
+        self.assertEqual(count + 1, 1)
+        count = None
+        for c, nw in enumerate(NetworkIO.parse(open(self.njd_multiple_path, "r"), "njd")):
+            self.assertTrue(isinstance(nw, Network.Network))
+            count = c
+        self.assertEqual(count + 1, 2)
+
+    def test_read(self):
+        nw = NetworkIO.read(open(self.njd_simple_path, "r"), "njd")
+        self.assertTrue(isinstance(nw, Network.Network))
+        try:
+            NetworkIO.read(open(self.njd_multiple_path, "r"), "njd")
+        except NetworkIO.NetworkFileHandlerError:
+            pass
+        else:
+            self.fail("method read return more than one Network")
 
 
 ################################################################################
@@ -204,7 +234,6 @@ class NetworkIOTest(unittest.TestCase):
 ################################################################################
 
 if __name__ == "__main__":
-    #unittest.
     unittest.main()
 
 
