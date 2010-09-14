@@ -47,6 +47,7 @@ __date__ = "2010-08-04"
 
 import unittest
 import StringIO
+import os
 
 from Bio import Alphabet
 from Bio import SeqRecord
@@ -61,6 +62,9 @@ from yatel import NetworkIO
 ################################################################################
 # CONSTANTS
 ################################################################################
+
+_TEST_DATA = _PATH = os.path.abspath(os.path.dirname(__file__)) + os.path.sep + "test_data"
+
 
 _SEQS = ["111", "222", "333", "444", "555", "666", "777", "888", "999"]
 
@@ -149,6 +153,7 @@ class NetworkInfoTest(unittest.TestCase):
 class NetworkIOTest(unittest.TestCase):
     
     def setUp(self):
+        # only work with nwa and nwb or nwb with nwc
         self.sqrs = []
         self.nwa = Network.Network("test3a", Alphabet.Alphabet(),
                                    Distance.DefaultDistance())
@@ -157,23 +162,37 @@ class NetworkIOTest(unittest.TestCase):
             seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
             self.sqrs.append(seqr)
             self.nwa.add(seqr)
-        self.nwb = Network.Network("test3a", Alphabet.Alphabet(),
+        self.nwb = Network.Network("test3b", Alphabet.Alphabet(),
                                    Distance.DefaultDistance())
         for i, s in enumerate(_SEQS):
             seq = Seq.Seq(s) 
             seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
             self.sqrs.append(seqr)
             self.nwb.add(seqr)
-        
-
-            
+         
+        self.nwc = Network.Network("test3c", Alphabet.Alphabet(),
+                                   Distance.DefaultDistance())
+        for i, s in enumerate(_SEQS):
+            seq = Seq.Seq(s) 
+            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i) + "_", name=s, description=s)
+            self.sqrs.append(seqr)
+            self.nwc.add(seqr)
+         
+         
     def test_write(self):
-        handler = StringIO.StringIO()
-        NetworkIO.write([self.nwa], handler, "njd")
-        NetworkIO.write([self.nwa, self.nwb], handler, "njd")
+        NetworkIO.write([self.nwa], StringIO.StringIO(), "njd")
+        NetworkIO.write([self.nwb], StringIO.StringIO(), "njd")
+        NetworkIO.write([self.nwc], StringIO.StringIO(), "njd")
+        NetworkIO.write([self.nwa, self.nwc], StringIO.StringIO(), "njd")
+        NetworkIO.write([self.nwb, self.nwc], StringIO.StringIO(), "njd")
         try:
-            handler = StringIO.StringIO()
-            NetworkIO.write([self.nwa, self.nwa], handler, "njd")
+            NetworkIO.write([self.nwa, self.nwb], StringIO.StringIO(), "njd")
+        except NetworkIO.NetworkFileHandlerError:
+            pass
+        else:
+            self.fail("2 id for siferent SeqRecrods")
+        try:
+            NetworkIO.write([self.nwa, self.nwa], StringIO.StringIO(), "njd")
         except NetworkIO.NetworkFileHandlerError:
             pass
         else:
@@ -185,6 +204,7 @@ class NetworkIOTest(unittest.TestCase):
 ################################################################################
 
 if __name__ == "__main__":
+    #unittest.
     unittest.main()
 
 

@@ -92,14 +92,20 @@ def get_parser(parser_name):
 ################################################################################
 
 def read(handle, format):
+    assert hasattr(handle, "read") and callable(handle.read), \
+           "handle not have read method"
     return _parsers[format]().read(handle)
 
 
 def parse(handle, format):
+    assert hasattr(handle, "read") and callable(handle.read), \
+           "handle not have read method"
     return _parsers[format]().parse(handle)
 
 
 def write(networks, handle, format):
+    assert hasattr(handle, "write") and callable(handle.write), \
+           "handle not have write method"
     assert all(map(lambda r: isinstance(r, Network.Network), networks)), \
            "networks must be an iterable of SeqRecords"
     return _parsers[format]().write(networks, handle)
