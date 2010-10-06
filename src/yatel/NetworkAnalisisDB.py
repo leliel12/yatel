@@ -50,26 +50,48 @@ __date__ = "2010-09-14"
 # IMPORTS
 ################################################################################
 
-import elixir
+from elixir import *
 
 import Network
 
 
 ################################################################################
-# NODE CLASS
+# ANALISIS DB
 ################################################################################
 
-class NetworkDBConnection(object):
+class Haplotype(Entity):
+    id = Field(Unicode(1024), primary_key=True)
+    attributes = OneToMany("HaplotypeAtt")
+    facts = OneToMany("Fact")
 
-    def __init__(self): pass
 
-    def __repr__(self):
-        pass
-#        return "%s instance of %s at %s" % (self.__class__.__name__,
-#                                           repr(self._nw),
-#                                           hex(id(self)))
-   
-        
+class HaplotypeAtt(Entity):
+    value = Field(UnicodeText())
+    haplotype = ManyToOne("Haplotype")
+
+
+class Fact(Entity):
+    haplotype = ManyToOne("Haplotype")
+    attributes = OneToMany("FactAtt")
+
+
+class FactAtt(Entity):
+    name = Field(UnicodeText())
+    value = Field(UnicodeText())
+    fact = ManyToOne("Fact")
+
+
+class Distance(Entity):
+    hfrom = ManyToOne("Haplotype")
+    hto = ManyToOne("Haplotype")
+    value = Field(Float)
+    
+#===============================================================================
+# FUNCTIONS
+#===============================================================================
+
+def connect(connection, create=False):
+    pass
 
 ################################################################################
 # MAIN
