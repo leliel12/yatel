@@ -56,24 +56,14 @@ import string
 import Network
 
 #===============================================================================
-# DB CONNECT CLASS
+# CONSTANTS
 #===============================================================================
 
-class DBTemplate(object):
-    
-    def __init__(self, template, default_host, default_port):
-        self.template = string.Template(template)
-        self.default_host = default_host
-        self.default_port = default_port
-
-    def substitute(self, db_name, user=None, password=None, host=None, port=None):
-        user = user if user else ""
-        password = password if password else ""
-        host = host if host else self.default_host
-        port = port if port else self.default_port
-        return self.template.substitute(db_name=db_name, 
-                                        user=user, password=password,
-                                        host=host, port=port)
+_DBS = {
+    "memory": string.Template("sqlite:///:memory:"),
+    "sqlite": string.Template("sqlite:///$db_name"),
+    "mysql": string.Template("mysql://$user:$password@$host/$db_name")
+}
 
 
 ################################################################################
@@ -141,14 +131,7 @@ class Distance(elixir.Entity):
     
 #===============================================================================
 # FUNCTIONS
-#===============================================================================
-
- 
-_DBS = {
-    "memory": DBTemplate("sqlite:///:memory:", "", ""),
-    "sqlite": DBTemplate("sqlite:///${db_name}", "", "")
-}
- 
+#=============================================================================== 
  
 def valid_connections():
     return _DBS.keys()
@@ -170,15 +153,18 @@ def rollback():
     elixir.session.rollback()
     
     
-def execute(query):
-    return elixir.session.execute(query)
+def execute(query, *args, **kwargs):
+    return elixir.session.execute(query, *args, **kwargs)
 
 
 def close():
     elixir.session.close()
 
 
-
+def parse(networks):
+    pass
+    
+    
     
 
 ################################################################################
