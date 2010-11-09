@@ -24,15 +24,15 @@
 # OR PERFORMANCE OF THIS SOFTWARE.
 
 
-################################################################################
+#===============================================================================
 # DOCS
-################################################################################
+#===============================================================================
 
 """Yatel Tests"""
 
-################################################################################
+#===============================================================================
 # META
-################################################################################
+#===============================================================================
 
 __version__ = "0.1"
 __license__ = "Biopython License"
@@ -41,9 +41,9 @@ __since__ = "0.1"
 __date__ = "2010-08-04"
 
 
-################################################################################
+#===============================================================================
 # IMPORTS
-################################################################################
+#===============================================================================
 
 import unittest
 import StringIO
@@ -57,11 +57,12 @@ from yatel import Network
 from yatel import Distance
 from yatel import NetworkInfo
 from yatel import NetworkIO
+from yatel import DB
 
 
-################################################################################
+#===============================================================================
 # CONSTANTS
-################################################################################
+#===============================================================================
 
 _TEST_DATA = _PATH = os.path.abspath(os.path.dirname(__file__)) + \
             os.path.sep + "test_data" + os.path.sep
@@ -70,9 +71,9 @@ _TEST_DATA = _PATH = os.path.abspath(os.path.dirname(__file__)) + \
 _SEQS = ["111", "222", "333", "444", "555", "666", "777", "888", "999"]
 
 
-################################################################################
+#===============================================================================
 # NETWORK TESTS
-################################################################################
+#===============================================================================
 
 class NetworkTest(unittest.TestCase):
     
@@ -102,9 +103,9 @@ class NetworkTest(unittest.TestCase):
         self.assertEqual(len(self.nwa), len(_SEQS))
 
 
-################################################################################
+#===============================================================================
 # NETWORK INFO TESTS
-################################################################################
+#===============================================================================
 
 class NetworkInfoTest(unittest.TestCase):
 
@@ -147,9 +148,9 @@ class NetworkInfoTest(unittest.TestCase):
         self.ni.network
 
 
-################################################################################
+#===============================================================================
 # NETWORK IO TESTS
-################################################################################
+#===============================================================================
 
 class NetworkIOTest(unittest.TestCase):
     
@@ -227,11 +228,50 @@ class NetworkIOTest(unittest.TestCase):
             pass
         else:
             self.fail("method read return more than one Network")
-
-
-################################################################################
+            
+#===============================================================================
+# TEST DB
+#===============================================================================
+class NetworkDB(unittest.TestCase):
+    
+    def setUp(self):
+        # only work with nwa and nwb or nwb with nwc
+        self.sqrs = []
+        self.nwa = Network.Network("test3a", Alphabet.Alphabet(),
+                                   Distance.DefaultDistance())
+        for i, s in enumerate(_SEQS):
+            seq = Seq.Seq(s) 
+            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
+            self.sqrs.append(seqr)
+            self.nwa.add(seqr)
+        self.nwb = Network.Network("test3b", Alphabet.Alphabet(),
+                                   Distance.DefaultDistance())
+        for i, s in enumerate(_SEQS):
+            i += len(self.nwa) 
+            seq = Seq.Seq(s) 
+            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
+            self.sqrs.append(seqr)
+            self.nwb.add(seqr)
+         
+        self.nwc = Network.Network("test3c", Alphabet.Alphabet(),
+                                   Distance.DefaultDistance())
+        for i, s in enumerate(_SEQS):
+            i += len(self.nwa) + len(self.nwb)
+            seq = Seq.Seq(s) 
+            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
+            self.sqrs.append(seqr)
+            self.nwc.add(seqr)
+        DB.connect("memory", create=True, echo=True)
+    
+    def tearDown(self):
+        DB.close()
+    
+    def test_write(self):
+        DB.write(self.nwa)
+        
+#===============================================================================
 # MAIN
-################################################################################
+#===============================================================================
 
 if __name__ == "__main__":
     unittest.main()
