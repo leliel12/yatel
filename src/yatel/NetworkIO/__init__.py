@@ -23,6 +23,12 @@
 # OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE
 # OR PERFORMANCE OF THIS SOFTWARE.
 
+#===============================================================================
+# FUTURE
+#===============================================================================
+
+from __future__ import absolute_import
+
 
 ################################################################################
 # DOCS
@@ -49,14 +55,16 @@ __date__ = "2010-08-04"
 # IMPORTS
 ################################################################################
 
+
+
 from Bio import SeqRecord 
 
-from .. import Network
+from yatel import Network
 
-from base import AbstractNetworkFileHandler
-from base import NetworkFileHandlerError
+from yatel.NetworkIO.base import AbstractNetworkFileHandler
+from yatel.NetworkIO.base import NetworkFileHandlerError
 
-import njd
+from yatel.NetworkIO import njd
 
 
 ################################################################################

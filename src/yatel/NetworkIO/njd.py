@@ -23,6 +23,11 @@
 # OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE
 # OR PERFORMANCE OF THIS SOFTWARE.
 
+#===============================================================================
+# FUTURE
+#===============================================================================
+
+from __future__ import absolute_import
 
 ################################################################################
 # DOCS
@@ -52,10 +57,10 @@ from Bio import Seq
 from Bio import SeqRecord
 from Bio import Alphabet
 
-from .. import Distance
-from .. import Network
+from yatel import Distance
+from yatel import Network
 
-import base
+from yatel.NetworkIO import base
 
 
 ################################################################################

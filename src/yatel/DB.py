@@ -23,6 +23,11 @@
 # OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE
 # OR PERFORMANCE OF THIS SOFTWARE.
 
+#===============================================================================
+# FUTURE
+#===============================================================================
+
+from __future__ import absolute_import
 
 
 ################################################################################
@@ -53,7 +58,7 @@ __date__ = "2010-09-14"
 import elixir
 import string
 
-import Network
+from yatel import Network
 
 #===============================================================================
 # CONSTANTS

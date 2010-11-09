@@ -23,6 +23,11 @@
 # OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE
 # OR PERFORMANCE OF THIS SOFTWARE.
 
+#===============================================================================
+# FUTURE
+#===============================================================================
+
+from __future__ import absolute_import
 
 
 ################################################################################
@@ -52,7 +57,7 @@ __date__ = "2010-08-04"
 
 import numpy
 
-import Network
+from yatel import Network
 
 
 ################################################################################
