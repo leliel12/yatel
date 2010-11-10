@@ -75,9 +75,22 @@ _DBS = {
 # 
 #===============================================================================
 
+class DBNetwork(elixir.Entity):
+    
+    id = elixir.Field(elixir.Unicode(1024), primary_key=True)
+    haplotypes = elixir.OneToMany("Haplotype")
+    distances = elixir.OneToMany("Distance")
+
+
+#===============================================================================
+# 
+#===============================================================================
+
 class Haplotype(elixir.Entity):
     
     id = elixir.Field(elixir.Unicode(1024), primary_key=True)
+    network = elixir.ManyToOne("DBNetwork") 
+    
     attributes = elixir.OneToMany("HaplotypeAtt")
     facts = elixir.OneToMany("Fact")
     
@@ -131,6 +144,8 @@ class Distance(elixir.Entity):
     hto = elixir.ManyToOne("Haplotype")
     value = elixir.Field(elixir.Float)
     
+    network = elixir.ManyToOne("DBNetwork")
+    
     elixir.using_options(tablename="distances")
     
     
@@ -142,11 +157,11 @@ def valid_connections():
     return _DBS.keys()
  
     
-def connect(db, db_name="", 
-            user="", password="", host=None, port="", 
+def connect(db, db_name="",
+            user="", password="", host=None, port="",
             create=False, echo=False):
-    elixir.metadata.bind = _DBS[db].substitute(db_name=db_name, 
-                                               user=user, password=password, 
+    elixir.metadata.bind = _DBS[db].substitute(db_name=db_name,
+                                               user=user, password=password,
                                                host=host, port=port)
     elixir.setup_all(create)
     elixir.metadata.bind.echo = echo
@@ -169,9 +184,40 @@ def close():
 
 
 def write(networks):
-     for nw in networks:
-         print nw
+    for nw in networks:
+        
+        dbnw = DBNetwork()
+        dbnw.id = unicode(nw.id)
+        dbseqs = {}
+        
+        for seq_record in nw.keys():
+            dbseq = Haplotype()
+            dbseq.id = unicode(seq_record.id)
+            dbseq.network = dbnw
+            
+            for seq_att in seq_record:
+                dbatt = HaplotypeAtt()
+                dbatt.value = unicode(seq_att)
+                dbatt.haplotype = dbseq
+            dbseqs[dbseq.id] = dbseq
+        
+        for seq_from, seqs_to in nw.items():
+            for seq_to, value in seqs_to.items(): 
+                dbdistance = Distance()
+                dbdistance.network = dbnw
+                dbdistance.hfrom = dbseqs[seq_from.id]
+                dbdistance.hto = dbseqs[seq_to.id]
+                dbdistance.value = value
     
+    return len(networks)
+
+
+def parse():
+    networks = []
+    for dbnw in DBNetwork.query.all():
+        print dbnw
+        
+    return tuple(networks)
     
     
 

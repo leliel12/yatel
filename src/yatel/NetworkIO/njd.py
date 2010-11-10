@@ -107,7 +107,6 @@ class NJDFileHandler(base.AbstractNetworkFileHandler):
                                   description=nw_data["description"],
                                   annotations=nw_data["annotations"],
                                   sequences=seqs)
-
         
     def write(self, networks, handle):
         sequence_dicts = {}
@@ -143,7 +142,6 @@ class NJDFileHandler(base.AbstractNetworkFileHandler):
                 for to, d in distances.items():
                     if d != None:
                         nw_dict["relations"].append((seqr.id, to.id, d))
-
                     
             network_dicts[nw.id] = nw_dict
         

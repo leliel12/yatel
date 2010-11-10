@@ -86,8 +86,6 @@ class NetworkTest(unittest.TestCase):
             seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
             self.sqrs.append(seqr)
             self.nwa.add(seqr)
-
-        
         
     def test_getitem(self):
         for s in self.sqrs:
@@ -261,13 +259,33 @@ class NetworkDB(unittest.TestCase):
             seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
             self.sqrs.append(seqr)
             self.nwc.add(seqr)
-        DB.connect("memory", create=True, echo=True)
+        DB.connect("memory", create=True, echo=False)
+#        DB.connect("sqlite", "/home/juan/cosito.db", create=True, echo=True)
     
     def tearDown(self):
         DB.close()
     
-    def test_write(self):
-        DB.write(self.nwa)
+    def _test_write(self):
+        networks = [self.nwa, self.nwb, self.nwc]
+        writed = DB.write(networks)
+        DB.commit()
+        self.assertEqual(writed, len(networks))
+        try:
+            DB.write(networks)
+            DB.commit()
+        except:
+            DB.rollback()
+        else:
+            self.fail("Duplicated ID allowed")
+        
+        
+    def _test_parse(self):
+        DB.parse()
+         
+    def test(self):
+        self._test_write()
+        self._test_parse()  
+    
         
 #===============================================================================
 # MAIN
