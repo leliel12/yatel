@@ -259,8 +259,7 @@ class NetworkDB(unittest.TestCase):
             seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
             self.sqrs.append(seqr)
             self.nwc.add(seqr)
-#        DB.connect("memory", create=True, echo=False)
-        DB.connect("sqlite", "/home/juan/cosito.db", create=True, echo=True)
+        DB.connect("memory", create=True, echo=True)
     
     def tearDown(self):
         DB.close()

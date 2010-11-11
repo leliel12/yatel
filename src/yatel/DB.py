@@ -84,7 +84,7 @@ _DBS = {
 class DBNetwork(elixir.Entity):
     
     id = elixir.Field(elixir.Unicode(1024), primary_key=True)
-    haplotypes = elixir.OneToMany("Haplotype")
+    sequences = elixir.OneToMany("DBSequence")
     distances = elixir.OneToMany("DBDistance")
 
 
@@ -92,28 +92,27 @@ class DBNetwork(elixir.Entity):
 # 
 #===============================================================================
 
-class Haplotype(elixir.Entity):
+class DBSequence(elixir.Entity):
     
     id = elixir.Field(elixir.Unicode(1024), primary_key=True)
     network = elixir.ManyToOne("DBNetwork") 
     
-    attributes = elixir.OneToMany("HaplotypeAtt")
+    chars = elixir.OneToMany("DBSequenceChar")
     facts = elixir.OneToMany("Fact")
-    
-    elixir.using_options(tablename="haplotypes") 
+
+    @property
+    def seq(self):
+        return u"".join((char.value for char in self.chars))
 
 
 #===============================================================================
 # 
 #===============================================================================
 
-class HaplotypeAtt(elixir.Entity):
+class DBSequenceChar(elixir.Entity):
     
     value = elixir.Field(elixir.UnicodeText())
-    haplotype = elixir.ManyToOne("Haplotype")
-    
-    elixir.using_options(tablename="haplotypes_attributes")
-    
+    sequence = elixir.ManyToOne("DBSequence")
     
 #===============================================================================
 # 
@@ -121,11 +120,8 @@ class HaplotypeAtt(elixir.Entity):
 
 class Fact(elixir.Entity):
     
-    haplotype = elixir.ManyToOne("Haplotype")
+    sequence = elixir.ManyToOne("DBSequence")
     attributes = elixir.OneToMany("FactAtt")
-    
-    elixir.using_options(tablename="facts")
-
 
 #===============================================================================
 # 
@@ -137,8 +133,6 @@ class FactAtt(elixir.Entity):
     value = elixir.Field(elixir.UnicodeText())
     fact = elixir.ManyToOne("Fact")
     
-    elixir.using_options(tablename="fact_attributes")
-
 
 #===============================================================================
 # 
@@ -146,13 +140,11 @@ class FactAtt(elixir.Entity):
 
 class DBDistance(elixir.Entity):
     
-    hfrom = elixir.ManyToOne("Haplotype")
-    hto = elixir.ManyToOne("Haplotype")
+    seq_from = elixir.ManyToOne("DBSequence")
+    seq_to = elixir.ManyToOne("DBSequence")
     value = elixir.Field(elixir.Float)
     
     network = elixir.ManyToOne("DBNetwork")
-    
-    elixir.using_options(tablename="distances")
     
     
 #===============================================================================
@@ -197,22 +189,22 @@ def write(networks):
         dbseqs = {}
         
         for seq_record in nw.keys():
-            dbseq = Haplotype()
+            dbseq = DBSequence()
             dbseq.id = unicode(seq_record.id)
             dbseq.network = dbnw
             
             for seq_att in seq_record:
-                dbatt = HaplotypeAtt()
+                dbatt = DBSequenceChar()
                 dbatt.value = unicode(seq_att)
-                dbatt.haplotype = dbseq
+                dbatt.sequence = dbseq
             dbseqs[dbseq.id] = dbseq
         
         for seq_from, seqs_to in nw.items():
             for seq_to, value in seqs_to.items(): 
                 dbdistance = DBDistance()
                 dbdistance.network = dbnw
-                dbdistance.hfrom = dbseqs[seq_from.id]
-                dbdistance.hto = dbseqs[seq_to.id]
+                dbdistance.seq_from = dbseqs[seq_from.id]
+                dbdistance.seq_to = dbseqs[seq_to.id]
                 dbdistance.value = value
     
     return len(networks)
@@ -222,14 +214,13 @@ def parse():
     for dbnw in DBNetwork.query.all():
         
         seqs = {}
-        for dbseq in dbnw.haplotypes:
-            seq = u"".join(dbseq_att.value for dbseq_att in dbseq.attributes)
-            seqs[dbseq.id] = SeqRecord.SeqRecord(id=dbseq.id, seq=seq)
+        for dbseq in dbnw.sequences:
+            seqs[dbseq.id] = SeqRecord.SeqRecord(id=dbseq.id, seq=dbseq.seq)
         
         distance = Distance.ExpertDistance()
         for dbdistance in dbnw.distances:
-            seq_from = seqs[dbdistance.hfrom.id]
-            seq_to = seqs[dbdistance.hto.id]
+            seq_from = seqs[dbdistance.seq_from.id]
+            seq_to = seqs[dbdistance.seq_to.id]
             distance.add_distance(seq_from, seq_to, dbdistance.value)
         
         yield Network.Network(id=dbnw.id,
