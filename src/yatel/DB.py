@@ -58,7 +58,13 @@ __date__ = "2010-09-14"
 import elixir
 import string
 
+from Bio import Seq
+from Bio import Alphabet
+from Bio import SeqRecord
+
 from yatel import Network
+from yatel import Distance
+
 
 #===============================================================================
 # CONSTANTS
@@ -79,7 +85,7 @@ class DBNetwork(elixir.Entity):
     
     id = elixir.Field(elixir.Unicode(1024), primary_key=True)
     haplotypes = elixir.OneToMany("Haplotype")
-    distances = elixir.OneToMany("Distance")
+    distances = elixir.OneToMany("DBDistance")
 
 
 #===============================================================================
@@ -138,7 +144,7 @@ class FactAtt(elixir.Entity):
 # 
 #===============================================================================
 
-class Distance(elixir.Entity):
+class DBDistance(elixir.Entity):
     
     hfrom = elixir.ManyToOne("Haplotype")
     hto = elixir.ManyToOne("Haplotype")
@@ -203,7 +209,7 @@ def write(networks):
         
         for seq_from, seqs_to in nw.items():
             for seq_to, value in seqs_to.items(): 
-                dbdistance = Distance()
+                dbdistance = DBDistance()
                 dbdistance.network = dbnw
                 dbdistance.hfrom = dbseqs[seq_from.id]
                 dbdistance.hto = dbseqs[seq_to.id]
@@ -213,13 +219,24 @@ def write(networks):
 
 
 def parse():
-    networks = []
     for dbnw in DBNetwork.query.all():
-        print dbnw
         
-    return tuple(networks)
-    
-    
+        seqs = {}
+        for dbseq in dbnw.haplotypes:
+            seq = u"".join(dbseq_att.value for dbseq_att in dbseq.attributes)
+            seqs[dbseq.id] = SeqRecord.SeqRecord(id=dbseq.id, seq=seq)
+        
+        distance = Distance.ExpertDistance()
+        for dbdistance in dbnw.distances:
+            seq_from = seqs[dbdistance.hfrom.id]
+            seq_to = seqs[dbdistance.hto.id]
+            distance.add_distance(seq_from, seq_to, dbdistance.value)
+        
+        yield Network.Network(id=dbnw.id,
+                              alphabet=Alphabet.Alphabet(),
+                              distance=distance,
+                              sequences=seqs.values())
+            
 
 #===============================================================================
 # MAIN

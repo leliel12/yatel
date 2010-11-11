@@ -78,27 +78,22 @@ class NJDFileHandler(base.AbstractNetworkFileHandler):
         seqs_r = {} 
         for id, seq_data in data["sequences"].items():
             id = str(id)
-            if id not in seqs_r:
-                seq_r = SeqRecord.SeqRecord(id=id,
-                                            seq=Seq.Seq(seq_data["seq"]),
-                                            name=seq_data["name"],
-                                            description=seq_data["description"],
-                                            dbxrefs=seq_data["dbxrefs"],
-                                            annotations=seq_data["annotations"],
-                                            letter_annotations=seq_data["letter_annotations"])
-            else:
+            if id in seqs_r:
                 msg = "Duplicated SeqRecord ID '%s'" % id
                 raise NJDError(msg)
-            seqs_r[id] = seq_r
+            seqs_r[id] = SeqRecord.SeqRecord(id=id,
+                                 seq=Seq.Seq(seq_data["seq"]),
+                                 name=seq_data["name"],
+                                 description=seq_data["description"],
+                                 dbxrefs=seq_data["dbxrefs"],
+                                 annotations=seq_data["annotations"],
+                                 letter_annotations=seq_data["letter_annotations"])
         
         for nw_id, nw_data in data["networks"].items():
             distance = Distance.ExpertDistance()
-            seqs = set()
             for id0, id1, d in nw_data["relations"]:
                 seq_r0 = seqs_r[id0]
                 seq_r1 = seqs_r[id1]
-                seqs.add(seq_r0)
-                seqs.add(seq_r1)
                 distance.add_distance(seq_r0, seq_r1, float(d))   
             yield Network.Network(id=nw_id,
                                   alphabet=Alphabet.Alphabet(),
@@ -106,7 +101,7 @@ class NJDFileHandler(base.AbstractNetworkFileHandler):
                                   name=nw_data["name"],
                                   description=nw_data["description"],
                                   annotations=nw_data["annotations"],
-                                  sequences=seqs)
+                                  sequences=seqs_r.values())
         
     def write(self, networks, handle):
         sequence_dicts = {}

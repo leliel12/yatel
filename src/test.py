@@ -259,8 +259,8 @@ class NetworkDB(unittest.TestCase):
             seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
             self.sqrs.append(seqr)
             self.nwc.add(seqr)
-        DB.connect("memory", create=True, echo=False)
-#        DB.connect("sqlite", "/home/juan/cosito.db", create=True, echo=True)
+#        DB.connect("memory", create=True, echo=False)
+        DB.connect("sqlite", "/home/juan/cosito.db", create=True, echo=True)
     
     def tearDown(self):
         DB.close()
@@ -277,10 +277,10 @@ class NetworkDB(unittest.TestCase):
             DB.rollback()
         else:
             self.fail("Duplicated ID allowed")
-        
-        
+          
     def _test_parse(self):
-        DB.parse()
+        nws = list(DB.parse())
+        self.assertEqual(len(nws), 3)
          
     def test(self):
         self._test_write()
