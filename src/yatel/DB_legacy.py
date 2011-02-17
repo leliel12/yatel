@@ -55,10 +55,8 @@ __date__ = "2010-09-14"
 # IMPORTS
 #===============================================================================
 
-import string
-import datetime
-
 import elixir
+import string
 
 from Bio import Seq
 from Bio import Alphabet
@@ -66,172 +64,170 @@ from Bio import SeqRecord
 
 from yatel import Network
 from yatel import Distance
-from yatel import util
 
 
 #===============================================================================
 # CONSTANTS
 #===============================================================================
 
-FORMATTER = util.TypeFormatter(
-    int=int,
-    float=float,
-    bool=bool, 
-    str=str, 
-    unicode=unicode,
-    datetime=lambda s: datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S.%f")
-)
-
-DBS = {
+_DBS = {
     "memory": string.Template("sqlite:///:memory:"),
     "sqlite": string.Template("sqlite:///$db_name"),
-    "mysql": string.Template("mysql://$user:$password@$host:$port/$db_name")
+    "mysql": string.Template("mysql://$user:$password@$host/$db_name")
 }
 
 
 #===============================================================================
-# NETWORK
+# 
 #===============================================================================
 
-class Network(elixir.Entity):
+class DBNetwork(elixir.Entity):
     
-    name = elixir.Field(elixir.UnicodeText)
-    description = elixir.Field(elixir.UnicodeText)
-    
-    details = elixir.OneToMany("NetworkDetails")
-    
-
-#===============================================================================
-# NETWORK DETAILS
-#===============================================================================
-
-class NetworkDetails(elixir.Entity):
-    
-    distance_value = elixir.Field(elixir.Float)
-    
-    network = elixir.ManyToOne("Network")
-    seq_0 = elixir.ManyToOne("Sequence")
-    seq_1 = elixir.ManyToOne("Sequence")
+    id = elixir.Field(elixir.Unicode(1024), primary_key=True)
+    sequences = elixir.OneToMany("DBSequence")
+    distances = elixir.OneToMany("DBDistance")
 
 
 #===============================================================================
-# DISTANCE
+# 
 #===============================================================================
 
-class Distance(elixir.Entity):
+class DBSequence(elixir.Entity):
     
-    name = elixir.Field(elixir.UnicodeText)
-    description = elixir.Field(elixir.UnicodeText)
+    id = elixir.Field(elixir.Unicode(1024), primary_key=True)
+    network = elixir.ManyToOne("DBNetwork") 
     
-    details = elixir.OneToMany("DistanceDetail")
-    
-    
-#===============================================================================
-# DISTANCE DETAIL
-#===============================================================================
+    chars = elixir.OneToMany("DBSequenceChar")
+    facts = elixir.OneToMany("Fact")
 
-class DistanceDetail(elixir.Entity):
-    
-    distance_value = elixir.Field(elixir.Float)
-    
-    
-    seq_0 = elixir.ManyToOne("Sequence")
-    seq_1 = elixir.ManyToOne("Sequence")
-    metric = elixir.ManyToOne("Metric")
-
-
-#===============================================================================
-# METRIC
-#===============================================================================
-
-class Metric(elixir.Entity):
-    
-    name = elixir.Field(elixir.UnicodeText)
-    description = elixir.Field(elixir.UnicodeText)
-    
-    distance_details = elixir.OneToMany("DistanceDetail")
-
-
-#===============================================================================
-# SEQUENCES
-#===============================================================================
-
-class Sequence(elixir.Entity):
-    
-    name = elixir.Field(elixir.UnicodeText)
-    description = elixir.Field(elixir.UnicodeText)
-    
-    attributes = elixir.OneToMany("SequenceAttribute")
-    distance_details = elixir.OneToMany("DistanceDetail")
-    network_details = elixir.OneToMany("NetworkDetail")
-    
-
-#===============================================================================
-# SEQUENCE ATTRIBUTES
-#===============================================================================
-
-class SequenceAttribute(elixir.Entity):                                            
-                                            
-    _value = elixir.Field(elixir.UnicodeText, colname="value")
-    att_type = elixir.Field(elixir.Enum(FORMATTER.valid_types))
-    
-    seq = elixir.ManyToOne("Sequence")
-    
     @property
-    def value(self):
-        return FORMATTER.parse(self.att_type, self._value)
-    
-    @property    
-    def value(self, v):
-        self.att_type, self._value = FORMATTER.format(v)
-    
+    def seq(self):
+        return u"".join((char.value for char in self.chars))
+
 
 #===============================================================================
-# FACT
+# 
 #===============================================================================
+
+class DBSequenceChar(elixir.Entity):
     
+    value = elixir.Field(elixir.UnicodeText())
+    sequence = elixir.ManyToOne("DBSequence")
+    
+#===============================================================================
+# 
+#===============================================================================
+
 class Fact(elixir.Entity):
     
-    name = elixir.Field(elixir.UnicodeText)
-    description = elixir.Field(elixir.UnicodeText)
-    
-    seq = elixir.ManyToOne("Sequence")
-    attributes = elixir.OneToMany("FactAttribute")
-
+    sequence = elixir.ManyToOne("DBSequence")
+    attributes = elixir.OneToMany("FactAtt")
 
 #===============================================================================
-# FACT ATTS
+# 
 #===============================================================================
 
-class FactAttribute(elixir.Entity):                                            
-                                            
-    _value = elixir.Field(elixir.UnicodeText, colname="value")
-    att_type = elixir.Field(elixir.Enum(FORMATTER.valid_types))
+class FactAtt(elixir.Entity):
     
-    seq = elixir.ManyToOne("Sequence")
+    name = elixir.Field(elixir.UnicodeText())
+    value = elixir.Field(elixir.UnicodeText())
+    fact = elixir.ManyToOne("Fact")
     
-    @property
-    def value(self):
-        return FORMATTER.parse(self.att_type, self._value)
-    
-    @property    
-    def value(self, v):
-        self.att_type, self._value = FORMATTER.format(v)
 
+#===============================================================================
+# 
+#===============================================================================
 
+class DBDistance(elixir.Entity):
+    
+    seq_from = elixir.ManyToOne("DBSequence")
+    seq_to = elixir.ManyToOne("DBSequence")
+    value = elixir.Field(elixir.Float)
+    
+    network = elixir.ManyToOne("DBNetwork")
+    
+    
 #===============================================================================
 # FUNCTIONS
-#===============================================================================
-
+#=============================================================================== 
+ 
+def valid_connections():
+    return _DBS.keys()
+ 
+    
 def connect(db, db_name="",
-            user="", password="", host="", port="",
+            user="", password="", host=None, port="",
             create=False, echo=False):
-    elixir.metadata.bind = DBS[db].substitute(db_name=db_name,
-                                              user=user, password=password,
-                                              host=host, port=port)
+    elixir.metadata.bind = _DBS[db].substitute(db_name=db_name,
+                                               user=user, password=password,
+                                               host=host, port=port)
     elixir.setup_all(create)
     elixir.metadata.bind.echo = echo
+    
 
+def commit():
+    elixir.session.commit()
+
+
+def rollback():
+    elixir.session.rollback()
+    
+    
+def execute(query, *args, **kwargs):
+    return elixir.session.execute(query, *args, **kwargs)
+
+
+def close():
+    elixir.session.close()
+
+
+def write(networks):
+    for nw in networks:
+        
+        dbnw = DBNetwork()
+        dbnw.id = unicode(nw.id)
+        dbseqs = {}
+        
+        for seq_record in nw.keys():
+            dbseq = DBSequence()
+            dbseq.id = unicode(seq_record.id)
+            dbseq.network = dbnw
+            
+            for seq_att in seq_record:
+                dbatt = DBSequenceChar()
+                dbatt.value = unicode(seq_att)
+                dbatt.sequence = dbseq
+            dbseqs[dbseq.id] = dbseq
+        
+        for seq_from, seqs_to in nw.items():
+            for seq_to, value in seqs_to.items(): 
+                dbdistance = DBDistance()
+                dbdistance.network = dbnw
+                dbdistance.seq_from = dbseqs[seq_from.id]
+                dbdistance.seq_to = dbseqs[seq_to.id]
+                dbdistance.value = value
+    
+    return len(networks)
+
+
+def parse():
+    for dbnw in DBNetwork.query.all():
+        
+        seqs = {}
+        for dbseq in dbnw.sequences:
+            seqs[dbseq.id] = SeqRecord.SeqRecord(id=dbseq.id, seq=dbseq.seq)
+        
+        distance = Distance.ExpertDistance()
+        for dbdistance in dbnw.distances:
+            seq_from = seqs[dbdistance.seq_from.id]
+            seq_to = seqs[dbdistance.seq_to.id]
+            distance.add_distance(seq_from, seq_to, dbdistance.value)
+        
+        yield Network.Network(id=dbnw.id,
+                              alphabet=Alphabet.Alphabet(),
+                              distance=distance,
+                              sequences=seqs.values())
+            
 
 #===============================================================================
 # MAIN
