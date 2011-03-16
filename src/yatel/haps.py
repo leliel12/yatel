@@ -52,7 +52,7 @@ class Haplotype(object):
         self._atts = atts
 
     def __len__(self):
-        return len(self._len)
+        return len(self._atts)
 
     def __iter__(self):
         return iter(self._atts)
@@ -68,6 +68,9 @@ class Haplotype(object):
         
     def keys(self):
         return self._atts.keys()
+        
+    def get(self, k, default=None):
+        return self._atts.get(k, default)
         
 
 #===============================================================================

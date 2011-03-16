@@ -75,7 +75,7 @@ class HammingDistance(Distance):
     def distance_of(self, hap0, hap1):
         d = abs(len(hap0) - len(hap1))
         for k, v in hap0.items():
-            d += 1 if k != hap.get(hap, None) else 0
+            d += 1 if v != hap1.get(k, None) else 0
         return d
 
 

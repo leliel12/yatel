@@ -1,44 +1,39 @@
 #!/usr/bin/env python
-#-*-coding:utf-8-*-
+# -*- coding: utf-8 -*-
 
-# Copyright (C) 2010 Juan BC <jbc dot develop at gmail dot com>
-
-# Biopython License Agreement
-
-# Permission to use, copy, modify, and distribute this software and its
-# documentation with or without modifications and for any purpose and
-# without fee is hereby granted, provided that any copyright notices
-# appear in all copies and that both those copyright notices and this
-# permission notice appear in supporting documentation, and that the
-# names of the contributors or copyright holders not be used in
-# advertising or publicity pertaining to distribution of the software
-# without specific prior permission.
-
-# THE CONTRIBUTORS AND COPYRIGHT HOLDERS OF THIS SOFTWARE DISCLAIM ALL
-# WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL THE
-# CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY SPECIAL, INDIRECT
-# OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-# OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
-# OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE
-# OR PERFORMANCE OF THIS SOFTWARE.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301, USA.
 
 
 #===============================================================================
 # DOCS
 #===============================================================================
 
-"""Yatel Tests"""
+"""Tests Suits"""
+
 
 #===============================================================================
 # META
 #===============================================================================
 
 __version__ = "0.1"
-__license__ = "Biopython License"
-__author__ = "JBC <jbc dot develop at gmail dot com>"
+__license__ = "GPL3"
+__author__ = "JBC"
+__mail__ = "jbc dot develop at gmail dot com"
 __since__ = "0.1"
-__date__ = "2010-08-04"
+__date__ = "2011-03-02"
 
 
 #===============================================================================
@@ -46,246 +41,97 @@ __date__ = "2010-08-04"
 #===============================================================================
 
 import unittest
-import StringIO
+import random
 import os
 
-from Bio import Alphabet
-from Bio import SeqRecord
-from Bio import Seq
-
-from yatel import Network
-from yatel import Distance
-from yatel import NetworkInfo
-from yatel import NetworkIO
-from yatel import DB
+from yatel import haps, distances
 
 
 #===============================================================================
-# CONSTANTS
+# HAPLOTYPE TESTS
 #===============================================================================
 
-_TEST_DATA = _PATH = os.path.abspath(os.path.dirname(__file__)) + \
-            os.path.sep + "test_data" + os.path.sep
+class HaplotypeTest(unittest.TestCase):
+    
+    def test_creation(self):
+        hap0a = haps.Haplotype("hap0a", att0=1, att1="hi")
+        hap0b = haps.Haplotype("hap0b", att0=1, att1="hi")
+        hap1b = haps.Haplotype("hap1a", att0=2, att1="bye")
+        hap1b = haps.Haplotype("hap1b", att0=2, att1="bye")
 
-
-_SEQS = ["111", "222", "333", "444", "555", "666", "777", "888", "999"]
-
-
+    
 #===============================================================================
-# NETWORK TESTS
+# DISTANCES
+#===============================================================================
+
+class TestDistances(unittest.TestCase):
+    
+    def setUp(self):
+        self.h0a = haps.Haplotype("hap0a", att0=1, att1="hi")
+        self.h0b = haps.Haplotype("hap0b", att0=1, att1="hi")
+        self.h1a = haps.Haplotype("hap1a", att0=2, att1="bye")
+        self.h1b = haps.Haplotype("hap1b", att0=2, att1="bye")
+        
+    def test_hamming(self):
+        d = distances.HammingDistance()
+        self.assertEquals(d.distance_of(self.h0a, self.h0b), 0)
+        self.assertEquals(d.distance_of(self.h1a, self.h1b), 0)
+        self.assertEquals(d.distance_of(self.h1a, self.h0b), 2)
+        self.assertEquals(d.distance_of(self.h1b, self.h0a), 2)
+        
+    def test_expert(self):
+        # get random distances
+        d0a0b = random.random()
+        d0a1b = random.random()
+        d1a0b = random.random()
+        d1a1b = random.random()
+        
+        # create the expert
+        d = distances.ExpertDistance()
+        d.add_distance(self.h0a, self.h0b, d0a0b)
+        d.add_distance(self.h0a, self.h1b, d0a1b)
+        d.add_distance(self.h1a, self.h0b, d1a0b)
+        d.add_distance(self.h1a, self.h1b, d1a1b)
+        
+        # test
+        self.assertEquals(d.distance_of(self.h0a, self.h0b), d0a0b)
+        self.assertEquals(d.distance_of(self.h0a, self.h1b), d0a1b)
+        self.assertEquals(d.distance_of(self.h1a, self.h0b), d1a0b)
+        self.assertEquals(d.distance_of(self.h1a, self.h1b), d1a1b)
+
+        
+#===============================================================================
+# NETWORK TEST
 #===============================================================================
 
 class NetworkTest(unittest.TestCase):
     
     def setUp(self):
-        self.sqrs = []
-        self.nwa = Network.Network("test", Alphabet.Alphabet(),
-                                  Distance.DefaultDistance())
-        for i, s in enumerate(_SEQS):
-            seq = Seq.Seq(s) 
-            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
-            self.sqrs.append(seqr)
-            self.nwa.add(seqr)
+        self.h0a = haps.Haplotype("hap0a", att0=1, att1="hi")
+        self.h0b = haps.Haplotype("hap0b", att0=1, att1="hi")
+        self.h1a = haps.Haplotype("hap1a", att0=2, att1="bye")
+        self.h1b = haps.Haplotype("hap1b", att0=2, att1="bye")
         
-    def test_getitem(self):
-        for s in self.sqrs:
-            self.assertTrue(self.nwa[s] != None)
-        try:
-            self.nwa["000"]
-        except KeyError:
-            pass
-        else:
-            self.fail("000 do not exist")
-            
-    def test_len(self):
-        self.assertEqual(len(self.nwa), len(_SEQS))
-
-
-#===============================================================================
-# NETWORK INFO TESTS
-#===============================================================================
-
-class NetworkInfoTest(unittest.TestCase):
-
-    def setUp(self):
-        self.sqrs = []
-        self.nwa = Network.Network("test2", Alphabet.Alphabet(),
-                                  Distance.DefaultDistance())
-        for i, s in enumerate(_SEQS):
-            seq = Seq.Seq(s) 
-            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
-            self.sqrs.append(seqr)
-            self.nwa.add(seqr)
-        self.ni = NetworkInfo.NetworkInfo(self.nwa)
-    
-    def test_distance_anti_mode(self):
-        self.ni.distance_anti_mode
-
-    def test_distance_avg(self):
-        self.ni.distance_avg
-
-    def test_distance_frequency(self):
-        self.ni.distance_frequency
-
-    def test_distance_max(self):
-        self.ni.distance_max
-
-    def test_distance_min(self):
-        self.ni.distance_min
-
-    def test_distance_mode(self):
-        self.ni.distance_mode
-
-    def test_distance_std(self):
-        self.ni.distance_std
-
-    def test_distances(self):
-        self.ni.distances
-
-    def test_network(self):
-        self.ni.network
-
-
-#===============================================================================
-# NETWORK IO TESTS
-#===============================================================================
-
-class NetworkIOTest(unittest.TestCase):
-    
-    def setUp(self):
-        # only work with nwa and nwb or nwb with nwc
-        self.sqrs = []
-        self.nwa = Network.Network("test3a", Alphabet.Alphabet(),
-                                   Distance.DefaultDistance())
-        for i, s in enumerate(_SEQS):
-            seq = Seq.Seq(s) 
-            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
-            self.sqrs.append(seqr)
-            self.nwa.add(seqr)
-        self.nwb = Network.Network("test3b", Alphabet.Alphabet(),
-                                   Distance.DefaultDistance())
-        for i, s in enumerate(_SEQS):
-            seq = Seq.Seq(s) 
-            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
-            self.sqrs.append(seqr)
-            self.nwb.add(seqr)
-         
-        self.nwc = Network.Network("test3c", Alphabet.Alphabet(),
-                                   Distance.DefaultDistance())
-        for i, s in enumerate(_SEQS):
-            seq = Seq.Seq(s) 
-            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i) + "_", name=s, description=s)
-            self.sqrs.append(seqr)
-            self.nwc.add(seqr)
-            
-        self.njd_simple_path = _TEST_DATA + "njd_simple.njd"
-        self.njd_multiple_path = _TEST_DATA + "njd_multiple.njd"         
-         
-    def test_write(self):
-        non = NetworkIO.write([self.nwa], StringIO.StringIO(), "njd")
-        self.assertEqual(non, 1)
-        non = NetworkIO.write([self.nwb], StringIO.StringIO(), "njd")
-        self.assertEqual(non, 1)
-        non = NetworkIO.write([self.nwc], StringIO.StringIO(), "njd")
-        self.assertEqual(non, 1)
-        non = NetworkIO.write([self.nwa, self.nwc], StringIO.StringIO(), "njd")
-        self.assertEqual(non, 2)
-        non = NetworkIO.write([self.nwb, self.nwc], StringIO.StringIO(), "njd")
-        self.assertEqual(non, 2)
-        try:
-            NetworkIO.write([self.nwa, self.nwb], StringIO.StringIO(), "njd")
-        except NetworkIO.NetworkFileHandlerError:
-            pass
-        else:
-            self.fail("2 id for siferent SeqRecrods")
-        try:
-            NetworkIO.write([self.nwa, self.nwa], StringIO.StringIO(), "njd")
-        except NetworkIO.NetworkFileHandlerError:
-            pass
-        else:
-            self.fail("2 Networks with same id")
-            
-    def test_parse(self):
-        count = None
-        for c, nw in enumerate(NetworkIO.parse(open(self.njd_simple_path, "r"), "njd")):
-            self.assertTrue(isinstance(nw, Network.Network))
-            count = c
-        self.assertEqual(count + 1, 1)
-        count = None
-        for c, nw in enumerate(NetworkIO.parse(open(self.njd_multiple_path, "r"), "njd")):
-            self.assertTrue(isinstance(nw, Network.Network))
-            count = c
-        self.assertEqual(count + 1, 2)
-
-    def test_read(self):
-        nw = NetworkIO.read(open(self.njd_simple_path, "r"), "njd")
-        self.assertTrue(isinstance(nw, Network.Network))
-        try:
-            NetworkIO.read(open(self.njd_multiple_path, "r"), "njd")
-        except NetworkIO.NetworkFileHandlerError:
-            pass
-        else:
-            self.fail("method read return more than one Network")
-            
-#===============================================================================
-# TEST DB
-#===============================================================================
-class NetworkDB(unittest.TestCase):
-    
-    def setUp(self):
-        # only work with nwa and nwb or nwb with nwc
-        self.sqrs = []
-        self.nwa = Network.Network("test3a", Alphabet.Alphabet(),
-                                   Distance.DefaultDistance())
-        for i, s in enumerate(_SEQS):
-            seq = Seq.Seq(s) 
-            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
-            self.sqrs.append(seqr)
-            self.nwa.add(seqr)
-        self.nwb = Network.Network("test3b", Alphabet.Alphabet(),
-                                   Distance.DefaultDistance())
-        for i, s in enumerate(_SEQS):
-            i += len(self.nwa) 
-            seq = Seq.Seq(s) 
-            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
-            self.sqrs.append(seqr)
-            self.nwb.add(seqr)
-         
-        self.nwc = Network.Network("test3c", Alphabet.Alphabet(),
-                                   Distance.DefaultDistance())
-        for i, s in enumerate(_SEQS):
-            i += len(self.nwa) + len(self.nwb)
-            seq = Seq.Seq(s) 
-            seqr = SeqRecord.SeqRecord(seq=seq, id=str(i), name=s, description=s)
-            self.sqrs.append(seqr)
-            self.nwc.add(seqr)
-        DB.connect("memory", create=True, echo=True)
-    
-    def tearDown(self):
-        DB.close()
-    
-    def _test_write(self):
-        networks = [self.nwa, self.nwb, self.nwc]
-        writed = DB.write(networks)
-        DB.commit()
-        self.assertEqual(writed, len(networks))
-        try:
-            DB.write(networks)
-            DB.commit()
-        except:
-            DB.rollback()
-        else:
-            self.fail("Duplicated ID allowed")
-          
-    def _test_parse(self):
-        nws = list(DB.parse())
-        self.assertEqual(len(nws), 3)
-         
-    def test(self):
-        self._test_write()
-        self._test_parse()  
-    
+        # create distance
+        d0a0b = random.random()
+        d0a1b = random.random()
+        d1a0b = random.random()
+        d1a1b = random.random()
+        d = distances.ExpertDistance()
+        d.add_distance(self.h0a, self.h0b, d0a0b)
+        d.add_distance(self.h0a, self.h1b, d0a1b)
+        d.add_distance(self.h1a, self.h0b, d1a0b)
+        d.add_distance(self.h1a, self.h1b, d1a1b)
         
+        network.Network(id=str(random.random()),
+                        name=str(random.random()),
+                        haplotypes=(self.h0a, self.h0b, self.h1a, self.h1b),
+                        distance_calculator=d,
+                        annotations = dict((str(random.random()), random.random()) 
+                                           for _ in range(random.randint(0,10))))
+                                           
+        
+
 #===============================================================================
 # MAIN
 #===============================================================================
