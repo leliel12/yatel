@@ -45,6 +45,12 @@ __date__ = "2011-02-17"
 # CLASSES
 #===============================================================================
 
+class Cloneable(object):
+    
+    def clone(self):
+        pass
+
+
 class TypeFormatter(object):
     
     def __init__(self, **kwargs):

@@ -84,8 +84,8 @@ FORMATTER = util.TypeFormatter(
 
 DBS = {
     "memory": string.Template("sqlite:///:memory:"),
-    "sqlite": string.Template("sqlite:///$db_name"),
-    "mysql": string.Template("mysql://$user:$password@$host:$port/$db_name")
+    "sqlite": string.Template("sqlite:///$name"),
+    "mysql": string.Template("mysql://$user:$password@$host:$port/$name")
 }
 
 
@@ -98,14 +98,14 @@ class Network(elixir.Entity):
     name = elixir.Field(elixir.UnicodeText)
     description = elixir.Field(elixir.UnicodeText)
     
-    details = elixir.OneToMany("NetworkDetails")
+    details = elixir.OneToMany("NetworkDetail")
     
 
 #===============================================================================
 # NETWORK DETAILS
 #===============================================================================
 
-class NetworkDetails(elixir.Entity):
+class NetworkDetail(elixir.Entity):
     
     distance_value = elixir.Field(elixir.Float)
     
@@ -124,7 +124,7 @@ class Distance(elixir.Entity):
     description = elixir.Field(elixir.UnicodeText)
     
     details = elixir.OneToMany("DistanceDetail")
-    
+
     
 #===============================================================================
 # DISTANCE DETAIL
@@ -134,10 +134,10 @@ class DistanceDetail(elixir.Entity):
     
     distance_value = elixir.Field(elixir.Float)
     
-    
     seq_0 = elixir.ManyToOne("Sequence")
     seq_1 = elixir.ManyToOne("Sequence")
     metric = elixir.ManyToOne("Metric")
+    distance = elixir.ManyToOne("Distance", inverse="details")
 
 
 #===============================================================================
@@ -223,16 +223,15 @@ class FactAttribute(elixir.Entity):
 # FUNCTIONS
 #===============================================================================
 
-def connect(db, db_name="",
-            user="", password="", host="", port="",
-            create=False, echo=False):
-    elixir.metadata.bind = DBS[db].substitute(db_name=db_name,
+def connect(db, name="", user="", password="",
+             host="", port="", create=False, echo=False):
+    elixir.metadata.bind = DBS[db].substitute(name=name,
                                               user=user, password=password,
                                               host=host, port=port)
     elixir.setup_all(create)
     elixir.metadata.bind.echo = echo
 
-
+connect("memory", create=True, echo=True)
 #===============================================================================
 # MAIN
 #===============================================================================
