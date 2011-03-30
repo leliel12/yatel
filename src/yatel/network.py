@@ -50,7 +50,7 @@ __date__ = "2011-03-02"
 # IMPORTS
 #===============================================================================
 
-from yatel import Distance
+from yatel import distances, haps
 
 
 #===============================================================================
@@ -59,12 +59,12 @@ from yatel import Distance
 
 class Network(object):
 
-    def __init__(self, id, name, haploptypes=(),
-                  distance_calculator=distances.HammingDistance(),
-                  annotations={}):
+    def __init__(self, id, name, haplotypes=(),
+                 distance_calculator=distances.HammingDistance(),
+                 annotations={}):
         assert isinstance(id, basestring)
         assert isinstance(name, basestring)
-        assert isinstance(distance_calculator, distances.Distance())
+        assert isinstance(distance_calculator, distances.Distance)
         assert isinstance(annotations, dict)
         self._mtx = {}
         self._distance_calculator = distance_calculator
@@ -72,19 +72,31 @@ class Network(object):
         self._id = id
         self._name = name
         # use method for init
-        for hap in haploptypes:
-            self.add(h)
+        for hap in haplotypes:
+            self.add(hap)
+
+    def __iter__(self):
+        return iter(self._mtx)
+
+    def __contains__(self, hap):
+        for h in self._mtx:
+            if h == hap:
+                return True
 
     def add(self, h):
-        assert isinstance(h, haplotypes.Haplotype)
+        assert isinstance(h, haps.Haplotype)
         assert h not in self._mtx
-        self._mtx[h] = {}
-        for k, v in self._mtx.items():
-            v[h] = self.distance_calculator(k, h)
+        h0 = h
+        d0 = {h0: self.distance_calculator(h0, h0)}
+        for h1, d1 in self._mtx.items():
+            d0[h1] = self.distance_calculator(h0, h1)
+            d1[h0] = self.distance_calculator(h1, h0)
+        self._mtx[h0] = d0
+        
 
     def remove(self, h):
         self._mtx.pop(h)
-        for k, v in self._mtx.values():
+        for v in self._mtx.values():
             v.pop(h)
 
     def get(self, h, default=None):

@@ -16,6 +16,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
+#===============================================================================
+# FUTURE
+#===============================================================================
+
+from __future__ import absolute_import
+from reportlab.lib.validators import isCallable
+
 
 #===============================================================================
 # DOCS
@@ -44,7 +51,7 @@ import unittest
 import random
 import os
 
-from yatel import haps, distances
+from yatel import haps, distances, network, networkinfo
 
 
 #===============================================================================
@@ -123,14 +130,65 @@ class NetworkTest(unittest.TestCase):
         d.add_distance(self.h1a, self.h0b, d1a0b)
         d.add_distance(self.h1a, self.h1b, d1a1b)
         
-        network.Network(id=str(random.random()),
-                        name=str(random.random()),
-                        haplotypes=(self.h0a, self.h0b, self.h1a, self.h1b),
-                        distance_calculator=d,
-                        annotations = dict((str(random.random()), random.random()) 
-                                           for _ in range(random.randint(0,10))))
+        self.nw = network.Network(id=str(random.random()),
+                                  name=str(random.random()),
+                                  haplotypes=(self.h0a, self.h0b, self.h1a, self.h1b),
+                                  distance_calculator=d,
+                                  annotations=dict((str(random.random()), random.random()) 
+                                                   for _ in range(random.randint(0, 100))))
                                            
+    
+    def test_haps_in_nw(self):
+        self.assertTrue(self.h0a in self.nw) 
+        self.assertTrue(self.h0b in self.nw)
+        self.assertTrue(self.h1a in self.nw)
+        self.assertTrue(self.h1b in self.nw)
+        self.assertTrue(haps.Haplotype("hap1b", att0=2, att1="bye")
+                        in self.nw)
+        self.assertTrue(not haps.Haplotype("hap1bz", att0=2, att1="bye")
+                        in self.nw)
+    
+
+#===============================================================================
+# NETWORK INFO TEST
+#===============================================================================
+
+class NetworkInfoTest(unittest.TestCase):
+    
+    def setUp(self):
+        self.h0a = haps.Haplotype("hap0a", att0=1, att1="hi")
+        self.h0b = haps.Haplotype("hap0b", att0=1, att1="hi")
+        self.h1a = haps.Haplotype("hap1a", att0=2, att1="bye")
+        self.h1b = haps.Haplotype("hap1b", att0=2, att1="bye")
         
+        # create distance
+        d0a0b = random.random()
+        d0a1b = random.random()
+        d1a0b = random.random()
+        d1a1b = random.random()
+        d = distances.ExpertDistance()
+        d.add_distance(self.h0a, self.h0b, d0a0b)
+        d.add_distance(self.h0a, self.h1b, d0a1b)
+        d.add_distance(self.h1a, self.h0b, d1a0b)
+        d.add_distance(self.h1a, self.h1b, d1a1b)
+        
+        self.nw = network.Network(id=str(random.random()),
+                                  name=str(random.random()),
+                                  haplotypes=(self.h0a, self.h0b, self.h1a, self.h1b),
+                                  distance_calculator=d,
+                                  annotations=dict((str(random.random()), random.random()) 
+                                                   for _ in range(random.randint(0, 100))))
+        self.nwi = networkinfo.NetworkInfo(self.nw)
+        
+    def test_all(self):
+        for k in dir(self.nwi):
+            if not k.startswith("_"):
+                v = getattr(self.nwi, k)
+                if isCallable(v):
+                    v()
+                else:
+                    v
+    
 
 #===============================================================================
 # MAIN

@@ -57,7 +57,7 @@ __date__ = "2010-08-04"
 
 import numpy
 
-from yatel import Network
+from yatel import network
 
 
 #===============================================================================
@@ -66,15 +66,15 @@ from yatel import Network
 
 class NetworkInfo(object):
 
-    def __init__(self, network):
-        assert isinstance(network, Network.Network), \
-               "network must be Network instance find: " % str(type(network))
-        self._nw = network
+    def __init__(self, nw):
+        assert isinstance(nw, network.Network), \
+               "'nw' must be Network instance found: %s" % str(type(nw))
+        self._nw = nw
 
     def __repr__(self):
         return "%s instance of %s at %s" % (self.__class__.__name__,
-                                           repr(self._nw),
-                                           hex(id(self)))
+                                             repr(self._nw),
+                                             hex(id(self)))
     @property
     def network(self):
         return self._nw                                       
@@ -82,9 +82,9 @@ class NetworkInfo(object):
     @property
     def distances(self):
         all_d = []
-        for srd_dict in self._nw.values():
-            distances = [d for d in srd_dict.values() if isinstance(d, (float, int))]
-            all_d.extend(distances)
+        for h0 in self._nw:
+            for h1 in self._nw:
+                all_d.append(self._nw.distance(h0, h1))
         return all_d
                     
     @property

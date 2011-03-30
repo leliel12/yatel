@@ -60,6 +60,9 @@ class Distance(object):
 
     __metaclass__ = abc.ABCMeta
 
+    def __call__(self, hap0, hap1):
+        return self.distance_of(hap0, hap1)
+
     @abc.abstractmethod
     def distance_of(self, hap0, hap1):
         """Returns the distances between hap0 and hap1"""

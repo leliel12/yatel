@@ -51,6 +51,15 @@ class Haplotype(object):
         self._name = name
         self._atts = atts
 
+    def __repr__(self):
+        return "<%s '%s' at %s>" % (self.__class__.__name__,
+                                    self.name,
+                                    hex(id(self)))
+
+    def __eq__(self, obj):
+        return isinstance(obj, self.__class__) \
+               and obj.name == self.name
+
     def __len__(self):
         return len(self._atts)
 
@@ -71,6 +80,10 @@ class Haplotype(object):
         
     def get(self, k, default=None):
         return self._atts.get(k, default)
+    
+    @property
+    def name(self):
+        return self._name
         
 
 #===============================================================================
