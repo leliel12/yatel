@@ -76,8 +76,8 @@ from yatel import util
 FORMATTER = util.TypeFormatter(
     int=int,
     float=float,
-    bool=bool, 
-    str=str, 
+    bool=bool,
+    str=str,
     unicode=unicode,
     datetime=lambda s: datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S.%f")
 )

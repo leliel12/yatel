@@ -62,7 +62,7 @@ class TypeFormatter(object):
     def format(self, value):
         tn = unicode(type(value).__name__)
         if tn not in self._types:
-            msg = u"'value' must be instance of %s. Found %s" % ( ", ".join(self._types), tn)
+            msg = u"'value' must be instance of %s. Found %s" % (", ".join(self._types), tn)
             raise TypeError(msg)
         return tn, unicode(value)
         

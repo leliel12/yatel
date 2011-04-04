@@ -65,8 +65,16 @@ from yatel import network
 #===============================================================================
 
 class NetworkInfo(object):
+    """This class is used for extract information about networks
+    
+    """
 
     def __init__(self, nw):
+        """Create a new instance
+        
+        @param nw: a ntwork toextract information
+        
+        """
         assert isinstance(nw, network.Network), \
                "'nw' must be Network instance found: %s" % str(type(nw))
         self._nw = nw
@@ -74,57 +82,95 @@ class NetworkInfo(object):
     def __repr__(self):
         return "%s instance of %s at %s" % (self.__class__.__name__,
                                              repr(self._nw),
-                                             hex(id(self)))
-    @property
-    def network(self):
-        return self._nw                                       
+                                             hex(id(self)))                                 
     
-    @property
-    def distances(self):
+    def distances(self, ignore_none=True):
+        """Return a list of all distances of the network
+        
+        @param ignore_none: if is True do not return the "None" values
+         
+        """
         all_d = []
         for h0 in self._nw:
             for h1 in self._nw:
-                all_d.append(self._nw.distance(h0, h1))
+                d = self._nw.distance(h0, h1)
+                if not ignore_none or d != None :
+                    all_d.append(d)
         return all_d
                     
-    @property
-    def distance_avg(self):
-        return numpy.average(self.distances)
-    
-    @property
-    def distance_std(self):
-        return numpy.std(self.distances)
+    def distance_avg(self, *args, **kwargs):
+        """Calculate the distance average of all network
         
-    @property
-    def distance_max(self):
-        return max(self.distances)
+        @param *args: the numpy average extra arguments.
+        @param **kwargs: the numpy average extra arguments.
+        
+        """
+        return numpy.average(self.distances(), *args, **kwargs)
     
-    @property
-    def distance_min(self):
-        return min(self.distances)
-    
-    @property
+    def distance_std(self, *args, **kwargs):
+        """Compute the standard deviation of network distances 
+        along the specified axis.
+        
+        @param *args: the numpy std extra arguments.
+        @param **kwargs: the numpy std extra arguments.
+         
+         """
+        return numpy.std(self.distances(), *args, **kwargs)
+        
+    def distance_max(self, *args, **kwargs):
+        """Return the maximum distance of the network along an axis.
+        
+        @param *args: the numpy max extra arguments.
+        @param **kwargs: the numpy max extra arguments.
+         
+         """
+        return numpy.max(self.distances(), *args, **kwargs)
+
+    def distance_min(self, *args, **kwargs):
+        """Return the minimum distance of the network along an axis.
+        
+        @param *args: the numpy min extra arguments.
+        @param **kwargs: the numpy min extra arguments.
+         
+         """
+        return min(self.distances(), *args, **kwargs)
+
     def distance_frequency(self):
-        """Return a list of tuples where all elements have"""
+        """Return a dictionary where the keys are the distances, and a value
+        are the frequency of the distance"""
         freq = {}
-        for d in self.distances:
+        for d in self.distances():
             if d not in freq:
                 freq[d] = 0
             freq[d] += 1
         return freq
     
-    @property
-    def distance_mode(self):
-        freq = self.distance_frequency
-        mode = max(freq.values())
-        return tuple([d for d, count in freq.items() if count >= mode])
+    def distance_mode(self, *args, **kwargs):
+        """Return a tuple of the distances with max frequencies
         
-    @property
-    def distance_anti_mode(self):
-        freq = self.distance_frequency
-        mode = min(freq.values())
+        @param *args: the numpy max extra arguments.
+        @param **kwargs: the numpy max extra arguments.
+        
+        """
+        freq = self.distance_frequency()
+        mode = numpy.max(freq.values(), *args, **kwargs)
+        return tuple(d for d, count in freq.items() if count >= mode)
+        
+        
+    def distance_anti_mode(self, *args, **kwargs):
+        """Return a tuple of the distances with min frequencies
+        
+        @param *args: the numpy min extra arguments.
+        @param **kwargs: the numpy min extra arguments.
+        
+        """
+        freq = self.distance_frequency()
+        mode = numpy.min(freq.values(), *args, **kwargs)
         return tuple([d for d, count in freq.items() if count <= mode])
         
+    @property
+    def network(self):
+        return self._nw      
 
 #===============================================================================
 # MAIN

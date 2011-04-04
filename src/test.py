@@ -21,7 +21,6 @@
 #===============================================================================
 
 from __future__ import absolute_import
-from reportlab.lib.validators import isCallable
 
 
 #===============================================================================
@@ -49,7 +48,8 @@ __date__ = "2011-03-02"
 
 import unittest
 import random
-import os
+
+import numpy
 
 from yatel import haps, distances, network, networkinfo
 
@@ -166,6 +166,7 @@ class NetworkInfoTest(unittest.TestCase):
         d0a1b = random.random()
         d1a0b = random.random()
         d1a1b = random.random()
+        self.distances = (d0a0b, d0a1b, d1a0b, d1a1b)
         d = distances.ExpertDistance()
         d.add_distance(self.h0a, self.h0b, d0a0b)
         d.add_distance(self.h0a, self.h1b, d0a1b)
@@ -180,15 +181,38 @@ class NetworkInfoTest(unittest.TestCase):
                                                    for _ in range(random.randint(0, 100))))
         self.nwi = networkinfo.NetworkInfo(self.nw)
         
-    def test_all(self):
-        for k in dir(self.nwi):
-            if not k.startswith("_"):
-                v = getattr(self.nwi, k)
-                if isCallable(v):
-                    v()
-                else:
-                    v
+    def test_distances(self):
+        self.assertTrue(None not in self.nwi.distances())
+        self.assertTrue(None in self.nwi.distances(ignore_none=False))
     
+
+    def test_distances_avg(self):
+        mavg = numpy.average(self.distances)
+        self.assertEqual(mavg, self.nwi.distance_avg())
+        
+    def test_distances_std(self):
+        mstd = numpy.std(self.distances)
+        self.assertEqual(mstd, self.nwi.distance_std())
+        
+    def test_max_min(self):
+        mmax = numpy.max(self.distances)
+        mmin = numpy.min(self.distances)
+        self.assertEqual(mmax, self.nwi.distance_max())
+        self.assertEqual(mmin, self.nwi.distance_min())
+        self.assertTrue(mmax >= mmin)
+        
+    def test_mode(self):
+        freqs = self.nwi.distance_frequency()
+        mf = numpy.max(freqs.values())
+        for d in self.nwi.distance_mode():
+            self.assertEqual(freqs[d], mf)
+        
+    def test_anti_mode(self):
+        freqs = self.nwi.distance_frequency()
+        mf = numpy.min(freqs.values())
+        for d in self.nwi.distance_anti_mode():
+            self.assertEqual(freqs[d], mf)
+        
 
 #===============================================================================
 # MAIN
