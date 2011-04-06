@@ -16,5 +16,3 @@ syntax: regexp
 
 syntax: regexp
 ^\.settings$
-syntax: regexp
-^\.settings$
