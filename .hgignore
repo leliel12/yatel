@@ -13,3 +13,8 @@ syntax: regexp
 ^.*/?_ign_
 syntax: regexp
 ^.*(.)orig$
+
+syntax: regexp
+^\.settings$
+syntax: regexp
+^\.settings$
