@@ -47,7 +47,6 @@ class Haplotype(object):
     
     def __init__(self, name, **atts):
         assert isinstance(name, basestring)
-        assert isinstance(atts, dict)
         self._name = name
         self._atts = atts
 
