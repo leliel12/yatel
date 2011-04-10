@@ -63,34 +63,45 @@ from yatel import haps, distances, network
 
 _parsers = {}
 
-def register(name, cls=None):
+def register(parsername, cls=None):
 
     def iregister(cls):
         assert issubclass(cls, AbstractParser)
-        _parsers[name] = cls
+        _parsers[parsername] = cls
         return cls
 
     return iregister(cls) if cls else iregister
 
+def unregister(parsername):
+    _parsers.pop(parsername)
 
-def parsers():
+
+def list__parsers():
     return _parsers.keys()
 
 
-def loads(parsername, src, ignore_warnings=False, **kwargs):
-    return _parsers[parsername]().loads(src, ignore_warnings, **kwargs)
+def msg_on_load(parsername):
+    return _parsers[parsername]().msg_on_load()
 
 
-def dumps(parsername, nw, ignore_warnings=False, **kwargs):
-    return _parsers[parsername]().dumps(nw, ignore_warnings, **kwargs)
+def msg_on_dump(parsername):
+    return _parsers[parsername]().msg_on_dump()
 
 
-def load(parsername, stream, ignore_warnings=False, **kwargs):
-    return _parsers[parsername]().load(stream, ignore_warnings, **kwargs)
+def loads(parsername, src, **kwargs):
+    return _parsers[parsername]().loads(src, **kwargs)
 
 
-def dump(parsername, nw, stream, ignore_warnings=False, **kwargs):
-    return _parsers[parsername]().dump(nw, stream, ignore_warnings, **kwargs)
+def dumps(parsername, nw, **kwargs):
+    return _parsers[parsername]().dumps(nw, **kwargs)
+
+
+def load(parsername, stream, **kwargs):
+    return _parsers[parsername]().load(stream, **kwargs)
+
+
+def dump(parsername, nw, stream, **kwargs):
+    return _parsers[parsername]().dump(nw, stream, **kwargs)
 
 
 #===============================================================================
@@ -102,18 +113,24 @@ class AbstractParser(object):
     __metaclass__ = abc.ABCMeta
     
     @abc.abstractmethod
-    def  loads(self, src, ignore_warnings=False, **kwargs):
+    def  loads(self, src, **kwargs):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def dumps(self, nw, ignore_warnings=False, **kwargs):
+    def dumps(self, nw, **kwargs):
         raise NotImplementedError()
+    
+    def msg_on_load(self):
+        return ()
+    
+    def msg_on_dump(self):
+        return ()
 
-    def load(self, stream, ignore_warnings=False, **kwargs):
-        return self.loads(stream.read(), ignore_warnings, **kwargs)
+    def load(self, stream, **kwargs):
+        return self.loads(stream.read(), **kwargs)
 
-    def dump(self, nw, stream, ignore_warnings=False, **kwargs):
-        stream.write(self.dumps(nw, ignore_warnings, **kwargs))
+    def dump(self, nw, stream, **kwargs):
+        stream.write(self.dumps(nw, **kwargs))
 
 
 #===============================================================================
@@ -123,7 +140,7 @@ class AbstractParser(object):
 @register("njd")
 class NJDParser(AbstractParser):
 
-    def loads(self, src, ignore_warnings=False, **kwargs):
+    def loads(self, src, **kwargs):
         nw_as_dict = json.loads(src, **kwargs)
         
         id = nw_as_dict["id"]
@@ -146,7 +163,7 @@ class NJDParser(AbstractParser):
                              annotations=annotations)
         return nw
     
-    def dumps(self, nw, ignore_warnings=False, **kwargs):
+    def dumps(self, nw, **kwargs):
         if "indent" not in kwargs:
             kwargs["indent"] = 4
         nw_as_dict = {}
@@ -176,7 +193,7 @@ class NJDParser(AbstractParser):
 @register("csv")
 class CSVParser(AbstractParser):
     
-    def loads(self, src, ignore_warnings=False, **kwargs):
+    def loads(self, src, **kwargs):
         if "dialect" not in kwargs:
             kwargs["dialect"] = csv.Sniffer().sniff(src) \
                                 or csv.get_dialect("excel")
@@ -193,11 +210,11 @@ class CSVParser(AbstractParser):
                              haplotypes=haplotypes.values(),
                              distance_calculator=distance_calculator)
         return nw
-        
-    def dumps(self, nw, ignore_warnings=False, **kwargs):
-        if not ignore_warnings:
-            msg = "CSVParser can't handle metadata of Network or Haplotypes"
-            warnings.warn(msg)
+    def msg_on_dump(self):
+        return ("CSVParser can't handle metadata of Network or Haplotypes", )
+    
+    
+    def dumps(self, nw, **kwargs):
         
         stream = cStringIO.StringIO()
         csv_writer = csv.writer(stream,  **kwargs)

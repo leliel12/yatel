@@ -53,11 +53,23 @@ import numpy
 
 from yatel import haps, distances, network, networkinfo, io
 
+#===============================================================================
+# TEST IN ORDER
+#===============================================================================
+
+_tests = []
+
+
+def register(test_cls):
+    _tests.append(test_cls)
+    return test_cls
+
 
 #===============================================================================
 # HAPLOTYPE TESTS
 #===============================================================================
 
+@register
 class HaplotypeTest(unittest.TestCase):
     
     def test_creation(self):
@@ -71,6 +83,7 @@ class HaplotypeTest(unittest.TestCase):
 # DISTANCES
 #===============================================================================
 
+@register
 class TestDistances(unittest.TestCase):
     
     def setUp(self):
@@ -111,6 +124,7 @@ class TestDistances(unittest.TestCase):
 # NETWORK TEST
 #===============================================================================
 
+@register
 class NetworkTest(unittest.TestCase):
     
     def setUp(self):
@@ -153,6 +167,7 @@ class NetworkTest(unittest.TestCase):
 # NETWORK INFO TEST
 #===============================================================================
 
+@register
 class NetworkInfoTest(unittest.TestCase):
     
     def setUp(self):
@@ -162,10 +177,10 @@ class NetworkInfoTest(unittest.TestCase):
         self.h1b = haps.Haplotype("hap1b", att0=2, att1="bye")
         
         # create distance
-        d0a0b = random.random()
-        d0a1b = random.random()
-        d1a0b = random.random()
-        d1a1b = random.random()
+        d0a0b = round(random.random(), 4)
+        d0a1b = round(random.random(), 4)
+        d1a0b = round(random.random(), 4)
+        d1a1b = round(random.random(), 4)
         self.distances = (d0a0b, d0a1b, d1a0b, d1a1b)
         d = distances.ExpertDistance()
         d.add_distance(self.h0a, self.h0b, d0a0b)
@@ -217,7 +232,8 @@ class NetworkInfoTest(unittest.TestCase):
 # NETWORK IO TEST
 #===============================================================================
 
-class NetworkInfoTest(unittest.TestCase):
+@register
+class IOTest(unittest.TestCase):
     
     def setUp(self):
         self.h0a = haps.Haplotype("hap0a", att0=1, att1="hi")
@@ -225,27 +241,25 @@ class NetworkInfoTest(unittest.TestCase):
         self.h1a = haps.Haplotype("hap1a", att0=2, att1="bye")
         self.h1b = haps.Haplotype("hap1b", att0=2, att1="bye")
         
-        # create distance
-        d0a0b = random.random()
-        d0a1b = random.random()
-        d1a0b = random.random()
-        d1a1b = random.random()
-        self.distances = (d0a0b, d0a1b, d1a0b, d1a1b)
-        d = distances.ExpertDistance()
-        d.add_distance(self.h0a, self.h0b, d0a0b)
-        d.add_distance(self.h0a, self.h1b, d0a1b)
-        d.add_distance(self.h1a, self.h0b, d1a0b)
-        d.add_distance(self.h1a, self.h1b, d1a1b)
-        
         self.nw = network.Network(id=str(random.random()),
                                   name=str(random.random()),
                                   haplotypes=(self.h0a, self.h0b, self.h1a, self.h1b),
-                                  distance_calculator=d,
                                   annotations=dict((str(random.random()), random.random()) 
                                                    for _ in range(random.randint(0, 100))))
+    def test_csv(self):
+        pnw = io.loads("csv", io.dumps("csv", self.nw))
+        for hap0 in pnw:
+            self.assertTrue(hap0 in self.nw)
+            for hap1 in pnw:
+                dorig = self.nw.distance(hap0, hap1)
+                dpar = pnw.distance(hap0, hap1)
+                self.assertEqual(dorig, dpar)
+        self.assertEqual(pnw.name, "")
+        self.assertEqual(pnw.id, "")
+        self.assertEqual(pnw.annotations, {})
         
-        
-        
+    
+    
 #===============================================================================
 # MAIN
 #===============================================================================
