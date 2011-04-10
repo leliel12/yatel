@@ -83,6 +83,18 @@ class Network(object):
             if h == hap:
                 return True
 
+    def clone(self, id, name=None, haplotypes=None,
+              distance_calculator=None, annotations=None):
+        name = name if name != None else self.name
+        haplotypes = haplotypes if haplotypes != None else self.haplotypes
+        distance_calculator = distance_calculator \
+                              if distance_calculator != None \
+                              else self.distance_calculator
+        annotations = annotations \
+                      if annotations != None \
+                      else dict(self.annotations)
+        return Network(id, name, haplotypes, distance_calculator, annotations)
+
     def add(self, h):
         assert isinstance(h, haps.Haplotype)
         assert h not in self._mtx
