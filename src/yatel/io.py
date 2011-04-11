@@ -143,8 +143,8 @@ class NJDParser(AbstractParser):
     def loads(self, src, **kwargs):
         nw_as_dict = json.loads(src, **kwargs)
         
-        id = nw_as_dict["id"]
-        name = nw_as_dict["name"]
+        nwid = nw_as_dict["id"]
+        nwname = nw_as_dict["name"]
         annotations = nw_as_dict["annotations"]
         
         haplotypes  = {}
@@ -152,14 +152,16 @@ class NJDParser(AbstractParser):
             haplotypes[name] = haps.Haplotype(name, **atts)
             
         distance_calculator = distances.ExpertDistance()
-        for haps, distance in nw_as_dict["distances"].items():
-            hap0, hap1 = haplotypes[haps[0]], haplotypes[haps[1]]
-            distance = float(distance)
-            distance_calculator.add_distance(hap0, hap1, distance)
+        for name0, hap0_distances in nw_as_dict["distances"].items():
+            hap0 = haplotypes[name0]
+            for name1, distance in hap0_distances.items():
+                hap1 = haplotypes[name1]
+                distance = float(distance)
+                distance_calculator.add_distance(hap0, hap1, distance)
 
-        nw = network.Network(id=id, name=name,
-                             haplotypes=haplotypes,
-                             distance_calculator=distance, 
+        nw = network.Network(id=nwid, name=nwname,
+                             haplotypes=haplotypes.values(),
+                             distance_calculator=distance_calculator, 
                              annotations=annotations)
         return nw
     
@@ -174,11 +176,16 @@ class NJDParser(AbstractParser):
         haps_as_dict = {}
         distances_as_dict = {}
         for hap0 in nw.happlotypes:
+            # parse attributes
             haps_as_dict[hap0.name] = dict([(k, v) for k, v in hap0.items()])
+            
+            # parse distances
+            distances = {}
             for hap1 in nw.happlotypes:
                 distance = nw.distance(hap0, hap1)
                 if distance != None:
-                    distances_as_dict[(hap0.name, hap1.name)] = None
+                    distances[hap1.name] = distance
+            distances_as_dict[hap0.name] = distances
         
         nw_as_dict["haplotypes"] = haps_as_dict
         nw_as_dict["distances"] = distances_as_dict

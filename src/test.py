@@ -53,6 +53,14 @@ import numpy
 
 from yatel import haps, distances, network, networkinfo, io
 
+
+#===============================================================================
+# CONSTANTS
+#===============================================================================
+
+DIGITS = 4
+
+
 #===============================================================================
 # TEST IN ORDER
 #===============================================================================
@@ -177,10 +185,10 @@ class NetworkInfoTest(unittest.TestCase):
         self.h1b = haps.Haplotype("hap1b", att0=2, att1="bye")
         
         # create distance
-        d0a0b = round(random.random(), 4)
-        d0a1b = round(random.random(), 4)
-        d1a0b = round(random.random(), 4)
-        d1a1b = round(random.random(), 4)
+        d0a0b = round(random.random(), DIGITS)
+        d0a1b = round(random.random(), DIGITS)
+        d1a0b = round(random.random(), DIGITS)
+        d1a1b = round(random.random(), DIGITS)
         self.distances = (d0a0b, d0a1b, d1a0b, d1a1b)
         d = distances.ExpertDistance()
         d.add_distance(self.h0a, self.h0b, d0a0b)
@@ -202,12 +210,12 @@ class NetworkInfoTest(unittest.TestCase):
     
 
     def test_distances_avg(self):
-        mavg = numpy.average(self.distances)
-        self.assertEqual(mavg, self.nwi.distance_avg())
+        mavg = round(numpy.average(self.distances), DIGITS)
+        self.assertEqual(mavg, round(self.nwi.distance_avg(), DIGITS))
         
     def test_distances_std(self):
-        mstd = numpy.std(self.distances)
-        self.assertEqual(mstd, self.nwi.distance_std())
+        mstd = round(numpy.std(self.distances), DIGITS)
+        self.assertEqual(mstd, round(self.nwi.distance_std(),DIGITS))
         
     def test_max_min(self):
         mmax = numpy.max(self.distances)
@@ -244,7 +252,7 @@ class IOTest(unittest.TestCase):
         self.nw = network.Network(id=str(random.random()),
                                   name=str(random.random()),
                                   haplotypes=(self.h0a, self.h0b, self.h1a, self.h1b),
-                                  annotations=dict((str(random.random()), random.random()) 
+                                  annotations=dict((str(random.random()), str(random.random())) 
                                                    for _ in range(random.randint(0, 100))))
     def test_csv(self):
         pnw = io.loads("csv", io.dumps("csv", self.nw))
@@ -258,6 +266,18 @@ class IOTest(unittest.TestCase):
         self.assertEqual(pnw.id, "")
         self.assertEqual(pnw.annotations, {})
         
+    def test_njd(self):
+        pnw = io.loads("njd", io.dumps("njd", self.nw))
+        for hap0 in pnw:
+            self.assertTrue(hap0 in self.nw)
+            for hap1 in pnw:
+                dorig = round(self.nw.distance(hap0, hap1), DIGITS)
+                dpar = round(pnw.distance(hap0, hap1), DIGITS)
+                self.assertEqual(dorig, dpar)
+        self.assertEqual(pnw.name, self.nw.name)
+        self.assertEqual(pnw.id, self.nw.id)
+        for k, v in pnw.annotations.items():
+            self.assertEqual(v, self.nw.annotations[k])
     
     
 #===============================================================================
@@ -265,6 +285,7 @@ class IOTest(unittest.TestCase):
 #===============================================================================
 
 if __name__ == "__main__":
-    unittest.main()
+    for _ in xrange(1000):
+        unittest.main()
 
 
