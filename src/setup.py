@@ -1,0 +1,2 @@
+
+DEPENDENCIES =  ("PyYAML", "numpy", "lxml")
