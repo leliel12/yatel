@@ -278,6 +278,19 @@ class IOTest(unittest.TestCase):
         self.assertEqual(pnw.id, self.nw.id)
         for k, v in pnw.annotations.items():
             self.assertEqual(v, self.nw.annotations[k])
+            
+    def test_nyd(self):
+        pnw = io.loads("nyd", io.dumps("nyd", self.nw))
+        for hap0 in pnw:
+            self.assertTrue(hap0 in self.nw)
+            for hap1 in pnw:
+                dorig = round(self.nw.distance(hap0, hap1), DIGITS)
+                dpar = round(pnw.distance(hap0, hap1), DIGITS)
+                self.assertEqual(dorig, dpar)
+        self.assertEqual(pnw.name, self.nw.name)
+        self.assertEqual(pnw.id, self.nw.id)
+        for k, v in pnw.annotations.items():
+            self.assertEqual(v, self.nw.annotations[k])
     
     
 #===============================================================================

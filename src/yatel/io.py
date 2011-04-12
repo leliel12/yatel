@@ -54,6 +54,8 @@ import warnings
 import json
 import csv
 
+import yaml
+
 from yatel import haps, distances, network
 
 
@@ -76,7 +78,7 @@ def unregister(parsername):
     _parsers.pop(parsername)
 
 
-def list__parsers():
+def list_parsers():
     return _parsers.keys()
 
 
@@ -234,6 +236,73 @@ class CSVParser(AbstractParser):
                 if distance != None:
                     csv_writer.writerow([n0, n1, distance])
         return stream.getvalue()
+
+
+#===============================================================================
+# NYD
+#===============================================================================
+
+@register("nyd")
+class NJDParser(AbstractParser):
+
+    def loads(self, src, **kwargs):
+        if not isinstance(src, basestring):
+            raise TypeError("'src' must be basestring instance")
+        nw_as_dict = yaml.load(src, **kwargs)
+        
+        nwid = nw_as_dict["id"]
+        nwname = nw_as_dict["name"]
+        annotations = nw_as_dict["annotations"]
+        
+        haplotypes  = {}
+        for name, atts in nw_as_dict["haplotypes"].items():
+            haplotypes[name] = haps.Haplotype(name, **atts)
+            
+        distance_calculator = distances.ExpertDistance()
+        for name0, hap0_distances in nw_as_dict["distances"].items():
+            hap0 = haplotypes[name0]
+            for name1, distance in hap0_distances.items():
+                hap1 = haplotypes[name1]
+                distance = float(distance)
+                distance_calculator.add_distance(hap0, hap1, distance)
+
+        nw = network.Network(id=nwid, name=nwname,
+                             haplotypes=haplotypes.values(),
+                             distance_calculator=distance_calculator, 
+                             annotations=annotations)
+        return nw
+    
+    def dumps(self, nw, **kwargs):
+        
+        kwargs["stream"] = None
+        if "indent" not in kwargs:
+            kwargs["indent"] = True
+        if "default_flow_style" not in kwargs:
+            kwargs["default_flow_style"] = False
+            
+        nw_as_dict = {}
+        nw_as_dict["id"] = nw.id
+        nw_as_dict["name"] = nw.name
+        nw_as_dict["annotations"] = dict([(str(k), str(v))
+                                           for k, v in nw.annotations.items()])
+        haps_as_dict = {}
+        distances_as_dict = {}
+        for hap0 in nw.happlotypes:
+            # parse attributes
+            haps_as_dict[hap0.name] = dict([(k, v) for k, v in hap0.items()])
+            
+            # parse distances
+            distances = {}
+            for hap1 in nw.happlotypes:
+                distance = nw.distance(hap0, hap1)
+                if distance != None:
+                    distances[hap1.name] = distance
+            distances_as_dict[hap0.name] = distances
+        
+        nw_as_dict["haplotypes"] = haps_as_dict
+        nw_as_dict["distances"] = distances_as_dict
+
+        return yaml.dump(nw_as_dict, **kwargs)
 
 
 #===============================================================================
