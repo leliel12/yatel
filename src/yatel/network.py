@@ -125,7 +125,7 @@ class Network(object):
     #===========================================================================
 
     @property
-    def happlotypes(self):
+    def haplotypes(self):
         return self._mtx.keys()
 
     @property

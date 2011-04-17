@@ -215,7 +215,7 @@ class NetworkInfoTest(unittest.TestCase):
         
     def test_distances_std(self):
         mstd = round(numpy.std(self.distances), DIGITS)
-        self.assertEqual(mstd, round(self.nwi.distance_std(),DIGITS))
+        self.assertEqual(mstd, round(self.nwi.distance_std(), DIGITS))
         
     def test_max_min(self):
         mmax = numpy.max(self.distances)
@@ -292,6 +292,19 @@ class IOTest(unittest.TestCase):
         for k, v in pnw.annotations.items():
             self.assertEqual(v, self.nw.annotations[k])
     
+    def test_xml(self):
+        pnw = io.loads("nxd", io.dumps("nxd", self.nw))
+        for hap0 in pnw:
+            self.assertTrue(hap0 in self.nw)
+            for hap1 in pnw:
+                dorig = round(self.nw.distance(hap0, hap1), DIGITS)
+                dpar = round(pnw.distance(hap0, hap1), DIGITS)
+                self.assertEqual(dorig, dpar)
+        self.assertEqual(pnw.name, self.nw.name)
+        self.assertEqual(pnw.id, self.nw.id)
+        for k, v in pnw.annotations.items():
+            self.assertEqual(v, self.nw.annotations[k])
+        
     
 #===============================================================================
 # MAIN

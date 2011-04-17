@@ -1,2 +1,2 @@
 
-DEPENDENCIES =  ("PyYAML", "numpy", "lxml")
+DEPENDENCIES = ("PyYAML", "numpy", "lxml")
