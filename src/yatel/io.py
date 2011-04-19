@@ -316,6 +316,7 @@ class NXDParser(AbstractParser):
         nw = etree.XML(src, **kwargs)
         nwname = nw.attrib["name"]
         nwid = nw.attrib["id"]
+        
         haplotypes = {}
         for hx in nw.iterfind("haplotypes/haplotype"):
             hname = hx.attrib["name"]
@@ -323,12 +324,14 @@ class NXDParser(AbstractParser):
             for ax in hx.iterfind("attribute"):
                 hatts[ax.attrib["name"]] = ax.text
             haplotypes[hname] = haps.Haplotype(hname, **hatts)
+        
         distance_calculator = distances.ExpertDistance()
         for dx in nw.iterfind("distances/distance"):
             hap0 = haplotypes[dx.attrib["namefrom"]]
             hap1 = haplotypes[dx.attrib["nameto"]]
             distance = float(dx.text)
             distance_calculator.add_distance(hap0, hap1, distance)
+        
         annotations = {}
         for ax in nw.iterfind("annotations/annotation"):
             annotations[ax.attrib["name"]] = ax.text
@@ -345,39 +348,33 @@ class NXDParser(AbstractParser):
             kwargs["pretty_print"] = True
         
         e = builder.E
-         
         def distances():
-            distances = []
             for h0 in nw.haplotypes:
                 for h1 in nw.haplotypes:
                     d = nw.distance(h0, h1)
                     if d != None:
-                        distances.append(e.distance(str(d),
-                                                    namefrom=h0.name,
-                                                    nameto=h1.name))
-            return distances
+                        yield e.distance(str(d), 
+                                          namefrom=h0.name,
+                                          nameto=h1.name)
+        def haplotypes():
+            for hap in nw.haplotypes:
+                yield e.haplotype(*[e.attribute(str(v), name=str(k))
+                                    for k, v in hap.items()],
+                                   name=str(hap.name))
+        def annotations():
+            for k, v in nw.annotations.items():
+                yield e.annotation(str(v), name=str(k)) 
        
-        haplotype = lambda h: e.haplotype(*[e.attribute(str(v), name=str(k))
-                                              for k, v in h.items()], name=str(h.name))
-        annotation = lambda k, v:e.annotation(str(v), name=str(k)) 
         nw_as_xml = e.network(
-                              e.haplotypes(*[haplotype(h) for h in nw.haplotypes]),
+                              e.haplotypes(*haplotypes()),
                               e.distances(*distances()),
-                              e.annotations(*[annotation(k, v) 
-                                              for k, v in nw.annotations.items()]),
+                              e.annotations(*annotations()),
               name=nw.name,
               id=nw.id
         )
         
         return etree.tostring(nw_as_xml, **kwargs)
     
-
-        
-        
-            
-        
-
-
 
 #===============================================================================
 # MAIN
