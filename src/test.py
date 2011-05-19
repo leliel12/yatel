@@ -304,7 +304,7 @@ class IOTest(unittest.TestCase):
         self.assertEqual(pnw.id, self.nw.id)
         for k, v in pnw.annotations.items():
             self.assertEqual(v, self.nw.annotations[k])
-        
+    
     
 #===============================================================================
 # MAIN
