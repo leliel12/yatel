@@ -60,31 +60,17 @@ class Haplotype(object):
     
     def __hash__(self):
         return hash(self.name)
-
-    def __len__(self):
-        return len(self._atts)
-
-    def __iter__(self):
-        return iter(self._atts)
     
-    def __getitem__(self, k):
-        return self._atts[k]
-    
-    def items(self):
-        return self._atts.items()
+    def __getattr__(self, name):
+        return self._atts[name]
         
-    def values(self):
-        return self._atts.values()
-        
-    def keys(self):
-        return self._atts.keys()
-        
-    def get(self, k, default=None):
-        return self._atts.get(k, default)
-    
     @property
     def name(self):
         return self._name
+    
+    @property
+    def attributes(self):
+        return dict(self._atts)
         
 
 #===============================================================================

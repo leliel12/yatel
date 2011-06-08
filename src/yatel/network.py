@@ -79,7 +79,7 @@ class Network(object):
         return iter(self._mtx)
 
     def __contains__(self, hap):
-        return hap in self._mtx:
+        return hap in self._mtx
 
     def clone(self, id, name=None, haplotypes=None,
               distance_calculator=None, annotations=None):

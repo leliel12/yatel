@@ -48,10 +48,11 @@ __date__ = "2011-03-02"
 
 import unittest
 import random
+import time
 
 import numpy
 
-from yatel import haps, distances, network, networkinfo, io
+from yatel import haps, distances, network, networkinfo, io, facts
 
 
 #===============================================================================
@@ -65,33 +66,46 @@ DIGITS = 4
 # TEST IN ORDER
 #===============================================================================
 
-_tests = []
-
-
-def register(test_cls):
-    _tests.append(test_cls)
-    return test_cls
-
-
+def randomdict():
+    d = {}
+    for _ in range(random.randint(0, 100)):
+        d[str(random.random())] = str(random.random())
+    return d
+         
+        
 #===============================================================================
-# HAPLOTYPE TESTS
+# FACTS
 #===============================================================================
 
-@register
 class HaplotypeTest(unittest.TestCase):
     
-    def test_creation(self):
-        haps.Haplotype("hap0a", att0=1, att1="hi")
-        haps.Haplotype("hap0b", att0=1, att1="hi")
-        haps.Haplotype("hap1a", att0=2, att1="bye")
-        haps.Haplotype("hap1b", att0=2, att1="bye")
+    def test_all(self):
+        for _ in range(1000):
+            h = haps.Haplotype(str(time.time()), **randomdict())
+            
+#===============================================================================
+# FACTS TESTS
+#===============================================================================
 
+class FactsTest(unittest.TestCase):
     
+    def test_all(self):
+        hs = []
+        ants = randomdict()
+        for _ in xrange(random.randint(0, 100)):
+            h = haps.Haplotype(str(time.time()), **randomdict())
+            hs.append(h)
+        fact = facts.Fact(hs, **ants)
+        for h in fact.haplotypes:
+            self.assertTrue(h in hs)
+        for k, v in ants.items():
+            self.assertEqual(v, getattr(fact, k))
+            
+  
 #===============================================================================
 # DISTANCES
 #===============================================================================
 
-@register
 class TestDistances(unittest.TestCase):
     
     def setUp(self):
@@ -132,7 +146,6 @@ class TestDistances(unittest.TestCase):
 # NETWORK TEST
 #===============================================================================
 
-@register
 class NetworkTest(unittest.TestCase):
     
     def setUp(self):
@@ -175,7 +188,6 @@ class NetworkTest(unittest.TestCase):
 # NETWORK INFO TEST
 #===============================================================================
 
-@register
 class NetworkInfoTest(unittest.TestCase):
     
     def setUp(self):
@@ -200,8 +212,7 @@ class NetworkInfoTest(unittest.TestCase):
                                   name=str(random.random()),
                                   haplotypes=(self.h0a, self.h0b, self.h1a, self.h1b),
                                   distance_calculator=d,
-                                  annotations=dict((str(random.random()), random.random()) 
-                                                   for _ in range(random.randint(0, 100))))
+                                  annotations=randomdict())
         self.nwi = networkinfo.NetworkInfo(self.nw)
         
     def test_distances(self):
@@ -235,12 +246,12 @@ class NetworkInfoTest(unittest.TestCase):
         mf = numpy.min(freqs.values())
         for d in self.nwi.distance_anti_mode():
             self.assertEqual(freqs[d], mf)
+
         
 #===============================================================================
 # NETWORK IO TEST
 #===============================================================================
 
-@register
 class IOTest(unittest.TestCase):
     
     def setUp(self):
@@ -254,17 +265,6 @@ class IOTest(unittest.TestCase):
                                   haplotypes=(self.h0a, self.h0b, self.h1a, self.h1b),
                                   annotations=dict((str(random.random()), str(random.random())) 
                                                    for _ in range(random.randint(0, 100))))
-    def test_csv(self):
-        pnw = io.loads("csv", io.dumps("csv", self.nw))
-        for hap0 in pnw:
-            self.assertTrue(hap0 in self.nw)
-            for hap1 in pnw:
-                dorig = self.nw.distance(hap0, hap1)
-                dpar = pnw.distance(hap0, hap1)
-                self.assertEqual(dorig, dpar)
-        self.assertEqual(pnw.name, "")
-        self.assertEqual(pnw.id, "")
-        self.assertEqual(pnw.annotations, {})
         
     def test_njd(self):
         pnw = io.loads("njd", io.dumps("njd", self.nw))
@@ -311,7 +311,6 @@ class IOTest(unittest.TestCase):
 #===============================================================================
 
 if __name__ == "__main__":
-    for _ in xrange(1000):
-        unittest.main()
+    unittest.main()
 
 

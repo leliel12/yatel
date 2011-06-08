@@ -180,7 +180,9 @@ class NJDParser(AbstractParser):
         distances_as_dict = {}
         for hap0 in nw.haplotypes:
             # parse attributes
-            haps_as_dict[hap0.name] = dict([(k, v) for k, v in hap0.items()])
+            
+            haps_as_dict[hap0.name] = dict([(k, v)
+                                            for k, v in hap0.attributes.items()])
             
             # parse distances
             distances = {}
@@ -195,49 +197,6 @@ class NJDParser(AbstractParser):
 
         return json.dumps(nw_as_dict, **kwargs)
         
-        
-#===============================================================================
-# CSV PARSER
-#===============================================================================
-
-@register("csv")
-class CSVParser(AbstractParser):
-    
-    def loads(self, src, **kwargs):
-        if "dialect" not in kwargs:
-            kwargs["dialect"] = csv.Sniffer().sniff(src) \
-                                or csv.get_dialect("excel")
-        haplotypes = {}
-        distance_calculator = distances.ExpertDistance()
-        for h0n, h1n, d in csv.reader(src.splitlines(), **kwargs):
-            if h0n not in haplotypes:
-                haplotypes[h0n] = haps.Haplotype(h0n)
-            if h1n not in haplotypes:
-                haplotypes[h1n] = haps.Haplotype(h1n)
-            distance_calculator.add_distance(haplotypes[h0n],
-                                             haplotypes[h1n], float(d))
-        nw = network.Network(id="", name="",
-                             haplotypes=haplotypes.values(),
-                             distance_calculator=distance_calculator)
-        return nw
-    
-    def msg_on_dump(self):
-        return ("CSVParser can't handle metadata of Network or Haplotypes",)
-    
-    def dumps(self, nw, **kwargs):
-        
-        stream = cStringIO.StringIO()
-        csv_writer = csv.writer(stream, **kwargs)
-
-        for hap0 in nw.haplotypes:
-            n0 = hap0.name
-            for hap1 in nw.haplotypes:
-                n1 = hap1.name
-                distance = nw.distance(hap0, hap1)
-                if distance != None:
-                    csv_writer.writerow([n0, n1, distance])
-        return stream.getvalue()
-
 
 #===============================================================================
 # NYD
@@ -290,7 +249,8 @@ class NYDParser(AbstractParser):
         distances_as_dict = {}
         for hap0 in nw.haplotypes:
             # parse attributes
-            haps_as_dict[hap0.name] = dict([(k, v) for k, v in hap0.items()])
+            haps_as_dict[hap0.name] = dict([(k, v) 
+                                            for k, v in hap0.attributes.items()])
             
             # parse distances
             distances = {}
@@ -304,6 +264,7 @@ class NYDParser(AbstractParser):
         nw_as_dict["distances"] = distances_as_dict
 
         return yaml.dump(nw_as_dict, **kwargs)
+
 
 #===============================================================================
 # NXD
@@ -353,13 +314,13 @@ class NXDParser(AbstractParser):
                 for h1 in nw.haplotypes:
                     d = nw.distance(h0, h1)
                     if d != None:
-                        yield e.distance(str(d), 
+                        yield e.distance(str(d),
                                           namefrom=h0.name,
                                           nameto=h1.name)
         def haplotypes():
             for hap in nw.haplotypes:
                 yield e.haplotype(*[e.attribute(str(v), name=str(k))
-                                    for k, v in hap.items()],
+                                    for k, v in hap.attributes.items()],
                                    name=str(hap.name))
         def annotations():
             for k, v in nw.annotations.items():
