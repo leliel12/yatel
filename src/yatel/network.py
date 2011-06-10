@@ -50,8 +50,15 @@ __date__ = "2011-03-02"
 # IMPORTS
 #===============================================================================
 
+import inspect
+
 from yatel import distances, haps
 
+#===============================================================================
+# CONSTANTS
+#===============================================================================
+
+CONNECTIVITY_ALL = "ALL"
 
 #===============================================================================
 # BASE CLASS
@@ -59,18 +66,20 @@ from yatel import distances, haps
 
 class Network(object):
 
-    def __init__(self, id, name, haplotypes=(),
+    def __init__(self, id, name, haplotypes=(), connectivity=CONNECTIVITY_ALL,
                  distance_calculator=distances.HammingDistance(),
                  annotations={}):
         assert isinstance(id, basestring)
         assert isinstance(name, basestring)
         assert isinstance(distance_calculator, distances.Distance)
         assert isinstance(annotations, dict)
+        assert _validate_connectivity(connectivity)
         self._mtx = {}
         self._distance_calculator = distance_calculator
         self._annotations = annotations
         self._id = id
         self._name = name
+        self._conn = connectivity
         # use method for init
         for hap in haplotypes:
             self.add(hap)
@@ -81,7 +90,11 @@ class Network(object):
     def __contains__(self, hap):
         return hap in self._mtx
 
-    def clone(self, id, name=None, haplotypes=None,
+    def _calculate_distance(self, hap0, hap1):
+        if self.are_connected(hap0, hap1):
+            return self._distance_calculator(hap0, hap1)
+        
+    def clone(self, id, name=None, haplotypes=None, connectivity=None,
               distance_calculator=None, annotations=None):
         name = name if name != None else self.name
         haplotypes = haplotypes if haplotypes != None else self.haplotypes
@@ -91,16 +104,19 @@ class Network(object):
         annotations = annotations \
                       if annotations != None \
                       else dict(self.annotations)
-        return Network(id, name, haplotypes, distance_calculator, annotations)
+        connectivity = connectivity \
+                       if connectivity != None else self.connectivity
+        return Network(id, name, haplotypes, connectivity, 
+                        distance_calculator, annotations)
 
     def add(self, h):
         assert isinstance(h, haps.Haplotype)
         assert h not in self._mtx
         h0 = h
-        d0 = {h0: self.distance_calculator(h0, h0)}
+        d0 = {h0: self._calculate_distance(h0, h0)}
         for h1, d1 in self._mtx.items():
-            d0[h1] = self.distance_calculator(h0, h1)
-            d1[h0] = self.distance_calculator(h1, h0)
+            d0[h1] = self._calculate_distance(h0, h1)
+            d1[h0] = self._calculate_distance(h1, h0)
         self._mtx[h0] = d0
 
     def remove(self, h):
@@ -116,6 +132,14 @@ class Network(object):
 
     def distance(self, from_h, to_h):
         return self._mtx[from_h][to_h]
+        
+    def are_connected(self, hap0, hap1):
+        if self._conn == CONNECTIVITY_ALL:
+            return True
+        if callable(self._conn):
+            return self._conn(hap0, hap1)
+        return self._conn.count((hap0, hap1))
+        
 
     #===========================================================================
     # PROPERTIES
@@ -140,6 +164,35 @@ class Network(object):
     @property
     def annotations(self):
         return self._annotations
+
+    @property
+    def connectivity(self):
+        if isinstance(self._conn, list):
+            return tuple(self._conn)
+        return self._conn
+        
+
+#===============================================================================
+# SUPPORT
+#===============================================================================
+
+def _validate_connectivity(c):
+    if c == CONNECTIVITY_ALL:
+        return True
+    if isinstance(c, (tuple, list)):
+        for ce in c:
+            if not isinstance(ce, tuple) or len(ce) != 2 \
+            or not isinstance(ce[0], haps.Haplotype) \
+            or not isinstance(ce[1], haps.Haplotype):
+                return False
+        return True
+    if callable(c):
+        args = inspect.getargspec(c).args
+        if inspect.isfunction(c) and len(args) != 2:
+            return False
+        if inspect.ismethod(c) and len(args) != 3:
+            return False
+        return True
 
 
 #===============================================================================

@@ -5,7 +5,7 @@
 NON_EASY_INSTALLABLES = {
     "PyQt4": "http://www.riverbankcomputing.co.uk/software/pyqt/intro", }
 
-DEPENDENCIES = ("PyYAML", "numpy", "lxml")
+DEPENDENCIES = ("numpy", )
 
 
 #===============================================================================
