@@ -102,7 +102,6 @@ class Network(object):
             d0[h1] = self.distance_calculator(h0, h1)
             d1[h0] = self.distance_calculator(h1, h0)
         self._mtx[h0] = d0
-        
 
     def remove(self, h):
         self._mtx.pop(h)

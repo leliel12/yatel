@@ -82,7 +82,8 @@ class HaplotypeTest(unittest.TestCase):
     def test_all(self):
         for _ in range(1000):
             h = haps.Haplotype(str(time.time()), **randomdict())
-            
+
+
 #===============================================================================
 # FACTS TESTS
 #===============================================================================
@@ -95,7 +96,7 @@ class FactsTest(unittest.TestCase):
         for _ in xrange(random.randint(0, 100)):
             h = haps.Haplotype(str(time.time()), **randomdict())
             hs.append(h)
-        fact = facts.Fact(hs, **ants)
+        fact = facts.Fact(str(time.time()), hs, **ants)
         for h in fact.haplotypes:
             self.assertTrue(h in hs)
         for k, v in ants.items():
@@ -263,11 +264,18 @@ class IOTest(unittest.TestCase):
         self.nw = network.Network(id=str(random.random()),
                                   name=str(random.random()),
                                   haplotypes=(self.h0a, self.h0b, self.h1a, self.h1b),
-                                  annotations=dict((str(random.random()), str(random.random())) 
-                                                   for _ in range(random.randint(0, 100))))
+                                  annotations=randomdict())
+        
+        self.facts = []
+        for _ in range(random.randint(10, 200)):
+            name = str(time.time())
+            hs = [h for h in self.nw.haplotypes if random.randint(0, 1)]
+            fact = facts.Fact(name, hs, **randomdict())
+            self.facts.append(fact)
         
     def test_njd(self):
-        pnw = io.loads("njd", io.dumps("njd", self.nw))
+        #print io.dumps("njd", self.nw, self.facts)
+        pnw, pfacts = io.loads("njd", io.dumps("njd", self.nw, self.facts))
         for hap0 in pnw:
             self.assertTrue(hap0 in self.nw)
             for hap1 in pnw:
@@ -278,33 +286,14 @@ class IOTest(unittest.TestCase):
         self.assertEqual(pnw.id, self.nw.id)
         for k, v in pnw.annotations.items():
             self.assertEqual(v, self.nw.annotations[k])
-            
-    def test_nyd(self):
-        pnw = io.loads("nyd", io.dumps("nyd", self.nw))
-        for hap0 in pnw:
-            self.assertTrue(hap0 in self.nw)
-            for hap1 in pnw:
-                dorig = round(self.nw.distance(hap0, hap1), DIGITS)
-                dpar = round(pnw.distance(hap0, hap1), DIGITS)
-                self.assertEqual(dorig, dpar)
-        self.assertEqual(pnw.name, self.nw.name)
-        self.assertEqual(pnw.id, self.nw.id)
-        for k, v in pnw.annotations.items():
-            self.assertEqual(v, self.nw.annotations[k])
-    
-    def test_xml(self):
-        pnw = io.loads("nxd", io.dumps("nxd", self.nw))
-        for hap0 in pnw:
-            self.assertTrue(hap0 in self.nw)
-            for hap1 in pnw:
-                dorig = round(self.nw.distance(hap0, hap1), DIGITS)
-                dpar = round(pnw.distance(hap0, hap1), DIGITS)
-                self.assertEqual(dorig, dpar)
-        self.assertEqual(pnw.name, self.nw.name)
-        self.assertEqual(pnw.id, self.nw.id)
-        for k, v in pnw.annotations.items():
-            self.assertEqual(v, self.nw.annotations[k])
-    
+        for fact0 in pfacts:
+            self.assertTrue(fact0 in self.facts)
+            fact1 = [f for f in self.facts if f == fact0][0]
+            print fact0.haplotypes
+            print fact1.haplotypes
+            print "------"
+            for hap in fact0.haplotypes:
+                self.assertTrue(hap in fact1.haplotypes)
     
 #===============================================================================
 # MAIN

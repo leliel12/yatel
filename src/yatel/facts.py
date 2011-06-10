@@ -57,17 +57,33 @@ from yatel import haps
 
 class Fact(object):
     
-    def __init__(self, haplotypes=(), **atts):
+    def __init__(self, id, haplotypes=(), **atts):
         assert all(map(lambda h: isinstance(h, haps.Haplotype), haplotypes))
-        self._haps = haplotypes
+        assert isinstance(id, basestring)
+        self._id = id
+        self._haps = tuple(haplotypes)
         self._atts = atts
-        
+
     def __getattr__(self, k):
         return self._atts[k] 
-        
+    
+    def __eq__(self, obj):
+        return isinstance(obj, self.__class__) and obj.id == self.id
+    
+    def __hash__(self):
+        return hash(self.id)
+
     @property
     def haplotypes(self):
         return self._haps
+
+    @property
+    def attributes(self):
+        return dict(self._atts)
+
+    @property
+    def id(self):
+        return self._id
 
 
 #===============================================================================
