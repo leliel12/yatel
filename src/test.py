@@ -267,14 +267,13 @@ class IOTest(unittest.TestCase):
                                   annotations=randomdict())
         
         self.facts = []
-        for _ in range(random.randint(10, 200)):
-            name = str(time.time())
+        for idx in range(random.randint(10, 100)):
+            name = str(idx)
             hs = [h for h in self.nw.haplotypes if random.randint(0, 1)]
             fact = facts.Fact(name, hs, **randomdict())
             self.facts.append(fact)
         
     def test_njd(self):
-        #print io.dumps("njd", self.nw, self.facts)
         pnw, pfacts = io.loads("njd", io.dumps("njd", self.nw, self.facts))
         for hap0 in pnw:
             self.assertTrue(hap0 in self.nw)
@@ -289,9 +288,6 @@ class IOTest(unittest.TestCase):
         for fact0 in pfacts:
             self.assertTrue(fact0 in self.facts)
             fact1 = [f for f in self.facts if f == fact0][0]
-            print fact0.haplotypes
-            print fact1.haplotypes
-            print "------"
             for hap in fact0.haplotypes:
                 self.assertTrue(hap in fact1.haplotypes)
     

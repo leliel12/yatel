@@ -3,7 +3,7 @@
 # Key: pkg to import
 # value: the page to get help about install the package
 NON_EASY_INSTALLABLES = {
-    "PyQt4": "http://www.riverbankcomputing.co.uk/software/pyqt/intro",}
+    "PyQt4": "http://www.riverbankcomputing.co.uk/software/pyqt/intro", }
 
 DEPENDENCIES = ("PyYAML", "numpy", "lxml")
 

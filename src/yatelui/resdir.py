@@ -59,7 +59,7 @@ class ResourceDirs(object):
             raise TypeError(msg % str(type(paths)))
         
         if isinstance(exts, basestring):
-            self._exts = (exts, )
+            self._exts = (exts,)
         elif isinstance(paths, (list, tuple)):
             self._exts = exts
         elif exts == None:
