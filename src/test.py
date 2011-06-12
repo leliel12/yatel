@@ -52,7 +52,7 @@ import time
 
 import numpy
 
-from yatel import haps, distances, network, networkinfo, io, facts
+from yatel import haps, ndistances, network, networkinfo, io, facts
 
 
 #===============================================================================
@@ -72,7 +72,11 @@ def randomdict():
         d[str(random.random())] = str(random.random())
     return d
          
-        
+
+def randomrange(limit_low, limit_up):
+    return range(random.randint(limit_low, limit_up))
+
+
 #===============================================================================
 # FACTS
 #===============================================================================
@@ -93,7 +97,7 @@ class FactsTest(unittest.TestCase):
     def test_all(self):
         hs = []
         ants = randomdict()
-        for _ in xrange(random.randint(0, 100)):
+        for _ in randomrange(0, 100):
             h = haps.Haplotype(str(time.time()), **randomdict())
             hs.append(h)
         fact = facts.Fact(str(time.time()), hs, **ants)
@@ -116,7 +120,7 @@ class TestDistances(unittest.TestCase):
         self.h1b = haps.Haplotype("hap1b", att0=2, att1="bye")
         
     def test_hamming(self):
-        d = distances.HammingDistance()
+        d = ndistances.HammingDistance()
         self.assertEquals(d.distance_of(self.h0a, self.h0b), 0)
         self.assertEquals(d.distance_of(self.h1a, self.h1b), 0)
         self.assertEquals(d.distance_of(self.h1a, self.h0b), 2)
@@ -130,7 +134,7 @@ class TestDistances(unittest.TestCase):
         d1a1b = random.random()
         
         # create the expert
-        d = distances.ExpertDistance()
+        d = ndistances.ExpertDistance()
         d.add_distance(self.h0a, self.h0b, d0a0b)
         d.add_distance(self.h0a, self.h1b, d0a1b)
         d.add_distance(self.h1a, self.h0b, d1a0b)
@@ -150,103 +154,27 @@ class TestDistances(unittest.TestCase):
 class NetworkTest(unittest.TestCase):
     
     def setUp(self):
-        self.h0a = haps.Haplotype("hap0a", att0=1, att1="hi")
-        self.h0b = haps.Haplotype("hap0b", att0=1, att1="hi")
-        self.h1a = haps.Haplotype("hap1a", att0=2, att1="bye")
-        self.h1b = haps.Haplotype("hap1b", att0=2, att1="bye")
-        
-        # create distance
-        d0a0b = random.random()
-        d0a1b = random.random()
-        d1a0b = random.random()
-        d1a1b = random.random()
-        d = distances.ExpertDistance()
-        d.add_distance(self.h0a, self.h0b, d0a0b)
-        d.add_distance(self.h0a, self.h1b, d0a1b)
-        d.add_distance(self.h1a, self.h0b, d1a0b)
-        d.add_distance(self.h1a, self.h1b, d1a1b)
-        
-        self.nw = network.Network(id=str(random.random()),
-                                  name=str(random.random()),
-                                  haplotypes=(self.h0a, self.h0b, self.h1a, self.h1b),
-                                  distance_calculator=d,
-                                  annotations=dict((str(random.random()), random.random()) 
-                                                   for _ in range(random.randint(0, 100))))
-                                           
-    
-    def test_haps_in_nw(self):
-        self.assertTrue(self.h0a in self.nw) 
-        self.assertTrue(self.h0b in self.nw)
-        self.assertTrue(self.h1a in self.nw)
-        self.assertTrue(self.h1b in self.nw)
-        self.assertTrue(haps.Haplotype("hap1b", att0=2, att1="bye")
-                        in self.nw)
-        self.assertTrue(not haps.Haplotype("hap1bz", att0=2, att1="bye")
-                        in self.nw)
-    
+        self.haplotypes = [haps.Haplotype(str(name), **randomdict())
+                           for name in randomrange(10, 100)]
+        self.conn = set([(random.choice(self.haplotypes), random.choice(self.haplotypes))
+                         for _ in randomrange(10, 50)])
+        self.ann = randomdict()
+        self.nw = network.Network(id=str(random.random), 
+                                  haplotypes=self.haplotypes, 
+                                  connectivity=self.conn,
+                                  ndistance_calculator=ndistances.LinkDistance(),
+                                  annotations=self.ann)
+                                  
+    def test_(self):
+        print self.conn   
+
 
 #===============================================================================
 # NETWORK INFO TEST
 #===============================================================================
 
 class NetworkInfoTest(unittest.TestCase):
-    
-    def setUp(self):
-        self.h0a = haps.Haplotype("hap0a", att0=1, att1="hi")
-        self.h0b = haps.Haplotype("hap0b", att0=1, att1="hi")
-        self.h1a = haps.Haplotype("hap1a", att0=2, att1="bye")
-        self.h1b = haps.Haplotype("hap1b", att0=2, att1="bye")
-        
-        # create distance
-        d0a0b = round(random.random(), DIGITS)
-        d0a1b = round(random.random(), DIGITS)
-        d1a0b = round(random.random(), DIGITS)
-        d1a1b = round(random.random(), DIGITS)
-        self.distances = (d0a0b, d0a1b, d1a0b, d1a1b)
-        d = distances.ExpertDistance()
-        d.add_distance(self.h0a, self.h0b, d0a0b)
-        d.add_distance(self.h0a, self.h1b, d0a1b)
-        d.add_distance(self.h1a, self.h0b, d1a0b)
-        d.add_distance(self.h1a, self.h1b, d1a1b)
-        
-        self.nw = network.Network(id=str(random.random()),
-                                  name=str(random.random()),
-                                  haplotypes=(self.h0a, self.h0b, self.h1a, self.h1b),
-                                  distance_calculator=d,
-                                  annotations=randomdict())
-        self.nwi = networkinfo.NetworkInfo(self.nw)
-        
-    def test_distances(self):
-        self.assertTrue(None not in self.nwi.distances())
-        self.assertTrue(None in self.nwi.distances(ignore_none=False))
-    
-
-    def test_distances_avg(self):
-        mavg = round(numpy.average(self.distances), DIGITS)
-        self.assertEqual(mavg, round(self.nwi.distance_avg(), DIGITS))
-        
-    def test_distances_std(self):
-        mstd = round(numpy.std(self.distances), DIGITS)
-        self.assertEqual(mstd, round(self.nwi.distance_std(), DIGITS))
-        
-    def test_max_min(self):
-        mmax = numpy.max(self.distances)
-        mmin = numpy.min(self.distances)
-        self.assertEqual(mmax, self.nwi.distance_max())
-        self.assertEqual(mmin, self.nwi.distance_min())
-        self.assertTrue(mmax >= mmin)
-        
-    def test_mode(self):
-        freqs = self.nwi.distance_frequency()
-        mf = numpy.max(freqs.values())
-        for d in self.nwi.distance_mode():
-            self.assertEqual(freqs[d], mf)
-        
-    def test_anti_mode(self):
-        freqs = self.nwi.distance_frequency()
-        mf = numpy.min(freqs.values())
-        for d in self.nwi.distance_anti_mode():
-            self.assertEqual(freqs[d], mf)
+    pass 
 
         
 #===============================================================================
@@ -254,42 +182,8 @@ class NetworkInfoTest(unittest.TestCase):
 #===============================================================================
 
 class IOTest(unittest.TestCase):
-    
-    def setUp(self):
-        self.h0a = haps.Haplotype("hap0a", att0=1, att1="hi")
-        self.h0b = haps.Haplotype("hap0b", att0=1, att1="hi")
-        self.h1a = haps.Haplotype("hap1a", att0=2, att1="bye")
-        self.h1b = haps.Haplotype("hap1b", att0=2, att1="bye")
-        
-        self.nw = network.Network(id=str(random.random()),
-                                  name=str(random.random()),
-                                  haplotypes=(self.h0a, self.h0b, self.h1a, self.h1b),
-                                  annotations=randomdict())
-        
-        self.facts = []
-        for idx in range(random.randint(10, 100)):
-            name = str(idx)
-            hs = [h for h in self.nw.haplotypes if random.randint(0, 1)]
-            fact = facts.Fact(name, hs, **randomdict())
-            self.facts.append(fact)
-        
-    def test_njd(self):
-        pnw, pfacts = io.loads("njd", io.dumps("njd", self.nw, self.facts))
-        for hap0 in pnw:
-            self.assertTrue(hap0 in self.nw)
-            for hap1 in pnw:
-                dorig = round(self.nw.distance(hap0, hap1), DIGITS)
-                dpar = round(pnw.distance(hap0, hap1), DIGITS)
-                self.assertEqual(dorig, dpar)
-        self.assertEqual(pnw.name, self.nw.name)
-        self.assertEqual(pnw.id, self.nw.id)
-        for k, v in pnw.annotations.items():
-            self.assertEqual(v, self.nw.annotations[k])
-        for fact0 in pfacts:
-            self.assertTrue(fact0 in self.facts)
-            fact1 = [f for f in self.facts if f == fact0][0]
-            for hap in fact0.haplotypes:
-                self.assertTrue(hap in fact1.haplotypes)
+    pass
+
     
 #===============================================================================
 # MAIN

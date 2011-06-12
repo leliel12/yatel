@@ -52,7 +52,10 @@ __date__ = "2011-03-02"
 
 import inspect
 
-from yatel import distances, haps
+from pygraph.classes.graph import graph
+
+from yatel import ndistances, haps
+
 
 #===============================================================================
 # CONSTANTS
@@ -66,120 +69,76 @@ CONNECTIVITY_ALL = "ALL"
 
 class Network(object):
 
-    def __init__(self, id, name, haplotypes=(), connectivity=CONNECTIVITY_ALL,
-                 distance_calculator=distances.HammingDistance(),
+    def __init__(self, id, haplotypes=(), connectivity=CONNECTIVITY_ALL,
+                 ndistance_calculator=ndistances.LinkDistance(),
                  annotations={}):
         assert isinstance(id, basestring)
-        assert isinstance(name, basestring)
-        assert isinstance(distance_calculator, distances.Distance)
+        assert _validate_haps(haplotypes)
+        assert isinstance(ndistance_calculator, ndistances.NDistance)
         assert isinstance(annotations, dict)
         assert _validate_connectivity(connectivity)
-        self._mtx = {}
-        self._distance_calculator = distance_calculator
-        self._annotations = annotations
+        
+        # internal graph
+        self._graph = graph()
+        
+        # setup all
         self._id = id
-        self._name = name
+        self._connectivity = connectivity
+        self._ndistance_calculator = ndistance_calculator
+        self._annotations = annotations
         self._conn = connectivity
-        # use method for init
-        for hap in haplotypes:
-            self.add(hap)
-
-    def __iter__(self):
-        return iter(self._mtx)
-
-    def __contains__(self, hap):
-        return hap in self._mtx
-
-    def _calculate_distance(self, hap0, hap1):
-        if self.are_connected(hap0, hap1):
-            return self._distance_calculator(hap0, hap1)
+        self._graph.add_nodes(haplotypes)
         
-    def clone(self, id, name=None, haplotypes=None, connectivity=None,
-              distance_calculator=None, annotations=None):
-        name = name if name != None else self.name
-        haplotypes = haplotypes if haplotypes != None else self.haplotypes
-        distance_calculator = distance_calculator \
-                              if distance_calculator != None \
-                              else self.distance_calculator
-        annotations = annotations \
-                      if annotations != None \
-                      else dict(self.annotations)
-        connectivity = connectivity \
-                       if connectivity != None else self.connectivity
-        return Network(id, name, haplotypes, connectivity, 
-                        distance_calculator, annotations)
-
-    def add(self, h):
-        assert isinstance(h, haps.Haplotype)
-        assert h not in self._mtx
-        h0 = h
-        d0 = {h0: self._calculate_distance(h0, h0)}
-        for h1, d1 in self._mtx.items():
-            d0[h1] = self._calculate_distance(h0, h1)
-            d1[h0] = self._calculate_distance(h1, h0)
-        self._mtx[h0] = d0
-
-    def remove(self, h):
-        self._mtx.pop(h)
-        for v in self._mtx.values():
-            v.pop(h)
-
-    def get(self, h, default=None):
-        v = self._mtx.get(h, default)
-        if isinstance(v, dict):
-            v = dict(v)
-        return v
-
-    def distance(self, from_h, to_h):
-        return self._mtx[from_h][to_h]
-        
-    def are_connected(self, hap0, hap1):
-        if self._conn == CONNECTIVITY_ALL:
-            return True
-        if callable(self._conn):
-            return self._conn(hap0, hap1)
-        return self._conn.count((hap0, hap1))
-        
-
+        for h0 in haplotypes:
+            for h1 in haplotypes:
+                if connectivity==CONNECTIVITY_ALL or \
+                    (callable(connectivity) and connectivity(h0, h1)) or \
+                    (h0, h1) in connectivity:
+                        w = ndistance_calculator(h0, h1)
+                        self._graph.add_edge((h0, h1), w)
+                        
     #===========================================================================
     # PROPERTIES
     #===========================================================================
 
     @property
     def haplotypes(self):
-        return self._mtx.keys()
+        return self._graph.nodes()
 
     @property
     def id(self):
         return self._id
 
     @property
-    def name(self):
-        return self._name
-
-    @property
-    def distance_calculator(self):
-        return self._distance_calculator
+    def ndistance_calculator(self):
+        return self._ndistance_calculator
 
     @property
     def annotations(self):
-        return self._annotations
+        return dict(self._annotations)
 
     @property
     def connectivity(self):
         if isinstance(self._conn, list):
             return tuple(self._conn)
         return self._conn
-        
-
+                    
+                    
 #===============================================================================
 # SUPPORT
 #===============================================================================
 
+def _validate_haps(haplotypes):
+    for h in haplotypes:
+        if not isinstance(h, haps.Haplotype):
+            return False
+    return True
+        
+
 def _validate_connectivity(c):
     if c == CONNECTIVITY_ALL:
         return True
-    if isinstance(c, (tuple, list)):
+    if getattr(c, '__iter__', False):
         for ce in c:
             if not isinstance(ce, tuple) or len(ce) != 2 \
             or not isinstance(ce[0], haps.Haplotype) \
@@ -192,7 +151,6 @@ def _validate_connectivity(c):
             return False
         if inspect.ismethod(c) and len(args) != 3:
             return False
-        return True
 
 
 #===============================================================================

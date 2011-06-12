@@ -135,17 +135,17 @@ class NJDParser(AbstractParser):
         for name, atts in nw_as_dict["haplotypes"].items():
             haplotypes[name] = haps.Haplotype(name, **atts)
             
-        distance_calculator = distances.ExpertDistance()
+        neighbor_distance_calculator = distances.ExpertDistance()
         for name0, hap0_distances in nw_as_dict["distances"].items():
             hap0 = haplotypes[name0]
             for name1, distance in hap0_distances.items():
                 hap1 = haplotypes[name1]
                 distance = float(distance)
-                distance_calculator.add_distance(hap0, hap1, distance)
+                neighbor_distance_calculator.add_distance(hap0, hap1, distance)
 
         nw = network.Network(id=nwid, name=nwname,
                              haplotypes=haplotypes.values(),
-                             distance_calculator=distance_calculator,
+                             neighbor_distance_calculator=neighbor_distance_calculator,
                              annotations=annotations)
         nwfacts = []
         for id, fd in nw_as_dict["facts"].items():

@@ -51,8 +51,8 @@ import abc
 # BASE CLASS
 #===============================================================================
 
-class Distance(object):
-    """Base class for all Distances classes
+class NDistance(object):
+    """Base class for all Neightbors Distances classes
 
     You need to impelment distance_of(seq0, seq1) method.
 
@@ -67,13 +67,23 @@ class Distance(object):
     def distance_of(self, hap0, hap1):
         """Returns the distances between hap0 and hap1"""
         raise NotImplementedError()
+        
+        
+#===============================================================================
+# LINK DISTANCE CLASS
+#===============================================================================
+
+class LinkDistance(NDistance):
+
+    def distance_of(self, hap0, hap1):
+        return 1
 
 
 #===============================================================================
-# DEFAULT DISTANCE CLASS
+# HAMMING DISTANCE CLASS
 #===============================================================================
 
-class HammingDistance(Distance):
+class HammingDistance(NDistance):
 
     def distance_of(self, hap0, hap1):
         d = abs(len(hap0.attributes) - len(hap1.attributes))
@@ -86,7 +96,7 @@ class HammingDistance(Distance):
 # EXPERT DISTANCE CLASS
 #===============================================================================
 
-class ExpertDistance(Distance):
+class ExpertDistance(NDistance):
 
     def __init__(self):
         self._distances = {}
@@ -95,7 +105,7 @@ class ExpertDistance(Distance):
         self._distances[(hap0, hap1)] = distance
 
     def distance_of(self, hap0, hap1):
-        return self._distances.get((hap0, hap1))
+        return self._distances.get((hap0, hap1), 1)
 
 
 #===============================================================================
