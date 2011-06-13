@@ -51,8 +51,9 @@ __date__ = "2011-03-02"
 #===============================================================================
 
 import inspect
+import itertools
 
-from pygraph.classes.graph import graph
+from pygraph.classes import graph
 
 from yatel import ndistances, haps
 
@@ -63,50 +64,81 @@ from yatel import ndistances, haps
 
 CONNECTIVITY_ALL = "ALL"
 
+
+#===============================================================================
+# ERROR 
+#===============================================================================
+
+class NetworkError(Exception):
+    pass
+    
+
 #===============================================================================
 # BASE CLASS
 #===============================================================================
 
-class Network(object):
+class Network(graph.graph):
 
-    def __init__(self, id, haplotypes=(), connectivity=CONNECTIVITY_ALL,
+    def __init__(self, nwid, haplotypes=(), connectivity=CONNECTIVITY_ALL,
                  ndistance_calculator=ndistances.LinkDistance(),
                  annotations={}):
-        assert isinstance(id, basestring)
+        assert isinstance(nwid, basestring)
         assert _validate_haps(haplotypes)
         assert isinstance(ndistance_calculator, ndistances.NDistance)
         assert isinstance(annotations, dict)
         assert _validate_connectivity(connectivity)
         
-        # internal graph
-        self._graph = graph()
+        super(self.__class__, self).__init__()
         
-        # setup all
-        self._id = id
-        self._connectivity = connectivity
+        self._nwid = nwid
         self._ndistance_calculator = ndistance_calculator
         self._annotations = annotations
         self._conn = connectivity
-        self._graph.add_nodes(haplotypes)
-        
-        for h0 in haplotypes:
-            for h1 in haplotypes:
-                if connectivity==CONNECTIVITY_ALL or \
-                    (callable(connectivity) and connectivity(h0, h1)) or \
-                    (h0, h1) in connectivity:
-                        w = ndistance_calculator(h0, h1)
-                        self._graph.add_edge((h0, h1), w)
+    
+        for h in haplotypes:
+            attrs = [("name", h.name)]
+            attrs.extend(h.attributes.items())
+            self.add_node(h, attrs)
+            
+        if self._conn == CONNECTIVITY_ALL:
+            self.complete()    
+        else:
+            haps_prod = itertools.product(haplotypes,haplotypes)
+            if callable(self._conn):
+                for h0, h1 in haps_prod:
+                    if self._conn(h0, h1):
+                        w = abs(self._ndistance_calculator(h0, h1))
+                        self.add_edge((h0, h1), w)
+            elif getattr(self._conn, '__iter__', False):
+                for h0, h1 in haps_prod:
+                    if (h0, h1) in self._conn:
+                        w = abs(self._ndistance_calculator(h0, h1))
+                        self.add_edge((h0, h1), w)
                         
-    #===========================================================================
-    # PROPERTIES
-    #===========================================================================
-
+    def __eq__(self, obj):
+        return isinstance(obj, self.__class__) and \
+                self._nwid == obj._nwid and \
+                self._ndistance_calculator == obj._ndistance_calculator and \
+                self._annotations == obj._annotations and \
+                self._conn == obj._conn
+                
+    def __ne__(self, obj):
+        return not self == obj
+    
+    def __str__(self):
+        return repr(self)
+    
+    def __repr__(self):
+        return "<%s (%i Haplotypes) at %s>" % (self.__class__.__name__, 
+                                                len(self.haplotypes),
+                                                hex(id(self)))
+    
     @property
     def haplotypes(self):
-        return self._graph.nodes()
+        return self.nodes()
 
     @property
-    def id(self):
+    def nwid(self):
         return self._id
 
     @property
@@ -115,14 +147,12 @@ class Network(object):
 
     @property
     def annotations(self):
-        return dict(self._annotations)
+        return self._annotations
 
     @property
     def connectivity(self):
-        if isinstance(self._conn, list):
-            return tuple(self._conn)
         return self._conn
-                    
+
                     
 #===============================================================================
 # SUPPORT
@@ -158,5 +188,5 @@ def _validate_connectivity(c):
 #===============================================================================
 
 if __name__ == "__main__":
-    print __doc__
+    print(__doc__)
 

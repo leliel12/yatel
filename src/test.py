@@ -159,14 +159,14 @@ class NetworkTest(unittest.TestCase):
         self.conn = set([(random.choice(self.haplotypes), random.choice(self.haplotypes))
                          for _ in randomrange(10, 50)])
         self.ann = randomdict()
-        self.nw = network.Network(id=str(random.random), 
+        self.nw = network.Network(nwid=str(random.random), 
                                   haplotypes=self.haplotypes, 
                                   connectivity=self.conn,
                                   ndistance_calculator=ndistances.LinkDistance(),
                                   annotations=self.ann)
                                   
     def test_(self):
-        print self.conn   
+        print self.nw 
 
 
 #===============================================================================

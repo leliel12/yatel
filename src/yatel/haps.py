@@ -56,7 +56,12 @@ class Haplotype(object):
                                     hex(id(self)))
 
     def __eq__(self, obj):
-        return isinstance(obj, self.__class__) and obj.name == self.name
+        return isinstance(obj, self.__class__) \
+                and obj.name == self.name and \
+                obj._atts == self._atts
+                
+    def __ne__(self, obj):
+        return not self == obj
     
     def __hash__(self):
         return hash(self.name)
