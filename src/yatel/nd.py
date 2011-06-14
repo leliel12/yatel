@@ -66,18 +66,10 @@ CONNECTIVITY_ALL = "ALL"
 
 
 #===============================================================================
-# ERROR 
-#===============================================================================
-
-class NetworkError(Exception):
-    pass
-    
-
-#===============================================================================
 # BASE CLASS
 #===============================================================================
 
-class Network(graph.graph):
+class NetworkDescriptor(object):
 
     def __init__(self, nwid, haplotypes=(), connectivity=CONNECTIVITY_ALL,
                  ndistance_calculator=ndistances.LinkDistance(),
@@ -94,27 +86,31 @@ class Network(graph.graph):
         self._ndistance_calculator = ndistance_calculator
         self._annotations = annotations
         self._conn = connectivity
+        self._haps = set()
+        self._edges = set()
     
         for h in haplotypes:
             attrs = [("name", h.name)]
             attrs.extend(h.attributes.items())
-            self.add_node(h, attrs)
-            
-        if self._conn == CONNECTIVITY_ALL:
-            self.complete()    
+            self._add_haplotype(h)
+             
         else:
-            haps_prod = itertools.product(haplotypes,haplotypes)
+            haps_prod = itertools.product(haplotypes, haplotypes)
+            if self._conn == CONNECTIVITY_ALL:
+                for h0, h1 in haps_prod:
+                    w = abs(self._ndistance_calculator(h0, h1))
+                    self._add_edge(h0, h1, w)
             if callable(self._conn):
                 for h0, h1 in haps_prod:
                     if self._conn(h0, h1):
                         w = abs(self._ndistance_calculator(h0, h1))
-                        self.add_edge((h0, h1), w)
+                        self._add_edge(h0, h1, w)
             elif getattr(self._conn, '__iter__', False):
                 for h0, h1 in haps_prod:
                     if (h0, h1) in self._conn:
                         w = abs(self._ndistance_calculator(h0, h1))
-                        self.add_edge((h0, h1), w)
-                        
+                        self._add_edge(h0, h1, w)
+                    
     def __eq__(self, obj):
         return isinstance(obj, self.__class__) and \
                 self._nwid == obj._nwid and \
@@ -133,9 +129,29 @@ class Network(graph.graph):
                                                 len(self.haplotypes),
                                                 hex(id(self)))
     
+    def _add_haplotype(self, hap):
+        self._haps.add(hap)
+    
+    def _add_edge(self, hap0, hap1, w):
+        if hap0 not in self._haps:
+            msg = "hap0 (%s) not in this descriptor" % repr(hap0)
+            raise ValueError(hap0)
+        if hap1 not in self._haps:
+            msg = "hap1 (%s) not in this descriptor" % repr(hap1)
+            raise ValueError(hap0)
+        self._edges.add((hap0, hap1, w))
+    
     @property
     def haplotypes(self):
-        return self.nodes()
+        return tuple(self._haps)
+
+    @property
+    def nodes(self):
+        return tuple(self._haps)
+    
+    @property
+    def edges(self):
+        return tuple(self._edges)
 
     @property
     def nwid(self):

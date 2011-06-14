@@ -52,7 +52,7 @@ import time
 
 import numpy
 
-from yatel import haps, ndistances, network, networkinfo, io, facts
+from yatel import haps, ndistances, nd, facts
 
 
 #===============================================================================
@@ -153,20 +153,18 @@ class TestDistances(unittest.TestCase):
 
 class NetworkTest(unittest.TestCase):
     
-    def setUp(self):
+    def test_creation(self):
         self.haplotypes = [haps.Haplotype(str(name), **randomdict())
                            for name in randomrange(10, 100)]
         self.conn = set([(random.choice(self.haplotypes), random.choice(self.haplotypes))
                          for _ in randomrange(10, 50)])
         self.ann = randomdict()
-        self.nw = network.Network(nwid=str(random.random), 
-                                  haplotypes=self.haplotypes, 
-                                  connectivity=self.conn,
-                                  ndistance_calculator=ndistances.LinkDistance(),
-                                  annotations=self.ann)
-                                  
-    def test_(self):
-        print self.nw 
+        self.nw = nd.NetworkDescriptor(nwid=str(random.random), 
+                                       haplotypes=self.haplotypes, 
+                                       connectivity=self.conn,
+                                       ndistance_calculator=ndistances.LinkDistance(),
+                                       annotations=self.ann)
+
 
 
 #===============================================================================
@@ -182,7 +180,19 @@ class NetworkInfoTest(unittest.TestCase):
 #===============================================================================
 
 class IOTest(unittest.TestCase):
-    pass
+    
+    def setUp(self):
+        self.haplotypes = [haps.Haplotype(str(name), **randomdict())
+                           for name in randomrange(10, 100)]
+        self.conn = set([(random.choice(self.haplotypes), random.choice(self.haplotypes))
+                         for _ in randomrange(10, 50)])
+        self.ann = randomdict()
+        self.nw = network.Network(nwid=str(random.random), 
+                                  haplotypes=self.haplotypes, 
+                                  connectivity=self.conn,
+                                  ndistance_calculator=ndistances.LinkDistance(),
+                                  annotations=self.ann)
+        self.facts = ""
 
     
 #===============================================================================
