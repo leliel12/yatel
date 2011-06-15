@@ -53,9 +53,7 @@ __date__ = "2011-03-02"
 import inspect
 import itertools
 
-from pygraph.classes import graph
-
-from yatel import ndistances, haps
+from yatel import weights, haps
 
 
 #===============================================================================
@@ -72,15 +70,13 @@ CONNECTIVITY_ALL = "ALL"
 class NetworkDescriptor(object):
 
     def __init__(self, nwid, haplotypes=(), connectivity=CONNECTIVITY_ALL,
-                 w_calculator=ndistances.LinkDistance(),
+                 w_calculator=weights.LinkWeight(),
                  annotations={}):
         assert isinstance(nwid, basestring)
         assert _validate_haps(haplotypes)
-        assert isinstance(w_calculator, ndistances.NDistance), str(type(w_calculator))
+        assert isinstance(w_calculator, weights.Weight)
         assert isinstance(annotations, dict)
         assert _validate_connectivity(connectivity)
-        
-        super(self.__class__, self).__init__()
         
         self._nwid = nwid
         self._w_calculator = w_calculator

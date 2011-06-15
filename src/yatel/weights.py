@@ -52,21 +52,21 @@ import random
 # BASE CLASS
 #===============================================================================
 
-class NDistance(object):
-    """Base class for all Neightbors Distances classes
+class Weight(object):
+    """Base class for all edges weights classes
 
-    You need to impelment distance_of(seq0, seq1) method.
+    You need to impelment weight_of(seq0, seq1) method.
 
     """
 
     __metaclass__ = abc.ABCMeta
 
     def __call__(self, hap0, hap1):
-        return self.distance_of(hap0, hap1)
+        return self.weight_of(hap0, hap1)
 
     @abc.abstractmethod
-    def distance_of(self, hap0, hap1):
-        """Returns the distances between hap0 and hap1"""
+    def weight_of(self, hap0, hap1):
+        """Returns the weight between hap0 and hap1"""
         raise NotImplementedError()
         
         
@@ -74,9 +74,9 @@ class NDistance(object):
 # LINK DISTANCE CLASS
 #===============================================================================
 
-class LinkDistance(NDistance):
+class LinkWeight(Weight):
 
-    def distance_of(self, hap0, hap1):
+    def weight_of(self, hap0, hap1):
         return 1
 
 
@@ -84,9 +84,9 @@ class LinkDistance(NDistance):
 # HAMMING DISTANCE CLASS
 #===============================================================================
 
-class HammingDistance(NDistance):
+class HammingWeight(Weight):
 
-    def distance_of(self, hap0, hap1):
+    def weight_of(self, hap0, hap1):
         d = abs(len(hap0.attributes) - len(hap1.attributes))
         for k, v in hap0.attributes.items():
             d += 1 if v != hap1.attributes.get(k, None) else 0
@@ -97,25 +97,25 @@ class HammingDistance(NDistance):
 # EXPERT DISTANCE CLASS
 #===============================================================================
 
-class ExpertDistance(NDistance):
+class ExpertWeight(Weight):
 
     def __init__(self):
-        self._distances = {}
+        self._ws = {}
 
-    def add_distance(self, hap0, hap1, distance):
-        self._distances[(hap0, hap1)] = distance
+    def add_Weight(self, hap0, hap1, w):
+        self._ws[(hap0, hap1)] = w
 
-    def distance_of(self, hap0, hap1):
-        return self._distances.get((hap0, hap1), 1)
+    def weight_of(self, hap0, hap1):
+        return self._ws.get((hap0, hap1), 1)
 
 
 #===============================================================================
 # RANDOM DISTANCE CLASS
 #===============================================================================
 
-class RandomDistance(NDistance):
+class RandomWeight(Weight):
 
-    def distance_of(self, hap0, hap1):
+    def weight_of(self, hap0, hap1):
         return random.random()
         
 

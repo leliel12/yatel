@@ -37,7 +37,7 @@ from __future__ import absolute_import
 # META
 #===============================================================================
 
-__version__ = "Biopython License"
+__version__ = "0.1"
 __license__ = "GPL3"
 __author__ = "JBC <jbc dot develop at gmail dot com>"
 __since__ = "0.1"
@@ -64,6 +64,7 @@ def weights(nwd):
     @param ignore_none: if is True do not return the "None" values
      
     """
+    assert isinstance(nwd, nd.NetworkDescriptor)
     return  [w for h0, h1, w in nwd.edges]
 
                     

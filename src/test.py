@@ -52,7 +52,7 @@ import time
 
 import numpy
 
-from yatel import haps, ndistances, nd, facts, ndinfo
+from yatel import haps, weights, nd, facts, ndinfo
 
 
 #===============================================================================
@@ -120,11 +120,11 @@ class TestDistances(unittest.TestCase):
         self.h1b = haps.Haplotype("hap1b", att0=2, att1="bye")
         
     def test_hamming(self):
-        d = ndistances.HammingDistance()
-        self.assertEquals(d.distance_of(self.h0a, self.h0b), 0)
-        self.assertEquals(d.distance_of(self.h1a, self.h1b), 0)
-        self.assertEquals(d.distance_of(self.h1a, self.h0b), 2)
-        self.assertEquals(d.distance_of(self.h1b, self.h0a), 2)
+        d = weights.HammingWeight()
+        self.assertEquals(d.weight_of(self.h0a, self.h0b), 0)
+        self.assertEquals(d.weight_of(self.h1a, self.h1b), 0)
+        self.assertEquals(d.weight_of(self.h1a, self.h0b), 2)
+        self.assertEquals(d.weight_of(self.h1b, self.h0a), 2)
         
     def test_expert(self):
         # get random distances
@@ -134,17 +134,18 @@ class TestDistances(unittest.TestCase):
         d1a1b = random.random()
         
         # create the expert
-        d = ndistances.ExpertDistance()
-        d.add_distance(self.h0a, self.h0b, d0a0b)
-        d.add_distance(self.h0a, self.h1b, d0a1b)
-        d.add_distance(self.h1a, self.h0b, d1a0b)
-        d.add_distance(self.h1a, self.h1b, d1a1b)
+        
+        d = weights.ExpertWeight()
+        d.add_Weight(self.h0a, self.h0b, d0a0b)
+        d.add_Weight(self.h0a, self.h1b, d0a1b)
+        d.add_Weight(self.h1a, self.h0b, d1a0b)
+        d.add_Weight(self.h1a, self.h1b, d1a1b)
         
         # test
-        self.assertEquals(d.distance_of(self.h0a, self.h0b), d0a0b)
-        self.assertEquals(d.distance_of(self.h0a, self.h1b), d0a1b)
-        self.assertEquals(d.distance_of(self.h1a, self.h0b), d1a0b)
-        self.assertEquals(d.distance_of(self.h1a, self.h1b), d1a1b)
+        self.assertEquals(d.weight_of(self.h0a, self.h0b), d0a0b)
+        self.assertEquals(d.weight_of(self.h0a, self.h1b), d0a1b)
+        self.assertEquals(d.weight_of(self.h1a, self.h0b), d1a0b)
+        self.assertEquals(d.weight_of(self.h1a, self.h1b), d1a1b)
 
         
 #===============================================================================
@@ -159,10 +160,10 @@ class NetworkDescriptorTest(unittest.TestCase):
         self.conn = set([(random.choice(self.haplotypes), random.choice(self.haplotypes))
                          for _ in randomrange(10, 50)])
         self.ann = randomdict()
-        self.nw = nd.NetworkDescriptor(nwid=str(random.random), 
-                                       haplotypes=self.haplotypes, 
+        self.nw = nd.NetworkDescriptor(nwid=str(random.random),
+                                       haplotypes=self.haplotypes,
                                        connectivity=self.conn,
-                                       w_calculator=ndistances.LinkDistance(),
+                                       w_calculator=weights.LinkWeight(),
                                        annotations=self.ann)
 
 
@@ -179,10 +180,10 @@ class NDInfoTest(unittest.TestCase):
         self.conn = set([(random.choice(self.haplotypes), random.choice(self.haplotypes))
                          for _ in randomrange(10, 50)])
         self.ann = randomdict()
-        self.nw = nd.NetworkDescriptor(nwid=str(random.random), 
-                                       haplotypes=self.haplotypes, 
+        self.nw = nd.NetworkDescriptor(nwid=str(random.random),
+                                       haplotypes=self.haplotypes,
                                        connectivity=self.conn,
-                                       w_calculator=ndistances.RandomDistance(),
+                                       w_calculator=weights.RandomWeight(),
                                        annotations=self.ann)
     
     
@@ -190,7 +191,7 @@ for fn in dir(ndinfo):
     f = getattr(ndinfo, fn)
     if not fn.startswith("_") and callable(f):
         test_func = lambda self: f(self.nw)
-        setattr(NDInfoTest, "test_%s" % fn,  test_func)
+        setattr(NDInfoTest, "test_%s" % fn, test_func)
 del fn
         
 #===============================================================================
