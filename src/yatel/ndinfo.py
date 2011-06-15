@@ -1,27 +1,20 @@
 #!/usr/bin/env python
-#-*-coding:utf-8-*-
+# -*- coding: utf-8 -*-
 
-# Copyright (C) 2010 Juan BC <jbc dot develop at gmail dot com>
-
-# Biopython License Agreement
-
-# Permission to use, copy, modify, and distribute this software and its
-# documentation with or without modifications and for any purpose and
-# without fee is hereby granted, provided that any copyright notices
-# appear in all copies and that both those copyright notices and this
-# permission notice appear in supporting documentation, and that the
-# names of the contributors or copyright holders not be used in
-# advertising or publicity pertaining to distribution of the software
-# without specific prior permission.
-
-# THE CONTRIBUTORS AND COPYRIGHT HOLDERS OF THIS SOFTWARE DISCLAIM ALL
-# WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL THE
-# CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY SPECIAL, INDIRECT
-# OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-# OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
-# OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE
-# OR PERFORMANCE OF THIS SOFTWARE.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301, USA.
 
 #===============================================================================
 # FUTURE
@@ -57,120 +50,102 @@ __date__ = "2010-08-04"
 
 import numpy
 
-from yatel import network
+from yatel import nd
 
 
 #===============================================================================
 # NODE CLASS
 #===============================================================================
 
-class NetworkInfo(object):
-    """This class is used for extract information about networks
+                          
+def weights(nwd):
+    """Return a list of all weights of the network
+    
+    @param ignore_none: if is True do not return the "None" values
+     
+    """
+    return  [w for h0, h1, w in nwd.edges]
+
+                    
+def weights_avg(nwd, *args, **kwargs):
+    """Calculate the weights average of all network
+    
+    @param *args: the numpy average extra arguments.
+    @param **kwargs: the numpy average extra arguments.
     
     """
+    ws = [w for w in weights(nwd) if w != None]
+    return numpy.average(ws, *args, **kwargs)
 
-    def __init__(self, nw):
-        """Create a new instance
-        
-        @param nw: a ntwork toextract information
-        
-        """
-        assert isinstance(nw, network.Network), \
-               "'nw' must be Network instance found: %s" % str(type(nw))
-        self._nw = nw
 
-    def __repr__(self):
-        return "%s instance of %s at %s" % (self.__class__.__name__,
-                                             repr(self._nw),
-                                             hex(id(self)))                                 
+def weights_std(nwd, *args, **kwargs):
+    """Compute the standard deviation of network weights
+    along the specified axis.
     
-    def distances(self, ignore_none=True):
-        """Return a list of all distances of the network
+    @param *args: the numpy std extra arguments.
+    @param **kwargs: the numpy std extra arguments.
+     
+     """
+    ws = [w for w in weights(nwd) if w != None]
+    return numpy.std(ws, *args, **kwargs)
         
-        @param ignore_none: if is True do not return the "None" values
-         
-        """
-        all_d = []
-        for h0 in self._nw:
-            for h1 in self._nw:
-                d = self._nw.distance(h0, h1)
-                if not ignore_none or d != None :
-                    all_d.append(d)
-        return all_d
-                    
-    def distance_avg(self, *args, **kwargs):
-        """Calculate the distance average of all network
         
-        @param *args: the numpy average extra arguments.
-        @param **kwargs: the numpy average extra arguments.
-        
-        """
-        return numpy.average(self.distances(), *args, **kwargs)
+def weights_max(nwd, *args, **kwargs):
+    """Return the maximum weights of the network along an axis.
     
-    def distance_std(self, *args, **kwargs):
-        """Compute the standard deviation of network distances 
-        along the specified axis.
-        
-        @param *args: the numpy std extra arguments.
-        @param **kwargs: the numpy std extra arguments.
-         
-         """
-        return numpy.std(self.distances(), *args, **kwargs)
-        
-    def distance_max(self, *args, **kwargs):
-        """Return the maximum distance of the network along an axis.
-        
-        @param *args: the numpy max extra arguments.
-        @param **kwargs: the numpy max extra arguments.
-         
-         """
-        return numpy.max(self.distances(), *args, **kwargs)
+    @param *args: the numpy max extra arguments.
+    @param **kwargs: the numpy max extra arguments.
+     
+     """
+    ws = [w for w in weights(nwd) if w != None]
+    return numpy.max(ws, *args, **kwargs)
 
-    def distance_min(self, *args, **kwargs):
-        """Return the minimum distance of the network along an axis.
-        
-        @param *args: the numpy min extra arguments.
-        @param **kwargs: the numpy min extra arguments.
-         
-         """
-        return min(self.distances(), *args, **kwargs)
 
-    def distance_frequency(self):
-        """Return a dictionary where the keys are the distances, and a value
-        are the frequency of the distance"""
-        freq = {}
-        for d in self.distances():
-            if d not in freq:
-                freq[d] = 0
-            freq[d] += 1
-        return freq
+def weights_min(nwd, *args, **kwargs):
+    """Return the minimum weights of the network along an axis.
     
-    def distance_mode(self, *args, **kwargs):
-        """Return a tuple of the distances with max frequencies
+    @param *args: the numpy min extra arguments.
+    @param **kwargs: the numpy min extra arguments.
+     
+     """
+    ws = [w for w in weights(nwd) if w != None]
+    return numpy.min(ws, *args, **kwargs)
+
+
+def weights_frequency(nwd):
+    """Return a dictionary where the keys are the weightss, and a value
+    are the frequency of the weights"""
+    freq = {}
+    for w in weights(nwd):
+        if w not in freq:
+            freq[w] = 0
+        freq[w] += 1
+    return freq
+   
+
+def weights_mode(nwd, *args, **kwargs):
+    """Return a tuple of the weightss with max frequencies
+    
+    @param *args: the numpy max extra arguments.
+    @param **kwargs: the numpy max extra arguments.
+    
+    """
+    freq = weights_frequency(nwd)
+    mode = numpy.max(freq.values(), *args, **kwargs)
+    return tuple(d for d, count in freq.items() if count == mode)
         
-        @param *args: the numpy max extra arguments.
-        @param **kwargs: the numpy max extra arguments.
         
-        """
-        freq = self.distance_frequency()
-        mode = numpy.max(freq.values(), *args, **kwargs)
-        return tuple(d for d, count in freq.items() if count >= mode)
-        
-        
-    def distance_anti_mode(self, *args, **kwargs):
-        """Return a tuple of the distances with min frequencies
-        
-        @param *args: the numpy min extra arguments.
-        @param **kwargs: the numpy min extra arguments.
-        
-        """
-        freq = self.distance_frequency()
-        mode = numpy.min(freq.values(), *args, **kwargs)
-        return tuple([d for d, count in freq.items() if count <= mode])
-        
-    @property
-    def network(self):
-        return self._nw      
+def weights_anti_mode(nwd, *args, **kwargs):
+    """Return a tuple of the weightss with min frequencies
+    
+    @param *args: the numpy min extra arguments.
+    @param **kwargs: the numpy min extra arguments.
+    
+    """
+    freq = weights_frequency(nwd)
+    mode = numpy.min(freq.values(), *args, **kwargs)
+    return tuple([d for d, count in freq.items() if count == mode])
+
 
 #===============================================================================
 # MAIN

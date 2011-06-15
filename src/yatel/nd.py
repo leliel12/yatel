@@ -72,18 +72,18 @@ CONNECTIVITY_ALL = "ALL"
 class NetworkDescriptor(object):
 
     def __init__(self, nwid, haplotypes=(), connectivity=CONNECTIVITY_ALL,
-                 ndistance_calculator=ndistances.LinkDistance(),
+                 w_calculator=ndistances.LinkDistance(),
                  annotations={}):
         assert isinstance(nwid, basestring)
         assert _validate_haps(haplotypes)
-        assert isinstance(ndistance_calculator, ndistances.NDistance)
+        assert isinstance(w_calculator, ndistances.NDistance), str(type(w_calculator))
         assert isinstance(annotations, dict)
         assert _validate_connectivity(connectivity)
         
         super(self.__class__, self).__init__()
         
         self._nwid = nwid
-        self._ndistance_calculator = ndistance_calculator
+        self._w_calculator = w_calculator
         self._annotations = annotations
         self._conn = connectivity
         self._haps = set()
@@ -98,23 +98,23 @@ class NetworkDescriptor(object):
             haps_prod = itertools.product(haplotypes, haplotypes)
             if self._conn == CONNECTIVITY_ALL:
                 for h0, h1 in haps_prod:
-                    w = abs(self._ndistance_calculator(h0, h1))
+                    w = abs(self._w_calculator(h0, h1))
                     self._add_edge(h0, h1, w)
             if callable(self._conn):
                 for h0, h1 in haps_prod:
                     if self._conn(h0, h1):
-                        w = abs(self._ndistance_calculator(h0, h1))
+                        w = abs(self._w_calculator(h0, h1))
                         self._add_edge(h0, h1, w)
             elif getattr(self._conn, '__iter__', False):
                 for h0, h1 in haps_prod:
                     if (h0, h1) in self._conn:
-                        w = abs(self._ndistance_calculator(h0, h1))
+                        w = abs(self._w_calculator(h0, h1))
                         self._add_edge(h0, h1, w)
                     
     def __eq__(self, obj):
         return isinstance(obj, self.__class__) and \
                 self._nwid == obj._nwid and \
-                self._ndistance_calculator == obj._ndistance_calculator and \
+                self._w_calculator == obj._w_calculator and \
                 self._annotations == obj._annotations and \
                 self._conn == obj._conn
                 
@@ -125,9 +125,9 @@ class NetworkDescriptor(object):
         return repr(self)
     
     def __repr__(self):
-        return "<%s (%i Haplotypes) at %s>" % (self.__class__.__name__, 
-                                                len(self.haplotypes),
-                                                hex(id(self)))
+        return "<%s (%i Haplotypes/Nodes) at %s>" % (self.__class__.__name__, 
+                                                      len(self.haplotypes),
+                                                      hex(id(self)))
     
     def _add_haplotype(self, hap):
         self._haps.add(hap)
@@ -158,8 +158,8 @@ class NetworkDescriptor(object):
         return self._id
 
     @property
-    def ndistance_calculator(self):
-        return self._ndistance_calculator
+    def w_calculator(self):
+        return self._we_calculator
 
     @property
     def annotations(self):

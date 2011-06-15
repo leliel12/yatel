@@ -52,7 +52,7 @@ import time
 
 import numpy
 
-from yatel import haps, ndistances, nd, facts
+from yatel import haps, ndistances, nd, facts, ndinfo
 
 
 #===============================================================================
@@ -151,7 +151,7 @@ class TestDistances(unittest.TestCase):
 # NETWORK TEST
 #===============================================================================
 
-class NetworkTest(unittest.TestCase):
+class NetworkDescriptorTest(unittest.TestCase):
     
     def test_creation(self):
         self.haplotypes = [haps.Haplotype(str(name), **randomdict())
@@ -162,7 +162,7 @@ class NetworkTest(unittest.TestCase):
         self.nw = nd.NetworkDescriptor(nwid=str(random.random), 
                                        haplotypes=self.haplotypes, 
                                        connectivity=self.conn,
-                                       ndistance_calculator=ndistances.LinkDistance(),
+                                       w_calculator=ndistances.LinkDistance(),
                                        annotations=self.ann)
 
 
@@ -171,15 +171,7 @@ class NetworkTest(unittest.TestCase):
 # NETWORK INFO TEST
 #===============================================================================
 
-class NetworkInfoTest(unittest.TestCase):
-    pass 
-
-        
-#===============================================================================
-# NETWORK IO TEST
-#===============================================================================
-
-class IOTest(unittest.TestCase):
+class NDInfoTest(unittest.TestCase):
     
     def setUp(self):
         self.haplotypes = [haps.Haplotype(str(name), **randomdict())
@@ -187,17 +179,32 @@ class IOTest(unittest.TestCase):
         self.conn = set([(random.choice(self.haplotypes), random.choice(self.haplotypes))
                          for _ in randomrange(10, 50)])
         self.ann = randomdict()
-        self.nw = network.Network(nwid=str(random.random), 
-                                  haplotypes=self.haplotypes, 
-                                  connectivity=self.conn,
-                                  ndistance_calculator=ndistances.LinkDistance(),
-                                  annotations=self.ann)
-        self.facts = ""
+        self.nw = nd.NetworkDescriptor(nwid=str(random.random), 
+                                       haplotypes=self.haplotypes, 
+                                       connectivity=self.conn,
+                                       w_calculator=ndistances.RandomDistance(),
+                                       annotations=self.ann)
+    
+    
+for fn in dir(ndinfo):
+    f = getattr(ndinfo, fn)
+    if not fn.startswith("_") and callable(f):
+        test_func = lambda self: f(self.nw)
+        setattr(NDInfoTest, "test_%s" % fn,  test_func)
+del fn
+        
+#===============================================================================
+# NETWORK IO TEST
+#===============================================================================
+
+class IOTest(unittest.TestCase):
+    pass
 
     
 #===============================================================================
 # MAIN
 #===============================================================================
+
 
 if __name__ == "__main__":
     unittest.main()

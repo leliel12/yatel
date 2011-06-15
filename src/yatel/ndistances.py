@@ -46,6 +46,7 @@ __date__ = "2011-03-02"
 
 import abc
 
+import random
 
 #===============================================================================
 # BASE CLASS
@@ -107,6 +108,16 @@ class ExpertDistance(NDistance):
     def distance_of(self, hap0, hap1):
         return self._distances.get((hap0, hap1), 1)
 
+
+#===============================================================================
+# RANDOM DISTANCE CLASS
+#===============================================================================
+
+class RandomDistance(NDistance):
+
+    def distance_of(self, hap0, hap1):
+        return random.random()
+        
 
 #===============================================================================
 # MAIN
