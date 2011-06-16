@@ -1,31 +1,26 @@
 #!/usr/bin/env python
-#-*-coding:utf-8-*-
+# -*- coding: utf-8 -*-
 
-# Copyright (C) 2010 Juan BC <jbc dot develop at gmail dot com>
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301, USA.
 
-# Biopython License Agreement
-
-# Permission to use, copy, modify, and distribute this software and its
-# documentation with or without modifications and for any purpose and
-# without fee is hereby granted, provided that any copyright notices
-# appear in all copies and that both those copyright notices and this
-# permission notice appear in supporting documentation, and that the
-# names of the contributors or copyright holders not be used in
-# advertising or publicity pertaining to distribution of the software
-# without specific prior permission.
-
-# THE CONTRIBUTORS AND COPYRIGHT HOLDERS OF THIS SOFTWARE DISCLAIM ALL
-# WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL THE
-# CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY SPECIAL, INDIRECT
-# OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-# OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
-# OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE
-# OR PERFORMANCE OF THIS SOFTWARE.
 
 #===============================================================================
 # DOCS
 #===============================================================================
+
 
 """Various utilities for yatel."""
 
@@ -45,20 +40,26 @@ __date__ = "2011-02-17"
 # CLASSES
 #===============================================================================
 
-class TypeFormatter(object):
+class StringParser(object):
     
     def __init__(self, **kwargs):
-        self._types = dict((unicode(k), v) for k, v in kwargs.items())
+        self._types_parser = {}
+        for type_name, methods in kwargs.items():
+            dumps, loads =  methods
+            self.add_formater(type_name, dumps, loads)
+            
+    def add_formater(self, type_name, dumps, loads):
+        assert isinstance(type_name, basestring)
+        assert callable(dumps)
+        assert callable(loads)
+        self._types_parser[type_name] = {"dumps": dumps, "loads": loads}
         
-    def parse(self, value_type, value):
-        return self._types[value_type](value)
+    def loads(self, value_type, value):
+        return self._types_parser[value_type]["loads"](value)
     
-    def format(self, value):
-        tn = unicode(type(value).__name__)
-        if tn not in self._types:
-            msg = u"'value' must be instance of %s. Found %s" % (", ".join(self._types), tn)
-            raise TypeError(msg)
-        return tn, unicode(value)
+    def dumps(self, value):
+        type_name = unicode(type(value).__name__)
+        return self._types_parser[type_name]["dumps"](value)
         
     @property
     def valid_types(self):

@@ -49,10 +49,15 @@ __date__ = "2011-03-02"
 import unittest
 import random
 import time
+import datetime
 
-import numpy
-
-from yatel import haps, weights, nd, facts, ndinfo
+from yatel import haps
+from yatel import weights
+from yatel import nd
+from yatel import facts
+from yatel import ndinfo
+from yatel import util
+from yatel import db
 
 
 #===============================================================================
@@ -134,7 +139,6 @@ class TestDistances(unittest.TestCase):
         d1a1b = random.random()
         
         # create the expert
-        
         d = weights.ExpertWeight()
         d.add_Weight(self.h0a, self.h0b, d0a0b)
         d.add_Weight(self.h0a, self.h1b, d0a1b)
@@ -172,7 +176,7 @@ class NetworkDescriptorTest(unittest.TestCase):
 # NETWORK INFO TEST
 #===============================================================================
 
-class NDInfoTest(unittest.TestCase):
+class NDInfoTest(unittest.TestCase):        
     
     def setUp(self):
         self.haplotypes = [haps.Haplotype(str(name), **randomdict())
@@ -193,15 +197,42 @@ for fn in dir(ndinfo):
         test_func = lambda self: f(self.nw)
         setattr(NDInfoTest, "test_%s" % fn, test_func)
 del fn
-        
+
+
 #===============================================================================
 # NETWORK IO TEST
 #===============================================================================
 
-class IOTest(unittest.TestCase):
-    pass
-
+class UtilTest(unittest.TestCase):
     
+    def test_string_parser(self):
+        parser = util.StringParser(
+            int=(unicode, int),
+            float=(unicode, float),
+            bool=(unicode, lambda v: v == "True"),
+            str=(unicode, str),
+            unicode=(unicode, unicode),
+            datetime=(unicode, 
+                      lambda s: datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S.%f"))
+        )
+        for _ in randomrange(100, 1000):
+            datas = [random.randint(10, 2303), round(random.random(), 4), 
+                     bool(random.randint(0, 1)), str(random.random),
+                     unicode(random.random()), datetime.datetime.now()]
+            while datas:
+                data = datas.pop(random.randint(0, len(datas) - 1))
+                pdata = parser.loads(type(data).__name__, parser.dumps(data))
+                self.assertEquals(data, pdata)
+                
+#===============================================================================
+# DB
+#===============================================================================
+
+class DBTest(unittest.TestCase):
+    
+    def test_connect(self):
+        pass
+
 #===============================================================================
 # MAIN
 #===============================================================================

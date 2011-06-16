@@ -1,31 +1,26 @@
 #!/usr/bin/env python
-#-*-coding:utf-8-*-
+# -*- coding: utf-8 -*-
 
-# Copyright (C) 2010 Juan BC <jbc dot develop at gmail dot com>
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301, USA.
 
-# Biopython License Agreement
-
-# Permission to use, copy, modify, and distribute this software and its
-# documentation with or without modifications and for any purpose and
-# without fee is hereby granted, provided that any copyright notices
-# appear in all copies and that both those copyright notices and this
-# permission notice appear in supporting documentation, and that the
-# names of the contributors or copyright holders not be used in
-# advertising or publicity pertaining to distribution of the software
-# without specific prior permission.
-
-# THE CONTRIBUTORS AND COPYRIGHT HOLDERS OF THIS SOFTWARE DISCLAIM ALL
-# WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL THE
-# CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY SPECIAL, INDIRECT
-# OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-# OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
-# OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE
-# OR PERFORMANCE OF THIS SOFTWARE.
 
 #===============================================================================
 # FUTURE
 #===============================================================================
+
 
 from __future__ import absolute_import
 
@@ -44,7 +39,7 @@ from __future__ import absolute_import
 # META
 #===============================================================================
 
-__version__ = "Biopython License"
+__version__ = "0.1"
 __license__ = "GPL3"
 __author__ = "JBC <jbc dot develop at gmail dot com>"
 __since__ = "0.1"
@@ -60,35 +55,29 @@ import datetime
 
 import elixir
 
-from Bio import Seq
-from Bio import Alphabet
-from Bio import SeqRecord
-
-from yatel import Network
-from yatel import Distance
 from yatel import util
-
 
 #===============================================================================
 # CONSTANTS
 #===============================================================================
 
-FORMATTER = util.TypeFormatter(
-    int=int,
-    float=float,
-    bool=bool,
-    str=str,
-    unicode=unicode,
-    datetime=lambda s: datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S.%f")
+TYPE_PARSER = util.StringParser(
+    int=(unicode, int),
+    float=(unicode, float),
+    bool=(unicode, lambda v: v == "True"),
+    str=(unicode, str),
+    unicode=(unicode, unicode),
+    datetime=(unicode, 
+              lambda s: datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S.%f"))
 )
 
-DBS = {
+DB_SCHEMAS = {
     "memory": string.Template("sqlite:///:memory:"),
-    "sqlite": string.Template("sqlite:///$name"),
+    "sqlite": string.Template("sqlite:///$path"),
     "mysql": string.Template("mysql://$user:$password@$host:$port/$name")
 }
 
-
+SCHEMA_DOC = "34344343"
 #===============================================================================
 # NETWORK
 #===============================================================================
@@ -96,11 +85,8 @@ DBS = {
 class Network(elixir.Entity):
     
     name = elixir.Field(elixir.UnicodeText)
-    description = elixir.Field(elixir.UnicodeText)
     
-    details = elixir.OneToMany("NetworkDetail")
-    
-
+"""
 #===============================================================================
 # NETWORK DETAILS
 #===============================================================================
@@ -218,20 +204,34 @@ class FactAttribute(elixir.Entity):
     def value(self, v):
         self.att_type, self._value = FORMATTER.format(v)
 
+"""
+
+#===============================================================================
+# CONNECTION
+#===============================================================================
+
+class Connection(object):
+    
+    def __init__(schema, reate=False, echo=False, **kwargs):
+        __doc__ = SCHEMA_DOC
+        self._conn_str = DBS[schema].substitute(name=name,
+                                                user=user, password=password,
+                                                host=host, port=port)
+
+
+
 
 #===============================================================================
 # FUNCTIONS
 #===============================================================================
-
-def connect(db, name="", user="", password="",
-             host="", port="", create=False, echo=False):
-    elixir.metadata.bind = DBS[db].substitute(name=name,
-                                              user=user, password=password,
-                                              host=host, port=port)
+"""
+def connect:
+    elixir.metadata.bind = 
     elixir.setup_all(create)
     elixir.metadata.bind.echo = echo
 
 connect("memory", create=True, echo=True)
+"""
 #===============================================================================
 # MAIN
 #===============================================================================
