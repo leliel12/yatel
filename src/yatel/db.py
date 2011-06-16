@@ -52,6 +52,7 @@ __date__ = "2010-09-14"
 
 import string
 import datetime
+import inspect
 
 import elixir
 
@@ -77,15 +78,24 @@ DB_SCHEMAS = {
     "mysql": string.Template("mysql://$user:$password@$host:$port/$name")
 }
 
-SCHEMA_DOC = "34344343"
 #===============================================================================
-# NETWORK
+# ENTITIES
 #===============================================================================
 
-class Network(elixir.Entity):
+class ENTITY_TEMPLATES(object):
     
-    name = elixir.Field(elixir.UnicodeText)
+    class NetworkEntity(object): 
+        name = elixir.Field(elixir.UnicodeText)
     
+    
+    @classmethod
+    def iter_entities(cls):
+        for ename, ent in vars(cls).items():
+            if inspect.isclass(ent) and not ename.startswith("_"):
+                edict = dict((k, v) for k, v in vars(ent).items() 
+                             if not k.startswith("_"))
+                yield type(ename, (elixir.Entity, ), edict)
+
 """
 #===============================================================================
 # NETWORK DETAILS
@@ -207,31 +217,42 @@ class FactAttribute(elixir.Entity):
 """
 
 #===============================================================================
-# CONNECTION
-#===============================================================================
+# CONNECTION AND MISC
+#===============================================================================    
 
+class EntityProxy(object):
+    pass
+    
+    
 class Connection(object):
     
-    def __init__(schema, reate=False, echo=False, **kwargs):
-        __doc__ = SCHEMA_DOC
-        self._conn_str = DBS[schema].substitute(name=name,
-                                                user=user, password=password,
-                                                host=host, port=port)
+    def __init__(self, schema, create=False, echo=False, **kwargs):
+        
+        # retrieve schema
+        try:
+            stemplate = DB_SCHEMAS[schema]
+        except:
+            msg = "Unknow schema '%s'" % schema
+            raise ValueError(msg)
+        
+        # setup schema
+        try:
+            self._conn_str = stemplate.substitute(**kwargs)
+        except KeyError as err:
+            msg = "Schema '%s' need argument(s) '%s'" % (schema,
+                                                         ", ".join(err.args))
+            raise TypeError(msg) 
+        
+        self._entities = EntityProxy()
+        for entity in ENTITY_TEMPLATES.iter_entities():
+            setattr(self._entities, entity.__name__, entity) 
+
+        # connect
+        elixir.metadata.bind = self._conn_str
+        elixir.metadata.bind.echo = echo
+        elixir.setup_all(create)
 
 
-
-
-#===============================================================================
-# FUNCTIONS
-#===============================================================================
-"""
-def connect:
-    elixir.metadata.bind = 
-    elixir.setup_all(create)
-    elixir.metadata.bind.echo = echo
-
-connect("memory", create=True, echo=True)
-"""
 #===============================================================================
 # MAIN
 #===============================================================================
