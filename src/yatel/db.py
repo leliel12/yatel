@@ -58,7 +58,6 @@ import elixir
 
 import sqlalchemy
 from sqlalchemy import orm, schema
-#from sqlalchemy.schema import MetaData
 
 from yatel import util
 
@@ -83,48 +82,6 @@ DB_SCHEMAS = {
     "mysql": string.Template("mysql://$user:$password@$host:$port/$name")
 }
 
-#===============================================================================
-# ENTITIES
-#===============================================================================
-
-_et = set()
-
-def register(cls):
-    assert inspect.isclass(cls)
-    _et.add(cls)
-    return cls
-
-
-def unregister(cls):
-    _et.pop(cls)
-
-
-def registered_list():
-    return list(_et)
-
-
-def create_entities(metadata, session):
-    entities = {}
-    for ent in _et:
-        ename = ent.__name__
-        edict = dict((k, v) for k, v in vars(ent).items()
-                     if not k.startswith("_"))
-        uop = dict(edict["using_options"])
-        uop.update(metadata=metadata, session=session)
-        print uop
-        edict["using_options"] = elixir.using_options(**uop)
-        entities[ename] = type(ename, (elixir.Entity, ), edict)
-    return entities
-
-
-#===============================================================================
-# NETWORK
-#===============================================================================
-
-@register
-class NetworkEntity(object):
-    name = elixir.Field(elixir.UnicodeText)
-    using_options = {"tablename": "networks"}
 
 
 """
@@ -259,7 +216,10 @@ class EntityProxy(object):
         for k, v in kwargs.items():
             assert issubclass(v, elixir.Entity)
             self._data[k] = v
-
+    
+    def __repr__(self):
+        return "<Entities: %s>" % ", ".join(self.keys())
+    
     def __getattr__(self, k):
         return self._data[k]
 
@@ -280,44 +240,67 @@ class EntityProxy(object):
 # Context
 #===============================================================================
 
-class Context(object):
+class Connection(object):
 
-    # INIT #####################################################################
-    def __init__(self, db, create=False, echo=False, autoflush=True,
-                 transactional=True, metadata=None, **kwargs):
+    def __init__(self, db, create=False, echo=False,
+                 autoflush=True, metadata=None, **kwargs):
 
-        # retrieve schema
+        # Retrieve schema and setup schema =====================================
+        
         try:
             stemplate = DB_SCHEMAS[db]
         except:
             msg = "Unknow schema '%s'" % schema
             raise ValueError(msg)
-
-        # setup schema
         try:
             self._conn_str = stemplate.substitute(**kwargs)
         except KeyError as err:
-            msg = "Schema '%s' need argument(s) '%s'" % (schema,
-                                                         ", ".join(err.args))
+            msg = "DB '%s' need argument(s) '%s'" % (db, ", ".join(err.args))
             raise TypeError(msg)
-
-        # The fourths steps of sqlalchemy
+            
+        # The fourths steps of sqlalchemy ======================================
+        
         self._engine = sqlalchemy.create_engine(self._conn_str, echo=echo)
         self._session = orm.scoped_session(orm.sessionmaker(autoflush=autoflush,
-                                                            transactional=transactional,
                                                             bind=self._engine))
-        self._metadata = metadata if metadata != None else schema.ThreadLocalMetaData()
+        self._metadata = metadata if metadata != None else schema.MetaData()
         self._metadata.bind = self._engine
 
-        # create entities and store it
-        entities = create_entities(metadata=self._metadata, session=self._session)
-        self._entities = EntityProxy(**entities)
+        # ENTITIES =============================================================
 
-        #create
+        class Network(elixir.Entity):
+            name = elixir.Field(elixir.UnicodeText)
+            elixir.using_options(metadata=self._metadata, 
+                                 session=self._session,
+                                 tablename="networks")
+
+        # Recolect Entities ====================================================
+        entities = {}
+        for k, v in locals().items():
+            if inspect.isclass(v) and issubclass(v, elixir.Entity):
+                entities[k] = v
+        self._entities = EntityProxy(**entities)
+        
+        # Create ===============================================================
         elixir.setup_all(create)
 
-    # INIT #####################################################################
+    # END INIT =================================================================
 
+    def __repr__(self):
+        return "<Connection (%s) at %s>" % (self._conn_str, hex(id(self)))
+
+    @property
+    def session(self):
+        return self._session
+    
+    @property
+    def metadata(self):
+        return self._metadata
+
+    @property
+    def engine(self):
+        return self._engine
+    
     @property
     def entities(self):
         return self._entities
@@ -328,11 +311,11 @@ class Context(object):
 
 
 #===============================================================================
-# FUNCTIONAL SUGAR
+# FUNCTIONS
 #===============================================================================
 
 def connect(*args, **kwargs):
-    return Context(*args, **kwargs)
+    return Connection(*args, **kwargs)
 
 
 #===============================================================================
