@@ -204,6 +204,28 @@ class FactAttribute(elixir.Entity):
 
 """
 
+#===============================================================================
+#
+#===============================================================================
+
+def create_entities(session, metadata):
+
+    class Network(elixir.Entity):
+        name = elixir.Field(elixir.UnicodeText)
+        elixir.using_options(metadata=metadata,
+                             session=session,
+                             tablename="networks")
+
+    class Haplotype(elixir.Entity):
+        name = elixir.Field(elixir.UnicodeText)
+        elixir.using_options(metadata=metadata,
+                             session=session,
+                             tablename="haplotypes")
+    entities = {}
+    for k, v in locals().items():
+            if inspect.isclass(v) and issubclass(v, elixir.Entity):
+                entities[k] = v
+    return entities
 
 #===============================================================================
 # ENTITY PROXY
@@ -216,10 +238,10 @@ class EntityProxy(object):
         for k, v in kwargs.items():
             assert issubclass(v, elixir.Entity)
             self._data[k] = v
-    
+
     def __repr__(self):
         return "<Entities: %s>" % ", ".join(self.keys())
-    
+
     def __getattr__(self, k):
         return self._data[k]
 
@@ -245,8 +267,7 @@ class Connection(object):
     def __init__(self, db, create=False, echo=False,
                  autoflush=True, metadata=None, **kwargs):
 
-        # Retrieve schema and setup schema =====================================
-        
+        # Retrieve schema and setup schema
         try:
             stemplate = DB_SCHEMAS[db]
         except:
@@ -257,34 +278,21 @@ class Connection(object):
         except KeyError as err:
             msg = "DB '%s' need argument(s) '%s'" % (db, ", ".join(err.args))
             raise TypeError(msg)
-            
-        # The fourths steps of sqlalchemy ======================================
-        
+
+        # The fourths steps of sqlalchemy
         self._engine = sqlalchemy.create_engine(self._conn_str, echo=echo)
         self._session = orm.scoped_session(orm.sessionmaker(autoflush=autoflush,
                                                             bind=self._engine))
         self._metadata = metadata if metadata != None else schema.MetaData()
         self._metadata.bind = self._engine
 
-        # ENTITIES =============================================================
+        # Entities
+        ents = create_entities(self._session, self._metadata)
+        self._entities = EntityProxy(**ents)
 
-        class Network(elixir.Entity):
-            name = elixir.Field(elixir.UnicodeText)
-            elixir.using_options(metadata=self._metadata, 
-                                 session=self._session,
-                                 tablename="networks")
-
-        # Recolect Entities ====================================================
-        entities = {}
-        for k, v in locals().items():
-            if inspect.isclass(v) and issubclass(v, elixir.Entity):
-                entities[k] = v
-        self._entities = EntityProxy(**entities)
-        
-        # Create ===============================================================
+        # Create
         elixir.setup_all(create)
 
-    # END INIT =================================================================
 
     def __repr__(self):
         return "<Connection (%s) at %s>" % (self._conn_str, hex(id(self)))
@@ -292,7 +300,7 @@ class Connection(object):
     @property
     def session(self):
         return self._session
-    
+
     @property
     def metadata(self):
         return self._metadata
@@ -300,7 +308,7 @@ class Connection(object):
     @property
     def engine(self):
         return self._engine
-    
+
     @property
     def entities(self):
         return self._entities
