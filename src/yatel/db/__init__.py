@@ -60,6 +60,7 @@ import sqlalchemy
 from sqlalchemy import orm, schema
 
 from yatel import util
+from yatel.db import entities
 
 
 #===============================================================================
@@ -205,29 +206,6 @@ class FactAttribute(elixir.Entity):
 """
 
 #===============================================================================
-#
-#===============================================================================
-
-def create_entities(session, metadata):
-
-    class Network(elixir.Entity):
-        name = elixir.Field(elixir.UnicodeText)
-        elixir.using_options(metadata=metadata,
-                             session=session,
-                             tablename="networks")
-
-    class Haplotype(elixir.Entity):
-        name = elixir.Field(elixir.UnicodeText)
-        elixir.using_options(metadata=metadata,
-                             session=session,
-                             tablename="haplotypes")
-    entities = {}
-    for k, v in locals().items():
-            if inspect.isclass(v) and issubclass(v, elixir.Entity):
-                entities[k] = v
-    return entities
-
-#===============================================================================
 # ENTITY PROXY
 #===============================================================================
 
@@ -287,7 +265,7 @@ class Connection(object):
         self._metadata.bind = self._engine
 
         # Entities
-        ents = create_entities(self._session, self._metadata)
+        ents = entities.create(self._session, self._metadata)
         self._entities = EntityProxy(**ents)
 
         # Create
