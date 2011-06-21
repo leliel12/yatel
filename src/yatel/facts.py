@@ -57,10 +57,10 @@ from yatel import haps
 
 class Fact(object):
     
-    def __init__(self, id, haplotypes=(), **atts):
+    def __init__(self, fid, haplotypes=(), **atts):
         assert all(map(lambda h: isinstance(h, haps.Haplotype), haplotypes))
-        assert isinstance(id, basestring)
-        self._id = id
+        assert isinstance(fid, basestring)
+        self._fid = fid
         self._haps = tuple(haplotypes)
         self._atts = atts
 
@@ -82,8 +82,8 @@ class Fact(object):
         return dict(self._atts)
 
     @property
-    def id(self):
-        return self._id
+    def fid(self):
+        return self._fid
 
 
 #===============================================================================

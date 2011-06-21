@@ -106,6 +106,8 @@ def create(session, metadata):
                                                  tablename="networks_descriptors_X_haplotypes")
         edges = elixir.ManyToMany("EdgeEntity",
                                   tablename="edges_X_haplotypes")
+        facts = elixir.ManyToMany("FactEntity",
+                                  tablename="facts_X_haplotypes")
         
         elixir.using_options(metadata=metadata,
                              session=session,
@@ -142,7 +144,39 @@ def create(session, metadata):
         elixir.using_options(metadata=metadata,
                              session=session,
                              tablename="edges")
+
+    class FactEntity(elixir.Entity):
+            
+        name = elixir.Field(elixir.UnicodeText(), unique=True)
+        attributes = elixir.OneToMany("FactAttributeEntity")
+        haplotypes = elixir.ManyToMany("HaplotypeEntity",
+                                       tablename="facts_X_haplotypes")
+            
+        elixir.using_options(metadata=metadata,
+                             session=session,
+                             tablename="facts")
     
+    
+    class FactAttributeEntity(elixir.Entity):
+        
+        name = elixir.Field(elixir.UnicodeText())
+        type = elixir.Field(elixir.UnicodeText())
+        _value = elixir.Field(elixir.UnicodeText())
+        
+        fact = elixir.ManyToOne("FactEntity")
+        
+        @property
+        def value(self):
+            return TYPE_PARSER.loads(self.type, self._value) if self._value else None
+        
+        @value.setter
+        def value(self, v):
+            self._value, self.type = TYPE_PARSER.dumps()
+        
+        elixir.using_options(metadata=metadata,
+                             session=session,
+                                 tablename="facts_attributes")
+
     #===========================================================================
     # END ENTITIES
     #===========================================================================
