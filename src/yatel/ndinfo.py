@@ -57,6 +57,7 @@ from yatel import nd
 # NODE CLASS
 #===============================================================================
 
+
                           
 def weights(nwd):
     """Return a list of all weights of the network

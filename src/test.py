@@ -221,7 +221,7 @@ class UtilTest(unittest.TestCase):
                      unicode(random.random()), datetime.datetime.now()]
             while datas:
                 data = datas.pop(random.randint(0, len(datas) - 1))
-                pdata = parser.loads(type(data).__name__, parser.dumps(data))
+                pdata = parser.loads(type(data).__name__, parser.dumps(data)[0])
                 self.assertEquals(data, pdata)
                 
 #===============================================================================
@@ -230,8 +230,22 @@ class UtilTest(unittest.TestCase):
 
 class DBTest(unittest.TestCase):
     
+    def setUp(self):
+        self.haplotypes = [haps.Haplotype(str(name), **randomdict())
+                           for name in randomrange(10, 100)]
+        self.conn = set([(random.choice(self.haplotypes), random.choice(self.haplotypes))
+                         for _ in randomrange(10, 50)])
+        self.ann = randomdict()
+        self.nw = nd.NetworkDescriptor(nwid=str(random.random),
+                                       haplotypes=self.haplotypes,
+                                       connectivity=self.conn,
+                                       w_calculator=weights.RandomWeight(),
+                                       annotations=self.ann)
     def test_connect(self):
-        pass
+        DB = "sqlite"
+        self._conn = db.connect(db=DB, create=True, echo=True,
+                                autoflush=True, metadata=None, 
+                                path="yatel_db_test.db")
 
 #===============================================================================
 # MAIN

@@ -29,12 +29,11 @@
 # META
 #===============================================================================
 
-__version__ = "Biopython License"
+__version__ = "0.1"
 __license__ = "GPL3"
 __author__ = "JBC <jbc dot develop at gmail dot com>"
 __since__ = "0.1"
 __date__ = "2011-02-17"
-
 
 #===============================================================================
 # CLASSES
@@ -44,22 +43,26 @@ class StringParser(object):
     
     def __init__(self, **kwargs):
         self._types_parser = {}
+        self._default = {}
         for type_name, methods in kwargs.items():
-            dumps, loads =  methods
-            self.add_formater(type_name, dumps, loads)
+            dumps, loads = methods
+            self.add_parser(type_name, dumps, loads)
             
-    def add_formater(self, type_name, dumps, loads):
+    def add_parser(self, type_name, dumps, loads):
         assert isinstance(type_name, basestring)
         assert callable(dumps)
         assert callable(loads)
         self._types_parser[type_name] = {"dumps": dumps, "loads": loads}
-        
+    
+    def del_parser(self, type_name):
+        self._types_parser.pop(type_name)
+       
     def loads(self, value_type, value):
         return self._types_parser[value_type]["loads"](value)
     
     def dumps(self, value):
         type_name = unicode(type(value).__name__)
-        return self._types_parser[type_name]["dumps"](value)
+        return self._types_parser[type_name]["dumps"](value), type_name
         
     @property
     def valid_types(self):

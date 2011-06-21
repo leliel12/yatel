@@ -67,16 +67,6 @@ from yatel.db import entities
 # CONSTANTS
 #===============================================================================
 
-TYPE_PARSER = util.StringParser(
-    int=(unicode, int),
-    float=(unicode, float),
-    bool=(unicode, lambda v: v == "True"),
-    str=(unicode, str),
-    unicode=(unicode, unicode),
-    datetime=(unicode,
-              lambda s: datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S.%f"))
-)
-
 DB_SCHEMAS = {
     "memory": string.Template("sqlite:///:memory:"),
     "sqlite": string.Template("sqlite:///$path"),
@@ -237,7 +227,7 @@ class EntityProxy(object):
 
 
 #===============================================================================
-# Context
+# CONNECTION
 #===============================================================================
 
 class Connection(object):

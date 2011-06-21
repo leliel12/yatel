@@ -140,10 +140,6 @@ class NetworkDescriptor(object):
     @property
     def haplotypes(self):
         return tuple(self._haps)
-
-    @property
-    def nodes(self):
-        return tuple(self._haps)
     
     @property
     def edges(self):

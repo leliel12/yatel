@@ -45,10 +45,21 @@ __date__ = "2011-06-11"
 # IMPORTS
 #===============================================================================
 
-import inspect
+import inspect, datetime
 
 import elixir
 
+from yatel import util
+
+TYPE_PARSER = util.StringParser(
+    int=(unicode, int),
+    float=(unicode, float),
+    bool=(unicode, lambda v: v == "True"),
+    str=(unicode, str),
+    unicode=(unicode, unicode),
+    datetime=(unicode,
+              lambda s: datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S.%f"))
+)
 
 #===============================================================================
 # FUNCTIONS
@@ -56,23 +67,81 @@ import elixir
 
 def create(session, metadata):
 
-    #===========================================================================
-    # ENTITIES
-    #===========================================================================
-    
-    class Network(elixir.Entity):
-        name = elixir.Field(elixir.UnicodeText)
+    class NetworkDescriptorEntity(elixir.Entity):
+        
+        nwid = elixir.Field(elixir.UnicodeText(), unique=True)
+        annotations = elixir.OneToMany("AnnotationEntity")
+        edges = elixir.OneToMany("EdgeEntity")
+        haplotypes = elixir.ManyToMany("HaplotypeEntity",
+                                       tablename="networks_descriptors_X_haplotypes")
+        
         elixir.using_options(metadata=metadata,
                              session=session,
-                             tablename="networks")
+                             tablename="network_descriptors")
 
+    class AnnotationEntity(elixir.Entity):
+        
+        name = elixir.Field(elixir.UnicodeText())
+        type = elixir.Field(elixir.UnicodeText())
+        _value = elixir.Field(elixir.UnicodeText())
+        network_descriptor = elixir.ManyToOne("NetworkDescriptorEntity")
+        
+        @property
+        def value(self):
+            return TYPE_PARSER.loads(self.type, self._value) if self._value else None
+        
+        @value.setter
+        def value(self, v):
+            self._value, self.type = TYPE_PARSER.dumps()
+        
+        elixir.using_options(metadata=metadata,
+                             session=session,
+                             tablename="annotations")
 
-    class Haplotype(elixir.Entity):
-        name = elixir.Field(elixir.UnicodeText)
+    class HaplotypeEntity(elixir.Entity):
+        
+        name = elixir.Field(elixir.UnicodeText(), unique=True)
+        attributes = elixir.OneToMany("HaplotypeAttributeEntity")
+        networks_descriptors = elixir.ManyToMany("NetworkDescriptorEntity",
+                                                 tablename="networks_descriptors_X_haplotypes")
+        edges = elixir.ManyToMany("EdgeEntity",
+                                  tablename="edges_X_haplotypes")
+        
         elixir.using_options(metadata=metadata,
                              session=session,
                              tablename="haplotypes")
+
+
+    class HaplotypeAttributeEntity(elixir.Entity):
+        
+        name = elixir.Field(elixir.UnicodeText())
+        type = elixir.Field(elixir.UnicodeText())
+        _value = elixir.Field(elixir.UnicodeText())
+        
+        haplotype = elixir.ManyToOne("HaplotypeEntity")
+        
+        @property
+        def value(self):
+            return TYPE_PARSER.loads(self.type, self._value) if self._value else None
+        
+        @value.setter
+        def value(self, v):
+            self._value, self.type = TYPE_PARSER.dumps()
+        
+        elixir.using_options(metadata=metadata,
+                             session=session,
+                             tablename="haplotypes_attributes")
     
+    class EdgeEntity(elixir.Entity):
+        
+        weigth = elixir.Field(elixir.Float())
+        network_descriptor = elixir.ManyToOne("NetworkDescriptorEntity")
+        haplotypes = elixir.ManyToMany("HaplotypeEntity",
+                                       tablename="edges_X_haplotypes")
+        
+        elixir.using_options(metadata=metadata,
+                             session=session,
+                             tablename="edges")
     
     #===========================================================================
     # END ENTITIES
