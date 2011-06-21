@@ -79,11 +79,12 @@ def create(session, metadata):
                              session=session,
                              tablename="network_descriptors")
 
+
     class AnnotationEntity(elixir.Entity):
         
         name = elixir.Field(elixir.UnicodeText())
-        type = elixir.Field(elixir.UnicodeText())
-        _value = elixir.Field(elixir.UnicodeText())
+        _type = elixir.Field(elixir.UnicodeText(), colname="type")
+        _value = elixir.Field(elixir.UnicodeText(), colname="value")
         network_descriptor = elixir.ManyToOne("NetworkDescriptorEntity")
         
         @property
@@ -93,10 +94,15 @@ def create(session, metadata):
         @value.setter
         def value(self, v):
             self._value, self.type = TYPE_PARSER.dumps()
+            
+        @property
+        def type(self):
+            return self._type
         
         elixir.using_options(metadata=metadata,
                              session=session,
                              tablename="annotations")
+
 
     class HaplotypeEntity(elixir.Entity):
         
@@ -117,8 +123,8 @@ def create(session, metadata):
     class HaplotypeAttributeEntity(elixir.Entity):
         
         name = elixir.Field(elixir.UnicodeText())
-        type = elixir.Field(elixir.UnicodeText())
-        _value = elixir.Field(elixir.UnicodeText())
+        _type = elixir.Field(elixir.UnicodeText(), colname="type")
+        _value = elixir.Field(elixir.UnicodeText(), colname="value")
         
         haplotype = elixir.ManyToOne("HaplotypeEntity")
         
@@ -129,10 +135,15 @@ def create(session, metadata):
         @value.setter
         def value(self, v):
             self._value, self.type = TYPE_PARSER.dumps()
+            
+        @property
+        def type(self):
+            return self._type
         
         elixir.using_options(metadata=metadata,
                              session=session,
                              tablename="haplotypes_attributes")
+    
     
     class EdgeEntity(elixir.Entity):
         
@@ -144,6 +155,7 @@ def create(session, metadata):
         elixir.using_options(metadata=metadata,
                              session=session,
                              tablename="edges")
+
 
     class FactEntity(elixir.Entity):
             
@@ -160,8 +172,8 @@ def create(session, metadata):
     class FactAttributeEntity(elixir.Entity):
         
         name = elixir.Field(elixir.UnicodeText())
-        type = elixir.Field(elixir.UnicodeText())
-        _value = elixir.Field(elixir.UnicodeText())
+        _type = elixir.Field(elixir.UnicodeText(), colname="type")
+        _value = elixir.Field(elixir.UnicodeText(), colname="value")
         
         fact = elixir.ManyToOne("FactEntity")
         
@@ -173,9 +185,13 @@ def create(session, metadata):
         def value(self, v):
             self._value, self.type = TYPE_PARSER.dumps()
         
+        @property
+        def type(self):
+            return self._type
+        
         elixir.using_options(metadata=metadata,
                              session=session,
-                                 tablename="facts_attributes")
+                             tablename="facts_attributes")
 
     #===========================================================================
     # END ENTITIES

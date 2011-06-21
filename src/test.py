@@ -212,11 +212,11 @@ class UtilTest(unittest.TestCase):
             bool=(unicode, lambda v: v == "True"),
             str=(unicode, str),
             unicode=(unicode, unicode),
-            datetime=(unicode, 
+            datetime=(unicode,
                       lambda s: datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S.%f"))
         )
         for _ in randomrange(100, 1000):
-            datas = [random.randint(10, 2303), round(random.random(), 4), 
+            datas = [random.randint(10, 2303), round(random.random(), 4),
                      bool(random.randint(0, 1)), str(random.random),
                      unicode(random.random()), datetime.datetime.now()]
             while datas:
@@ -230,6 +230,8 @@ class UtilTest(unittest.TestCase):
 
 class DBTest(unittest.TestCase):
     
+    REAL_DB = False
+    
     def setUp(self):
         self.haplotypes = [haps.Haplotype(str(name), **randomdict())
                            for name in randomrange(10, 100)]
@@ -241,10 +243,9 @@ class DBTest(unittest.TestCase):
                                        connectivity=self.conn,
                                        w_calculator=weights.RandomWeight(),
                                        annotations=self.ann)
-    def test_connect(self):
-        DB = "sqlite"
-        self._conn = db.connect(db=DB, create=True, echo=True,
-                                autoflush=True, metadata=None, 
+        self.conn = db.connect(db="sqlite" if DBTest.REAL_DB else "memory",
+                                create=True, echo=True,
+                                autoflush=True, metadata=None,
                                 path="yatel_db_test.db")
 
 #===============================================================================

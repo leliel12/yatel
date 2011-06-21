@@ -74,127 +74,6 @@ DB_SCHEMAS = {
 }
 
 
-
-"""
-#===============================================================================
-# NETWORK DETAILS
-#===============================================================================
-
-class NetworkDetail(elixir.Entity):
-
-    distance_value = elixir.Field(elixir.Float)
-
-    network = elixir.ManyToOne("Network")
-    seq_0 = elixir.ManyToOne("Sequence")
-    seq_1 = elixir.ManyToOne("Sequence")
-
-
-#===============================================================================
-# DISTANCE
-#===============================================================================
-
-class Distance(elixir.Entity):
-
-    name = elixir.Field(elixir.UnicodeText)
-    description = elixir.Field(elixir.UnicodeText)
-
-    details = elixir.OneToMany("DistanceDetail")
-
-
-#===============================================================================
-# DISTANCE DETAIL
-#===============================================================================
-
-class DistanceDetail(elixir.Entity):
-
-    distance_value = elixir.Field(elixir.Float)
-
-    seq_0 = elixir.ManyToOne("Sequence")
-    seq_1 = elixir.ManyToOne("Sequence")
-    metric = elixir.ManyToOne("Metric")
-    distance = elixir.ManyToOne("Distance", inverse="details")
-
-
-#===============================================================================
-# METRIC
-#===============================================================================
-
-class Metric(elixir.Entity):
-
-    name = elixir.Field(elixir.UnicodeText)
-    description = elixir.Field(elixir.UnicodeText)
-
-    distance_details = elixir.OneToMany("DistanceDetail")
-
-
-#===============================================================================
-# SEQUENCES
-#===============================================================================
-
-class Sequence(elixir.Entity):
-
-    name = elixir.Field(elixir.UnicodeText)
-    description = elixir.Field(elixir.UnicodeText)
-
-    attributes = elixir.OneToMany("SequenceAttribute")
-    distance_details = elixir.OneToMany("DistanceDetail")
-    network_details = elixir.OneToMany("NetworkDetail")
-
-
-#===============================================================================
-# SEQUENCE ATTRIBUTES
-#===============================================================================
-
-class SequenceAttribute(elixir.Entity):
-
-    _value = elixir.Field(elixir.UnicodeText, colname="value")
-    att_type = elixir.Field(elixir.Enum(FORMATTER.valid_types))
-
-    seq = elixir.ManyToOne("Sequence")
-
-    @property
-    def value(self):
-        return FORMATTER.parse(self.att_type, self._value)
-
-    @property
-    def value(self, v):
-        self.att_type, self._value = FORMATTER.format(v)
-
-
-#===============================================================================
-# FACT
-#===============================================================================
-
-class Fact(elixir.Entity):
-
-    name = elixir.Field(elixir.UnicodeText)
-    description = elixir.Field(elixir.UnicodeText)
-
-    seq = elixir.ManyToOne("Sequence")
-    attributes = elixir.OneToMany("FactAttribute")
-
-
-#===============================================================================
-# FACT ATTS
-#===============================================================================
-
-class FactAttribute(elixir.Entity):
-
-    _value = elixir.Field(elixir.UnicodeText, colname="value")
-    att_type = elixir.Field(elixir.Enum(FORMATTER.valid_types))
-
-    seq = elixir.ManyToOne("Sequence")
-
-    @property
-    def value(self):
-        return FORMATTER.parse(self.att_type, self._value)
-
-    @property
-    def value(self, v):
-        self.att_type, self._value = FORMATTER.format(v)
-
-"""
-
 #===============================================================================
 # ENTITY PROXY
 #===============================================================================
@@ -261,10 +140,33 @@ class Connection(object):
         # Create
         elixir.setup_all(create)
 
-
     def __repr__(self):
         return "<Connection (%s) at %s>" % (self._conn_str, hex(id(self)))
 
+    def write(self, **yatel_objs):
+        """Store NetworkDescriptor and Facts instances in this Database"""
+        for 
+            
+    
+    def read(self):
+        pass
+    
+    def delete(self, nw):
+        pass
+
+    # session proxies
+    def execute(self, *args, **kwargs):
+        self._session.execute(*args, **kwargs)
+        
+    def commit(self, *args, **kwargs):
+        self._session.commit(*args, **kwargs)
+
+    def rollback(self, *args, **kwargs):
+        self._session.rollback(*args, **kwargs)
+        
+    def close(self, *args, **kwargs):
+        self._session.close(*args, **kwargs)
+        
     @property
     def session(self):
         return self._session
