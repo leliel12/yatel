@@ -60,7 +60,7 @@ import sqlalchemy
 from sqlalchemy import orm, schema
 
 from yatel import util
-from yatel.db import entities
+from yatel import haps, nd, facts
 
 
 #===============================================================================
@@ -78,7 +78,7 @@ DB_SCHEMAS = {
 # ENTITY PROXY
 #===============================================================================
 
-class EntityProxy(object):
+class _EntityProxy(object):
 
     def __init__(self, **kwargs):
         self._data = {}
@@ -134,8 +134,10 @@ class Connection(object):
         self._metadata.bind = self._engine
 
         # Entities
+        from yatel.db import entities
         ents = entities.create(self._session, self._metadata)
-        self._entities = EntityProxy(**ents)
+        self._entities = _EntityProxy(**ents)
+        del entities
 
         # Create
         elixir.setup_all(create)
@@ -143,11 +145,30 @@ class Connection(object):
     def __repr__(self):
         return "<Connection (%s) at %s>" % (self._conn_str, hex(id(self)))
 
-    def write(self, **yatel_objs):
+    def write(self, force_insert=False, force_update=False, **yatel_objs):
         """Store NetworkDescriptor and Facts instances in this Database"""
-        for 
+        
+        def write_nd(nd):
+            pass
+        
+        def write_hap(hap):
+            pass
+        
+        def write_fact(fact):
+            pass
+        
+        for obj in yatel_objs:
+            if isinstance(obj, nd.NetworkDescriptor):
+                write_nd(obj)
+            elif isinstance(obj, haps.Haplotype):
+                write_hap(obj)
+            elif isinstance(obj, facts.Fact):
+                write_fact(obj)
+            else:
+                msg = "Invalid type '%s'" % str(type(obj))
+                raise TypeError(msg)
+             
             
-    
     def read(self):
         pass
     
