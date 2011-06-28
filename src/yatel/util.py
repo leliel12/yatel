@@ -35,11 +35,20 @@ __author__ = "JBC <jbc dot develop at gmail dot com>"
 __since__ = "0.1"
 __date__ = "2011-02-17"
 
+
+#===============================================================================
+# IMPORTS
+#===============================================================================
+
+import cPickle
+
+
 #===============================================================================
 # CLASSES
 #===============================================================================
 
 class StringParser(object):
+    
     
     def __init__(self, **kwargs):
         self._types_parser = {}
@@ -58,11 +67,15 @@ class StringParser(object):
         self._types_parser.pop(type_name)
        
     def loads(self, value_type, value):
+        if value_type == "pkl->base64":
+            return cPickle.loads(value.decode("base64"))
         return self._types_parser[value_type]["loads"](value)
     
     def dumps(self, value):
         type_name = unicode(type(value).__name__)
-        return self._types_parser[type_name]["dumps"](value), type_name
+        if type_name in self._types_parser:
+            return self._types_parser[type_name]["dumps"](value), type_name
+        return cPickle.dumps(value).encode("base64"), "pkl->base64"
         
     @property
     def valid_types(self):

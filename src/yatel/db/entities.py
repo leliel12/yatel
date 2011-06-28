@@ -93,7 +93,7 @@ def create(session, metadata):
         
         @value.setter
         def value(self, v):
-            self._value, self.type = TYPE_PARSER.dumps()
+            self._value, self.type = TYPE_PARSER.dumps(v)
             
         @property
         def type(self):
@@ -134,7 +134,7 @@ def create(session, metadata):
         
         @value.setter
         def value(self, v):
-            self._value, self.type = TYPE_PARSER.dumps()
+            self._value, self.type = TYPE_PARSER.dumps(v)
             
         @property
         def type(self):
@@ -183,7 +183,7 @@ def create(session, metadata):
         
         @value.setter
         def value(self, v):
-            self._value, self.type = TYPE_PARSER.dumps()
+            self._value, self.type = TYPE_PARSER.dumps(v)
         
         @property
         def type(self):
