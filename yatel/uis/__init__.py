@@ -5,6 +5,8 @@ from PyQt4 import QtGui
 
 from pycante import E, run
 
+from yatel import csv_parser as sniffer
+
 
 #===============================================================================
 # CONSTANTS
@@ -17,10 +19,6 @@ UI = lambda n: E(os.path.join(PATH, n))
 #===============================================================================
 # 
 #===============================================================================
-lista = ['aa', 'ab', 'ac']
-listb = ['ba', 'bb', 'bc']
-listc = ['ca', 'cb', 'cc']
-mystruct = {'A':lista, 'B':listb, 'C':listc}
 
 class ChargeFactOrHaplotype(UI("charge_haps_facts.ui")):
     
@@ -46,8 +44,10 @@ class ChargeFactOrHaplotype(UI("charge_haps_facts.ui")):
         self.tableTypes.setRowCount(len(self.types))
         self.tableTypes.setVerticalHeaderLabels(self.cool.columnnames)
         for cidx, cname in enumerate(self.cool.columnnames):
-            newitem = QtGui.QTableWidgetItem(self.types[cname].__name__)
-            self.tableTypes.setItem(cidx, 0, newitem)
+            #newitem = QtGui.QTableWidgetItem(self.types[cname].__name__)
+            newitem = QtGui.QComboBox()
+            newitem.addItems(sniffer.types())
+            self.tableTypes.setCellWidget(cidx, 0, newitem)
         
                 
                 
