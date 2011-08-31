@@ -1,10 +1,7 @@
-import uis
-import csvcool
 
-from yatel import csv_parser
 
-cool = csvcool.read(open("tablaEFclusters Oct05.csv"))
+from yatel import uis
 
-ventanita = uis.ChargeFactOrHaplotype(cool, csv_parser.discover_types(cool))
+ventanita = uis.ChargeFactOrHaplotype("fact", "tablaEFclusters Oct05.csv")
 ventanita.show()
 uis.run()

@@ -1,11 +1,15 @@
 
 import os
 
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
+
+import csvcool
 
 from pycante import E, run
 
+from yatel import csv_parser
 from yatel import csv_parser as sniffer
+
 
 
 #===============================================================================
@@ -22,10 +26,14 @@ UI = lambda n: E(os.path.join(PATH, n))
 
 class ChargeFactOrHaplotype(UI("charge_haps_facts.ui")):
     
-    def __init__(self, cool, types):
+    def __init__(self, file_type, csv_path):
         super(ChargeFactOrHaplotype, self).__init__()
-        self.cool = cool
-        self.types = types
+        self.setWindowTitle("Yatel - {0}: '{1}'".format(file_type, csv_path))
+        
+        self.path = csv_path
+        with open(csv_path) as f: 
+            self.cool = csvcool.read(f)
+        self.types = csv_parser.discover_types(self.cool)
         
         self.set_table_cool()
         self.set_table_types()
@@ -43,17 +51,28 @@ class ChargeFactOrHaplotype(UI("charge_haps_facts.ui")):
     def set_table_types(self):
         self.tableTypes.setRowCount(len(self.types))
         self.tableTypes.setVerticalHeaderLabels(self.cool.columnnames)
+        types = [(t.__name__, QtCore.QVariant(t)) for t in sniffer.types()]
         for cidx, cname in enumerate(self.cool.columnnames):
-            #newitem = QtGui.QTableWidgetItem(self.types[cname].__name__)
-            newitem = QtGui.QComboBox()
-            newitem.addItems(sniffer.types())
-            self.tableTypes.setCellWidget(cidx, 0, newitem)
+            column_type = self.types[cname]
+            type_idx = sniffer.types().index(column_type)
+            radiobutton = QtGui.QRadioButton(self)
+            combo = QtGui.QComboBox(self)
+            for type in types:
+                combo.addItem(*type)
+            combo.setCurrentIndex(type_idx)
+            self.tableTypes.setCellWidget(cidx, 0, combo)
+            self.tableTypes.setCellWidget(cidx, 1, radiobutton)
         
                 
-                
     def on_buttonBox_accepted(self):
-        # buttonBox exist inside "window.ui"
-        print "hola"
+        for ridx in range(self.tableTypes.rowcount):
+            cname = 0
+        self.results = {
+            "path": self.path,
+            "cool": self.cool,
+            "types": types,
+            "column_hap_id": column_hap_id,
+        }
 
 
 #===============================================================================
