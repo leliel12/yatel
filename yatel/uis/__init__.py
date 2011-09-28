@@ -1,4 +1,6 @@
 
+from __future__ import absolute_import
+
 import os
 
 from PyQt4 import QtGui, QtCore
@@ -7,6 +9,7 @@ import csvcool
 
 from pycante import EDir, run
 
+import yatel
 from yatel import csv_parser
 from yatel import csv_parser as sniffer
 
@@ -42,7 +45,9 @@ UI = EDir(PATH)
 #===============================================================================
 
 class ChargeFrame(UI("charge_frame.ui")):
+    """This is the frame to show for select types of given csv file
     
+    """
     def __init__(self, parent, file_content, csv_path):
         super(ChargeFrame, self).__init__(parent)
         self.file_content = file_content
@@ -97,7 +102,14 @@ class ChargeFrame(UI("charge_frame.ui")):
     
     # SIGNALS
     def on_tableCool_currentCellChanged(self, ridx, cidx, ordix, ocidx):
-        pass
+        color_high = QtGui.QColor(QtCore.Qt.yellow)
+        color_normal = QtGui.QColor(QtCore.Qt.blue)
+        for row in range(0, self.tableTypes.rowCount()):
+            color = color_high if row == cidx else  color_normal
+            for col in range(0, self.tableTypes.columnCount()):
+                print self.tableTypes.item(1, 1)
+        """.setBackgroundColor(color)
+        self.tableTypes.item(0, 0).setData(QtCore.Qt.BackgroundRole, QtGui.QColor(QtCore.Qt.blue))"""
     
     def on_radiobutton_toggled(self, boolean):
         self.selectHapIdLabel.setVisible(False)
@@ -108,8 +120,8 @@ class ChargeFrame(UI("charge_frame.ui")):
         column_hap_id = None
         for ridx in range(self.tableTypes.rowCount()):
             header = self.tableTypes.takeVerticalHeaderItem(ridx).text()
-            combo = self.tableTypes.cellWidget(ridx,0)
-            radiobutton = self.tableTypes.cellWidget(ridx,1)
+            combo = self.tableTypes.cellWidget(ridx, 0)
+            radiobutton = self.tableTypes.cellWidget(ridx, 1)
             types[header] = combo.itemData(combo.currentIndex()).toPyObject()
             if radiobutton.isChecked():
                 column_hap_id = header
@@ -127,10 +139,12 @@ class ChargeFrame(UI("charge_frame.ui")):
 #===============================================================================
 
 class ChargeWizard(UI("csv_wizard.ui")):
+    """Wizard for charge csv file as networks
     
+    """
     def on_openFileButtonDistances_pressed(self):
         filename = QtGui.QFileDialog.getOpenFileName(
-                       self, self.tr("Open Distances File"), 
+                       self, self.tr("Open Distances File"),
                        HOME_PATH,
                        self.tr("CSV (*.csv)")
                    )
@@ -143,7 +157,7 @@ class ChargeWizard(UI("csv_wizard.ui")):
     
     def on_openFileButtonFacts_pressed(self):
         filename = QtGui.QFileDialog.getOpenFileName(
-                       self, self.tr("Open Facts File"), 
+                       self, self.tr("Open Facts File"),
                        HOME_PATH,
                        self.tr("CSV (*.csv)")
                    )
@@ -156,7 +170,7 @@ class ChargeWizard(UI("csv_wizard.ui")):
     
     def on_openFileButtonHaps_pressed(self):
         filename = QtGui.QFileDialog.getOpenFileName(
-                       self, self.tr("Open Haplotypes File"), 
+                       self, self.tr("Open Haplotypes File"),
                        HOME_PATH,
                        self.tr("CSV (*.csv)")
                    )
@@ -167,16 +181,31 @@ class ChargeWizard(UI("csv_wizard.ui")):
             self.haplotypesFrame = ChargeFrame(self.hapsPage, "haplotypes", filename)
             self.hapsLayout.addWidget(self.haplotypesFrame)
     
-    def on_close(self):
-        print i
-    
     @property
     def results(self):
         # si no estan las distancias
         # si no estan los facts
         # si no estan los haplotipos
         pass
+        
+        
+#===============================================================================
+# MAIN WINDOW
+#===============================================================================
+
+class MainWindow(UI("main.ui")):
+    """The main window class"""
+        
+    def setWindowTitle(self, prj=""):
+        title = "{0} v.{1} - {2}".format(yatel.__prj__, yatel.__version__, prj)
+        super(self.__class__, self).setWindowTitle(title)
     
+    def on_actionWizard_triggered(self, *chk):
+        if chk:
+            self.wizard = ChargeWizard(self)
+            self.wizard.show()
+        
+
 #===============================================================================
 # MAIN
 #===============================================================================
