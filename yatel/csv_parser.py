@@ -53,8 +53,10 @@ def register(for_type, func_type, func=None):
         return _wrap
     _wrap(func)
 
+
 def types():
     return _validators.keys()
+    
     
 @register(bool, "validator")
 def is_bool(v):

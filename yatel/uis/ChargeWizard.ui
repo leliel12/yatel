@@ -22,6 +22,9 @@
   <property name="windowTitle">
    <string>Wizard</string>
   </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
   <widget class="QWizardPage" name="hapsPage">
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
@@ -127,10 +130,6 @@
      </layout>
     </item>
    </layout>
-   <zorder>layoutWidget</zorder>
-   <zorder>layoutWidget_2</zorder>
-   <zorder>fileLabelFacts</zorder>
-   <zorder>label_2</zorder>
   </widget>
   <widget class="QWizardPage" name="distancesPage">
    <layout class="QVBoxLayout" name="verticalLayout_2">

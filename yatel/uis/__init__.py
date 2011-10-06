@@ -44,7 +44,7 @@ UI = EDir(PATH)
 # 
 #===============================================================================
 
-class ChargeFrame(UI("charge_frame.ui")):
+class ChargeFrame(UI("ChargeFrame.ui")):
     """This is the frame to show for select types of given csv file
     
     """
@@ -107,7 +107,8 @@ class ChargeFrame(UI("charge_frame.ui")):
         for row in range(0, self.tableTypes.rowCount()):
             color = color_high if row == cidx else  color_normal
             for col in range(0, self.tableTypes.columnCount()):
-                print self.tableTypes.item(1, 1)
+                pass
+                #print self.tableTypes.item(1, 1)
         """.setBackgroundColor(color)
         self.tableTypes.item(0, 0).setData(QtCore.Qt.BackgroundRole, QtGui.QColor(QtCore.Qt.blue))"""
     
@@ -125,12 +126,12 @@ class ChargeFrame(UI("charge_frame.ui")):
             types[header] = combo.itemData(combo.currentIndex()).toPyObject()
             if radiobutton.isChecked():
                 column_hap_id = header
-        self._results = {
+        return {
             "file_content": self.file_content,
             "path": self.path,
             "cool": self.cool,
             "types": types,
-            "column_hap_id": column_hap_id,
+            "id_column": column_hap_id,
         }
 
 
@@ -138,7 +139,7 @@ class ChargeFrame(UI("charge_frame.ui")):
 # 
 #===============================================================================
 
-class ChargeWizard(UI("csv_wizard.ui")):
+class ChargeWizard(UI("ChargeWizard.ui")):
     """Wizard for charge csv file as networks
     
     """
@@ -180,20 +181,14 @@ class ChargeWizard(UI("csv_wizard.ui")):
             self.fileLabelHaps.setText(filename)
             self.haplotypesFrame = ChargeFrame(self.hapsPage, "haplotypes", filename)
             self.hapsLayout.addWidget(self.haplotypesFrame)
+        
     
-    @property
-    def results(self):
-        # si no estan las distancias
-        # si no estan los facts
-        # si no estan los haplotipos
-        pass
-        
-        
+            
 #===============================================================================
 # MAIN WINDOW
 #===============================================================================
 
-class MainWindow(UI("main.ui")):
+class MainWindow(UI("MainWindow.ui")):
     """The main window class"""
         
     def setWindowTitle(self, prj=""):
@@ -203,7 +198,17 @@ class MainWindow(UI("main.ui")):
     def on_actionWizard_triggered(self, *chk):
         if chk:
             self.wizard = ChargeWizard(self)
-            self.wizard.show()
+            self.wizard.exec_()
+            facts = None
+            if hasattr(self.wizard, "factsFrame"):
+                facts = self.wizard.factsFrame.results
+            haplotypes = None
+            if hasattr(self.wizard, "haplotypesFrame"):
+                haplotypes = self.wizard.haplotypesFrame.results
+            distances = None
+            if hasattr(self.wizard, "distancesFrame"):
+                distances = self.wizard.distancesFrame.results
+            print facts, distances, haplotypes 
         
 
 #===============================================================================
