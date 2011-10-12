@@ -67,6 +67,22 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="closeFileButtonHaps">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Close</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
@@ -120,6 +136,22 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="closeFileButtonFacts">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Close</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
@@ -131,7 +163,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWizardPage" name="distancesPage">
+  <widget class="QWizardPage" name="weightsPage">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="QLabel" name="label">
@@ -144,14 +176,14 @@
        </font>
       </property>
       <property name="text">
-       <string>Step 3: Distances</string>
+       <string>Step 3: Weights</string>
       </property>
      </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLatyout_3">
       <item>
-       <widget class="QLabel" name="fileLabelDistances">
+       <widget class="QLabel" name="fileLabelWeights">
         <property name="text">
          <string>&lt;NO FILE&gt;</string>
         </property>
@@ -161,7 +193,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="openFileButtonDistances">
+       <widget class="QPushButton" name="openFileButtonWeights">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -173,10 +205,26 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="closeFileButtonWeights">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Close</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="distancesLayout">
+     <layout class="QVBoxLayout" name="weightsLayout">
       <property name="sizeConstraint">
        <enum>QLayout::SetFixedSize</enum>
       </property>

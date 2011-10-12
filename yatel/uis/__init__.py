@@ -64,8 +64,9 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         msg = "Please Select '{0}' Column"
         if self.file_content in ("haplotypes", "facts"):
             iow = "Hap ID"
-        elif self.file_content in ("distances",):
+        elif self.file_content in ("weights",):
             iow = "Weight"
+        print self.file_content
         self.tableTypes.horizontalHeaderItem(1).setText(self.tr(iow))
         self.selectHapIdLabel.setText(self.tr(msg.format(iow)))
     
@@ -100,18 +101,7 @@ class ChargeFrame(UI("ChargeFrame.ui")):
             radiobutton.toggled.connect(self.on_radiobutton_toggled)
         self.tableTypes.resizeColumnsToContents()
     
-    # SIGNALS
-    def on_tableCool_currentCellChanged(self, ridx, cidx, ordix, ocidx):
-        color_high = QtGui.QColor(QtCore.Qt.yellow)
-        color_normal = QtGui.QColor(QtCore.Qt.blue)
-        for row in range(0, self.tableTypes.rowCount()):
-            color = color_high if row == cidx else  color_normal
-            for col in range(0, self.tableTypes.columnCount()):
-                pass
-                #print self.tableTypes.item(1, 1)
-        """.setBackgroundColor(color)
-        self.tableTypes.item(0, 0).setData(QtCore.Qt.BackgroundRole, QtGui.QColor(QtCore.Qt.blue))"""
-    
+    # SIGNALS    
     def on_radiobutton_toggled(self, boolean):
         self.selectHapIdLabel.setVisible(False)
     
@@ -143,18 +133,26 @@ class ChargeWizard(UI("ChargeWizard.ui")):
     """Wizard for charge csv file as networks
     
     """
-    def on_openFileButtonDistances_pressed(self):
+    def on_openFileButtonWeights_pressed(self):
         filename = QtGui.QFileDialog.getOpenFileName(
-                       self, self.tr("Open Distances File"),
+                       self, self.tr("Open Weights File"),
                        HOME_PATH,
                        self.tr("CSV (*.csv)")
                    )
         if filename:
-            if hasattr(self, "distancesFrame"):
-                self.distancesLayout.removeWidget(self.distancesFrame)
-            self.fileLabelDistances.setText(filename)
-            self.distancesFrame = ChargeFrame(self.distancesPage, "distances", filename)
-            self.distancesLayout.addWidget(self.distancesFrame)
+            self.on_closeFileButtonWeights_pressed()
+            self.fileLabelWeights.setText(filename)
+            self.weightFrame = ChargeFrame(self.weightsPage, "weights", filename)
+            self.weightsLayout.addWidget(self.weightFrame)
+            self.closeFileButtonWeights.setEnabled(True)
+    
+    def on_closeFileButtonWeights_pressed(self):
+        if hasattr(self, "weightFrame"):
+            self.weightsLayout.removeWidget(self.weightFrame)
+            self.weightFrame.destroy()
+            self.updateGeometry()
+        self.fileLabelWeights.setText(self.tr("<NO-FILE>"))
+        self.closeFileButtonWeights.setEnabled(False)
     
     def on_openFileButtonFacts_pressed(self):
         filename = QtGui.QFileDialog.getOpenFileName(
@@ -163,11 +161,19 @@ class ChargeWizard(UI("ChargeWizard.ui")):
                        self.tr("CSV (*.csv)")
                    )
         if filename:
-            if hasattr(self, "factsFrame"):
-                self.factsLayout.removeWidget(self.factsFrame)
+            self.on_closeFileButtonFacts_pressed()
             self.fileLabelFacts.setText(filename)
             self.factsFrame = ChargeFrame(self.factsPage, "facts", filename)
             self.factsLayout.addWidget(self.factsFrame)
+            self.closeFileButtonFacts.setEnabled(True)
+    
+    def on_closeFileButtonFacts_pressed(self):
+        if hasattr(self, "factsFrame"):
+            self.factsLayout.removeWidget(self.factsFrame)
+            self.factsFrame.destroy()
+            self.updateGeometry()
+        self.fileLabelFacts.setText(self.tr("<NO-FILE>"))
+        self.closeFileButtonFacts.setEnabled(False)
     
     def on_openFileButtonHaps_pressed(self):
         filename = QtGui.QFileDialog.getOpenFileName(
@@ -176,12 +182,19 @@ class ChargeWizard(UI("ChargeWizard.ui")):
                        self.tr("CSV (*.csv)")
                    )
         if filename:
-            if hasattr(self, "haplotypesFrame"):
-                self.hapsLayout.removeWidget(self.haplotypesFrame)
+            self.on_closeFileButtonHaps_pressed()
             self.fileLabelHaps.setText(filename)
             self.haplotypesFrame = ChargeFrame(self.hapsPage, "haplotypes", filename)
             self.hapsLayout.addWidget(self.haplotypesFrame)
+            self.closeFileButtonHaps.setEnabled(True)
         
+    def on_closeFileButtonHaps_pressed(self):
+        if hasattr(self, "haplotypesFrame"):
+            self.hapsLayout.removeWidget(self.haplotypesFrame)
+            self.haplotypesFrame.destroy()
+            self.updateGeometry()
+        self.fileLabelHaps.setText(self.tr("<NO-FILE>"))
+        self.closeFileButtonHaps.setEnabled(False)
     
             
 #===============================================================================
@@ -208,7 +221,7 @@ class MainWindow(UI("MainWindow.ui")):
             distances = None
             if hasattr(self.wizard, "distancesFrame"):
                 distances = self.wizard.distancesFrame.results
-            print facts, distances, haplotypes 
+            
         
 
 #===============================================================================
