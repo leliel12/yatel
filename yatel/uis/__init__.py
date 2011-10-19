@@ -14,7 +14,6 @@ from yatel import csv_parser
 from yatel import csv_parser as sniffer
 
 
-
 #===============================================================================
 # CONSTANTS
 #===============================================================================
@@ -32,13 +31,14 @@ try:
     from win32com.shell import shellcon, shell
     HOME_PATH = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
 except ImportError:
-   # quick semi-nasty fallback for non-windows/win32com case
+    # quick semi-nasty fallback for non-windows/win32com case
     HOME_PATH = os.path.expanduser("~")
 
 
 PATH = os.path.abspath(os.path.dirname(__file__))
 
 UI = EDir(PATH)
+
 
 #===============================================================================
 # 
@@ -66,7 +66,6 @@ class ChargeFrame(UI("ChargeFrame.ui")):
             iow = "Hap ID"
         elif self.file_content in ("weights",):
             iow = "Weight"
-        print self.file_content
         self.tableTypes.horizontalHeaderItem(1).setText(self.tr(iow))
         self.selectHapIdLabel.setText(self.tr(msg.format(iow)))
     
@@ -91,8 +90,8 @@ class ChargeFrame(UI("ChargeFrame.ui")):
             
             radiobutton = QtGui.QRadioButton(self)            
             combo = QtGui.QComboBox(self)
-            for type in types:
-                combo.addItem(*type)
+            for t in types:
+                combo.addItem(*t)
             combo.setCurrentIndex(type_idx)
             
             self.tableTypes.setCellWidget(cidx, 0, combo)
@@ -113,9 +112,9 @@ class ChargeFrame(UI("ChargeFrame.ui")):
             header = self.tableTypes.takeVerticalHeaderItem(ridx).text()
             combo = self.tableTypes.cellWidget(ridx, 0)
             radiobutton = self.tableTypes.cellWidget(ridx, 1)
-            types[header] = combo.itemData(combo.currentIndex()).toPyObject()
+            types[format(str(header))] = combo.itemData(combo.currentIndex()).toPyObject()
             if radiobutton.isChecked():
-                column_hap_id = header
+                column_hap_id = format(str(header))
         return {
             "file_content": self.file_content,
             "path": self.path,
@@ -212,15 +211,14 @@ class MainWindow(UI("MainWindow.ui")):
         if chk:
             self.wizard = ChargeWizard(self)
             self.wizard.exec_()
-            facts = None
-            if hasattr(self.wizard, "factsFrame"):
-                facts = self.wizard.factsFrame.results
-            haplotypes = None
-            if hasattr(self.wizard, "haplotypesFrame"):
-                haplotypes = self.wizard.haplotypesFrame.results
-            distances = None
-            if hasattr(self.wizard, "distancesFrame"):
-                distances = self.wizard.distancesFrame.results
+            facts = self.wizard.factsFrame.results if hasattr(self.wizard, "factsFrame") else None
+            haplotypes = self.wizard.haplotypesFrame.results if hasattr(self.wizard, "haplotypesFrame") else None
+            weights = self.wizard.distancesFrame.results if hasattr(self.wizard, "weightsFrame") else None
+            
+            # fix types
+            facts_fixed = csv_parser.type_corrector(facts["cool"], facts["types"])
+            
+            # create dom
             
         
 
