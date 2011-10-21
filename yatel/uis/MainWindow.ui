@@ -20,12 +20,12 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <addaction name="actionWizard"/>
     <addaction name="actionClose"/>
@@ -35,12 +35,12 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionClose">
    <property name="text">
-    <string>Exit</string>
+    <string>&amp;Exit</string>
    </property>
   </action>
   <action name="actionWizard">
    <property name="text">
-    <string>Wizard</string>
+    <string>&amp;Wizard</string>
    </property>
   </action>
  </widget>
