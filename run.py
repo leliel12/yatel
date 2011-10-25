@@ -2,6 +2,10 @@
 # IMPORTS
 #===============================================================================
 
+import sys
+
+from PyQt4 import QtGui
+
 from yatel import uis
 
 
@@ -10,9 +14,11 @@ from yatel import uis
 #===============================================================================
 
 def main():
+    """Run Qt application"""
+    app = QtGui.QApplication(sys.argv)
     w = uis.MainWindow()
     w.show()
-    uis.run()
+    sys.exit(app.exec_())    
 
 
 #===============================================================================

@@ -7,7 +7,7 @@ from PyQt4 import QtGui, QtCore
 
 import csvcool
 
-from pycante import EDir, run
+from pycante import EDir
 
 import yatel
 from yatel import csv_parser
@@ -34,7 +34,6 @@ except ImportError:
     # quick semi-nasty fallback for non-windows/win32com case
     HOME_PATH = os.path.expanduser("~")
 
-
 PATH = os.path.abspath(os.path.dirname(__file__))
 
 UI = EDir(PATH)
@@ -48,6 +47,8 @@ class ChargeFrame(UI("ChargeFrame.ui")):
     """This is the frame to show for select types of given csv file
     
     """
+    idselected = QtCore.pyqtSignal(name="idselected")
+    
     def __init__(self, parent, file_content, csv_path):
         super(ChargeFrame, self).__init__(parent)
         self.file_content = file_content
@@ -103,6 +104,7 @@ class ChargeFrame(UI("ChargeFrame.ui")):
     # SIGNALS    
     def on_radiobutton_toggled(self, boolean):
         self.selectHapIdLabel.setVisible(False)
+        self.idselected.emit()
     
     @property
     def results(self):
@@ -219,8 +221,7 @@ class MainWindow(UI("MainWindow.ui")):
             facts_fixed = csv_parser.type_corrector(facts["cool"], facts["types"])
             
             # create dom
-            
-        
+
 
 #===============================================================================
 # MAIN
