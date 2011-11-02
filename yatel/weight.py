@@ -22,25 +22,45 @@
 
 
 #===============================================================================
+# DOCS
+#===============================================================================
+
+"""This module is used for calculate weights of edgest in yatel
+
+"""
+
+
+#===============================================================================
 # ERROR
 #===============================================================================
 
 class AbstractWeight(object):
+    """"""
     
-    def weight(self, hap0, hap1, default=None):
+    def weight(self, hap0, hap1):
+        """"""
         raise NotImplementedError()
         
-    def weights(self, *haps):
-        return tuple(self.weight(hap0, hap1) for hap0, hap1 in haps)
-    
 
 #===============================================================================
 # FACT
 #===============================================================================
 
 
-        
+class Hamming(AbstractWeight):
     
+    def weight(self, hap0, hap1):
+        w = 0
+        for name in set(hap0.names_attrs() + hap1.names_attrs()):
+            if name not in h0.names_attrs() \
+               or name not in h1.names_attrs() \
+               or h0.get_attr(name) != h1.get_attr(name):
+                w += 1
+        return w
+        
+            
+
+
 
 
 #===============================================================================
@@ -48,7 +68,14 @@ class AbstractWeight(object):
 #===============================================================================
 
 if __name__ == "__main__":
-    print(__doc__)
+    import dom
+
+    h0 = dom.Haplotype("h0", a0="0", a1="1")
+    h1 = dom.Haplotype("h1", a0="1", a1="1")
+
+    hamming = Hamming()
+
+    print __doc__
 
 
 
