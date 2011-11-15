@@ -43,6 +43,9 @@ import numpy
 class AbstractWeight(object):
     """"""
     
+    def __call__(self, hap0, hap1):
+        return self.weight(hap0, hap1)
+    
     def weight(self, hap0, hap1):
         """"""
         raise NotImplementedError()
