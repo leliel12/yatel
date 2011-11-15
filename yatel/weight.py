@@ -119,7 +119,7 @@ class Levenshtein(AbstractWeight):
         # aas = attributes as string
         aas0 = []
         aas1= []
-        for name in set(hap0.names_attrs() +  hap1.names_attrs()):
+        for name in sorted(set(hap0.names_attrs() +  hap1.names_attrs())):
             as0 = str(hap0.get_attr(name, "")).encode("base64")
             as1 = str(hap1.get_attr(name, "")).encode("base64")
             aas0.append(as0)
