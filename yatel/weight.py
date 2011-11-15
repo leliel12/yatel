@@ -29,6 +29,12 @@
 
 """
 
+#===============================================================================
+# IMPORTS
+#===============================================================================
+
+import numpy
+
 
 #===============================================================================
 # ERROR
@@ -43,7 +49,7 @@ class AbstractWeight(object):
         
 
 #===============================================================================
-# FACT
+# HAMMING
 #===============================================================================
 
 
@@ -60,9 +66,67 @@ class Hamming(AbstractWeight):
         
             
 
+#===============================================================================
+# EUCLIDEAN
+#===============================================================================
 
+class Euclidean(AbstractWeight):
+    
+    def weight(self, hap0, hap1):
+        
+        def to_num(attr):
+            value = 0
+            for c in str(attr).encode("base64"):
+                value += ord(c)
+            return value
+        
+        s = 0.0
+        for name in set(hap0.names_attrs() +  hap1.names_attrs()):
+            v0 = to_num(hap0.get_attr(name, ""))
+            v1 = to_num(hap1.get_attr(name, ""))
+            s += (v1 - v0) ** 2
+        return numpy.sqrt(s)
+        
+        
+#===============================================================================
+# LEVENSHTEIN
+#===============================================================================
 
+class Levenshtein(AbstractWeight):
+    
+    def _lev_str(self, a, b):
+        """Calculates the Levenshtein distance between a and b.
+        
+        Found at: http://hetland.org/coding/
+        """
+        n, m = len(a), len(b)
+        if n > m:
+            # Make sure n <= m, to use O(min(n,m)) space
+            a,b = b,a
+            n,m = m,n
+        current = range(n+1)
+        for i in range(1,m+1):
+            previous, current = current, [i]+[0]*n
+            for j in range(1,n+1):
+                add, delete = previous[j]+1, current[j-1]+1
+                change = previous[j-1]
+                if a[j-1] != b[i-1]:
+                    change = change + 1
+                current[j] = min(add, delete, change)
+        return current[n]
+        
+    def weight(self, hap0, hap1):
+        # aas = attributes as string
+        aas0 = []
+        aas1= []
+        for name in set(hap0.names_attrs() +  hap1.names_attrs()):
+            as0 = str(hap0.get_attr(name, "")).encode("base64")
+            as1 = str(hap1.get_attr(name, "")).encode("base64")
+            aas0.append(as0)
+            aas1.append(as1)
+        return float(self._lev_str("".join(aas0), "".join(aas1)))
 
+        
 #===============================================================================
 # MAIN
 #===============================================================================
@@ -70,10 +134,12 @@ class Hamming(AbstractWeight):
 if __name__ == "__main__":
     import dom
 
-    h0 = dom.Haplotype("h0", a0="0", a1="1")
-    h1 = dom.Haplotype("h1", a0="1", a1="1")
+    h0 = dom.Haplotype("h0", a0="0a", a1="156", a2="lalal")
+    h1 = dom.Haplotype("h1", a0="15", a1="1h")
+    h2 = dom.Haplotype("h1", a0="1", a1="1h")
 
-    hamming = Hamming()
+    hamming = Levenshtein()
+    print hamming.weight(h2, h1)
 
     print __doc__
 
