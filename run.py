@@ -4,7 +4,7 @@
 
 import sys
 
-from PyQt4 import QtGui
+from PyQt4 import QtCore, QtGui
 
 from yatel import uis
 
@@ -13,11 +13,17 @@ from yatel import uis
 # FUNCTION
 #===============================================================================
 
+
 def main():
     """Run Qt application"""
     app = QtGui.QApplication(sys.argv)
-    w = uis.MainWindow()
-    w.show()
+    splash = uis.SplashScreen()
+    splash.show()
+    app.processEvents()
+    main_window = uis.MainWindow()
+    main_window.show()
+    QtCore.QThread.sleep(1)
+    splash.finish(main_window)
     sys.exit(app.exec_())    
 
 

@@ -10,6 +10,7 @@ import csvcool
 from pycante import EDir
 
 import yatel
+from yatel import resources
 from yatel import csv_parser
 from yatel import csv_parser as sniffer
 
@@ -37,7 +38,6 @@ except ImportError:
 PATH = os.path.abspath(os.path.dirname(__file__))
 
 UI = EDir(PATH)
-
 
 #===============================================================================
 # 
@@ -221,6 +221,16 @@ class MainWindow(UI("MainWindow.ui")):
             facts_fixed = csv_parser.type_corrector(facts["cool"], facts["types"])
             
             # create dom
+
+
+
+class SplashScreen(QtGui.QSplashScreen):
+    
+    def __init__(self):
+        pixmap = QtGui.QPixmap(resources.get("splash.png"))
+        super(self.__class__, self).__init__(pixmap)
+
+
 
 
 #===============================================================================

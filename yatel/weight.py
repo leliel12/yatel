@@ -258,7 +258,7 @@ class McCarthy(AbstractWeight):
     
     def booleanify(self, hap):
         """Convert all attributes of a given haplotype to a
-        dict with all values converted in bool by the to_bool
+        dict with all values converted in bool by to_bool
         function
         
             >>> from yatel import dom, weight
