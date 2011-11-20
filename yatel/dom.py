@@ -66,6 +66,12 @@ class Haplotype(object):
         self._hap_id = hap_id
         self._attrs = attrs
     
+    def __repr__(self):
+        return "<{0} '{1}' at {2}>".format(
+            self.__class__.__name__,
+            self._hap_id, hex(id(self))
+        )
+    
     def __getattr__(self, n):
         try:
             return self._attrs[n]

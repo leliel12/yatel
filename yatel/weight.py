@@ -49,18 +49,18 @@ class AbstractWeight(object):
     """
     """
     
-    def __call__(self, repeated=False, *haps):
-        return self.weights(haps, repeated=repeated)
+    def __call__(self, haps=[], repeated=False):
+        return self.weights(haps=haps, repeated=repeated)
         
-    def weigths(self, repeated=False, *haps):
+    def weights(self, haps=[], repeated=False):
         ws = {}
         comb = itertools.combinations_with_replacement \
                if repeated else itertools.combinations
         for hap0, hap1 in comb(haps, 2):
-            ws[(hap0, hap1)] = self.weights(hap0, hap1)
+            ws[(hap0, hap1)] = self._weight(hap0, hap1)
         return ws
     
-    def weight(self, hap0, hap1):
+    def _weight(self, hap0, hap1):
         """"""
         raise NotImplementedError()
         
@@ -88,7 +88,7 @@ class Hamming(AbstractWeight):
     
     """
     
-    def weight(self, hap0, hap1):
+    def _weight(self, hap0, hap1):
         w = 0
         for name in set(hap0.names_attrs() + hap1.names_attrs()):
             if name not in h0.names_attrs() \
@@ -110,7 +110,7 @@ def Expert(AbstractWeight):
             self._ws[(h0, h1)] = w
 
 
-    def weight(self, hap0, hap1):
+    def _weight(self, hap0, hap1):
         return self._ws.get((hap0, hap1))
 
 
@@ -120,7 +120,7 @@ def Expert(AbstractWeight):
 
 class Euclidean(AbstractWeight):
     
-    def weight(self, hap0, hap1):
+    def _weight(self, hap0, hap1):
         
         def to_num(attr):
             value = 0
@@ -142,7 +142,7 @@ class Euclidean(AbstractWeight):
 
 class Levenshtein(AbstractWeight):
     
-    def weight(self, hap0, hap1):
+    def _weight(self, hap0, hap1):
     
         def levenshtein(a, b):
             """Calculates the Levenshtein distance between a and b.
@@ -192,7 +192,7 @@ class DamerauLevenshtein(AbstractWeight):
 
     """
     
-    def weight(self, hap0, hap1):
+    def _weight(self, hap0, hap1):
         
         def dameraulevenshtein(seq1, seq2):
             """This is the original code found in: 
@@ -275,7 +275,7 @@ class McCarthy(AbstractWeight):
             hab[k] = bool(self._to_bool(v))
         return hab
             
-    def weight(self, hap0, hap1):
+    def _weight(self, hap0, hap1):
         h0attrs = self.booleanify(hap0)
         h1attrs = self.booleanify(hap1)
         
@@ -317,7 +317,7 @@ if __name__ == "__main__":
         B3a=0, B3b=1, B9a=0, B9b=0, B9c=1, B10a=1,
         B10b=0, BE10=1, B5=1, BE5=1, B8=1
     )
-    print McCarthy([], [], [], [], to_bool=lambda a: not a).booleanify(h0)
+    print Levenshtein()([h0, h1])
     """
     d0 = lambda h0, h1: abs(h0.B5 - h1.B5)
    
