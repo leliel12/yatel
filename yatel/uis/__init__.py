@@ -54,7 +54,7 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self.file_content = file_content
         self.path = csv_path
         with open(csv_path) as f: 
-            self.cool = csvcool.read(f)
+            self.cool = csvcool.read(f, encoding="latin-1")
         self.types = csv_parser.discover_types(self.cool)
         self.set_table_cool()
         self.set_table_types()
@@ -111,12 +111,12 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         types = {}
         column_hap_id = None
         for ridx in range(self.tableTypes.rowCount()):
-            header = self.tableTypes.takeVerticalHeaderItem(ridx).text()
+            header = unicode(self.tableTypes.takeVerticalHeaderItem(ridx).text())
             combo = self.tableTypes.cellWidget(ridx, 0)
             radiobutton = self.tableTypes.cellWidget(ridx, 1)
-            types[format(str(header))] = combo.itemData(combo.currentIndex()).toPyObject()
+            types[header] = combo.itemData(combo.currentIndex()).toPyObject()
             if radiobutton.isChecked():
-                column_hap_id = format(str(header))
+                column_hap_id = header
         return {
             "file_content": self.file_content,
             "path": self.path,
@@ -219,6 +219,7 @@ class MainWindow(UI("MainWindow.ui")):
             
             # fix types
             facts_fixed = csv_parser.type_corrector(facts["cool"], facts["types"])
+
             
             # create dom
 
