@@ -213,13 +213,36 @@ class MainWindow(UI("MainWindow.ui")):
         if chk:
             self.wizard = ChargeWizard(self)
             self.wizard.exec_()
-            facts = self.wizard.factsFrame.results if hasattr(self.wizard, "factsFrame") else None
-            haplotypes = self.wizard.haplotypesFrame.results if hasattr(self.wizard, "haplotypesFrame") else None
-            weights = self.wizard.distancesFrame.results if hasattr(self.wizard, "weightsFrame") else None
             
-            # fix types
-            facts_fixed = csv_parser.type_corrector(facts["cool"], facts["types"])
-
+            facts = None
+            if if hasattr(self.wizard, "factsFrame"):
+                facts_data = self.wizard.factsFrame.results
+                facts_corrected = csv_parser.type_corrector(
+                    facts_data["cool"], facts_data["types"]
+                )
+                facts = construct_facts(
+                    facts_corrected, facts_data["id_column"]
+                )
+            
+            haplotypes = None
+            if hasattr(self.wizard, "haplotypesFrame"):
+                haplotypes_data = self.wizard.haplotypesFrame.results
+                haplotypes = csv_parser.type_corrector(
+                    haplotypes_data["cool"], haplotypes_data["types"]
+                )
+                haplotypes = construct_haplotypes(
+                    haplotypes_corrected, haplotypes_data["id_column"]
+                )
+            
+            edges = None
+            if hasattr(self.wizard, "weightsFrame"):
+                weights = self.wizard.distancesFrame.results
+                weights = csv_parser.type_corrector(
+                    weights_data["cool"], weights_data["types"]
+                )
+                edges = construct_edges(
+                    weights_corrected, weights_data["id_column"]
+                )
             
             # create dom
 
