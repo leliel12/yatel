@@ -21,7 +21,7 @@
 # DOCS
 #===============================================================================
 
-"""This module is used for construct yatel.dom object using CSVCool instances
+"""This module contains all the global constants of the project
 
 """
 
@@ -29,56 +29,48 @@
 # IMPORTS
 #===============================================================================
 
-import dom
+import os
 
 
 #===============================================================================
-# FUNCTION
+# CONSTANTS
 #===============================================================================
 
-def construct_facts(cool, column_haplotype):
-    assert column_haplotype in cool.columnnames
-    facts = []
-    for row in cool:
-        hap_id = None
-        atts = {}
-        for cname, cvalue in row.items():
-            if cname == column_haplotype:
-                hap_id = str(cvalue)
-            else:
-                atts[cname] = cvalue
-        facts.append(dom.Fact(hap_id, **atts))
-    return tuple(facts)
+# This is the project name
+PRJ = "Yatel"
+
+# The project version as tuple of strings
+VERSION = ("0", "1")
+
+# The project version as string
+STR_VERSION = ".".join(VERSION)
+
+# The project root path
+PRJ_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def construct_haplotypes(cool, column_id):
-    assert column_id in cool.columnnames
-    haps = []
-    for row in cool:
-        hap_id = None
-        atts = {}
-        for cname, cvalue in row.items():
-            if cname == column_id:
-                hap_id = str(cvalue)
-            else:
-                atts[cname] = cvalue
-        haps.append(dom.Haplotype(hap_id, **atts))
-    return tuple(haps)
-    
-    
-def construct_edges(cool, column_weight):
-    assert column_weight in cool.columnnames
-    edges = []
-    for row in cool:
-        weight = None
-        haps_id = []
-        for cname, cvalue in row.items():
-            if cname == column_weight:
-                weight = cvalue
-            else:
-                haps_id.append(cvalue)
-        edges.append(dom.Edge(weight, *haps_id))
-    return tuple(edges)
+# The path to the puser home path
+try:
+    # ...works on at least windows and linux.
+    # In windows it points to the user"s folder
+    #  (the one directly under Documents and Settings, not My Documents)
+
+    # In windows, you can choose to care about local versus roaming profiles.
+    # You can fetch the current user"s through PyWin32.
+    #
+    # For example, to ask for the roaming "Application Data" directory:
+    # CSIDL_APPDATA asks for the roaming, CSIDL_LOCAL_APPDATA for the local one
+    from win32com.shell import shellcon, shell
+    HOME_PATH = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
+except ImportError:
+    # quick semi-nasty fallback for non-windows/win32com case
+    HOME_PATH = os.path.expanduser("~")
+
+
+# This is a folder where user put his data
+YATEL_USER_PATH = os.path.join(HOME_PATH, ".yatel")
+if not os.path.isdir(YATEL_USER_PATH):
+    os.mkdir(YATEL_USER_PATH)
 
 
 #===============================================================================
@@ -87,7 +79,3 @@ def construct_edges(cool, column_weight):
 
 if __name__ == "__main__":
     print(__doc__)
-
-
-
-
