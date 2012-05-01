@@ -23,6 +23,7 @@ PATH = os.path.abspath(os.path.dirname(__file__))
 
 UI = EDir(PATH)
 
+
 #===============================================================================
 # 
 #===============================================================================
@@ -31,6 +32,8 @@ class ChargeFrame(UI("ChargeFrame.ui")):
     """This is the frame to show for select types of given csv file
     
     """
+    
+    #: This signal is launched when some column is selected as primary id
     idselected = QtCore.pyqtSignal(name="idselected")
     
     def __init__(self, parent, file_content, csv_path):
@@ -39,12 +42,11 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self.path = csv_path
         with open(csv_path) as f: 
             self.cool = csvcool.read(f, encoding="latin-1")
-        self.types = self.cool.discover_types()
-        self.set_table_cool()
-        self.set_table_types()
-        self.set_id_of_what()
+        self._set_table_cool()
+        self._set_table_types()
+        self._set_id_of_what()
     
-    def set_id_of_what(self):
+    def _set_id_of_what(self):
         iow = None
         msg = "Please Select '{0}' Column"
         if self.file_content in ("haplotypes", "facts"):
@@ -54,7 +56,10 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self.tableTypes.horizontalHeaderItem(1).setText(self.tr(iow))
         self.selectHapIdLabel.setText(self.tr(msg.format(iow)))
     
-    def set_table_cool(self):
+    def _set_table_cool(self):
+        """Draw the table containing the csv
+        
+        """
         self.tableCool.setColumnCount(len(self.cool.columnnames))
         self.tableCool.setRowCount(len(self.cool))
         self.tableCool.setHorizontalHeaderLabels(self.cool.columnnames)
@@ -65,12 +70,16 @@ class ChargeFrame(UI("ChargeFrame.ui")):
                 self.tableCool.setItem(ridx, cidx, newitem)
         self.tableCool.resizeColumnsToContents()
                 
-    def set_table_types(self):
-        self.tableTypes.setRowCount(len(self.types))
+    def _set_table_types(self):
+        """Set the data of the table for select the types of all columns
+        
+        """
+        types = self.cool.discover_types()
+        self.tableTypes.setRowCount(len(types))
         self.tableTypes.setVerticalHeaderLabels(self.cool.columnnames)
         types = [(t.__name__, QtCore.QVariant(t)) for t in csvcool.types()]
         for cidx, cname in enumerate(self.cool.columnnames):
-            column_type = self.types[cname]
+            column_type = types[cname]
             type_idx = csvcool.types().index(column_type)
             
             radiobutton = QtGui.QRadioButton(self)            
@@ -87,6 +96,10 @@ class ChargeFrame(UI("ChargeFrame.ui")):
     
     # SIGNALS    
     def on_radiobutton_toggled(self, boolean):
+        """This funcion is called when some combo is selected for determine
+        the id
+        
+        """
         self.selectHapIdLabel.setVisible(False)
         self.idselected.emit()
     

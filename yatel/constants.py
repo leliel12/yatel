@@ -36,20 +36,20 @@ import os
 # CONSTANTS
 #===============================================================================
 
-# This is the project name
+#: This is the project name
 PRJ = "Yatel"
 
-# The project version as tuple of strings
+#: The project version as tuple of strings
 VERSION = ("0", "1")
 
-# The project version as string
+#: The project version as string
 STR_VERSION = ".".join(VERSION)
 
-# The project root path
+#: The project root path
 PRJ_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-# The path to the puser home path
+#: The path to the puser home path
 try:
     # ...works on at least windows and linux.
     # In windows it points to the user"s folder
@@ -67,7 +67,7 @@ except ImportError:
     HOME_PATH = os.path.expanduser("~")
 
 
-# This is a folder where user put his data
+#: This is a folder where user put his data
 YATEL_USER_PATH = os.path.join(HOME_PATH, ".yatel")
 if not os.path.isdir(YATEL_USER_PATH):
     os.mkdir(YATEL_USER_PATH)
