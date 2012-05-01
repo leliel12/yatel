@@ -11,8 +11,7 @@ from pycante import EDir
 
 import yatel
 from yatel import resources
-from yatel import csv_parser
-from yatel import csv_parser as sniffer
+from yatel import csv2dom
 
 
 #===============================================================================
@@ -55,7 +54,7 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self.path = csv_path
         with open(csv_path) as f: 
             self.cool = csvcool.read(f, encoding="latin-1")
-        self.types = csv_parser.discover_types(self.cool)
+        self.types = self.cool.discover_types()
         self.set_table_cool()
         self.set_table_types()
         self.set_id_of_what()
@@ -84,10 +83,10 @@ class ChargeFrame(UI("ChargeFrame.ui")):
     def set_table_types(self):
         self.tableTypes.setRowCount(len(self.types))
         self.tableTypes.setVerticalHeaderLabels(self.cool.columnnames)
-        types = [(t.__name__, QtCore.QVariant(t)) for t in sniffer.types()]
+        types = [(t.__name__, QtCore.QVariant(t)) for t in csvcool.types()]
         for cidx, cname in enumerate(self.cool.columnnames):
             column_type = self.types[cname]
-            type_idx = sniffer.types().index(column_type)
+            type_idx = csvcool.types().index(column_type)
             
             radiobutton = QtGui.QRadioButton(self)            
             combo = QtGui.QComboBox(self)
@@ -217,34 +216,32 @@ class MainWindow(UI("MainWindow.ui")):
             facts = None
             if if hasattr(self.wizard, "factsFrame"):
                 facts_data = self.wizard.factsFrame.results
-                facts_corrected = csv_parser.type_corrector(
-                    facts_data["cool"], facts_data["types"]
+                facts_corrected = facts_data["cool"].type_corrector(
+                    facts_data["types"]
                 )
-                facts = construct_facts(
+                facts = csv2dom.construct_facts(
                     facts_corrected, facts_data["id_column"]
                 )
             
             haplotypes = None
             if hasattr(self.wizard, "haplotypesFrame"):
                 haplotypes_data = self.wizard.haplotypesFrame.results
-                haplotypes = csv_parser.type_corrector(
-                    haplotypes_data["cool"], haplotypes_data["types"]
+                haplotypes = haplotypes_data["cool"].type_corrector(
+                    haplotypes_data["types"]
                 )
-                haplotypes = construct_haplotypes(
+                haplotypes = csv2dom.construct_haplotypes(
                     haplotypes_corrected, haplotypes_data["id_column"]
                 )
             
             edges = None
             if hasattr(self.wizard, "weightsFrame"):
-                weights = self.wizard.distancesFrame.results
-                weights = csv_parser.type_corrector(
-                    weights_data["cool"], weights_data["types"]
+                weights_data = self.wizard.distancesFrame.results
+                weights = weights_data["cool"].type_corrector(
+                    weights_data["types"]
                 )
                 edges = construct_edges(
                     weights_corrected, weights_data["id_column"]
                 )
-            
-            # create dom
 
 
 
