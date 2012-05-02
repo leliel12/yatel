@@ -99,8 +99,8 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self.tableTypes.resizeColumnsToContents()
     
     # SIGNALS
-    def on_comboBoxEncodings_activated(self, text):
-        print text
+    def on_comboBoxEncodings_activated(self, id, text):
+        print id, text
         
     def on_radiobutton_toggled(self, boolean):
         """This funcion is called when some combo is selected for determine

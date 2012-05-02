@@ -32,6 +32,7 @@
 import encodings
 import os
 import pkgutil
+import sys
 
 
 #===============================================================================
@@ -76,15 +77,15 @@ if not os.path.isdir(YATEL_USER_PATH):
 
 
 #: A Set containing all the encodings knowin by python
-ENCODINGS = tuple(
-    set([
-        modname for importer, modname, ispkg in pkgutil.walk_packages(
-            path=[os.path.dirname(encodings.__file__)], prefix=''
-        )
-    ]).union(
-        set(encodings.aliases.aliases.values())
-    )
+ENCODINGS = tuple(sorted(set(encodings.aliases.aliases.values())))
+
+
+#: Determines the default encoding of the files (default utf-8)
+DEFAULT_FILE_ENCODING = encodings.aliases.aliases.get(
+    sys.getfilesystemencoding().lower().replace("-", ""),
+    "utf_8"
 )
+
 
 #===============================================================================
 # MAIN
