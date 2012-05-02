@@ -74,12 +74,12 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         """Set the data of the table for select the types of all columns
         
         """
-        types = self.cool.discover_types()
-        self.tableTypes.setRowCount(len(types))
+        all_types = self.cool.discover_types()
+        self.tableTypes.setRowCount(len(all_types))
         self.tableTypes.setVerticalHeaderLabels(self.cool.columnnames)
         types = [(t.__name__, QtCore.QVariant(t)) for t in csvcool.types()]
         for cidx, cname in enumerate(self.cool.columnnames):
-            column_type = types[cname]
+            column_type = all_types[cname]
             type_idx = csvcool.types().index(column_type)
             
             radiobutton = QtGui.QRadioButton(self)            
@@ -104,23 +104,22 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self.idselected.emit()
     
     @property
-    def results(self):
-        types = {}
-        column_hap_id = None
+    def types(self):
+        tps = {}
         for ridx in range(self.tableTypes.rowCount()):
             header = unicode(self.tableTypes.takeVerticalHeaderItem(ridx).text())
             combo = self.tableTypes.cellWidget(ridx, 0)
+            tps[header] = combo.itemData(combo.currentIndex()).toPyObject()
+        return tps
+    
+    @property    
+    def id_column(self):
+        for ridx in range(self.tableTypes.rowCount()):
             radiobutton = self.tableTypes.cellWidget(ridx, 1)
-            types[header] = combo.itemData(combo.currentIndex()).toPyObject()
             if radiobutton.isChecked():
-                column_hap_id = header
-        return {
-            "file_content": self.file_content,
-            "path": self.path,
-            "cool": self.cool,
-            "types": types,
-            "id_column": column_hap_id,
-        }
+                return unicode(
+                    self.tableTypes.takeVerticalHeaderItem(ridx).text()
+                )
 
 
 #===============================================================================
@@ -212,7 +211,7 @@ class MainWindow(UI("MainWindow.ui")):
             self.wizard.exec_()
             
             facts = None
-            if if hasattr(self.wizard, "factsFrame"):
+            if hasattr(self.wizard, "factsFrame"):
                 facts_data = self.wizard.factsFrame.results
                 facts_corrected = facts_data["cool"].type_corrector(
                     facts_data["types"]
