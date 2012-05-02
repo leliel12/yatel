@@ -76,14 +76,15 @@ if not os.path.isdir(YATEL_USER_PATH):
 
 
 #: A Set containing all the encodings knowin by python
-ENCODINGS = set([
-    modname for importer, modname, ispkg in pkgutil.walk_packages(
-        path=[os.path.dirname(encodings.__file__)], prefix=''
+ENCODINGS = tuple(
+    set([
+        modname for importer, modname, ispkg in pkgutil.walk_packages(
+            path=[os.path.dirname(encodings.__file__)], prefix=''
+        )
+    ]).union(
+        set(encodings.aliases.aliases.values())
     )
-]).union(
-    set(encodings.aliases.aliases.values())
 )
-
 
 #===============================================================================
 # MAIN

@@ -42,9 +42,13 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self.path = csv_path
         with open(csv_path) as f: 
             self.cool = csvcool.read(f, encoding="latin-1")
+        self._set_csv_conf_widgets()
         self._set_table_cool()
         self._set_table_types()
         self._set_id_of_what()
+    
+    def _set_csv_conf_widgets(self):
+        self.comboBoxEncodings.addItems(tuple(constants.ENCODINGS))
     
     def _set_id_of_what(self):
         iow = None
@@ -94,7 +98,10 @@ class ChargeFrame(UI("ChargeFrame.ui")):
             radiobutton.toggled.connect(self.on_radiobutton_toggled)
         self.tableTypes.resizeColumnsToContents()
     
-    # SIGNALS    
+    # SIGNALS
+    def on_comboBoxEncodings_activated(self, text):
+        print text
+        
     def on_radiobutton_toggled(self, boolean):
         """This funcion is called when some combo is selected for determine
         the id
