@@ -213,31 +213,31 @@ class MainWindow(UI("MainWindow.ui")):
             facts = None
             if hasattr(self.wizard, "factsFrame"):
                 facts_data = self.wizard.factsFrame.results
-                facts_corrected = facts_data["cool"].type_corrector(
-                    facts_data["types"]
+                facts_corrected = facts_data.cool.type_corrector(
+                    facts_data.types
                 )
                 facts = csv2dom.construct_facts(
-                    facts_corrected, facts_data["id_column"]
+                    facts_corrected, facts_data.id_column
                 )
             
             haplotypes = None
             if hasattr(self.wizard, "haplotypesFrame"):
                 haplotypes_data = self.wizard.haplotypesFrame.results
-                haplotypes = haplotypes_data["cool"].type_corrector(
-                    haplotypes_data["types"]
+                haplotypes = haplotypes_data.cool.type_corrector(
+                    haplotypes_data.types
                 )
                 haplotypes = csv2dom.construct_haplotypes(
-                    haplotypes_corrected, haplotypes_data["id_column"]
+                    haplotypes_corrected, haplotypes_data.id_column
                 )
             
             edges = None
             if hasattr(self.wizard, "weightsFrame"):
                 weights_data = self.wizard.distancesFrame.results
-                weights = weights_data["cool"].type_corrector(
-                    weights_data["types"]
+                weights = weights_data.cool.type_corrector(
+                    weights_data.types
                 )
                 edges = construct_edges(
-                    weights_corrected, weights_data["id_column"]
+                    weights_corrected, weights_data.id_column
                 )
 
 
