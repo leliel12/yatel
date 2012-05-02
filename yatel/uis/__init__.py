@@ -132,10 +132,10 @@ class ChargeWizard(UI("ChargeWizard.ui")):
     """
     def on_openFileButtonWeights_pressed(self):
         filename = QtGui.QFileDialog.getOpenFileName(
-                       self, self.tr("Open Weights File"),
-                       constants.HOME_PATH,
-                       self.tr("CSV (*.csv)")
-                   )
+            self, self.tr("Open Weights File"),
+            constants.HOME_PATH,
+            self.tr("CSV (*.csv)")
+        )
         if filename:
             self.on_closeFileButtonWeights_pressed()
             self.fileLabelWeights.setText(filename)
@@ -153,10 +153,10 @@ class ChargeWizard(UI("ChargeWizard.ui")):
     
     def on_openFileButtonFacts_pressed(self):
         filename = QtGui.QFileDialog.getOpenFileName(
-                       self, self.tr("Open Facts File"),
-                       constants.HOME_PATH,
-                       self.tr("CSV (*.csv)")
-                   )
+            self, self.tr("Open Facts File"),
+            constants.HOME_PATH,
+            self.tr("CSV (*.csv)")
+        )
         if filename:
             self.on_closeFileButtonFacts_pressed()
             self.fileLabelFacts.setText(filename)
@@ -174,14 +174,16 @@ class ChargeWizard(UI("ChargeWizard.ui")):
     
     def on_openFileButtonHaps_pressed(self):
         filename = QtGui.QFileDialog.getOpenFileName(
-                       self, self.tr("Open Haplotypes File"),
-                       constants.HOME_PATH,
-                       self.tr("CSV (*.csv)")
-                   )
+            self, self.tr("Open Haplotypes File"),
+            constants.HOME_PATH,
+            self.tr("CSV (*.csv)")
+        )
         if filename:
             self.on_closeFileButtonHaps_pressed()
             self.fileLabelHaps.setText(filename)
-            self.haplotypesFrame = ChargeFrame(self.hapsPage, "haplotypes", filename)
+            self.haplotypesFrame = ChargeFrame(
+                self.hapsPage, "haplotypes", filename
+            )
             self.hapsLayout.addWidget(self.haplotypesFrame)
             self.closeFileButtonHaps.setEnabled(True)
         
