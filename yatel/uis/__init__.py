@@ -134,7 +134,7 @@ class ChargeWizard(UI("ChargeWizard.ui")):
     def on_openFileButtonWeights_pressed(self):
         filename = QtGui.QFileDialog.getOpenFileName(
                        self, self.tr("Open Weights File"),
-                       HOME_PATH,
+                       constants.HOME_PATH,
                        self.tr("CSV (*.csv)")
                    )
         if filename:
@@ -155,7 +155,7 @@ class ChargeWizard(UI("ChargeWizard.ui")):
     def on_openFileButtonFacts_pressed(self):
         filename = QtGui.QFileDialog.getOpenFileName(
                        self, self.tr("Open Facts File"),
-                       HOME_PATH,
+                       constants.HOME_PATH,
                        self.tr("CSV (*.csv)")
                    )
         if filename:
@@ -176,7 +176,7 @@ class ChargeWizard(UI("ChargeWizard.ui")):
     def on_openFileButtonHaps_pressed(self):
         filename = QtGui.QFileDialog.getOpenFileName(
                        self, self.tr("Open Haplotypes File"),
-                       HOME_PATH,
+                       constants.HOME_PATH,
                        self.tr("CSV (*.csv)")
                    )
         if filename:
