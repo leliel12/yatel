@@ -108,6 +108,8 @@ class ChargeFrame(UI("ChargeFrame.ui")):
             radiobutton.toggled.connect(self.on_radiobutton_toggled)
         self.tableTypes.resizeColumnsToContents()
         
+        self.selectHapIdLabel.setVisible(True)
+        
     def on_radiobutton_toggled(self, boolean):
         """This funcion is called when some combo is selected for determine
         the id
@@ -237,7 +239,6 @@ class MainWindow(UI("MainWindow.ui")):
             
             haplotypes = None
             if hasattr(self.wizard, "haplotypesFrame"):
-                haplotypes_data = self.wizard.haplotypesFrame.results
                 haplotypes = haplotypes_data.cool.type_corrector(
                     haplotypes_data.types
                 )
@@ -247,7 +248,6 @@ class MainWindow(UI("MainWindow.ui")):
             
             edges = None
             if hasattr(self.wizard, "weightsFrame"):
-                weights_data = self.wizard.distancesFrame.results
                 weights = weights_data.cool.type_corrector(
                     weights_data.types
                 )
