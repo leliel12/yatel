@@ -47,6 +47,8 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self._set_table_cool()
         self._set_table_types()
         self._set_id_of_what()
+        
+        self.on_csvconf_changed
     
     def _set_csv_conf_widgets(self):
         self.comboBoxEncodings.addItems(tuple(constants.ENCODINGS) or ",")
