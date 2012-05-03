@@ -2,12 +2,13 @@
 from __future__ import absolute_import
 
 import os
+import csv
 
 from PyQt4 import QtGui, QtCore
 
 import csvcool
 
-from pycante import EDir
+import pycante
 
 import yatel
 from yatel import constants
@@ -21,7 +22,7 @@ from yatel import csv2dom
 
 PATH = os.path.abspath(os.path.dirname(__file__))
 
-UI = EDir(PATH)
+UI = pycante.EDir(PATH)
 
 
 #===============================================================================
@@ -48,8 +49,21 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self._set_id_of_what()
     
     def _set_csv_conf_widgets(self):
-        self.comboBoxEncodings.addItems(tuple(constants.ENCODINGS))
-    
+        self.comboBoxEncodings.addItems(tuple(constants.ENCODINGS) or ",")
+        self.delimiterLineEdit.setText(csv2dom.EXCEL_DIALECT.delimiter)
+        self.escapeCharLineEdit.setText(csv2dom.EXCEL_DIALECT.escapechar or "")
+        self.doubleQuoteCheckBox.setChecked(csv2dom.EXCEL_DIALECT.doublequote)
+        self.skipInitialSpaceCheckBox.setChecked(
+            csv2dom.EXCEL_DIALECT.skipinitialspace
+        )
+        self.comboBoxEncodings.activated.connect(self.on_csvconf_changed)
+        self.delimiterLineEdit.textEdited.connect(self.on_csvconf_changed)
+        self.escapeCharLineEdit.textEdited.connect(self.on_csvconf_changed)
+        self.doubleQuoteCheckBox.stateChanged.connect(self.on_csvconf_changed)
+        self.skipInitialSpaceCheckBox.stateChanged.connect(
+            self.on_csvconf_changed
+        )
+        
     def _set_id_of_what(self):
         iow = None
         msg = "Please Select '{0}' Column"
@@ -99,8 +113,8 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self.tableTypes.resizeColumnsToContents()
     
     # SIGNALS
-    def on_comboBoxEncodings_activated(self, id, text):
-        print id, text
+    def on_csvconf_changed(self, *args, **kwargs):
+        print args, kwargs
         
     def on_radiobutton_toggled(self, boolean):
         """This funcion is called when some combo is selected for determine
