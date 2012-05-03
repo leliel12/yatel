@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 import os
 import csv
+import cStringIO
 
 from PyQt4 import QtGui, QtCore
 
@@ -42,8 +43,8 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self.file_content = file_content
         self.path = csv_path
         with open(csv_path) as f: 
-            self.cool = csvcool.read(f, encoding="latin-1")
-        
+            self.cool_code = cStringIO.StringIO(f.read())
+            
         # setup the conf widgets
         self.comboBoxEncodings.addItems(tuple(constants.ENCODINGS) or ",")
         self.delimiterLineEdit.setText(csv2dom.EXCEL_DIALECT.delimiter)
@@ -75,6 +76,25 @@ class ChargeFrame(UI("ChargeFrame.ui")):
     
     # SIGNALS
     def on_csvconf_changed(self, *args, **kwargs):
+        # reload csv conf
+        
+        delimiter = unicode(self.delimiterLineEdit.text())
+        escapechar = unicode(self.escapeCharLineEdit.text()) or None
+        doublequote = bool(self.doubleQuoteCheckBox.checkState())
+        skipinitialspace = bool(self.skipInitialSpaceCheckBox.checkState())
+        
+        # recharge cool instance
+        try:
+            self.cool_code.seek(0)
+            self.cool = csvcool.read(
+                self.cool_code, encoding=encoding, delimiter=delimiter, 
+                escapechar=escapechar, doublequote=doublequote, 
+                skipinitialspace=skipinitialspace
+            )
+        except Exception as ex:
+            print str(ex)
+            self.cool_code.seek(0)
+            self.cool = csvcool.read(self.cool_code)
         
         # setup table of csv
         self.tableCool.setColumnCount(len(self.cool.columnnames))
@@ -229,8 +249,7 @@ class MainWindow(UI("MainWindow.ui")):
             
             facts = None
             if hasattr(self.wizard, "factsFrame"):
-                facts_data = self.wizard.factsFrame.results
-                facts_corrected = facts_data.cool.type_corrector(
+                facts_corrected = self.wizard.factsFrame.cool.type_corrector(
                     facts_data.types
                 )
                 facts = csv2dom.construct_facts(
@@ -239,7 +258,7 @@ class MainWindow(UI("MainWindow.ui")):
             
             haplotypes = None
             if hasattr(self.wizard, "haplotypesFrame"):
-                haplotypes = haplotypes_data.cool.type_corrector(
+                haplotypes = self.wizard.haplotypesFrame.cool.type_corrector(
                     haplotypes_data.types
                 )
                 haplotypes = csv2dom.construct_haplotypes(
@@ -248,7 +267,7 @@ class MainWindow(UI("MainWindow.ui")):
             
             edges = None
             if hasattr(self.wizard, "weightsFrame"):
-                weights = weights_data.cool.type_corrector(
+                weights = self.wizard.weightsFrame.cool.type_corrector(
                     weights_data.types
                 )
                 edges = construct_edges(
