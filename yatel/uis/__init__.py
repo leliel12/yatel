@@ -46,14 +46,14 @@ class ChargeFrame(UI("ChargeFrame.ui")):
             self.cool_code = cStringIO.StringIO(f.read())
             
         # setup the conf widgets
-        self.comboBoxEncodings.addItems(tuple(constants.ENCODINGS) or ",")
-        self.delimiterLineEdit.setText(csv2dom.EXCEL_DIALECT.delimiter)
+        self.encodingComboBox.addItems(tuple(constants.ENCODINGS))
+        self.delimiterLineEdit.setText(csv2dom.EXCEL_DIALECT.delimiter or ",")
         self.escapeCharLineEdit.setText(csv2dom.EXCEL_DIALECT.escapechar or "")
         self.doubleQuoteCheckBox.setChecked(csv2dom.EXCEL_DIALECT.doublequote)
         self.skipInitialSpaceCheckBox.setChecked(
             csv2dom.EXCEL_DIALECT.skipinitialspace
         )
-        self.comboBoxEncodings.activated.connect(self.on_csvconf_changed)
+        self.encodingComboBox.activated.connect(self.on_csvconf_changed)
         self.delimiterLineEdit.textEdited.connect(self.on_csvconf_changed)
         self.escapeCharLineEdit.textEdited.connect(self.on_csvconf_changed)
         self.doubleQuoteCheckBox.stateChanged.connect(self.on_csvconf_changed)
@@ -77,9 +77,9 @@ class ChargeFrame(UI("ChargeFrame.ui")):
     # SIGNALS
     def on_csvconf_changed(self, *args, **kwargs):
         # reload csv conf
-        
-        delimiter = unicode(self.delimiterLineEdit.text())
-        escapechar = unicode(self.escapeCharLineEdit.text()) or None
+        encoding = unicode(self.encodingComboBox.currentText())
+        delimiter = str(self.delimiterLineEdit.text()).strip()
+        escapechar = str(self.escapeCharLineEdit.text()) or None
         doublequote = bool(self.doubleQuoteCheckBox.checkState())
         skipinitialspace = bool(self.skipInitialSpaceCheckBox.checkState())
         
@@ -92,9 +92,7 @@ class ChargeFrame(UI("ChargeFrame.ui")):
                 skipinitialspace=skipinitialspace
             )
         except Exception as ex:
-            print str(ex)
-            self.cool_code.seek(0)
-            self.cool = csvcool.read(self.cool_code)
+            self.cool = csvcool.CSVCool(keys=[], rows=[])
         
         # setup table of csv
         self.tableCool.setColumnCount(len(self.cool.columnnames))
