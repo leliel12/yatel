@@ -43,14 +43,8 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self.path = csv_path
         with open(csv_path) as f: 
             self.cool = csvcool.read(f, encoding="latin-1")
-        self._set_csv_conf_widgets()
-        self._set_table_cool()
-        self._set_table_types()
-        self._set_id_of_what()
         
-        self.on_csvconf_changed
-    
-    def _set_csv_conf_widgets(self):
+        # setup the conf widgets
         self.comboBoxEncodings.addItems(tuple(constants.ENCODINGS) or ",")
         self.delimiterLineEdit.setText(csv2dom.EXCEL_DIALECT.delimiter)
         self.escapeCharLineEdit.setText(csv2dom.EXCEL_DIALECT.escapechar or "")
@@ -66,7 +60,7 @@ class ChargeFrame(UI("ChargeFrame.ui")):
             self.on_csvconf_changed
         )
         
-    def _set_id_of_what(self):
+        # Set the name of the id's of the csv
         iow = None
         msg = "Please Select '{0}' Column"
         if self.file_content in ("haplotypes", "facts"):
@@ -75,11 +69,14 @@ class ChargeFrame(UI("ChargeFrame.ui")):
             iow = "Weight"
         self.tableTypes.horizontalHeaderItem(1).setText(self.tr(iow))
         self.selectHapIdLabel.setText(self.tr(msg.format(iow)))
-    
-    def _set_table_cool(self):
-        """Draw the table containing the csv
         
-        """
+        # refresh all content
+        self.on_csvconf_changed() 
+    
+    # SIGNALS
+    def on_csvconf_changed(self, *args, **kwargs):
+        
+        # setup table of csv
         self.tableCool.setColumnCount(len(self.cool.columnnames))
         self.tableCool.setRowCount(len(self.cool))
         self.tableCool.setHorizontalHeaderLabels(self.cool.columnnames)
@@ -89,11 +86,8 @@ class ChargeFrame(UI("ChargeFrame.ui")):
                 newitem = QtGui.QTableWidgetItem(value)
                 self.tableCool.setItem(ridx, cidx, newitem)
         self.tableCool.resizeColumnsToContents()
-                
-    def _set_table_types(self):
-        """Set the data of the table for select the types of all columns
         
-        """
+        # setup the table of types
         all_types = self.cool.discover_types()
         self.tableTypes.setRowCount(len(all_types))
         self.tableTypes.setVerticalHeaderLabels(self.cool.columnnames)
@@ -113,10 +107,6 @@ class ChargeFrame(UI("ChargeFrame.ui")):
             
             radiobutton.toggled.connect(self.on_radiobutton_toggled)
         self.tableTypes.resizeColumnsToContents()
-    
-    # SIGNALS
-    def on_csvconf_changed(self, *args, **kwargs):
-        print args, kwargs
         
     def on_radiobutton_toggled(self, boolean):
         """This funcion is called when some combo is selected for determine
