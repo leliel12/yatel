@@ -46,13 +46,19 @@ class ChargeFrame(UI("ChargeFrame.ui")):
             self.cool_code = cStringIO.StringIO(f.read())
             
         # setup the conf widgets
-        self.encodingComboBox.addItems(tuple(constants.ENCODINGS))
+        self.encodingComboBox.addItems(constants.ENCODINGS)
+        try: 
+            idx = constants.ENCODINGS.index(constants.DEFAULT_FILE_ENCODING)
+            self.encodingComboBox.setCurrentIndex(idx)
+        except ValueError:
+            pass
         self.delimiterLineEdit.setText(csv2dom.EXCEL_DIALECT.delimiter or ",")
         self.escapeCharLineEdit.setText(csv2dom.EXCEL_DIALECT.escapechar or "")
         self.doubleQuoteCheckBox.setChecked(csv2dom.EXCEL_DIALECT.doublequote)
         self.skipInitialSpaceCheckBox.setChecked(
             csv2dom.EXCEL_DIALECT.skipinitialspace
         )
+        
         self.encodingComboBox.activated.connect(self.on_csvconf_changed)
         self.delimiterLineEdit.textEdited.connect(self.on_csvconf_changed)
         self.escapeCharLineEdit.textEdited.connect(self.on_csvconf_changed)
@@ -72,7 +78,7 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self.selectHapIdLabel.setText(self.tr(msg.format(iow)))
         
         # refresh all content
-        self.on_csvconf_changed() 
+        self.on_csvconf_changed()
     
     # SIGNALS
     def on_csvconf_changed(self, *args, **kwargs):
