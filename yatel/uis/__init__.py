@@ -87,8 +87,8 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         try:
             self.cool_code.seek(0)
             self.cool = csvcool.read(
-                self.cool_code, encoding=encoding, delimiter=delimiter, 
-                escapechar=escapechar, doublequote=doublequote, 
+                self.cool_code, encoding=encoding, delimiter=delimiter,
+                escapechar=escapechar, doublequote=doublequote,
                 skipinitialspace=skipinitialspace
             )
         except Exception as ex:
@@ -140,18 +140,18 @@ class ChargeFrame(UI("ChargeFrame.ui")):
     def types(self):
         tps = {}
         for ridx in range(self.tableTypes.rowCount()):
-            header = unicode(self.tableTypes.takeVerticalHeaderItem(ridx).text())
+            header = unicode(self.tableTypes.verticalHeaderItem(ridx).text())
             combo = self.tableTypes.cellWidget(ridx, 0)
             tps[header] = combo.itemData(combo.currentIndex()).toPyObject()
         return tps
     
-    @property    
+    @property
     def id_column(self):
         for ridx in range(self.tableTypes.rowCount()):
             radiobutton = self.tableTypes.cellWidget(ridx, 1)
             if radiobutton.isChecked():
                 return unicode(
-                    self.tableTypes.takeVerticalHeaderItem(ridx).text()
+                    self.tableTypes.verticalHeaderItem(ridx).text()
                 )
 
 
@@ -247,31 +247,25 @@ class MainWindow(UI("MainWindow.ui")):
             
             facts = None
             if hasattr(self.wizard, "factsFrame"):
-                facts_corrected = self.wizard.factsFrame.cool.type_corrector(
-                    facts_data.types
-                )
-                facts = csv2dom.construct_facts(
-                    facts_corrected, facts_data.id_column
-                )
+                factsFrame = self.wizard.factsFrame
+                cool = factsFrame.cool.type_corrector(factsFrame.types)
+                facts = csv2dom.construct_facts(cool, factsFrame.id_column)
             
             haplotypes = None
             if hasattr(self.wizard, "haplotypesFrame"):
-                haplotypes = self.wizard.haplotypesFrame.cool.type_corrector(
-                    haplotypes_data.types
+                haplotypesFrame = self.wizard.haplotypesFrame
+                cool = haplotypesFrame.cool.type_corrector(
+                    haplotypesFrame.types
                 )
                 haplotypes = csv2dom.construct_haplotypes(
-                    haplotypes_corrected, haplotypes_data.id_column
+                    cool, haplotypesFrame.id_column
                 )
             
             edges = None
             if hasattr(self.wizard, "weightsFrame"):
-                weights = self.wizard.weightsFrame.cool.type_corrector(
-                    weights_data.types
-                )
-                edges = construct_edges(
-                    weights_corrected, weights_data.id_column
-                )
-
+                weightsFrame = self.wizard.weightsFrame
+                cool = weightsFrame.cool.type_corrector(weightsFrame.types)
+                edges = csv2dom.construct_edges(cool, weightsFrame.id_column)
 
 
 class SplashScreen(QtGui.QSplashScreen):
