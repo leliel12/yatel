@@ -39,7 +39,7 @@ import dom
 #===============================================================================
 
 #: this is the default dialect of csv readed by yatel
-EXCEL_DIALECT = dialect = csv.get_dialect("excel")
+EXCEL_DIALECT = csv.get_dialect("excel")
 
 
 #===============================================================================

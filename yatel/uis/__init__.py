@@ -36,7 +36,9 @@ class ChargeFrame(UI("ChargeFrame.ui")):
     """
     
     #: This signal is launched when some column is selected as primary id
-    idselected = QtCore.pyqtSignal(name="idselected")
+    idSelectedStateChanged = QtCore.pyqtSignal(
+        bool, name="idSelectedStateChanged"
+    )
     
     def __init__(self, parent, file_content, csv_path):
         super(ChargeFrame, self).__init__(parent)
@@ -80,7 +82,7 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         # refresh all content
         self.on_csvconf_changed()
     
-    # SIGNALS
+    # SLOTS
     def on_csvconf_changed(self, *args, **kwargs):
         # reload csv conf
         encoding = unicode(self.encodingComboBox.currentText())
@@ -169,6 +171,8 @@ class ChargeWizard(UI("ChargeWizard.ui")):
     """Wizard for charge csv file as networks
     
     """
+    
+    # SLOTS
     def on_openFileButtonWeights_pressed(self):
         filename = QtGui.QFileDialog.getOpenFileName(
             self, self.tr("Open Weights File"),
@@ -225,6 +229,7 @@ class ChargeWizard(UI("ChargeWizard.ui")):
             )
             self.hapsLayout.addWidget(self.haplotypesFrame)
             self.closeFileButtonHaps.setEnabled(True)
+            #self.haplotypesFrame.idSelectedStateChanged.connect()
         
     def on_closeFileButtonHaps_pressed(self):
         if hasattr(self, "haplotypesFrame"):
@@ -241,11 +246,16 @@ class ChargeWizard(UI("ChargeWizard.ui")):
 
 class MainWindow(UI("MainWindow.ui")):
     """The main window class"""
-        
+    
+    def __init__(self, *args, **kwargs):
+        super(MainWindow, self).__init__(*args, **kwargs)
+        self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
+    
     def setWindowTitle(self, prj=""):
         title = "{0} v.{1} - {2}".format(yatel.__prj__, yatel.__version__, prj)
         super(self.__class__, self).setWindowTitle(title)
     
+    # SLOTS
     def on_actionWizard_triggered(self, *chk):
         if chk:
             self.wizard = ChargeWizard(self)
