@@ -35,11 +35,6 @@ class ChargeFrame(UI("ChargeFrame.ui")):
     
     """
     
-    #: This signal is launched when some column is selected as primary id
-    idSelectedStateChanged = QtCore.pyqtSignal(
-        bool, name="idSelectedStateChanged"
-    )
-    
     def __init__(self, parent, file_content, csv_path):
         super(ChargeFrame, self).__init__(parent)
         self.file_content = file_content
@@ -77,7 +72,6 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         elif self.file_content in ("weights",):
             iow = "Weight"
         self.tableTypes.horizontalHeaderItem(1).setText(self.tr(iow))
-        self.selectHapIdLabel.setText(self.tr(msg.format(iow)))
         
         # refresh all content
         self.on_csvconf_changed()
@@ -114,6 +108,9 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self.tableCool.resizeColumnsToContents()
         
         # setup the table of types
+        selected_id = self.id_column
+        if selected_id == None and len(self.cool.columnnames):
+            selected_id = self.cool.columnnames[0]
         all_types = self.cool.discover_types()
         self.tableTypes.setRowCount(len(all_types))
         self.tableTypes.setVerticalHeaderLabels(self.cool.columnnames)
@@ -131,18 +128,10 @@ class ChargeFrame(UI("ChargeFrame.ui")):
             self.tableTypes.setCellWidget(cidx, 0, combo)
             self.tableTypes.setCellWidget(cidx, 1, radiobutton)
             
-            radiobutton.toggled.connect(self.on_radiobutton_toggled)
+            if cname == selected_id:
+                radiobutton.setChecked(True)
+            
         self.tableTypes.resizeColumnsToContents()
-        
-        self.selectHapIdLabel.setVisible(True)
-        
-    def on_radiobutton_toggled(self, boolean):
-        """This funcion is called when some combo is selected for determine
-        the id
-        
-        """
-        self.selectHapIdLabel.setVisible(False)
-        self.idselected.emit()
     
     @property
     def types(self):
