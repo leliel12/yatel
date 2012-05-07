@@ -93,7 +93,7 @@ def construct_haplotypes(cool, column_id):
         atts = {}
         for cname, cvalue in row.items():
             if cname == column_id:
-                hap_id = str(cvalue)
+                hap_id = cvalue
             else:
                 atts[cname] = cvalue
         haps.append(dom.Haplotype(hap_id, **atts))
