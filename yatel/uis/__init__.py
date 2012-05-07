@@ -108,9 +108,13 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         self.tableCool.resizeColumnsToContents()
         
         # setup the table of types
+        id_candidates = [
+            cname for cname in self.cool.columnnames 
+            if len(self.cool.column(cname)) == len(set(self.cool.column(cname)))
+        ]
         selected_id = self.id_column
-        if selected_id == None and len(self.cool.columnnames):
-            selected_id = self.cool.columnnames[0]
+        if selected_id == None and len(id_candidates):
+            selected_id = id_candidates[0]
         all_types = self.cool.discover_types()
         self.tableTypes.setRowCount(len(all_types))
         self.tableTypes.setVerticalHeaderLabels(self.cool.columnnames)
@@ -128,7 +132,9 @@ class ChargeFrame(UI("ChargeFrame.ui")):
             self.tableTypes.setCellWidget(cidx, 0, combo)
             self.tableTypes.setCellWidget(cidx, 1, radiobutton)
             
-            if cname == selected_id:
+            if cname not in id_candidates:
+                radiobutton.setEnabled(False)
+            elif cname == selected_id:
                 radiobutton.setChecked(True)
             
         self.tableTypes.resizeColumnsToContents()
