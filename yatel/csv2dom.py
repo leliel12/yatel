@@ -21,7 +21,8 @@
 # DOCS
 #===============================================================================
 
-"""This module is used for construct yatel.dom object using CSVCool instances
+"""This module is used for construct yatel.dom object using csv.CSVCool
+instances
 
 """
 
@@ -47,6 +48,17 @@ EXCEL_DIALECT = csv.get_dialect("excel")
 #===============================================================================
 
 def construct_facts(cool, column_haplotype):
+    """Create a tuple of instances of yatel.dom.Fact
+
+    Params:
+
+        :cool:
+            csv.CSVCool instante that containing information on all known Facts.
+        :column_haplotype:
+            Name of the column containing the id of the instance of the
+            yate.dom.Haplotype to which reference this Fact.
+
+    """
     assert column_haplotype in cool.columnnames
     facts = []
     for row in cool:
@@ -62,6 +74,18 @@ def construct_facts(cool, column_haplotype):
 
 
 def construct_haplotypes(cool, column_id):
+    """Create a tuple of instances of yatel.dom.Haplotypes
+
+    Params:
+
+        :cool:
+            csv.CSVCool instante that containing information on all known
+            Haplotypes.
+        :column_id:
+            Name of the column containing the id of the instance of the
+            Haplotype.
+
+    """
     assert column_id in cool.columnnames
     haps = []
     for row in cool:
@@ -74,9 +98,19 @@ def construct_haplotypes(cool, column_id):
                 atts[cname] = cvalue
         haps.append(dom.Haplotype(hap_id, **atts))
     return tuple(haps)
-    
-    
+
+
 def construct_edges(cool, column_weight):
+    """Create a tuple of instances of yatel.dom.Edges
+
+    Params:
+
+        :cool:
+            csv.CSVCool instante that containing information on all known edges.
+        :column_haplotype:
+            Name of the column containing the weight of the edge.
+
+    """
     assert column_weight in cool.columnnames
     edges = []
     for row in cool:
@@ -97,7 +131,3 @@ def construct_edges(cool, column_weight):
 
 if __name__ == "__main__":
     print(__doc__)
-
-
-
-
