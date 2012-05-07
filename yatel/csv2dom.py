@@ -83,13 +83,12 @@ def construct_haplotypes(cool, column_id):
             Haplotypes.
         :column_id:
             Name of the column containing the id of the instance of the
-            Haplotype.
+            Haplotype; if it None the id will be auto generated.
 
     """
-    assert column_id in cool.columnnames
+    assert column_id in cool.columnnames or column_id == None
     haps = []
-    for row in cool:
-        hap_id = None
+    for hap_id, row in enumerate(cool):
         atts = {}
         for cname, cvalue in row.items():
             if cname == column_id:
