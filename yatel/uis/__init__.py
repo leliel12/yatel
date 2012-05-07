@@ -67,9 +67,11 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         # Set the name of the id's of the csv
         iow = None
         msg = "Please Select '{0}' Column"
-        if self.file_content in ("haplotypes", "facts"):
+        if self.file_content == "haplotypes":
+            iow = "ID"
+        elif self.file_content == "facts":
             iow = "Hap ID"
-        elif self.file_content in ("weights",):
+        elif self.file_content == "weights":
             iow = "Weight"
         self.tableTypes.horizontalHeaderItem(1).setText(self.tr(iow))
         
@@ -111,6 +113,7 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         id_candidates = [
             cname for cname in self.cool.columnnames 
             if len(self.cool.column(cname)) == len(set(self.cool.column(cname)))
+            or self.file_content != "haplotypes"
         ]
         selected_id = self.id_column
         if selected_id == None and len(id_candidates):
