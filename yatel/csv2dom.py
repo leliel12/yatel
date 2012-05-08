@@ -66,9 +66,11 @@ def construct_facts(cool, column_haplotype):
         atts = {}
         for cname, cvalue in row.items():
             if cname == column_haplotype:
-                hap_id = str(cvalue)
+                hap_id = cvalue
             else:
+                cname = cname if cname != "hap_id" else cname + "_"
                 atts[cname] = cvalue
+        
         facts.append(dom.Fact(hap_id, **atts))
     return tuple(facts)
 
@@ -94,6 +96,7 @@ def construct_haplotypes(cool, column_id):
             if cname == column_id:
                 hap_id = cvalue
             else:
+                cname = cname if cname != "hap_id" else cname + "_"
                 atts[cname] = cvalue
         haps.append(dom.Haplotype(hap_id, **atts))
     return tuple(haps)
