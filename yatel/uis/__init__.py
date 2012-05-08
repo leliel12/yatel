@@ -35,7 +35,19 @@ class ChargeFrame(UI("ChargeFrame.ui")):
     
     """
     
+    CONTENT_HAPLOTYPES = "haplotypes"
+    CONTENT_FACTS = "facts"
+    CONTENT_EDGES = "edges"
+    
+    CONTENT_IDS = {
+        CONTENT_HAPLOTYPES: "ID",
+        CONTENT_FACTS: "Hap ID",
+        CONTENT_EDGES: "Weight",
+    }
+    
     def __init__(self, parent, file_content, csv_path):
+        assert file_content in ChargeFrame.CONTENT_IDS
+        
         super(ChargeFrame, self).__init__(parent)
         self.file_content = file_content
         self.path = csv_path
@@ -65,14 +77,7 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         )
         
         # Set the name of the id's of the csv
-        iow = None
-        msg = "Please Select '{0}' Column"
-        if self.file_content == "haplotypes":
-            iow = "ID"
-        elif self.file_content == "facts":
-            iow = "Hap ID"
-        elif self.file_content == "weights":
-            iow = "Weight"
+        iow = ChargeFrame.CONTENT_IDS[self.file_content]
         self.tableTypes.horizontalHeaderItem(1).setText(self.tr(iow))
         
         # refresh all content
@@ -113,7 +118,7 @@ class ChargeFrame(UI("ChargeFrame.ui")):
         id_candidates = [
             cname for cname in self.cool.columnnames 
             if len(self.cool.column(cname)) == len(set(self.cool.column(cname)))
-            or self.file_content != "haplotypes"
+                or self.file_content != ChargeFrame.CONTENT_HAPLOTYPES
         ]
         selected_id = self.id_column
         if selected_id == None and len(id_candidates):
@@ -173,14 +178,16 @@ class ChargeWizard(UI("ChargeWizard.ui")):
     # SLOTS
     def on_openFileButtonWeights_pressed(self):
         filename = QtGui.QFileDialog.getOpenFileName(
-            self, self.tr("Open Weights File"),
+            self, self.tr("Open Edges File"),
             constants.HOME_PATH,
             self.tr("CSV (*.csv)")
         )
         if filename:
             self.on_closeFileButtonWeights_pressed()
             self.fileLabelWeights.setText(filename)
-            self.weightFrame = ChargeFrame(self.weightsPage, "weights", filename)
+            self.weightFrame = ChargeFrame(
+                self.weightsPage, ChargeFrame.CONTENT_EDGES, filename
+            )
             self.weightsLayout.addWidget(self.weightFrame)
             self.closeFileButtonWeights.setEnabled(True)
     
@@ -201,7 +208,9 @@ class ChargeWizard(UI("ChargeWizard.ui")):
         if filename:
             self.on_closeFileButtonFacts_pressed()
             self.fileLabelFacts.setText(filename)
-            self.factsFrame = ChargeFrame(self.factsPage, "facts", filename)
+            self.factsFrame = ChargeFrame(
+                self.factsPage, ChargeFrame.CONTENT_FACTS, filename
+            )
             self.factsLayout.addWidget(self.factsFrame)
             self.closeFileButtonFacts.setEnabled(True)
     
@@ -223,7 +232,7 @@ class ChargeWizard(UI("ChargeWizard.ui")):
             self.on_closeFileButtonHaps_pressed()
             self.fileLabelHaps.setText(filename)
             self.haplotypesFrame = ChargeFrame(
-                self.hapsPage, "haplotypes", filename
+                self.hapsPage, ChargeFrame.CONTENT_HAPLOTYPES, filename
             )
             self.hapsLayout.addWidget(self.haplotypesFrame)
             self.closeFileButtonHaps.setEnabled(True)

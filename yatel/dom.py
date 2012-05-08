@@ -35,7 +35,6 @@ class ValidationError(BaseException):
 class Fact(object):
     
     def __init__(self, hap_id, **attrs):
-        assert hap_id
         self._hap_id = hap_id
         self._attrs = attrs
                 
@@ -62,7 +61,6 @@ class Fact(object):
 class Haplotype(object):
     
     def __init__(self, hap_id, **attrs):
-        assert hap_id
         self._hap_id = hap_id
         self._attrs = attrs
     
