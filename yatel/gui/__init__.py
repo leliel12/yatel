@@ -1,7 +1,6 @@
 
 from __future__ import absolute_import
 
-import os
 import csv
 import cStringIO
 
@@ -9,28 +8,19 @@ from PyQt4 import QtGui, QtCore
 
 import csvcool
 
-import pycante
-
 import yatel
 from yatel import constants
-from yatel import resources
 from yatel import csv2dom
 
-
-#===============================================================================
-# CONSTANTS
-#===============================================================================
-
-PATH = os.path.abspath(os.path.dirname(__file__))
-
-UI = pycante.EDir(PATH)
+from yatel.gui import uis
+from yatel.gui import resources
 
 
 #===============================================================================
 # 
 #===============================================================================
 
-class ChargeFrame(UI("ChargeFrame.ui")):
+class ChargeFrame(uis.UI("ChargeFrame.ui")):
     """This is the frame to show for select types of given csv file
     
     """
@@ -170,7 +160,7 @@ class ChargeFrame(UI("ChargeFrame.ui")):
 # 
 #===============================================================================
 
-class ChargeWizard(UI("ChargeWizard.ui")):
+class ChargeWizard(uis.UI("ChargeWizard.ui")):
     """Wizard for charge csv file as networks
     
     """
@@ -251,7 +241,7 @@ class ChargeWizard(UI("ChargeWizard.ui")):
 # MAIN WINDOW
 #===============================================================================
 
-class MainWindow(UI("MainWindow.ui")):
+class MainWindow(uis.UI("MainWindow.ui")):
     """The main window class"""
     
     def __init__(self, *args, **kwargs):

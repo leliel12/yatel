@@ -1,35 +1,26 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 #===============================================================================
 # IMPORTS
 #===============================================================================
 
-import sys
+import os
 
-from PyQt4 import QtCore, QtGui
-
-from yatel import gui
+import pycante
 
 
 #===============================================================================
-# FUNCTION
+# CONSTANTS
 #===============================================================================
 
+PATH = os.path.abspath(os.path.dirname(__file__))
 
-def main():
-    """Run Qt application"""
-    app = QtGui.QApplication(sys.argv)
-    splash = gui.SplashScreen()
-    splash.show()
-    app.processEvents()
-    main_window = gui.MainWindow()
-    main_window.show()
-    QtCore.QThread.sleep(1)
-    splash.finish(main_window)
-    sys.exit(app.exec_())    
-
+UI = pycante.EDir(PATH)
 
 #===============================================================================
 # MAIN
 #===============================================================================
-
 if __name__ == "__main__":
-    main()
+    print(__doc__)
+
