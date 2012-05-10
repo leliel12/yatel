@@ -1,10 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 #===============================================================================
 # IMPORTS
 #===============================================================================
-
-import sys
-
-from PyQt4 import QtCore, QtGui
 
 from yatel import gui
 
@@ -15,17 +14,8 @@ from yatel import gui
 
 
 def main():
-    """Run Qt application"""
-    app = QtGui.QApplication(sys.argv)
-    splash = gui.SplashScreen()
-    splash.show()
-    app.processEvents()
-    main_window = gui.MainWindow()
-    main_window.show()
-    QtCore.QThread.sleep(1)
-    splash.finish(main_window)
-    sys.exit(app.exec_())    
-
+    gui.run_gui()
+    
 
 #===============================================================================
 # MAIN
