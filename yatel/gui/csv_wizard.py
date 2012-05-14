@@ -17,7 +17,7 @@ from yatel.gui import uis
 # 
 #===============================================================================
 
-class CSVChargeFrame(uis.UI("csv_wizard/CSVChargeFrame.ui")):
+class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
     """This is the frame to show for select types of given csv file
     
     """
@@ -157,7 +157,7 @@ class CSVChargeFrame(uis.UI("csv_wizard/CSVChargeFrame.ui")):
 # 
 #===============================================================================
 
-class CSVWizard(uis.UI("csv_wizard/CSVWizard.ui")):
+class CSVWizard(uis.UI("CSVWizard.ui")):
     """Wizard for charge csv file as networks
     
     """
