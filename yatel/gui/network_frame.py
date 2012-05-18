@@ -1,4 +1,4 @@
-import pilas
+from .. import pilas
 
 
 pilas.ejecutar()
