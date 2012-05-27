@@ -9,9 +9,8 @@ if __name__ == "__main__":
     import sys, os
     path = os.path.abspath(os.path.dirname(__file__))
     rel = os.path.join(path, "..", "..")
-    print rel
     sys.path.insert(0, rel)
-    
+
 
 #===============================================================================
 # IMPORTS
@@ -25,6 +24,7 @@ from pilas import habilidades
 from yatel import dom
 
 from yatel.gui import resources
+
 
 #===============================================================================
 # PILAS INIT
@@ -86,15 +86,17 @@ class _EdgesDrawActor(actores.Pizarra):
         pilas.actores.Pizarra.__init__(self)
         self._edges = set()
 
+    def clear(self):
+        self._edges.clear()
+        self.limpiar()
+
     def del_edge(self, n0, n1):
-        self._edges.remove(n0, n1)
+        self._edges.remove((n0, n1))
         
     def del_edge_with_node(self, n):
-        for n0, n1 in self._edges:
-            if n == n0:
-                self._edges.remove(n, n1)
-            elif n == n1:
-                self._edges.remove(n0, n)
+        for haps in tuple(self._edges):
+            if n in haps:
+                self.del_edge(*haps)
 
     def add_edge(self, n0, n1):
         assert isinstance(n0, _HaplotypeActor) \
@@ -108,6 +110,7 @@ class _EdgesDrawActor(actores.Pizarra):
             x1, y1 = act1.x, act1.y
             self.linea(x0, y0, x1, y1, grosor=2)
 
+
 #===============================================================================
 # NETWORK WIDGET
 #===============================================================================
@@ -118,9 +121,22 @@ class NetworkWidget(object):
         self._nodes = {}
         self._edges = _EdgesDrawActor()
 
-    def add_node(self, hap, x, y):
-        node = _HaplotypeActor(hap)
+    def clear(self):
+        self._nodes.clear()
+        self._eges.clear()
+    
+    def add_node(self, hap, x=0, y=0):
+        node = _HaplotypeActor(hap, x=x, y=y)
         self._nodes[hap] = node
+        
+    def add_nodes(self, *haps):
+        for data in haps:
+            if isinstance(data, dict):
+                self.add_node(**data)
+            elif hasattr(data, "__iter__"):
+                self.add_node(*data)
+            else:
+                self.add_node(data)
         
     def del_node(self, hap):
         node = self._nodes.pop(hap)
@@ -130,11 +146,19 @@ class NetworkWidget(object):
     def add_edge(self, hap0, hap1):
         self._edges.add_edge(self._nodes[hap0], self._nodes[hap1])
         
+    def add_edges(self, *edges):
+        for hap0, hap1 in edges:
+            self.add_edge(hap0, hap1)
+        
     def del_edge(self, hap0, hap1):
         self._edges.del_edge(self._nodes[hap0], self._nodes[hap1])
         
     def del_edge_with_node(self, hap):
         self._edges.del_edge_with_node(self._nodes[hap])
+        
+    def node_of(self, hap):
+        return self._nodes[hap]
+
 
 #===============================================================================
 # MAIN
@@ -142,16 +166,21 @@ class NetworkWidget(object):
 
 if __name__ == "__main__":
     
-    edges = _EdgesDrawActor()
-    a0=_HaplotypeActor(dom.Haplotype("hap0"), x=100)
-    a1=_HaplotypeActor(dom.Haplotype("hap1"), y=100)
-    a2=_HaplotypeActor(dom.Haplotype("hap2"), x=-100)
-    a3=_HaplotypeActor(dom.Haplotype("hap3"),  y=-100)
+    n = NetworkWidget()
     
+    a0 = dom.Haplotype("hap0")
+    a1 = dom.Haplotype("hap1")
+    a2 = dom.Haplotype("hap2")
+    a3 = dom.Haplotype("hap3")
+    n.add_nodes(
+        (a0, 100, 200),
+        (a1, -100),
+        (a2, 200),
+        a3
+    )
+    n.add_edges((a0, a1), (a1, a2), (a2, a3))
+    n.del_node(a0)
     
     
     pilas.ejecutar()
-    
-    
-    print a0, a1
     
