@@ -88,6 +88,13 @@ class _EdgesDrawActor(actores.Pizarra):
 
     def del_edge(self, n0, n1):
         self._edges.remove(n0, n1)
+        
+    def del_edge_with_node(self, n):
+        for n0, n1 in self._edges:
+            if n == n0:
+                self._edges.remove(n, n1)
+            elif n == n1:
+                self._edges.remove(n0, n)
 
     def add_edge(self, n0, n1):
         assert isinstance(n0, _HaplotypeActor) \
@@ -101,6 +108,33 @@ class _EdgesDrawActor(actores.Pizarra):
             x1, y1 = act1.x, act1.y
             self.linea(x0, y0, x1, y1, grosor=2)
 
+#===============================================================================
+# NETWORK WIDGET
+#===============================================================================
+
+class NetworkWidget(object):
+    
+    def __init__(self):
+        self._nodes = {}
+        self._edges = _EdgesDrawActor()
+
+    def add_node(self, hap, x, y):
+        node = _HaplotypeActor(hap)
+        self._nodes[hap] = node
+        
+    def del_node(self, hap):
+        node = self._nodes.pop(hap)
+        self._edges.del_edge_with_node(node)
+        node.destruir()
+        
+    def add_edge(self, hap0, hap1):
+        self._edges.add_edge(self._nodes[hap0], self._nodes[hap1])
+        
+    def del_edge(self, hap0, hap1):
+        self._edges.del_edge(self._nodes[hap0], self._nodes[hap1])
+        
+    def del_edge_with_node(self, hap):
+        self._edges.del_edge_with_node(self._nodes[hap])
 
 #===============================================================================
 # MAIN
@@ -109,10 +143,12 @@ class _EdgesDrawActor(actores.Pizarra):
 if __name__ == "__main__":
     
     edges = _EdgesDrawActor()
-    a0=_HaplotypeActor(dom.Haplotype("jjj"), x=100)
-    a1=_HaplotypeActor(dom.Haplotype("kkk"))
+    a0=_HaplotypeActor(dom.Haplotype("hap0"), x=100)
+    a1=_HaplotypeActor(dom.Haplotype("hap1"), y=100)
+    a2=_HaplotypeActor(dom.Haplotype("hap2"), x=-100)
+    a3=_HaplotypeActor(dom.Haplotype("hap3"),  y=-100)
     
-    edges.add_edge(a0, a1)
+    
     
     pilas.ejecutar()
     
