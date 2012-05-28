@@ -20,6 +20,7 @@ import pilas
 from pilas import actores
 from pilas import imagenes
 from pilas import habilidades
+from pilas import eventos
 
 from yatel import dom
 
@@ -76,6 +77,16 @@ class _HaplotypeActor(actores.Actor):
         self._texto.aprender(habilidades.Imitar, self)
         self._selected.aprender(habilidades.Imitar, self)
         
+        # connect events
+        eventos.click_de_mouse.conectar(self._on_mouse_clicked)
+        
+    def _on_mouse_clicked(self, evt):
+        x, y = evt["x"], evt["y"]
+        if self.colisiona_con_un_punto(x, y) \
+            or self._texto.colisiona_con_un_punto(x, y) \
+            or self._selected.colisiona_con_un_punto(x,y):
+                print ":D"
+    
     def destruir(self):
         self._selected.destruir()
         self._texto.destruir()
@@ -148,19 +159,33 @@ class NetworkWidget(object):
     def __init__(self):
         self._nodes = {}
         self._edges = _EdgesDrawActor()
+        self._selected = None
+        self._highlighted = ()
 
     def clear(self):
         self._nodes.clear()
         self._eges.clear()
+        self._selected = None
+        self._highlighted = ()
     
     def select_node(self, hap):
         for h, n in self._nodes.items():
-            n.set_selected(h == hap)
+            if h == hap:
+                n.set_selected(True)
+                self._selected = hap
+            else:
+                n.set_selected(False)
 
     def highlight_nodes(self, *haps):
+        highs = []
         for h, n in self._nodes.items():
-            n.set_highlighted(h in haps)
-    
+            if h in haps:
+                n.set_highlighted(True)
+                highs.append(h)
+            else:
+                n.set_highlighted(False)
+        self._highlighted = tuple(highs)
+                
     def add_node(self, hap, x=0, y=0):
         node = _HaplotypeActor(hap, x=x, y=y)
         self._nodes[hap] = node
@@ -185,6 +210,14 @@ class NetworkWidget(object):
         
     def node_of(self, hap):
         return self._nodes[hap]
+        
+    @property
+    def selected_node(self):
+        return self._selected
+        
+    @property
+    def highlighted_node(self):
+        return self._highlighted
 
 
 #===============================================================================
