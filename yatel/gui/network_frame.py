@@ -49,6 +49,9 @@ IMAGE_NODE_SELECTED = pilas.imagenes.cargar(
     resources.get("node_selected.svg")
 )
 
+IMAGE_EMPTY = pilas.imagenes.cargar(
+    resources.get("empty.svg")
+)
 
 #===============================================================================
 # ACTOR NODO
@@ -63,8 +66,8 @@ class _HaplotypeActor(actores.Actor):
         )
         
         # internal data
+        self._selected = actores.Actor(imagen=IMAGE_EMPTY)
         self._texto = actores.Texto()
-        self._selected = actores.Actor(image=IMAGE_NODE_SELECTED)
         
         # conf
         self.haplotype = hap
@@ -72,19 +75,24 @@ class _HaplotypeActor(actores.Actor):
         self.aprender(habilidades.Arrastrable)
         self._texto.aprender(habilidades.Imitar, self)
         self._selected.aprender(habilidades.Imitar, self)
-        self._selected.trasparencia = 100
         
-    
     def destruir(self):
         self._selected.destruir()
         self._texto.destruir()
         super(_HaplotypeActor, self).destruir()
     
     def set_selected(self, is_selected):
-        self._selected = 0 if is_selected else 100
+        if is_selected:
+            print ":)"
+            self._selected.imagen = IMAGE_NODE_SELECTED
+        else:
+            self._selected.imagen = IMAGE_EMPTY
         
     def set_highlighted(self, is_highlighted):
-        self.imagen = IMAGE_NODE_HIGLIGHTED if is_highlighted else IMAGE_NODE_NORMAL
+        if is_highlighted:
+            self.imagen = IMAGE_NODE_HIGLIGHTED
+        else:
+            self.imagen = IMAGE_NODE_NORMAL
     
     @property
     def haplotype(self):
@@ -150,7 +158,7 @@ class NetworkWidget(object):
         for h, n in self._nodes.items():
             n.set_selected(h == hap)
 
-    def highlight_nodes(self, **haps):
+    def highlight_nodes(self, *haps):
         for h, n in self._nodes.items():
             n.set_highlighted(h in haps)
     
@@ -199,6 +207,9 @@ if __name__ == "__main__":
     n.add_edge(a0, a1)
     n.add_edge(a1, a2)
     n.add_edge(a2, a3)
+    n.highlight_nodes(a0,a1,a3)
+    n.select_node(a1)
+    n.select_node(a0)
     
     
     
