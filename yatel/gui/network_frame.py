@@ -22,6 +22,8 @@ from pilas import imagenes
 from pilas import habilidades
 from pilas import eventos
 
+from PyQt4 import QtCore
+
 from yatel import dom
 
 from yatel.gui import resources
@@ -69,6 +71,7 @@ class _HaplotypeActor(actores.Actor):
         # internal data
         self._selected = actores.Actor(imagen=IMAGE_EMPTY)
         self._texto = actores.Texto()
+        self.clicked = eventos.Evento("clicked")
         
         # conf
         self.haplotype = hap
@@ -85,7 +88,7 @@ class _HaplotypeActor(actores.Actor):
         if self.colisiona_con_un_punto(x, y) \
             or self._texto.colisiona_con_un_punto(x, y) \
             or self._selected.colisiona_con_un_punto(x,y):
-                print ":D"
+                self.clicked.emitir(sender=self)
     
     def destruir(self):
         self._selected.destruir()
@@ -161,6 +164,12 @@ class NetworkWidget(object):
         self._edges = _EdgesDrawActor()
         self._selected = None
         self._highlighted = ()
+        self.node_selected = eventos.Evento("node_selected")
+
+    def _on_node_clicked(self, evt):
+        sender = evt["sender"]
+        self.select_node(sender.haplotype)
+        self.node_selected.emitir(node=sender.haplotype)
 
     def clear(self):
         self._nodes.clear()
@@ -188,6 +197,7 @@ class NetworkWidget(object):
                 
     def add_node(self, hap, x=0, y=0):
         node = _HaplotypeActor(hap, x=x, y=y)
+        node.clicked.conectar(self._on_node_clicked)
         self._nodes[hap] = node
         
     def del_node(self, hap):
@@ -226,6 +236,9 @@ class NetworkWidget(object):
 
 if __name__ == "__main__":
     
+    def printer(evt):
+        print evt
+    
     n = NetworkWidget()
     
     a0 = dom.Haplotype("hap0")
@@ -242,6 +255,8 @@ if __name__ == "__main__":
     n.highlight_nodes(a0,a1,a3)
     n.select_node(a1)
     n.select_node(a0)
+    
+    n.node_selected.conectar(printer)
     
     
     
