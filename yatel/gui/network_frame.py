@@ -76,11 +76,12 @@ class _HaplotypeActor(actores.Actor):
         
     
     def destruir(self):
+        self._selected.destruir()
         self._texto.destruir()
         super(_HaplotypeActor, self).destruir()
     
     def set_selected(self, is_selected):
-        self._selected = 50 if is_selected else 100
+        self._selected = 0 if is_selected else 100
         
     def set_highlighted(self, is_highlighted):
         self.imagen = IMAGE_NODE_HIGLIGHTED if is_highlighted else IMAGE_NODE_NORMAL
