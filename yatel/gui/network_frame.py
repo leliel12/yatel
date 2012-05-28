@@ -83,7 +83,6 @@ class _HaplotypeActor(actores.Actor):
     
     def set_selected(self, is_selected):
         if is_selected:
-            print ":)"
             self._selected.imagen = IMAGE_NODE_SELECTED
         else:
             self._selected.imagen = IMAGE_EMPTY
