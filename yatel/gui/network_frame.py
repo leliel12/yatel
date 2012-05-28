@@ -37,9 +37,17 @@ pilas.iniciar()
 # CONSTANTS
 #===============================================================================
 
-IMAGE_NODE_NORMAL = pilas.imagenes.cargar(resources.get("node_normal.svg"))
-IMAGE_NODE_FACT = pilas.imagenes.cargar(resources.get("node_fact.svg"))
-IMAGE_NODE_SELECTED = pilas.imagenes.cargar(resources.get("node_selected.svg"))
+IMAGE_NODE_NORMAL = pilas.imagenes.cargar(
+    resources.get("node_normal.svg")
+)
+
+IMAGE_NODE_HIGLIGHTED = pilas.imagenes.cargar(
+    resources.get("node_highlighted.svg")
+)
+
+IMAGE_NODE_SELECTED = pilas.imagenes.cargar(
+    resources.get("node_selected.svg")
+)
 
 
 #===============================================================================
@@ -49,20 +57,33 @@ IMAGE_NODE_SELECTED = pilas.imagenes.cargar(resources.get("node_selected.svg"))
 class _HaplotypeActor(actores.Actor):
     
     def __init__(self, hap, x=0, y=0):
-        super(_HaplotypeActor, self).__init__()
+        super(_HaplotypeActor, self).__init__(
+            imagen=IMAGE_NODE_NORMAL,
+            x=x, y=y
+        )
         
         # internal data
         self._texto = actores.Texto()
+        self._selected = actores.Actor(image=IMAGE_NODE_SELECTED)
         
         # conf
         self.haplotype = hap
         self.x, self.y = x, y
         self.aprender(habilidades.Arrastrable)
         self._texto.aprender(habilidades.Imitar, self)
+        self._selected.aprender(habilidades.Imitar, self)
+        self._selected.trasparencia = 100
+        
     
     def destruir(self):
         self._texto.destruir()
         super(_HaplotypeActor, self).destruir()
+    
+    def set_selected(self, is_selected):
+        self._selected = 50 if is_selected else 100
+        
+    def set_highlighted(self, is_highlighted):
+        self.imagen = IMAGE_NODE_HIGLIGHTED if is_highlighted else IMAGE_NODE_NORMAL
     
     @property
     def haplotype(self):
@@ -73,7 +94,6 @@ class _HaplotypeActor(actores.Actor):
         assert isinstance(hap, dom.Haplotype)
         self._hap = hap
         self._texto.texto = unicode(self._hap.hap_id)
-        self.imagen = IMAGE_NODE_NORMAL
         
 
 #===============================================================================
@@ -93,7 +113,7 @@ class _EdgesDrawActor(actores.Pizarra):
     def del_edge(self, n0, n1):
         self._edges.remove((n0, n1))
         
-    def del_edge_with_node(self, n):
+    def del_edges_with_node(self, n):
         for haps in tuple(self._edges):
             if n in haps:
                 self.del_edge(*haps)
@@ -125,22 +145,21 @@ class NetworkWidget(object):
         self._nodes.clear()
         self._eges.clear()
     
+    def select_node(self, hap):
+        for h, n in self._nodes.items():
+            n.set_selected(h == hap)
+
+    def highlight_nodes(self, **haps):
+        for h, n in self._nodes.items():
+            n.set_highlighted(h in haps)
+    
     def add_node(self, hap, x=0, y=0):
         node = _HaplotypeActor(hap, x=x, y=y)
         self._nodes[hap] = node
         
-    def add_nodes(self, *haps):
-        for data in haps:
-            if isinstance(data, dict):
-                self.add_node(**data)
-            elif hasattr(data, "__iter__"):
-                self.add_node(*data)
-            else:
-                self.add_node(data)
-        
     def del_node(self, hap):
         node = self._nodes.pop(hap)
-        self._edges.del_edge_with_node(node)
+        self._edges.del_edges_with_node(node)
         node.destruir()
         
     def add_edge(self, hap0, hap1):
@@ -153,8 +172,8 @@ class NetworkWidget(object):
     def del_edge(self, hap0, hap1):
         self._edges.del_edge(self._nodes[hap0], self._nodes[hap1])
         
-    def del_edge_with_node(self, hap):
-        self._edges.del_edge_with_node(self._nodes[hap])
+    def del_edges_with_node(self, hap):
+        self._edges.del_edges_with_node(self._nodes[hap])
         
     def node_of(self, hap):
         return self._nodes[hap]
@@ -172,14 +191,14 @@ if __name__ == "__main__":
     a1 = dom.Haplotype("hap1")
     a2 = dom.Haplotype("hap2")
     a3 = dom.Haplotype("hap3")
-    n.add_nodes(
-        (a0, 100, 200),
-        (a1, -100),
-        (a2, 200),
-        a3
-    )
-    n.add_edges((a0, a1), (a1, a2), (a2, a3))
-    n.del_node(a0)
+    n.add_node(a0, 100, 200)
+    n.add_node(a1, -100)
+    n.add_node(a2, 200)
+    n.add_node(a3, 0,-100)
+    n.add_edge(a0, a1)
+    n.add_edge(a1, a2)
+    n.add_edge(a2, a3)
+    
     
     
     pilas.ejecutar()
