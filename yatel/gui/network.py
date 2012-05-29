@@ -33,7 +33,7 @@ from yatel.gui import resources
 # PILAS INIT
 #===============================================================================
 
-pilas.iniciar(usar_motor="qt")
+pilas.iniciar(usar_motor="qt" if __name__ == "__main__" else "qtsugar")
 
 
 #===============================================================================
@@ -199,10 +199,7 @@ class NetworkProxy(object):
         sender = evt["sender"]
         self.select_node(sender.haplotype)
         self.node_selected.emitir(node=sender.haplotype)
-        
-    def get_widget(self):
-        return pilas.mundo.motor.widget
-
+    
     def clear(self):
         self._nodes.clear()
         self._eges.clear()
@@ -217,14 +214,13 @@ class NetworkProxy(object):
             else:
                 n.set_selected(False)
 
-    def highlight_nodes(self, *facts):
-        assert facts and all(
-            map(lambda f: isinstance(f, dom.Fact), facts)
+    def highlight_nodes(self, *haps):
+        assert haps and all(
+            map(lambda h: isinstance(h, dom.Haplotype), haps)
         )
-        haps = [f.hap_id for f in facts]
         highs = []
         for hid, n in self._nodes.items():
-            if hid in haps:
+            if n.haplotype in haps:
                 n.set_highlighted(True)
                 highs.append(n.haplotype)
             else:
@@ -264,7 +260,11 @@ class NetworkProxy(object):
         
     def node_of(self, hap):
         return self._nodes[hap.hap_id]
-        
+    
+    @property
+    def widget(self):
+        return pilas.mundo.motor.widget
+    
     @property
     def selected_node(self):
         return self._selected
@@ -273,6 +273,7 @@ class NetworkProxy(object):
     def highlighted_nodes(self):
         return self._highlighted
 
+       
 
 #===============================================================================
 # MAIN
@@ -285,7 +286,7 @@ if __name__ == "__main__":
         pilas.avisar(str(evt))
     
     n = NetworkProxy()
-    n2 = NetworkProxy()
+    print n.widget
     
     a0 = dom.Haplotype("hap0")
     a1 = dom.Haplotype("hap1")
@@ -293,12 +294,13 @@ if __name__ == "__main__":
     a3 = dom.Haplotype("hap3")
     n.add_node(a0, 100, 200)
     n.add_node(a1, -100)
-    n2.add_node(a2, 200)
+    n.add_node(a2, 200)
     n.add_node(a3, 0,-100)
-    n.add_edge(dom.Edge(555, a0.hap_id, a1.hap_id, a2.hap_id, a3.hap_id))
+    n.add_edge(dom.Edge(555, a0.hap_id, a1.hap_id, a2.hap_id))
     n.add_edge(dom.Edge(666, a3.hap_id, a2.hap_id))
     
-    n.highlight_nodes(dom.Fact(a0.hap_id), dom.Fact(a3.hap_id))
+    f=dom.Fact(a1.hap_id, a=1)
+    n.highlight_nodes(a1, a2)
     n.node_selected.conectar(printer)
     
     pilas.ejecutar()
