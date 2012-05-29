@@ -132,25 +132,33 @@ class _EdgesDrawActor(actores.Pizarra):
         self._edges.clear()
         self.limpiar()
 
-    def del_edge(self, n0, n1):
-        self._edges.remove((n0, n1))
+    def del_edge(self, *nodes):
+        self._edges.remove(nodes)
         
     def del_edges_with_node(self, n):
         for haps in tuple(self._edges):
             if n in haps:
                 self.del_edge(*haps)
 
-    def add_edge(self, n0, n1):
-        assert isinstance(n0, _HaplotypeActor) \
-            and isinstance(n1, _HaplotypeActor)
-        self._edges.add((n0, n1))
+    def add_edge(self, *nodes):
+        assert len(nodes) > 1 and all(
+            map(lambda n: isinstance(n, _HaplotypeActor), nodes)
+        )
+        self._edges.add(nodes)
 
     def actualizar(self):
         self.limpiar()
-        for act0, act1 in self._edges:
-            x0, y0 = act0.x, act0.y
-            x1, y1 = act1.x, act1.y
-            self.linea(x0, y0, x1, y1, grosor=2)
+        for nodes in self._edges:
+            if len(nodes) == 2:
+                act0, act1 = nodes
+                x0, y0 = act0.x, act0.y
+                x1, y1 = act1.x, act1.y
+                self.linea(x0, y0, x1, y1, grosor=2)
+            elif len(nodes) > 2:
+                xp = sum([act.x for act in nodes]) / len(nodes)
+                yp = sum([act.y for act in nodes]) / len(nodes)
+                for act in nodes:
+                    self.linea(xp, yp, act.x, act.y, grosor=2)
 
 
 #===============================================================================
@@ -178,52 +186,61 @@ class NetworkWidget(object):
         self._highlighted = ()
     
     def select_node(self, hap):
-        for h, n in self._nodes.items():
-            if h == hap:
+        for hid, n in self._nodes.items():
+            if hid == hap.hap_id:
                 n.set_selected(True)
-                self._selected = hap
+                self._selected = n
             else:
                 n.set_selected(False)
 
     def highlight_nodes(self, *haps):
-        highs = []
+        pass
+        """highs = []
         for h, n in self._nodes.items():
             if h in haps:
                 n.set_highlighted(True)
                 highs.append(h)
             else:
                 n.set_highlighted(False)
-        self._highlighted = tuple(highs)
+        self._highlighted = tuple(highs)"""
                 
     def add_node(self, hap, x=0, y=0):
         node = _HaplotypeActor(hap, x=x, y=y)
         node.clicked.conectar(self._on_node_clicked)
-        self._nodes[hap] = node
+        self._nodes[hap.hap_id] = node
         
     def del_node(self, hap):
-        node = self._nodes.pop(hap)
+        node = self._nodes.pop(hap.hap_id)
         self._edges.del_edges_with_node(node)
         node.destruir()
         
-    def add_edge(self, hap0, hap1):
-        self._edges.add_edge(self._nodes[hap0], self._nodes[hap1])
+    def add_edge(self, edge):
+        assert isinstance(edge, dom.Edge)
+        nodes = []
+        for hap_id in edge.haps_id:
+            nodes.append(self._nodes[hap_id])
+        self._edges.add_edge(*nodes)
         
     def add_edges(self, *edges):
-        for hap0, hap1 in edges:
-            self.add_edge(hap0, hap1)
+        for edge in edges:
+            self.add_edge(edge)
         
-    def del_edge(self, hap0, hap1):
-        self._edges.del_edge(self._nodes[hap0], self._nodes[hap1])
+    def del_edge(self, edge):
+        assert isinstance(edge, dom.Edge)
+        nodes = []
+        for hap_id in edges.haps_id:
+            self._nodes[hap_id]
+        self._edges.del_edge(*nodes)
         
     def del_edges_with_node(self, hap):
-        self._edges.del_edges_with_node(self._nodes[hap])
+        self._edges.del_edges_with_node(self._nodes[hap.hap_id])
         
     def node_of(self, hap):
-        return self._nodes[hap]
+        return self._nodes[hap.hap_id]
         
     @property
     def selected_node(self):
-        return self._selected
+        return self._selected.haplotype if self._selected else None
         
     @property
     def highlighted_node(self):
@@ -237,7 +254,7 @@ class NetworkWidget(object):
 if __name__ == "__main__":
     
     def printer(evt):
-        print evt
+        pilas.avisar(str(evt))
     
     n = NetworkWidget()
     
@@ -249,10 +266,9 @@ if __name__ == "__main__":
     n.add_node(a1, -100)
     n.add_node(a2, 200)
     n.add_node(a3, 0,-100)
-    n.add_edge(a0, a1)
-    n.add_edge(a1, a2)
-    n.add_edge(a2, a3)
-    n.highlight_nodes(a0,a1,a3)
+    n.add_edge(dom.Edge(666, a0.hap_id, a1.hap_id, a2.hap_id))
+    n.add_edge(dom.Edge(666, a3.hap_id, a2.hap_id))
+
     n.select_node(a1)
     n.select_node(a0)
     
