@@ -22,8 +22,7 @@ from pilas import imagenes
 from pilas import habilidades
 from pilas import eventos
 from pilas import colores
-
-from PyQt4 import QtCore
+from pilas import fondos
 
 from yatel import dom
 
@@ -71,7 +70,7 @@ class _HaplotypeActor(actores.Actor):
         
         # internal data
         self._selected = actores.Actor(imagen=IMAGE_EMPTY)
-        self._texto = actores.Texto()
+        self._texto = actores.Texto(magnitud=14)
         self.clicked = eventos.Evento("clicked")
         
         # conf
@@ -158,7 +157,7 @@ class _EdgesDrawActor(actores.Pizarra):
                 x1, y1 = act1.x, act1.y
                 text_x = ((x0 + x1) / 2) + 10
                 text_y = ((y0 + y1) / 2) + 10
-                self.linea(x0, y0, x1, y1, grosor=2)
+                self.linea(x0, y0, x1, y1, grosor=2, color=colores.negro)
             elif len(nodes) > 2:
                 xp = sum([act.x for act in nodes]) / len(nodes)
                 yp = sum([act.y for act in nodes]) / len(nodes)
@@ -169,7 +168,7 @@ class _EdgesDrawActor(actores.Pizarra):
                         grosor=2, color=colores.rojo
                     )
             self.texto(
-                unicode(weight), text_x, text_y, color=colores.verdeoscuro
+                unicode(weight), text_x, text_y, color=colores.blanco
             )
 
 
@@ -185,6 +184,7 @@ class NetworkWidget(object):
         self._selected = None
         self._highlighted = ()
         self.node_selected = eventos.Evento("node_selected")
+        fondos.Color(colores.grisoscuro)
 
     def _on_node_clicked(self, evt):
         sender = evt["sender"]
@@ -285,8 +285,6 @@ if __name__ == "__main__":
     n.select_node(a0)
     
     n.node_selected.conectar(printer)
-    
-    
     
     pilas.ejecutar()
     
