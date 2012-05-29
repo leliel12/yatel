@@ -33,7 +33,7 @@ from yatel.gui import resources
 # PILAS INIT
 #===============================================================================
 
-pilas.iniciar()
+pilas.iniciar(usar_motor="qt")
 
 
 #===============================================================================
@@ -176,8 +176,17 @@ class _EdgesDrawActor(actores.Pizarra):
 # NETWORK WIDGET
 #===============================================================================
 
-class NetworkWidget(object):
+class NetworkProxy(object):
     
+    _instance = None
+    
+    @staticmethod
+    def __new__(cls, *args, **kwargs):
+        if not NetworkProxy._instance:
+            instance = super(NetworkProxy, cls).__new__(cls, *args, **kwargs)
+            NetworkProxy._instance =  instance
+        return NetworkProxy._instance
+            
     def __init__(self):
         self._nodes = {}
         self._edges = _EdgesDrawActor()
@@ -190,6 +199,9 @@ class NetworkWidget(object):
         sender = evt["sender"]
         self.select_node(sender.haplotype)
         self.node_selected.emitir(node=sender.haplotype)
+        
+    def get_widget(self):
+        return pilas.mundo.motor.widget
 
     def clear(self):
         self._nodes.clear()
@@ -272,7 +284,8 @@ if __name__ == "__main__":
     def printer(evt):
         pilas.avisar(str(evt))
     
-    n = NetworkWidget()
+    n = NetworkProxy()
+    n2 = NetworkProxy()
     
     a0 = dom.Haplotype("hap0")
     a1 = dom.Haplotype("hap1")
@@ -280,7 +293,7 @@ if __name__ == "__main__":
     a3 = dom.Haplotype("hap3")
     n.add_node(a0, 100, 200)
     n.add_node(a1, -100)
-    n.add_node(a2, 200)
+    n2.add_node(a2, 200)
     n.add_node(a3, 0,-100)
     n.add_edge(dom.Edge(555, a0.hap_id, a1.hap_id, a2.hap_id, a3.hap_id))
     n.add_edge(dom.Edge(666, a3.hap_id, a2.hap_id))
