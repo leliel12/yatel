@@ -53,21 +53,7 @@ PRJ_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 #: The path to the puser home path
-try:
-    # ...works on at least windows and linux.
-    # In windows it points to the user"s folder
-    #  (the one directly under Documents and Settings, not My Documents)
-
-    # In windows, you can choose to care about local versus roaming profiles.
-    # You can fetch the current user"s through PyWin32.
-    #
-    # For example, to ask for the roaming "Application Data" directory:
-    # CSIDL_APPDATA asks for the roaming, CSIDL_LOCAL_APPDATA for the local one
-    from win32com.shell import shellcon, shell
-    HOME_PATH = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
-except ImportError:
-    # quick semi-nasty fallback for non-windows/win32com case
-    HOME_PATH = os.path.expanduser("~")
+HOME_PATH = os.path.expanduser("~")
 
 
 #: This is a folder where user put his data
