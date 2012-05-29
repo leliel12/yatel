@@ -164,8 +164,13 @@ class _EdgesDrawActor(actores.Pizarra):
                 yp = sum([act.y for act in nodes]) / len(nodes)
                 text_x, text_y = xp + 10, yp + 10
                 for act in nodes:
-                    self.linea(xp, yp, act.x, act.y, grosor=2)
-            self.texto(unicode(weight), text_x, text_y, color=colores.rojo)
+                    self.linea(
+                        xp, yp, act.x, act.y, 
+                        grosor=2, color=colores.rojo
+                    )
+            self.texto(
+                unicode(weight), text_x, text_y, color=colores.verdeoscuro
+            )
 
 
 #===============================================================================
@@ -273,7 +278,7 @@ if __name__ == "__main__":
     n.add_node(a1, -100)
     n.add_node(a2, 200)
     n.add_node(a3, 0,-100)
-    n.add_edge(dom.Edge(666, a0.hap_id, a1.hap_id, a2.hap_id))
+    n.add_edge(dom.Edge(555, a0.hap_id, a1.hap_id, a2.hap_id, a3.hap_id))
     n.add_edge(dom.Edge(666, a3.hap_id, a2.hap_id))
 
     n.select_node(a1)
