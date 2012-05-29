@@ -21,6 +21,7 @@ from pilas import actores
 from pilas import imagenes
 from pilas import habilidades
 from pilas import eventos
+from pilas import colores
 
 from PyQt4 import QtCore
 
@@ -126,39 +127,45 @@ class _EdgesDrawActor(actores.Pizarra):
 
     def __init__(self):
         pilas.actores.Pizarra.__init__(self)
-        self._edges = set()
+        self._edges = {}
 
     def clear(self):
         self._edges.clear()
         self.limpiar()
 
     def del_edge(self, *nodes):
-        self._edges.remove(nodes)
+        self._edges.pop(nodes)
         
     def del_edges_with_node(self, n):
         for haps in tuple(self._edges):
             if n in haps:
                 self.del_edge(*haps)
 
-    def add_edge(self, *nodes):
+    def add_edge(self, weight, *nodes):
+        assert isinstance(weight, (float, int))
         assert len(nodes) > 1 and all(
             map(lambda n: isinstance(n, _HaplotypeActor), nodes)
         )
-        self._edges.add(nodes)
+        self._edges[nodes] = weight
 
     def actualizar(self):
         self.limpiar()
-        for nodes in self._edges:
+        for nodes, weight in self._edges.items():
+            text_x, text_y = 0, 0
             if len(nodes) == 2:
                 act0, act1 = nodes
                 x0, y0 = act0.x, act0.y
                 x1, y1 = act1.x, act1.y
+                text_x = ((x0 + x1) / 2) + 10
+                text_y = ((y0 + y1) / 2) + 10
                 self.linea(x0, y0, x1, y1, grosor=2)
             elif len(nodes) > 2:
                 xp = sum([act.x for act in nodes]) / len(nodes)
                 yp = sum([act.y for act in nodes]) / len(nodes)
+                text_x, text_y = xp + 10, yp + 10
                 for act in nodes:
                     self.linea(xp, yp, act.x, act.y, grosor=2)
+            self.texto(unicode(weight), text_x, text_y, color=colores.rojo)
 
 
 #===============================================================================
@@ -219,7 +226,7 @@ class NetworkWidget(object):
         nodes = []
         for hap_id in edge.haps_id:
             nodes.append(self._nodes[hap_id])
-        self._edges.add_edge(*nodes)
+        self._edges.add_edge(edge.weight, *nodes)
         
     def add_edges(self, *edges):
         for edge in edges:
