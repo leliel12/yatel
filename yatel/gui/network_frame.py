@@ -201,20 +201,23 @@ class NetworkWidget(object):
         for hid, n in self._nodes.items():
             if hid == hap.hap_id:
                 n.set_selected(True)
-                self._selected = n
+                self._selected = n.haplotype
             else:
                 n.set_selected(False)
 
-    def highlight_nodes(self, *haps):
-        pass
-        """highs = []
-        for h, n in self._nodes.items():
-            if h in haps:
+    def highlight_nodes(self, *facts):
+        assert facts and all(
+            map(lambda f: isinstance(f, dom.Fact), facts)
+        )
+        haps = [f.hap_id for f in facts]
+        highs = []
+        for hid, n in self._nodes.items():
+            if hid in haps:
                 n.set_highlighted(True)
-                highs.append(h)
+                highs.append(n.haplotype)
             else:
                 n.set_highlighted(False)
-        self._highlighted = tuple(highs)"""
+        self._highlighted = tuple(highs)
                 
     def add_node(self, hap, x=0, y=0):
         node = _HaplotypeActor(hap, x=x, y=y)
@@ -252,10 +255,10 @@ class NetworkWidget(object):
         
     @property
     def selected_node(self):
-        return self._selected.haplotype if self._selected else None
+        return self._selected
         
     @property
-    def highlighted_node(self):
+    def highlighted_nodes(self):
         return self._highlighted
 
 
@@ -264,6 +267,7 @@ class NetworkWidget(object):
 #===============================================================================
 
 if __name__ == "__main__":
+    print "Test"
     
     def printer(evt):
         pilas.avisar(str(evt))
@@ -280,10 +284,8 @@ if __name__ == "__main__":
     n.add_node(a3, 0,-100)
     n.add_edge(dom.Edge(555, a0.hap_id, a1.hap_id, a2.hap_id, a3.hap_id))
     n.add_edge(dom.Edge(666, a3.hap_id, a2.hap_id))
-
-    n.select_node(a1)
-    n.select_node(a0)
     
+    n.highlight_nodes(dom.Fact(a0.hap_id), dom.Fact(a3.hap_id))
     n.node_selected.conectar(printer)
     
     pilas.ejecutar()
