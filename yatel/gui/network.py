@@ -16,6 +16,9 @@ if __name__ == "__main__":
 # IMPORTS
 #===============================================================================
 
+from PyQt4 import QtCore
+from PyQt4 import QtGui
+
 import pilas
 from pilas import actores
 from pilas import imagenes
@@ -199,6 +202,9 @@ class NetworkProxy(object):
         sender = evt["sender"]
         self.select_node(sender.haplotype)
         self.node_selected.emitir(node=sender.haplotype)
+        
+    def __getattr__(self, att_name):
+        return getattr(self.widget, att_name)
     
     def clear(self):
         self._nodes.clear()
@@ -258,9 +264,9 @@ class NetworkProxy(object):
     def del_edges_with_node(self, hap):
         self._edges.del_edges_with_node(self._nodes[hap.hap_id])
         
-    def node_of(self, hap):
+    def actor_of(self, hap):
         return self._nodes[hap.hap_id]
-    
+        
     @property
     def widget(self):
         return pilas.mundo.motor.widget
@@ -272,8 +278,7 @@ class NetworkProxy(object):
     @property
     def highlighted_nodes(self):
         return self._highlighted
-
-       
+        
 
 #===============================================================================
 # MAIN
@@ -286,7 +291,6 @@ if __name__ == "__main__":
         pilas.avisar(str(evt))
     
     n = NetworkProxy()
-    print n.widget
     
     a0 = dom.Haplotype("hap0")
     a1 = dom.Haplotype("hap1")

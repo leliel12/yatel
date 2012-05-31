@@ -34,30 +34,35 @@ class MainWindow(uis.UI("MainWindow.ui")):
     def on_actionWizard_triggered(self, *chk):
         if chk:
             self.wizard = csv_wizard.CSVWizard(self)
-            self.wizard.exec_()
             
-            facts = None
-            if hasattr(self.wizard, "factsFrame"):
-                factsFrame = self.wizard.factsFrame
-                cool = factsFrame.cool.type_corrector(factsFrame.types)
-                facts = csv2dom.construct_facts(cool, factsFrame.id_column)
+            if self.wizard.exec_():
             
-            haplotypes = None
-            if hasattr(self.wizard, "haplotypesFrame"):
-                haplotypesFrame = self.wizard.haplotypesFrame
-                cool = haplotypesFrame.cool.type_corrector(
-                    haplotypesFrame.types
-                )
-                haplotypes = csv2dom.construct_haplotypes(
-                    cool, haplotypesFrame.id_column
-                )
-            
-            edges = None
-            if hasattr(self.wizard, "weightsFrame"):
-                weightsFrame = self.wizard.weightsFrame
-                cool = weightsFrame.cool.type_corrector(weightsFrame.types)
-                edges = csv2dom.construct_edges(cool, weightsFrame.id_column)
-
+                facts = None
+                if hasattr(self.wizard, "factsFrame"):
+                    factsFrame = self.wizard.factsFrame
+                    cool = factsFrame.cool.type_corrector(factsFrame.types)
+                    facts = csv2dom.construct_facts(cool, factsFrame.id_column)
+                
+                haplotypes = None
+                if hasattr(self.wizard, "haplotypesFrame"):
+                    haplotypesFrame = self.wizard.haplotypesFrame
+                    cool = haplotypesFrame.cool.type_corrector(
+                        haplotypesFrame.types
+                    )
+                    haplotypes = csv2dom.construct_haplotypes(
+                        cool, haplotypesFrame.id_column
+                    )
+                
+                edges = None
+                if hasattr(self.wizard, "weightsFrame"):
+                    weightsFrame = self.wizard.weightsFrame
+                    cool = weightsFrame.cool.type_corrector(weightsFrame.types)
+                    edges = csv2dom.construct_edges(
+                        cool, weightsFrame.id_column
+                    )
+                    
+                self.wizard.destroy()
+                del self.wizard
 
 
 #===============================================================================
