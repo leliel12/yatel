@@ -25,10 +25,23 @@ class MainWindow(uis.UI("MainWindow.ui")):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
+        self.explorerFrame = None
     
     def setWindowTitle(self, prj=""):
         title = "{0} v.{1} - {2}".format(yatel.__prj__, yatel.__version__, prj)
         super(self.__class__, self).setWindowTitle(title)
+        
+    def open_explorer(self, facts, haplotypes, edges):
+        if self.explorerFrame:
+            if self.explorerFrame.is_saved
+            # alertar de la situacion y ofrecer guardar
+                pass
+            else:
+                pass
+        self.explorerFrame = explorer.ExplorerFrame(
+            self, facts, haplotypes, edges
+        )
+        self.addWidget(self.explorerFrame)
     
     # SLOTS
     def on_actionWizard_triggered(self, *chk):
@@ -63,6 +76,8 @@ class MainWindow(uis.UI("MainWindow.ui")):
                     
                 self.wizard.destroy()
                 del self.wizard
+                
+                self.open_explorer(facts, haplotypes, edges)
 
 
 #===============================================================================
