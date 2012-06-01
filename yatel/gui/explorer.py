@@ -40,7 +40,9 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self.network.add_node(h,x,y)
             print h.hap_id
         
-        
+    def destroy(self):
+        self.network.clear()
+        super(ExplorerFrame, self).destroy()
 
 
 #===============================================================================

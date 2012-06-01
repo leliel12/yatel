@@ -207,6 +207,8 @@ class NetworkProxy(object):
         return getattr(self.widget, att_name)
     
     def clear(self):
+        for hid, n in self._nodes.items():
+            n.destruir()
         self._nodes.clear()
         self._eges.clear()
         self._selected = None
