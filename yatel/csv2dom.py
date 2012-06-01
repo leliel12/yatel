@@ -31,8 +31,9 @@ instances
 #===============================================================================
 
 import csv
+import cStringIO
 
-import dom
+from yatel import dom
 
 
 #===============================================================================
@@ -128,8 +129,62 @@ def construct_edges(cool, column_weight):
 
 
 #===============================================================================
+# IO FUNCTIONS
+#===============================================================================
+
+def dump(haps, facts, edges):
+    """Convert dom objects into CSVCool instances
+    
+    """
+    
+    keys = set(["hap_id"])
+    for h in haps:
+        assert isinstance(h, dom.Haplotype)
+        keys = keys.union(f.names_attrs())
+    keys = list(keys)
+    rows = []
+    for h in haps:
+        row = []
+        for k in keys:
+            row.append(getattr(h, k, None))
+        rows.append(row)
+    cool_haps = cool.CSVCool(keys, rows)
+    
+    keys = set(["hap_id"])
+    for f in facts:
+        assert isinstance(f, dom.Fact)
+        keys = keys.union(f.names_attrs)
+    keys = list(keys)
+    rows = []
+    for f in facts:
+        row = []
+        for k in keys:
+            row.append(getattr(f, k, None))
+        rows.append(row)
+    cool_facts = cool.CSVCool(keys, rows)
+        
+        
+        
+    cool_facts = []
+    cool_edges = []
+    
+
+
+def load(cool_haps, cool_facts, cool_edges):
+    """Convert CSVCool instances into dom objects
+    
+    """
+    return (
+        construct_haplotypes(cool_haps), 
+        construct_facts(cool_facts),
+        construct_edges(cool_edges)
+    )
+
+    
+#===============================================================================
 # MAIN
 #===============================================================================
 
 if __name__ == "__main__":
     print(__doc__)
+

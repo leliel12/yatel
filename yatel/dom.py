@@ -49,6 +49,18 @@ class Fact(object):
     def __getitem__(self, k):
         return self._attrs[k]
     
+    def items_attrs(self):
+        return self._attrs.items()
+        
+    def names_attrs(self):
+        return self._attrs.keys()
+        
+    def values_attrs(self):
+        return self._attrs.values()
+    
+    def get_attr(self, n, d=None):
+        return self._attrs.get(n, d)
+    
     @property
     def hap_id(self):
         return self._hap_id
