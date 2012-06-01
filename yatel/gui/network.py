@@ -302,8 +302,9 @@ if __name__ == "__main__":
     n.add_node(a1, -100)
     n.add_node(a2, 200)
     n.add_node(a3, 0,-100)
-    n.add_edge(dom.Edge(555, a0.hap_id, a1.hap_id, a2.hap_id))
+    n.add_edge(dom.Edge(555, a0.hap_id, a1.hap_id))
     n.add_edge(dom.Edge(666, a3.hap_id, a2.hap_id))
+    n.add_edge(dom.Edge(666, a2.hap_id, a0.hap_id))
     
     f=dom.Fact(a1.hap_id, a=1)
     n.highlight_nodes(a1, a2)
