@@ -33,12 +33,17 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         x=-400
         y=-300
-        in_y = 0
+        i = 0
         for h in haplotypes:
             x = x+20 if x < 800 else -400
             y = y+20 if y<600 else -300
+            if i < 50:
+                i +=1
+            else:
+                break
             self.network.add_node(h,x,y)
             print h.hap_id
+            
         
     def destroy(self):
         self.network.clear()
