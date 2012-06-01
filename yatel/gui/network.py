@@ -44,19 +44,19 @@ pilas.iniciar(usar_motor="qt" if __name__ == "__main__" else "qtsugar")
 #===============================================================================
 
 IMAGE_NODE_NORMAL = pilas.imagenes.cargar(
-    resources.get("node_normal.svg")
+    resources.get("node_normal.png")
 )
 
 IMAGE_NODE_HIGLIGHTED = pilas.imagenes.cargar(
-    resources.get("node_highlighted.svg")
+    resources.get("node_highlighted.png")
 )
 
 IMAGE_NODE_SELECTED = pilas.imagenes.cargar(
-    resources.get("node_selected.svg")
+    resources.get("node_selected.png")
 )
 
 IMAGE_EMPTY = pilas.imagenes.cargar(
-    resources.get("empty.svg")
+    resources.get("empty.png")
 )
 
 #===============================================================================
