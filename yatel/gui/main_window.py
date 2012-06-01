@@ -13,6 +13,7 @@ from yatel import csv2dom
 from yatel.gui import uis
 from yatel.gui import csv_wizard
 from yatel.gui import resources
+from yatel.gui import explorer
 
 
 #===============================================================================
@@ -32,16 +33,20 @@ class MainWindow(uis.UI("MainWindow.ui")):
         super(self.__class__, self).setWindowTitle(title)
         
     def open_explorer(self, facts, haplotypes, edges):
+        if self.close_explorer():
+            self.explorerFrame = explorer.ExplorerFrame(
+                self.centralWidget(), facts, haplotypes, edges
+            )
+            self.centralLayout.addWidget(self.explorerFrame)
+    
+    def close_explorer(self):
         if self.explorerFrame:
-            if self.explorerFrame.is_saved
+            if self.explorerFrame.is_saved:
             # alertar de la situacion y ofrecer guardar
                 pass
             else:
                 pass
-        self.explorerFrame = explorer.ExplorerFrame(
-            self, facts, haplotypes, edges
-        )
-        self.addWidget(self.explorerFrame)
+        return True
     
     # SLOTS
     def on_actionWizard_triggered(self, *chk):
