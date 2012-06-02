@@ -210,7 +210,7 @@ class NetworkProxy(object):
         for hid, n in self._nodes.items():
             n.destruir()
         self._nodes.clear()
-        self._eges.clear()
+        self._edges.clear()
         self._selected = None
         self._highlighted = ()
     

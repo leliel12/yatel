@@ -12,7 +12,6 @@ from yatel import constants
 from yatel.gui import uis
 
 
-
 #===============================================================================
 # 
 #===============================================================================
@@ -45,7 +44,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
     def destroy(self):
         self.network.clear()
-        self.network.node_selected.desconectar(self.on_node_selected)
         super(ExplorerFrame, self).destroy()
 
 
