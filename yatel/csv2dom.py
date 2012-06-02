@@ -163,10 +163,23 @@ def dump(haps, facts, edges):
         rows.append(row)
     cool_facts = cool.CSVCool(keys, rows)
         
+    nodes = 0
+    for e in edges:
+        assert isinstance(e, dom.Edge)
+        nodes = len(e.haps_id) if len(haps_id) > nodes else nodes
+    keys = ["weight"] + ["hap_id_" + str(i) for i in range(nodes)]
+    rows = []
+    for e in edges:
+        row = [e.weight]
+        for i in range(nodes):
+            try:
+                row.append(e.haps_id[i])
+            except IndexError:
+                row.append(None)
+        rows.append(row)
+    cool_edges = cool.CSVCool(keys, rows)
         
-        
-    cool_facts = []
-    cool_edges = []
+    return col_haps, cool_facts, cool_edges
     
 
 
