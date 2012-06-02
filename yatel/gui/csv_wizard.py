@@ -155,6 +155,17 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
                 return unicode(
                     self.tableTypes.verticalHeaderItem(ridx).text()
                 )
+                
+    @property
+    def dom_object(self):
+        cool = self.cool.type_corrector(self.types)
+        if self.file_content == self.CONTENT_HAPLOTYPES
+            return csvcool2yatel.construct_haplotypes(cool, self.id_column)
+        elif self.file_content == self.CONTENT_FACTS:
+            return csvcool2yatel.construct_facts(cool, self.id_column)
+        elif self.file_content == self.CONTENT_EDGES:
+            return csvcool2yatel.construct_edges(cool, self.id_column)
+            
 
 
 #===============================================================================
@@ -227,7 +238,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
             )
             self.hapsLayout.addWidget(self.haplotypesFrame)
             self.closeFileButtonHaps.setEnabled(True)
-            #self.haplotypesFrame.idSelectedStateChanged.connect()
+            
         
     def on_closeFileButtonHaps_pressed(self):
         if hasattr(self, "haplotypesFrame"):
