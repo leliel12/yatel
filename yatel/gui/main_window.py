@@ -8,7 +8,7 @@
 from PyQt4 import QtGui
 
 import yatel
-from yatel import csv2dom
+from yatel.conversors import csvcool2yatel as csv2dom
 
 from yatel.gui import uis
 from yatel.gui import csv_wizard

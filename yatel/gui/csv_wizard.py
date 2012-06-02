@@ -12,7 +12,7 @@ from PyQt4 import QtGui, QtCore
 import csvcool
 
 from yatel import constants
-from yatel import csv2dom
+from yatel.conversors import csvcool2yatel
 
 from yatel.gui import uis
 
@@ -52,11 +52,11 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
             self.encodingComboBox.setCurrentIndex(idx)
         except ValueError:
             pass
-        self.delimiterLineEdit.setText(csv2dom.EXCEL_DIALECT.delimiter or ",")
-        self.escapeCharLineEdit.setText(csv2dom.EXCEL_DIALECT.escapechar or "")
-        self.doubleQuoteCheckBox.setChecked(csv2dom.EXCEL_DIALECT.doublequote)
+        self.delimiterLineEdit.setText(csvcool2yatel.EXCEL_DIALECT.delimiter or ",")
+        self.escapeCharLineEdit.setText(csvcool2yatel.EXCEL_DIALECT.escapechar or "")
+        self.doubleQuoteCheckBox.setChecked(csvcool2yatel.EXCEL_DIALECT.doublequote)
         self.skipInitialSpaceCheckBox.setChecked(
-            csv2dom.EXCEL_DIALECT.skipinitialspace
+            csvcool2yatel.EXCEL_DIALECT.skipinitialspace
         )
         
         self.encodingComboBox.activated.connect(self.on_csvconf_changed)

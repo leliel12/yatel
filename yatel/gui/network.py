@@ -73,7 +73,7 @@ class _HaplotypeActor(actores.Actor):
         
         # internal data
         self._selected = actores.Actor(imagen=IMAGE_EMPTY)
-        self._texto = actores.Texto(magnitud=14)
+        self._texto = actores.Texto(magnitud=12)
         self.clicked = eventos.Evento("clicked")
         
         # conf
