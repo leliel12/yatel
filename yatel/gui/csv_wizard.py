@@ -157,7 +157,7 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
                 )
                 
     @property
-    def dom_object(self):
+    def dom_objects(self):
         cool = self.cool.type_corrector(self.types)
         if self.file_content == self.CONTENT_HAPLOTYPES:
             return csvcool2yatel.construct_haplotypes(cool, self.id_column)

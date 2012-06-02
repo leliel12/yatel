@@ -8,7 +8,6 @@
 from PyQt4 import QtGui
 
 import yatel
-from yatel.conversors import csvcool2yatel as csv2dom
 
 from yatel.gui import uis
 from yatel.gui import csv_wizard
@@ -55,29 +54,17 @@ class MainWindow(uis.UI("MainWindow.ui")):
             
             if self.wizard.exec_():
             
-                facts = None
-                if hasattr(self.wizard, "factsFrame"):
-                    factsFrame = self.wizard.factsFrame
-                    cool = factsFrame.cool.type_corrector(factsFrame.types)
-                    facts = csv2dom.construct_facts(cool, factsFrame.id_column)
+                facts = self.wizard.factsFrame.dom_objects \
+                    if hasattr(self.wizard, "factsFrame") \
+                    else None
                 
-                haplotypes = None
-                if hasattr(self.wizard, "haplotypesFrame"):
-                    haplotypesFrame = self.wizard.haplotypesFrame
-                    cool = haplotypesFrame.cool.type_corrector(
-                        haplotypesFrame.types
-                    )
-                    haplotypes = csv2dom.construct_haplotypes(
-                        cool, haplotypesFrame.id_column
-                    )
+                haplotypes = self.wizard.haplotypesFrame.dom_objects \
+                    if hasattr(self.wizard, "haplotypesFrame") \
+                    else None
                 
-                edges = None
-                if hasattr(self.wizard, "weightsFrame"):
-                    weightsFrame = self.wizard.weightsFrame
-                    cool = weightsFrame.cool.type_corrector(weightsFrame.types)
-                    edges = csv2dom.construct_edges(
-                        cool, weightsFrame.id_column
-                    )
+                edges = self.wizard.weightsFrame.dom_objects \
+                    if hasattr(self.wizard, "weightsFrame") \
+                    else None
                     
                 self.wizard.destroy()
                 del self.wizard
