@@ -84,7 +84,10 @@ class _HaplotypeActor(actores.Actor):
         self._selected.aprender(habilidades.Imitar, self)
         
         # connect events
-        eventos.click_de_mouse.conectar(self._on_mouse_clicked)
+        eventos.click_de_mouse.conectar(
+            self._on_mouse_clicked, 
+            id=hex(id(self))
+        )
         
     def _on_mouse_clicked(self, evt):
         x, y = evt["x"], evt["y"]
@@ -96,6 +99,8 @@ class _HaplotypeActor(actores.Actor):
     def destruir(self):
         self._selected.destruir()
         self._texto.destruir()
+        self.clicked.respuestas.clear()
+        eventos.click_de_mouse.desconectar_por_id(hex(id(self)))
         super(_HaplotypeActor, self).destruir()
     
     def set_selected(self, is_selected):
@@ -214,6 +219,7 @@ class NetworkProxy(object):
         self._selected = None
         self._highlighted = ()
         self.widget.setParent(None)
+        self.node_selected.respuestas.clear()
     
     def select_node(self, hap):
         for hid, n in self._nodes.items():
