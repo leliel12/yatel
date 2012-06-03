@@ -57,14 +57,12 @@ class MainWindow(uis.UI("MainWindow.ui")):
                     self.explorerFrame.save()
                     self.centralLayout.removeWidget(self.explorerFrame)
                     self.explorerFrame.destroy()
-                    del self.explorerFrame
-                    self.updateGeometry()
+                    self.explorerFrame = None
                     return True
                 elif status == QtGui.QMessageBox.Discard:
                     self.centralLayout.removeWidget(self.explorerFrame)
                     self.explorerFrame.destroy()
-                    del self.explorerFrame
-                    self.updateGeometry()
+                    self.explorerFrame = None
                     return True
                 # status == QtGui.QMessageBox.Cancel:
                 return False
@@ -78,8 +76,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
                 if status == QtGui.QMessageBox.Ok:
                     self.centralLayout.removeWidget(self.explorerFrame)
                     self.explorerFrame.destroy()
-                    del self.explorerFrame
-                    self.updateGeometry()
+                    self.explorerFrame = None
                     return True
                 # status == QtGui.QMessageBox.Cancel:
                 return False
@@ -88,6 +85,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
     # SLOTS
     def on_actionWizard_triggered(self, *chk):
         if chk and self.close_explorer():
+            print self.explorerFrame
             
             self.wizard = csv_wizard.CSVWizard(self)
 

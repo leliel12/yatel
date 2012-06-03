@@ -44,6 +44,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
     def destroy(self):
         self.network.clear()
+        self.setParent(None)
         super(ExplorerFrame, self).destroy()
 
 
