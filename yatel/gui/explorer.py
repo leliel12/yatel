@@ -26,7 +26,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         from yatel.gui import network
         
-        self.is_saved = True
+        self.is_saved = False
         self.network = network.NetworkProxy()
         self.pilasLayout.addWidget(self.network.widget)
         
@@ -42,8 +42,12 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     def on_node_selected(self, evt):
         print evt
         
+    def save(self):
+        pass
+        
     def destroy(self):
         self.network.clear()
+        self.pilasLayout.removeWidget(self.network.widget)
         self.setParent(None)
         super(ExplorerFrame, self).destroy()
 

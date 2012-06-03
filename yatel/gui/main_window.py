@@ -85,7 +85,6 @@ class MainWindow(uis.UI("MainWindow.ui")):
     # SLOTS
     def on_actionWizard_triggered(self, *chk):
         if chk and self.close_explorer():
-            print self.explorerFrame
             
             self.wizard = csv_wizard.CSVWizard(self)
 
