@@ -21,7 +21,7 @@
 # DOCS
 #===============================================================================
 
-"""This module is used for construct yatel.dom object using csv.CSVCool
+"""This module is used for construct yatel.dom object using csvcool.CSVCool
 instances
 
 """
@@ -32,6 +32,8 @@ instances
 
 import csv
 import cStringIO
+
+import csvcool
 
 from yatel import dom
 
@@ -54,7 +56,7 @@ def construct_facts(cool, column_haplotype):
     Params:
 
         :cool:
-            csv.CSVCool instante that containing information on all known Facts.
+            csvcool.CSVCool instante that containing information on all known Facts.
         :column_haplotype:
             Name of the column containing the id of the instance of the
             yate.dom.Haplotype to which reference this Fact.
@@ -82,7 +84,7 @@ def construct_haplotypes(cool, column_id):
     Params:
 
         :cool:
-            csv.CSVCool instante that containing information on all known
+            csvcool.CSVCool instante that containing information on all known
             Haplotypes.
         :column_id:
             Name of the column containing the id of the instance of the
@@ -109,7 +111,7 @@ def construct_edges(cool, column_weight):
     Params:
 
         :cool:
-            csv.CSVCool instante that containing information on all known edges.
+            csvcool.CSVCool instante that containing information on all known edges.
         :column_haplotype:
             Name of the column containing the weight of the edge.
 
@@ -148,7 +150,7 @@ def dump(haps, facts, edges):
         for k in keys:
             row.append(getattr(h, k, None))
         rows.append(row)
-    cool_haps = cool.CSVCool(keys, rows)
+    cool_haps = csvcool.CSVCool(keys, rows)
     
     keys = set(["hap_id"])
     for f in facts:
@@ -161,7 +163,7 @@ def dump(haps, facts, edges):
         for k in keys:
             row.append(getattr(f, k, None))
         rows.append(row)
-    cool_facts = cool.CSVCool(keys, rows)
+    cool_facts = csvcool.CSVCool(keys, rows)
         
     nodes = 0
     for e in edges:
@@ -177,7 +179,7 @@ def dump(haps, facts, edges):
             except IndexError:
                 row.append(None)
         rows.append(row)
-    cool_edges = cool.CSVCool(keys, rows)
+    cool_edges = csvcool.CSVCool(keys, rows)
         
     return col_haps, cool_facts, cool_edges
     
