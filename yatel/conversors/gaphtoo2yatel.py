@@ -43,9 +43,9 @@ def dump(haps, facts, edges):
     pass
     
 
-
 def load(cool_haps, cool_facts, cool_edges):
     pass
+
     
 #===============================================================================
 # MAIN
