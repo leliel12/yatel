@@ -21,10 +21,11 @@
 # DOCS
 #===============================================================================
 
-"""This module is used for construct yatel.dom object using csvcool.CSVCool
+"""This module is used for construct yatel.dom object using graph-tool Graph's
 instances
 
 """
+
 
 #===============================================================================
 # IMPORTS
@@ -40,6 +41,16 @@ from yatel import dom
 #===============================================================================
 
 def dump(haps, facts, edges):
+    """Create graph-tool Graph object from a list of haplotypes, facts and edges.
+    
+    The original objects are stores in internal properties:
+    
+        haps -> graph.vertex_properties["haplotypes"]
+        facts -> graph.vertex_properties["facts"]
+        edges -> graph.edge_properties["edges"]
+        
+    """
+    
     nodebuff = {}
     ug = Graph(directed=False)
     
@@ -57,7 +68,7 @@ def dump(haps, facts, edges):
         fact_prop[nodebuff[fact.hap_id]] = fact
     ug.vertex_properties["facts"] = fact_prop
     
-    edge_prop = ug.new_vertex_property("object")
+    edge_prop = ug.new_edge_property("object")
     for edge in edges:
         assert isinstance(edge, dom.Edge)
         if len(edge.haps_id) != 2:
@@ -71,11 +82,33 @@ def dump(haps, facts, edges):
     
     return ug
         
-    
 
 def load(graph):
-    pass
-
+    """Create yatel DOM objects from a graph-tool Graph.
+    
+    The original objects are stores in internal properties:
+    
+        haps <- graph.vertex_properties["haplotypes"]
+        facts <- graph.vertex_properties["facts"]
+        edges <- graph.edge_properties["edges"]
+        
+    """
+    haps = []
+    facts = []
+    for v in graph.vertices():
+        haps.append(
+            graph.vertex_properties["haplotypes"][v]
+        )
+        fact = graph.vertex_properties["facts"][v]
+        if fact != None:
+            facts.append(fact)
+    edges = []
+    for e in graph.edges():
+        edges.append(
+            graph.edge_properties["edges"][e]
+        )
+    return tuple(haps), tuple(facts), tuple(edges)
+        
     
 #===============================================================================
 # MAIN
@@ -83,4 +116,9 @@ def load(graph):
 
 if __name__ == "__main__":
     print(__doc__)
+    
+    
+    
+    
+    
 
