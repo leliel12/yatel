@@ -35,30 +35,6 @@ from graph_tool import Graph
 
 from yatel import dom
 
-#===============================================================================
-# UTILITIES
-#===============================================================================
-
-def remap_properties(graph, keys, props, type):
-    """Create a dict with keys given as keys and values from properties
-    
-    """
-    remaped = {}
-    if type in ("haplotypes", "facts"):
-        for v in graph.vertices():
-            hap = graph.vertex_properties[type][v]
-            if hap in keys:
-                remaped[hap] = props[v]
-    elif type == "edges":
-        for v in graph.edges():
-            edge = graph.vertex_properties[type][v]
-            if hap in keys:
-                remaped[hap] = props[v]
-    else:
-        msg = "Type must be 'haplotypes', 'facts' or 'edges': found '{}'"
-        raise ValueError(msg.format(str(type)))
-    return remaped
-    
 
 #===============================================================================
 # IO FUNCTIONS
@@ -90,7 +66,11 @@ def dump(haps, facts, edges):
     fact_prop = ug.new_vertex_property("object")
     for fact in facts:
         assert isinstance(fact, dom.Fact)
-        fact_prop[nodebuff[fact.hap_id]] = fact
+        prop = fact_prop[nodebuff[fact.hap_id]]
+        if prop == None:
+            prop = []
+            fact_prop[nodebuff[fact.hap_id]] = prop
+        prop.append(fact)
     ug.vertex_properties["facts"] = fact_prop
     
     edge_prop = ug.new_edge_property("object")
@@ -124,9 +104,9 @@ def load(graph):
         haps.append(
             graph.vertex_properties["haplotypes"][v]
         )
-        fact = graph.vertex_properties["facts"][v]
-        if fact != None:
-            facts.append(fact)
+        factlist = graph.vertex_properties["facts"][v]
+        if factlist:
+            facts.extend(factlist)
     edges = []
     for e in graph.edges():
         edges.append(
