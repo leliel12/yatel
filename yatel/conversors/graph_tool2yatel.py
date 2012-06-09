@@ -35,13 +35,38 @@ from graph_tool import Graph
 
 from yatel import dom
 
+#===============================================================================
+# UTILITIES
+#===============================================================================
+
+def remap_properties(graph, keys, props, type):
+    """Create a dict with keys given as keys and values from properties
+    
+    """
+    remaped = {}
+    if type in ("haplotypes", "facts"):
+        for v in graph.vertices():
+            hap = graph.vertex_properties[type][v]
+            if hap in keys:
+                remaped[hap] = props[v]
+    elif type == "edges":
+        for v in graph.edges():
+            edge = graph.vertex_properties[type][v]
+            if hap in keys:
+                remaped[hap] = props[v]
+    else:
+        msg = "Type must be 'haplotypes', 'facts' or 'edges': found '{}'"
+        raise ValueError(msg.format(str(type)))
+    return remaped
+    
 
 #===============================================================================
 # IO FUNCTIONS
 #===============================================================================
 
 def dump(haps, facts, edges):
-    """Create graph-tool Graph object from a list of haplotypes, facts and edges.
+    """Create graph-tool Graph object from a list of haplotypes, facts and
+    edges.
     
     The original objects are stores in internal properties:
     

@@ -33,7 +33,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
 
     def open_explorer(self, facts, haplotypes, edges):
         self.explorerFrame = explorer.ExplorerFrame(
-            self.centralWidget(), facts, haplotypes, edges
+            self.centralWidget(), haplotypes, facts, edges
         )
         self.centralLayout.addWidget(self.explorerFrame)
 

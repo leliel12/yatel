@@ -8,6 +8,7 @@
 from PyQt4 import QtGui, QtCore
 
 from yatel import constants
+from yatel.conversors import graph_tool2yatel
 
 from yatel.gui import uis
 
@@ -21,7 +22,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     
     """
     
-    def __init__(self, parent, facts, haplotypes, edges):
+    def __init__(self, parent, haplotypes, facts, edges):
         super(ExplorerFrame, self).__init__(parent=parent)
         
         from yatel.gui import network
@@ -30,13 +31,10 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.network = network.NetworkProxy()
         self.pilasLayout.addWidget(self.network.widget)
         
-        x=-400
-        y=-300
-        i = 0
-        for h in haplotypes:
-            x = x+20 if x < 800 else -400
-            y = y+20 if y<600 else -300
-            self.network.add_node(h,x,y)
+        # start calculatate of topology
+        self.graph = graph_tool2yatel.dump(haps, facts, edges)
+        
+        
         self.network.node_selected.conectar(self.on_node_selected)
             
     def on_node_selected(self, evt):
