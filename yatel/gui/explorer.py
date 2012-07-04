@@ -29,7 +29,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         def add_xys(haps, edges):
             hapmapped = {}
-            for hap_id, xy in topsort.xysort(edges):
+            for hap_id, xy in topsort.xysort(edges).items():
                 for hap in haps:
                     if hap.hap_id == hap_id:
                         hapmapped[hap] = xy
@@ -41,8 +41,14 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.pilasLayout.addWidget(self.network.widget)
         
         for hap, xy in add_xys(haplotypes, edges).items():
-            self.network.add_node(hap, x=xy[0], y=xy[1]
+            self.network.add_node(hap, x=xy[0], y=xy[1])
+        
+        for edge in edges:
+            self.network.add_edge(edge)
             
+        for fact in facts:
+            pass
+        
         self.network.node_selected.conectar(self.on_node_selected)
             
             

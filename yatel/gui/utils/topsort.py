@@ -152,7 +152,7 @@ def xysort(edges, xy_start=(-100, 100), xy_stop=(100, -100), step=(20, 20)):
         :xy_stop:
             Bottom right corner of the shape.
         :step:
-            Separation betwen nodes centre in axis.
+            Separation betwen nodes center in axis.
 
     """
 

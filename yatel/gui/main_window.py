@@ -98,8 +98,8 @@ class MainWindow(uis.UI("MainWindow.ui")):
                     if hasattr(self.wizard, "haplotypesFrame") \
                     else None
 
-                edges = self.wizard.weightsFrame.dom_objects \
-                    if hasattr(self.wizard, "weightsFrame") \
+                edges = self.wizard.weightFrame.dom_objects \
+                    if hasattr(self.wizard, "weightFrame") \
                     else None
 
                 self.wizard.destroy()
