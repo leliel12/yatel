@@ -143,7 +143,7 @@ def sort(edges):
     return topological_sort(component_graph)
 
 
-def xysort(edges, bounds=(-100, 100, 100, -100), step=(20, 20), noise=0):
+def xysort(edges, bounds=(-100, 100, 100, -100), step=(20, 20)):
     """Topological sort of iterable of edges
 
     **Parameters**
@@ -156,22 +156,11 @@ def xysort(edges, bounds=(-100, 100, 100, -100), step=(20, 20), noise=0):
                 +---------------+
                 |               |
                 +---------------+ x1, y1
-            
+                
         :step:
             Separation between nodes center in axis.
-        :noise:
-            Max variation of one step
 
     """
-
-    noise =  abs(noise)
-    
-    def aply_noise(x, y):
-        if noise  == 0:
-            return x, y
-        x += random.randint(-noise, noise)
-        y += random.randint(-noise, noise)
-        return x, y
 
     xysorted = {}
     xstep, ystep = step
@@ -181,7 +170,7 @@ def xysort(edges, bounds=(-100, 100, 100, -100), step=(20, 20), noise=0):
     for row in sort(edges):
         x = bounds[0]
         for c in row:
-            xysorted[c] = aply_noise(x, y)
+            xysorted[c] = x, y
             if x + xstep < xtop:
                 x += xstep
             elif y - ystep > ytop:

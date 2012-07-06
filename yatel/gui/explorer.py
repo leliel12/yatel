@@ -11,6 +11,7 @@ from yatel import constants
 
 from yatel.gui import uis
 from yatel.gui.utils import topsort
+from yatel.gui.utils import randomsort
 
 
 #===============================================================================
@@ -29,23 +30,13 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         def add_xys(haps, edges, widget):
             hapmapped = {}
-            xstep = (
-                network.IMAGE_NODE_NORMAL.ancho() + 
-                (network.IMAGE_NODE_NORMAL.ancho() / 2)
-            )
-            ystep = (
-                network.IMAGE_NODE_NORMAL.alto() + 
-                (network.IMAGE_NODE_NORMAL.alto() / 2)
-            )
             width = widget.size().width() / 2 #xs
             height = widget.size().height() / 2 #ys
             bounds = (
                 -width + width/4, height - height/4,
                 width, -height
-            )
-            print bounds
-            
-            xysorted = topsort.xysort(edges, bounds=bounds, step=(xstep, ystep))
+            )            
+            xysorted = randomsort.xysort(edges, bounds=bounds)
             for hap_id, xy in xysorted.items():
                 for hap in haps:
                     if hap.hap_id == hap_id:
