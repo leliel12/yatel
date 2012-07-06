@@ -60,7 +60,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         self.network.node_selected.conectar(self.on_node_selected)
             
-            
     def on_node_selected(self, evt):
         print id(self), evt
         

@@ -21,7 +21,6 @@ from PyQt4 import QtGui
 
 import pilas
 from pilas import actores
-from pilas import fisica
 from pilas import imagenes
 from pilas import habilidades
 from pilas import eventos
@@ -38,7 +37,7 @@ from yatel.gui import resources
 #===============================================================================
 
 pilas.iniciar(usar_motor="qt" if __name__ == "__main__" else "qtsugar")
-fisica.definir_gravedad(0,0)
+
 
 #===============================================================================
 # CONSTANTS
@@ -56,8 +55,8 @@ IMAGE_NODE_SELECTED = pilas.imagenes.cargar(
     resources.get("node_selected.png")
 )
 
-IMAGE_EMPTY = pilas.imagenes.cargar(
-    resources.get("empty.png")
+IMAGE_NODE_UNSELECTED = pilas.imagenes.cargar(
+    resources.get("node_unselected.png")
 )
 
 #===============================================================================
@@ -73,7 +72,7 @@ class _HaplotypeActor(actores.Actor):
         )
         
         # internal data
-        self._selected = actores.Actor(imagen=IMAGE_EMPTY)
+        self._selected = actores.Actor(imagen=IMAGE_NODE_UNSELECTED)
         self._texto = actores.Texto(magnitud=12)
         self.clicked = eventos.Evento("clicked")
         
@@ -83,7 +82,7 @@ class _HaplotypeActor(actores.Actor):
         self.aprender(habilidades.Arrastrable)
         self._texto.aprender(habilidades.Imitar, self)
         self._selected.aprender(habilidades.Imitar, self)
-    
+        
         # connect events
         eventos.click_de_mouse.conectar(
             self._on_mouse_clicked, 
@@ -97,6 +96,20 @@ class _HaplotypeActor(actores.Actor):
             or self._selected.colisiona_con_un_punto(x,y):
                 self.clicked.emitir(sender=self)
     
+    def actualizar(self):
+        size = pilas.mundo.motor.widget.size()
+        width = (size.width() / 2) - (IMAGE_NODE_NORMAL.ancho() / 2)
+        height = (size.height() / 2) - (IMAGE_NODE_NORMAL.alto() / 2)
+        if self.x <= -width:
+            self.x = -width
+        elif self.x >= width:
+            self.x = width
+        if self.y <= -height:
+            self.y = -height
+        elif self.y >= height:
+            self.y = height
+        
+    
     def destruir(self):
         self._selected.destruir()
         self._texto.destruir()
@@ -108,7 +121,7 @@ class _HaplotypeActor(actores.Actor):
         if is_selected:
             self._selected.imagen = IMAGE_NODE_SELECTED
         else:
-            self._selected.imagen = IMAGE_EMPTY
+            self._selected.imagen = IMAGE_NODE_UNSELECTED
         
     def set_highlighted(self, is_highlighted):
         if is_highlighted:
@@ -203,15 +216,15 @@ class NetworkProxy(object):
         self._highlighted = ()
         self.node_selected = eventos.Evento("node_selected")
         fondos.Color(colores.grisoscuro)
-
+        
+    def __getattr__(self, att_name):
+        return getattr(self.widget, att_name)
+        
     def _on_node_clicked(self, evt):
         sender = evt["sender"]
         self.select_node(sender.haplotype)
         self.node_selected.emitir(node=sender.haplotype)
-        
-    def __getattr__(self, att_name):
-        return getattr(self.widget, att_name)
-    
+
     def clear(self):
         for hid, n in self._nodes.items():
             n.destruir()

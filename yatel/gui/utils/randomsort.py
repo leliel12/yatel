@@ -39,9 +39,6 @@ def xysort(edges, bounds=(-100, 100, 100, -100)):
         y = random.randint(bounds[3], bounds[1])
         sortedids[hid] = (x, y)
     return sortedids
-        
-
-    
 
 
 #===============================================================================
