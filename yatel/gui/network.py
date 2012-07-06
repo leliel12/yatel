@@ -109,7 +109,6 @@ class _HaplotypeActor(actores.Actor):
         elif self.y >= height:
             self.y = height
         
-    
     def destruir(self):
         self._selected.destruir()
         self._texto.destruir()
