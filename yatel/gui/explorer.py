@@ -27,11 +27,25 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         from yatel.gui import network
         
-        def add_xys(haps, edges):
+        def add_xys(haps, edges, widget):
             hapmapped = {}
-            xstep = network.IMAGE_NODE_NORMAL.ancho() + (network.IMAGE_NODE_NORMAL.ancho() / 2)
-            ystep = network.IMAGE_NODE_NORMAL.alto() + (network.IMAGE_NODE_NORMAL.alto() / 2)
-            xysorted = topsort.xysort(edges, step=(xstep, ystep))
+            xstep = (
+                network.IMAGE_NODE_NORMAL.ancho() + 
+                (network.IMAGE_NODE_NORMAL.ancho() / 2)
+            )
+            ystep = (
+                network.IMAGE_NODE_NORMAL.alto() + 
+                (network.IMAGE_NODE_NORMAL.alto() / 2)
+            )
+            width = widget.size().width() / 2 #xs
+            height = widget.size().height() / 2 #ys
+            bounds = (
+                -width + width/4, height - height/4,
+                width, -height
+            )
+            print bounds
+            
+            xysorted = topsort.xysort(edges, bounds=bounds, step=(xstep, ystep))
             for hap_id, xy in xysorted.items():
                 for hap in haps:
                     if hap.hap_id == hap_id:
@@ -43,7 +57,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.network = network.NetworkProxy()
         self.pilasLayout.addWidget(self.network.widget)
         
-        for hap, xy in add_xys(haplotypes, edges).items():
+        xysorted = add_xys(haplotypes, edges, self.network.widget)
+        for hap, xy in xysorted.items():
             self.network.add_node(hap, x=xy[0], y=xy[1])
         
         for edge in edges:
