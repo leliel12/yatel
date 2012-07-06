@@ -29,7 +29,10 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         def add_xys(haps, edges):
             hapmapped = {}
-            for hap_id, xy in topsort.xysort(edges).items():
+            xstep = network.IMAGE_NODE_NORMAL.ancho() + (network.IMAGE_NODE_NORMAL.ancho() / 2)
+            ystep = network.IMAGE_NODE_NORMAL.alto() + (network.IMAGE_NODE_NORMAL.alto() / 2)
+            xysorted = topsort.xysort(edges, step=(xstep, ystep))
+            for hap_id, xy in xysorted.items():
                 for hap in haps:
                     if hap.hap_id == hap_id:
                         hapmapped[hap] = xy

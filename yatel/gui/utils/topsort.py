@@ -5,6 +5,8 @@
 # IMPORTS
 #===============================================================================
 
+import random
+
 from yatel import dom
 
 
@@ -141,7 +143,8 @@ def sort(edges):
     return topological_sort(component_graph)
 
 
-def xysort(edges, xy_start=(-100, 100), xy_stop=(100, -100), step=(20, 20)):
+def xysort(edges, xy_start=(-100, 100), 
+           xy_stop=(100, -100), step=(20, 20), noise=0):
     """Topological sort of iterable of edges
 
     **Parameters**
@@ -152,9 +155,20 @@ def xysort(edges, xy_start=(-100, 100), xy_stop=(100, -100), step=(20, 20)):
         :xy_stop:
             Bottom right corner of the shape.
         :step:
-            Separation betwen nodes center in axis.
+            Separation between nodes center in axis.
+        :noise:
+            Max variation of one step
 
     """
+
+    noise =  abs(noise)
+    
+    def aply_noise(x, y):
+        if noise  == 0:
+            return x, y
+        x += random.randint(-noise, noise)
+        y += random.randint(-noise, noise)
+        return x, y
 
     xysorted = {}
     xstep, ystep = step
@@ -164,7 +178,7 @@ def xysort(edges, xy_start=(-100, 100), xy_stop=(100, -100), step=(20, 20)):
     for row in sort(edges):
         x = xy_start[0]
         for c in row:
-            xysorted[c] = (x, y)
+            xysorted[c] = aply_noise(x, y)
             if x + xstep < xtop:
                 x += xstep
             elif y - ystep > ytop:

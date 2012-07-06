@@ -21,6 +21,7 @@ from PyQt4 import QtGui
 
 import pilas
 from pilas import actores
+from pilas import fisica
 from pilas import imagenes
 from pilas import habilidades
 from pilas import eventos
@@ -37,7 +38,7 @@ from yatel.gui import resources
 #===============================================================================
 
 pilas.iniciar(usar_motor="qt" if __name__ == "__main__" else "qtsugar")
-
+fisica.definir_gravedad(0,0)
 
 #===============================================================================
 # CONSTANTS
@@ -82,13 +83,13 @@ class _HaplotypeActor(actores.Actor):
         self.aprender(habilidades.Arrastrable)
         self._texto.aprender(habilidades.Imitar, self)
         self._selected.aprender(habilidades.Imitar, self)
-        
+    
         # connect events
         eventos.click_de_mouse.conectar(
             self._on_mouse_clicked, 
             id=hex(id(self))
         )
-        
+    
     def _on_mouse_clicked(self, evt):
         x, y = evt["x"], evt["y"]
         if self.colisiona_con_un_punto(x, y) \
