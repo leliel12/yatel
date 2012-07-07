@@ -49,7 +49,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.pilasLayout.addWidget(self.network.widget)
         
         xysorted = add_xys(haplotypes, edges, self.network.widget)
-        for hap, xy in xysorted.items():
+        for hap, xy in sorted(xysorted.items(), key=lambda hap, xy: h.hap_id):
             self.network.add_node(hap, x=xy[0], y=xy[1])
             self.hapsComboBox.addItem(unicode(hap.hap_id), QtCore.QVariant(hap)) 
         
