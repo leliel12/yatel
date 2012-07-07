@@ -124,8 +124,11 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
             
             radiobutton = QtGui.QRadioButton(self)            
             combo = QtGui.QComboBox(self)
-            for t in types:
+            for idx, t in enumerate(types):
                 combo.addItem(*t)
+                if idx == type_idx:
+                    break
+                    
             combo.setCurrentIndex(type_idx)
             
             self.tableTypes.setCellWidget(cidx, 0, combo)
