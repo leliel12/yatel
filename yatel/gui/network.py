@@ -218,7 +218,6 @@ class NetworkProxy(object):
         
     def _on_node_clicked(self, evt):
         sender = evt["sender"]
-        self.select_node(sender.haplotype)
         self.node_clicked.emitir(node=sender.haplotype)
 
     def clear(self):

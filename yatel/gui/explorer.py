@@ -38,7 +38,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self.network.add_node(hap, x=xy[0], y=xy[1])
             self.hapsComboBox.addItem(unicode(hap.hap_id), QtCore.QVariant(hap))
             
-        
         for edge in edges:
             self.network.add_edge(edge)
             
@@ -78,14 +77,18 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             
             for idx, atts in enumerate(atts):
                 nameitem = QtGui.QTableWidgetItem(atts[0])
-                valueitem = QtGui.QTableWidgetItem(atts[1])
+                valueitem = QtGui.QTableWidgetItem(unicode(atts[1]))
                 self.attTableWidget.setItem(idx, 0, nameitem)
                 self.attTableWidget.setItem(idx, 1, valueitem)
     
     def on_node_clicked(self, evt):
-        print id(self), evt
-    
-    
+        hap = evt["node"]
+        for idx in range(self.hapsComboBox.count()):
+            actual_hap = self.hapsComboBox.itemData(idx).toPyObject()
+            if hap == actual_hap:
+                self.hapsComboBox.setCurrentIndex(idx)
+            
+
     #===========================================================================
     # SAVE & DESTROY
     #===========================================================================
