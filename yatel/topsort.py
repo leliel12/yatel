@@ -216,7 +216,7 @@ def xy(edges, algorithm, bounds=(-100, 100, 100, -100),
     func = None
     if algorithm == "topsort":
         func = xymap_topsort
-    elif algorithm ==  "randomsort":
+    elif algorithm == "randomsort":
         func = xymap_randomsort
     else:
         raise ValueError("Invalid algorithm")

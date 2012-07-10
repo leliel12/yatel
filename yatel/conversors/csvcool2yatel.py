@@ -190,7 +190,7 @@ def load(cool_haps, cool_facts, cool_edges):
     
     """
     return (
-        construct_haplotypes(cool_haps), 
+        construct_haplotypes(cool_haps),
         construct_facts(cool_facts),
         construct_edges(cool_edges)
     )

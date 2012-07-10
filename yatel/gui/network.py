@@ -82,7 +82,7 @@ class _HaplotypeActor(actores.Actor):
         
         # connect events
         eventos.click_de_mouse.conectar(
-            self._on_mouse_clicked, 
+            self._on_mouse_clicked,
             id=hex(id(self))
         )
     
@@ -90,7 +90,7 @@ class _HaplotypeActor(actores.Actor):
         x, y = evt["x"], evt["y"]
         if self.colisiona_con_un_punto(x, y) \
             or self._texto.colisiona_con_un_punto(x, y) \
-            or self._selected.colisiona_con_un_punto(x,y):
+            or self._selected.colisiona_con_un_punto(x, y):
                 self.clicked.emitir(sender=self)
     
     def actualizar(self):
@@ -182,7 +182,7 @@ class _EdgesDrawActor(actores.Pizarra):
                 text_x, text_y = xp + 10, yp + 10
                 for act in nodes:
                     self.linea(
-                        xp, yp, act.x, act.y, 
+                        xp, yp, act.x, act.y,
                         grosor=2, color=colores.rojo
                     )
             self.texto(
@@ -202,7 +202,7 @@ class NetworkProxy(object):
     def __new__(cls, *args, **kwargs):
         if not NetworkProxy._instance:
             instance = super(NetworkProxy, cls).__new__(cls, *args, **kwargs)
-            NetworkProxy._instance =  instance
+            NetworkProxy._instance = instance
         return NetworkProxy._instance
             
     def __init__(self):
@@ -318,12 +318,12 @@ if __name__ == "__main__":
     n.add_node(a0, 100, 200)
     n.add_node(a1, -100)
     n.add_node(a2, 200)
-    n.add_node(a3, 0,-100)
+    n.add_node(a3, 0, -100)
     n.add_edge(dom.Edge(555, a0.hap_id, a1.hap_id))
     n.add_edge(dom.Edge(666, a3.hap_id, a2.hap_id))
     n.add_edge(dom.Edge(666, a2.hap_id, a0.hap_id))
     
-    f=dom.Fact(a1.hap_id, a=1)
+    f = dom.Fact(a1.hap_id, a=1)
     n.highlight_nodes(a1, a2)
     n.node_selected.conectar(printer)
     
