@@ -210,7 +210,7 @@ class NetworkProxy(object):
         self._edges = _EdgesDrawActor()
         self._selected = None
         self._highlighted = ()
-        self.node_selected = eventos.Evento("node_selected")
+        self.node_clicked = eventos.Evento("node_clicked")
         fondos.Color(colores.grisoscuro)
         
     def __getattr__(self, att_name):
@@ -219,7 +219,7 @@ class NetworkProxy(object):
     def _on_node_clicked(self, evt):
         sender = evt["sender"]
         self.select_node(sender.haplotype)
-        self.node_selected.emitir(node=sender.haplotype)
+        self.node_clicked.emitir(node=sender.haplotype)
 
     def clear(self):
         for hid, n in self._nodes.items():
@@ -325,7 +325,7 @@ if __name__ == "__main__":
     
     f = dom.Fact(a1.hap_id, a=1)
     n.highlight_nodes(a1, a2)
-    n.node_selected.conectar(printer)
+    n.node_clicked.conectar(printer)
     
     pilas.ejecutar()
     

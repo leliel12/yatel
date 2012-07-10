@@ -32,21 +32,26 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <item>
-          <property name="text">
-           <string>---</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item>
-        <widget class="QTableView" name="attTableView">
+        <widget class="QTableWidget" name="attTableWidget">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <column>
+          <property name="text">
+           <string>Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Value</string>
+          </property>
+         </column>
         </widget>
        </item>
       </layout>

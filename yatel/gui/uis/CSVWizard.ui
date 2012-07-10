@@ -176,7 +176,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Step 3: Weights</string>
+       <string>Step 3: Edges</string>
       </property>
      </widget>
     </item>

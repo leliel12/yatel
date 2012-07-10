@@ -45,14 +45,14 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         for fact in facts:
             pass
         
-        self.network.node_selected.conectar(self.on_node_selected)
+        self.network.node_clicked.conectar(self.on_node_clicked)
     
     def _add_xys(self, haps, edges, widget):
             hapmapped = collections.OrderedDict()
             width = widget.size().width() / 2 #xs
             height = widget.size().height() / 2 #ys
             bounds = (
- -width + width / 4, height - height / 4,
+                -width + width / 4, height - height / 4,
                 width, -height
             )            
             xysorted = topsort.xy(edges, "randomsort", bounds=bounds)
@@ -63,9 +63,33 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                         break
             return hapmapped
     
-    def on_node_selected(self, evt):
+    #===========================================================================
+    # SLOTS
+    #===========================================================================
+    
+    def on_hapsComboBox_currentIndexChanged(self, idx):
+        if isinstance(idx, int):
+            hap = self.hapsComboBox.itemData(idx).toPyObject()
+            atts = hap.items_attrs()
+            
+            self.network.select_node(hap)
+            self.attTableWidget.clearContents()
+            self.attTableWidget.setRowCount(len(atts))
+            
+            for idx, atts in enumerate(atts):
+                nameitem = QtGui.QTableWidgetItem(atts[0])
+                valueitem = QtGui.QTableWidgetItem(atts[1])
+                self.attTableWidget.setItem(idx, 0, nameitem)
+                self.attTableWidget.setItem(idx, 1, valueitem)
+    
+    def on_node_clicked(self, evt):
         print id(self), evt
-        
+    
+    
+    #===========================================================================
+    # SAVE & DESTROY
+    #===========================================================================
+    
     def save(self):
         pass
         

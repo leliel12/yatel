@@ -107,6 +107,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
                     self.wizard.destroy()
                     del self.wizard
 
+                    processing = "render"
                     self.open_explorer(facts, haplotypes, edges)
                 
                 except Exception as err:
