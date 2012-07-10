@@ -7,11 +7,11 @@
 
 import random
 
-from yatel import dom
+import dom
 
 
 #===============================================================================
-# FUNCTIONS
+# TOPOLOGICAL SORT
 #===============================================================================
 
 def to_dict_graph(edges):
@@ -31,9 +31,6 @@ def to_dict_graph(edges):
             'id4': ['id1'], 'id2': ['id3'],
             'id3': ['id3'], 'id0': ['id1'], 'id1': ['id1']
         }
-
-
-
 
     """
     gd = {}
@@ -94,7 +91,7 @@ def strongly_connected_components(edges):
     return result
 
 
-def sort(edges):
+def topsort(edges):
     """First identify strongly connected components,
     then perform a topological sort on these components.
 
@@ -143,7 +140,7 @@ def sort(edges):
     return topological_sort(component_graph)
 
 
-def xysort(edges, bounds=(-100, 100, 100, -100), step=(20, 20)):
+def xymap_topsort(edges, bounds=(-100, 100, 100, -100), step=(20, 20)):
     """Topological sort of iterable of edges
 
     **Parameters**
@@ -162,22 +159,71 @@ def xysort(edges, bounds=(-100, 100, 100, -100), step=(20, 20)):
 
     """
 
-    xysorted = {}
+    xymap = {}
     xstep, ystep = step
     xtop, ytop = bounds[2], bounds[3] 
 
     y = bounds[1]
-    for row in sort(edges):
+    for row in topsort(edges):
         x = bounds[0]
         for c in row:
-            xysorted[c] = x, y
+            xymap[c] = x, y
             if x + xstep < xtop:
                 x += xstep
             elif y - ystep > ytop:
                 y -= y
         if y - ystep > ytop:
             y -= ystep
-    return xysorted
+    return xymap
+
+
+#===============================================================================
+# RANDOMSORT
+#===============================================================================
+
+def xymap_randomsort(edges, bounds=(-100, 100, 100, -100)):
+    """Topological sort of iterable of edges
+
+    **Parameters**
+        :edges:
+            An iterable of edges.
+        :bounds:
+            x0, y0, x1, y1
+            
+            x0, y0  +---------------+
+                    |               |
+                    +---------------+ x1, y1
+        
+    """
+
+    ids = []
+    for edge in edges:
+        ids.extend(edge.haps_id)
+    xymap = {}
+    for hid in ids:
+        x = random.randint(bounds[0], bounds[2])
+        y = random.randint(bounds[3], bounds[1])
+        xymap[hid] = (x, y)
+    return xymap
+
+#===============================================================================
+# PUBLIC
+#===============================================================================
+
+def xy(edges, algorithm, bounds=(-100, 100, 100, -100),
+        *args, **kwargs
+    ):
+    func = None
+    if algorithm == "topsort":
+        func = xymap_topsort
+    elif algorithm ==  "randomsort":
+        func = xymap_randomsort
+    else:
+        raise ValueError("Invalid algorithm")
+    xymap = func(edges, bounds, *args, **kwargs)
+    for hapid in sorted(xymap.keys()):
+        x, y = xymap[hapid]
+        yield x, y, hapid
 
 
 #===============================================================================

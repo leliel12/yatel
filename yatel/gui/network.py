@@ -16,9 +16,6 @@ if __name__ == "__main__":
 # IMPORTS
 #===============================================================================
 
-from PyQt4 import QtCore
-from PyQt4 import QtGui
-
 import pilas
 from pilas import actores
 from pilas import imagenes
@@ -43,19 +40,19 @@ pilas.iniciar(usar_motor="qt" if __name__ == "__main__" else "qtsugar")
 # CONSTANTS
 #===============================================================================
 
-IMAGE_NODE_NORMAL = pilas.imagenes.cargar(
+IMAGE_NODE_NORMAL = imagenes.cargar(
     resources.get("node_normal.png")
 )
 
-IMAGE_NODE_HIGLIGHTED = pilas.imagenes.cargar(
+IMAGE_NODE_HIGLIGHTED = imagenes.cargar(
     resources.get("node_highlighted.png")
 )
 
-IMAGE_NODE_SELECTED = pilas.imagenes.cargar(
+IMAGE_NODE_SELECTED = imagenes.cargar(
     resources.get("node_selected.png")
 )
 
-IMAGE_NODE_UNSELECTED = pilas.imagenes.cargar(
+IMAGE_NODE_UNSELECTED = imagenes.cargar(
     resources.get("node_unselected.png")
 )
 

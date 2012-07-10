@@ -5,13 +5,14 @@
 # IMPORTS
 #===============================================================================
 
+import collections
+
 from PyQt4 import QtGui, QtCore
 
 from yatel import constants
+from yatel import topsort
 
 from yatel.gui import uis
-from yatel.gui.utils import topsort
-from yatel.gui.utils import randomsort
 
 
 #===============================================================================
@@ -28,28 +29,12 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         from yatel.gui import network
         
-        def add_xys(haps, edges, widget):
-            hapmapped = {}
-            width = widget.size().width() / 2 #xs
-            height = widget.size().height() / 2 #ys
-            bounds = (
-                -width + width/4, height - height/4,
-                width, -height
-            )            
-            xysorted = randomsort.xysort(edges, bounds=bounds)
-            for hap_id, xy in xysorted.items():
-                for hap in haps:
-                    if hap.hap_id == hap_id:
-                        hapmapped[hap] = xy
-                        break
-            return hapmapped
-        
         self.is_saved = False
         self.network = network.NetworkProxy()
         self.pilasLayout.addWidget(self.network.widget)
         
-        xysorted = add_xys(haplotypes, edges, self.network.widget)
-        for hap, xy in sorted(xysorted.items(), key=lambda hap, xy: h.hap_id):
+        xysorted = self._add_xys(haplotypes, edges, self.network.widget)
+        for hap, xy in xysorted.items():
             self.network.add_node(hap, x=xy[0], y=xy[1])
             self.hapsComboBox.addItem(unicode(hap.hap_id), QtCore.QVariant(hap)) 
         
@@ -60,7 +45,23 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             pass
         
         self.network.node_selected.conectar(self.on_node_selected)
-            
+    
+    def _add_xys(self, haps, edges, widget):
+            hapmapped = collections.OrderedDict()
+            width = widget.size().width() / 2 #xs
+            height = widget.size().height() / 2 #ys
+            bounds = (
+                -width + width/4, height - height/4,
+                width, -height
+            )            
+            xysorted = topsort.xy(edges, "randomsort", bounds=bounds)
+            for x, y, hap_id in xysorted:
+                for hap in haps:
+                    if hap.hap_id == hap_id:
+                        hapmapped[hap] = (x, y)
+                        break
+            return hapmapped
+    
     def on_node_selected(self, evt):
         print id(self), evt
         
