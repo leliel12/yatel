@@ -89,24 +89,26 @@ class MainWindow(uis.UI("MainWindow.ui")):
             self.wizard = csv_wizard.CSVWizard(self)
 
             if self.wizard.exec_():
-                haplotypes = None
-                facts = None
-                edges = None
-
+                processing = ""
                 try:
-                    processing = ""
+                    haplotypes = None
                     if hasattr(self.wizard, "haplotypesFrame"):
                         processing = self.wizard.haplotypesFrame.path
                         haplotypes = self.wizard.haplotypesFrame.dom_objects 
+                    facts = None
                     if hasattr(self.wizard, "factsFrame"):
                         processing = self.wizard.factsFrame.path
                         facts = self.wizard.factsFrame.dom_objects
+                    edges = None
                     if hasattr(self.wizard, "weightFrame"):
                         processing = self.wizard.weightFrame.path
                         edges = self.wizard.weightFrame.dom_objects
+                         
                     self.wizard.destroy()
                     del self.wizard
-  
+
+                    self.open_explorer(facts, haplotypes, edges)
+                
                 except Exception as err:
                     msg = self.tr(
                         "Error on processing '%1'\n\n%2"
@@ -114,8 +116,6 @@ class MainWindow(uis.UI("MainWindow.ui")):
                     QtGui.QMessageBox.critical(
                         self, self.tr("Error on Wizard"), msg
                     )
-                
-                self.open_explorer(facts, haplotypes, edges)
 
 
 #===============================================================================

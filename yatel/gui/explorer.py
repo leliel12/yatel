@@ -36,7 +36,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         xysorted = self._add_xys(haplotypes, edges, self.network.widget)
         for hap, xy in xysorted.items():
             self.network.add_node(hap, x=xy[0], y=xy[1])
-            self.hapsComboBox.addItem(unicode(hap.hap_id), QtCore.QVariant(hap)) 
+            self.hapsComboBox.addItem(unicode(hap.hap_id), QtCore.QVariant(hap))
+            
         
         for edge in edges:
             self.network.add_edge(edge)

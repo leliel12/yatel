@@ -210,9 +210,26 @@ def xymap_randomsort(edges, bounds=(-100, 100, 100, -100)):
 # PUBLIC
 #===============================================================================
 
-def xy(edges, algorithm, bounds=(-100, 100, 100, -100),
-        *args, **kwargs
-    ):
+def xy(edges, algorithm, bounds=(-100, 100, 100, -100), *args, **kwargs):
+    """Sort of iterable of edges bya given algorithm
+
+    **Parameters**
+        :edges:
+            An iterable of edges.
+        :algorithm:
+            "randomsort" or "topsort"
+        :bounds:
+            x0, y0, x1, y1
+            
+            x0, y0  +---------------+
+                    |               |
+                    +---------------+ x1, y1
+        :*args:
+            Positional arguments of the algorithm
+        :**kwargs:
+            Keyword arguments of the algorithm
+        
+    """
     func = None
     if algorithm == "topsort":
         func = xymap_topsort

@@ -27,11 +27,16 @@
        <item>
         <widget class="QComboBox" name="hapsComboBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <item>
+          <property name="text">
+           <string>---</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item>
