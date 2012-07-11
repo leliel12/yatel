@@ -59,7 +59,7 @@
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>About...</string>
+    <string>About Yatel...</string>
    </property>
   </action>
   <action name="actionAboutQt">

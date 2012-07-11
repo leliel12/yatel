@@ -141,6 +141,9 @@ class MainWindow(uis.UI("MainWindow.ui")):
                         self, self.tr("Error on Wizard"), msg
                     )
                     
+    def on_actionAboutQt_triggered(self, *chk):
+        if chk:
+            QtGui.QApplication.aboutQt()
         
     def on_actionAbout_triggered(self, *chk):
         if chk:
@@ -175,13 +178,6 @@ class SplashScreen(QtGui.QSplashScreen):
     def __init__(self):
         pixmap = QtGui.QPixmap(resources.get("splash.png"))
         super(self.__class__, self).__init__(pixmap)
-
-
-#===============================================================================
-# ABOUT
-#===============================================================================
-
-
 
 
 #===============================================================================
