@@ -5,14 +5,35 @@
 # IMPORTS
 #===============================================================================
 
+import string
+
 from PyQt4 import QtGui
 
 import yatel
+
+from yatel import constants
 
 from yatel.gui import uis
 from yatel.gui import csv_wizard
 from yatel.gui import resources
 from yatel.gui import explorer
+
+
+#===============================================================================
+# CONSTANTS
+#===============================================================================
+
+ABOUT_TEMPLATE = string.Template("""
+<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-weight:600;">$title</span></p>
+<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-weight:600;"></p>
+<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">$doc</p>
+<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-weight:600;"></p>
+<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-weight:600;">Author: </span>$author</p>
+<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-weight:600;">Version: </span>$version</p>
+<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-weight:600;">Homepage: </span><a href="$url"><span style=" text-decoration: underline; color:#0000ff;">$url</span></a></p>
+<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-weight:600;">License: </span>$license</p>
+<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-weight:600;"></p>
+""".strip())
 
 
 #===============================================================================
@@ -28,7 +49,9 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.explorerFrame = None
 
     def setWindowTitle(self, prj=""):
-        title = "{0} v.{1} - {2}".format(yatel.__prj__, yatel.__version__, prj)
+        title = "{0} v.{1} - {2}".format(
+            constants.PRJ, constants.STR_VERSION, prj
+        )
         super(self.__class__, self).setWindowTitle(title)
 
     def open_explorer(self, facts, haplotypes, edges):
@@ -117,6 +140,30 @@ class MainWindow(uis.UI("MainWindow.ui")):
                     QtGui.QMessageBox.critical(
                         self, self.tr("Error on Wizard"), msg
                     )
+                    
+        
+    def on_actionAbout_triggered(self, *chk):
+        if chk:
+            
+            def richtext(code):
+                code = unicode(self.tr(code))
+                return "<br/>".join(
+                    code.replace("<", "&lt;").replace(">", "&gt;").splitlines()
+                )
+            
+            QtGui.QMessageBox.about(
+                self, self.tr("About %1 - %2").arg(
+                    constants.PRJ, constants.STR_VERSION
+                ), 
+                ABOUT_TEMPLATE.substitute(
+                    title=richtext(constants.PRJ),
+                    doc=richtext(constants.DOC),
+                    author=richtext(constants.AUTHOR),
+                    version=richtext(constants.STR_VERSION),
+                    url=richtext(constants.URL),
+                    license=richtext(constants.LICENSE)
+                )
+            )
 
 
 #===============================================================================
@@ -128,6 +175,13 @@ class SplashScreen(QtGui.QSplashScreen):
     def __init__(self):
         pixmap = QtGui.QPixmap(resources.get("splash.png"))
         super(self.__class__, self).__init__(pixmap)
+
+
+#===============================================================================
+# ABOUT
+#===============================================================================
+
+
 
 
 #===============================================================================
