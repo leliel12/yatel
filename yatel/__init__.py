@@ -12,8 +12,10 @@ import constants
 # OLD META
 #===============================================================================
 
-__doc__ = constants.DOC
-__version__ = constants.VERSION
+for k, v in vars(constants).items():
+    if isinstance(v, basestring):
+        metaname = "__{}__".format(k.lower())
+        locals()[metaname] = v
 
 
 #===============================================================================
