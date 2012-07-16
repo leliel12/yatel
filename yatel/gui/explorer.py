@@ -31,6 +31,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         self.is_saved = False
         self.network = network.NetworkProxy()
+        self.network.widget.setParent(self)
         self.pilasLayout.addWidget(self.network.widget)
         
         xysorted = self._add_xys(haplotypes, edges, self.network.widget)
@@ -41,8 +42,12 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         for edge in edges:
             self.network.add_edge(edge)
             
-        for fact in facts:
-            pass
+        self.facts = {}
+        for f in facts:
+            for an, av in f.items_attrs():
+                if an not in self.facts:
+                    self.facts[an] = set()
+                self.facts[an].add(av)
         
         self.network.node_clicked.conectar(self.on_node_clicked)
     
@@ -65,6 +70,12 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     #===========================================================================
     # SLOTS
     #===========================================================================
+    
+    def on_addEnviromentPushButton_pressed(self):
+        self.envDialog = EnviromentDialog(self, self.facts.keys())
+        self.envDialog.exec_()
+        self.envDialog.destroy()
+        del self.envDialog
     
     def on_hapsComboBox_currentIndexChanged(self, idx):
         if isinstance(idx, int):
@@ -102,6 +113,19 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.setParent(None)
         super(ExplorerFrame, self).destroy()
 
+
+#===============================================================================
+# EVIROMENT DIALOG
+#===============================================================================
+
+class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
+    
+    def __init__(self, parent, facts_names):
+        super(EnviromentDialog, self).__init__(parent=parent)
+        
+        self.factAttributesListWidget.addItems(facts_names)
+        
+    
 
 #===============================================================================
 # MAIN
