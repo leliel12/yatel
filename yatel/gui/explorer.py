@@ -122,10 +122,44 @@ class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
     
     def __init__(self, parent, facts_names):
         super(EnviromentDialog, self).__init__(parent=parent)
-        
         self.factAttributesListWidget.addItems(facts_names)
-        
+        self.factAttributesListWidget.sortItems()
     
+    def on_factAttributesListWidget_currentItemChanged(self, entered, exited):
+        self.addButton.setEnabled(
+            bool(entered)
+        )
+        
+    def on_selectedAttributesListWidget_currentItemChanged(self, entered, exited):
+        self.removeButton.setEnabled(
+            bool(entered)
+        )
+    
+    def on_addButton_pressed(self):
+        idx = self.factAttributesListWidget.currentIndex().row()
+        item = self.factAttributesListWidget.takeItem(idx)
+        if item:
+            self.selectedAttributesListWidget.addItem(item)
+            self.selectedAttributesListWidget.sortItems()
+            self.factAttributesListWidget.sortItems()
+        
+    def on_removeButton_pressed(self):
+        idx = self.selectedAttributesListWidget.currentIndex().row()
+        item = self.selectedAttributesListWidget.takeItem(idx)
+        if item:
+            self.factAttributesListWidget.addItem(item)
+            self.selectedAttributesListWidget.sortItems()
+            self.factAttributesListWidget.sortItems()
+        
+    @property
+    def selected_attributes(self):
+        atts = []
+        for idx in range(self.selectedAttributesListWidget.count()):
+            atts.append(
+                unicode(self.selectedAttributesListWidget.item(idx).text())
+            )
+        return tuple(atts)
+
 
 #===============================================================================
 # MAIN
