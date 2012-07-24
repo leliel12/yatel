@@ -84,6 +84,20 @@ class YatelConnection(object):
         """
         pass
         
+    def get_fact_attributes_names(self):
+        """ devuelve una tupla con strings con todos los nombres de todos los
+        atributos de todos los Fact
+        
+        """
+        pass
+        
+    def get_fact_attribute_values(self, att_name):
+        """ que me devuelve una tupla con strings con todos los valores posibles 
+        de un atributo dad
+        
+        """
+        pass
+        
     def hap_sql(self, query, *args):
         """Ejecuta la sentencia sql del tipo 'select * from Table_Haplotypes where 
            zaraza = ?' y utiliza cmo argumento la tupla variable args
@@ -103,7 +117,7 @@ class YatelConnection(object):
         """
         pass
     
-            
+    
             
         
     

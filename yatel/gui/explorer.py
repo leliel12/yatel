@@ -11,6 +11,7 @@ from PyQt4 import QtGui, QtCore
 
 from yatel import constants
 from yatel import topsort
+from yatel import db
 
 from yatel.gui import uis
 
@@ -73,7 +74,14 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     
     def on_addEnviromentPushButton_pressed(self):
         self.envDialog = EnviromentDialog(self, self.facts.keys())
-        self.envDialog.exec_()
+        if self.envDialog.exec_():
+            atts = self.envDialog.selected_attributes
+            if atts:
+                self.env = EnvItem(atts)
+                self.env.atttributeValueChanged.connect(
+                    self.on_envAttributeValueChanged
+                )
+                
         self.envDialog.destroy()
         del self.envDialog
     
