@@ -20,6 +20,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
+
 #===============================================================================
 # ERROR
 #===============================================================================
@@ -37,7 +38,18 @@ class Fact(object):
     def __init__(self, hap_id, **attrs):
         self._hap_id = hap_id
         self._attrs = attrs
-                
+    
+    def __eq__(self, obj):
+        return obj is not None \
+            and isinstance(obj, Fact) \
+            and hash(self) == hash(obj)
+    
+    def __ne__(self, obj):
+        return not (self == obj)
+        
+    def __hash__(self):
+        return hash(str(hash(self._hap_id)) + str(hash(self.items_attrs())))
+    
     def __getattr__(self, n):
         try:
             return self._attrs[n]
@@ -76,6 +88,17 @@ class Haplotype(object):
         self._hap_id = hap_id
         self._attrs = attrs
     
+    def __eq__(self, obj):
+        return obj is not None \
+            and isinstance(obj, Haplotype) \
+            and hash(self) == hash(obj)
+    
+    def __ne__(self, obj):
+        return not (self == obj)
+        
+    def __hash__(self):
+        return hash(self._hap_id))
+    
     def __repr__(self):
         return "<{0} '{1}' at {2}>".format(
             self.__class__.__name__,
@@ -111,7 +134,7 @@ class Haplotype(object):
 
 
 #===============================================================================
-# DISTANCES
+# Edge
 #===============================================================================
 
 class Edge(object):
@@ -119,6 +142,17 @@ class Edge(object):
     def __init__(self, weight, *haps_id):
         self._weight = float(weight)
         self._haps_id = haps_id
+    
+    def __eq__(self, obj):
+        return obj is not None \
+            and isinstance(obj, Edge) \
+            and hash(self) == hash(obj)
+            
+    def __ne__(self, obj):
+        return not (self == obj)
+    
+    def __hash__(self):
+        return hash(str(hash(self._weight)) + str(hash(tuple(self._haps_id))))
     
     @property    
     def weight(self):
