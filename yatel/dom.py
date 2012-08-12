@@ -97,7 +97,7 @@ class Haplotype(object):
         return not (self == obj)
         
     def __hash__(self):
-        return hash(self._hap_id))
+        return hash(self._hap_id)
     
     def __repr__(self):
         return "<{0} '{1}' at {2}>".format(

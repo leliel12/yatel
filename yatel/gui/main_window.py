@@ -8,10 +8,12 @@
 import string
 
 from PyQt4 import QtGui
+from PyQt4 import QtCore
 
 import yatel
 
 from yatel import constants
+from yatel import db
 
 from yatel.gui import uis
 from yatel.gui import csv_wizard
@@ -168,6 +170,54 @@ class MainWindow(uis.UI("MainWindow.ui")):
                 )
             )
 
+
+#===============================================================================
+# CONNECTION SETUP DIALOG
+#===============================================================================
+
+class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
+    
+    def __init__(self, parent=None, *args, **kwargs):
+        super(ConnectionSetupDialog, self).__init__(parent, *args, **kwargs)
+        self.engineComboBox.addItems(db.ENGINES)
+        self.params = {}
+        self.on_engineComboBox_activated(self.engineComboBox.currentText())
+    
+    def on_openFileButton_pressed(self):
+        filename = QtGui.QFileDialog.getSaveFileName(
+            self, self.tr("Database File"),
+            constants.HOME_PATH,
+            self.tr("sqlite (*.db)")
+        )
+        if filename:
+            self.nameLineEdit.setText(filename)
+    
+    @QtCore.pyqtSlot('QString')
+    def on_engineComboBox_activated(self, engine):
+        name_isfile = db.ENGINES_CONF[unicode(engine)]["name_isfile"]
+        self.openFileButton.setVisible(name_isfile)
+        self.nameLineEdit.setEnabled(not name_isfile)
+        self.nameLineEdit.setText("")
+        for label, lineEdit in self.params.values():
+            self.formLayout.removeWidget(label)
+            self.formLayout.removeWidget(lineEdit)
+            label.setParent(None)
+            lineEdit.setParent(None)
+            label.destroy()
+            lineEdit.destroy()
+        confs = sorted(db.ENGINES_CONF[unicode(engine)]["params"].items())
+        for idx, conf in enumerate(confs):
+            pn, pdv = conf
+            label = QtGui.QLabel(pn)
+            lineEdit = QtGui.QLineEdit(unicode(pdv))
+            
+            self.formLayout.insertRow(idx+2, label, lineEdit)
+            self.params[pn] = (label, lineEdit)
+            
+            
+        
+        
+        
 
 #===============================================================================
 # SPLASH

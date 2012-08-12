@@ -41,11 +41,35 @@ import dom
 # CONSTANTS
 #===============================================================================
 
-ENGINES = {
-    "sqlite": peewee.SqliteDatabase,
-    "mysql": peewee.MySQLDatabase,
-    "postgres": peewee.PostgresqlDatabase 
+ENGINES_CONF = {
+    "sqlite": { 
+        "class": peewee.SqliteDatabase,
+        "name_isfile": True,
+        "params": {}
+    },
+    "mysql": {
+        "class": peewee.MySQLDatabase,
+        "name_isfile": False,
+        "params": {
+            "user": "root",
+            "passwd": "",
+            "host": "localhost",
+            "port": 3306 
+        }
+    },
+    "postgres": {
+        "class": peewee.PostgresqlDatabase ,
+        "name_isfile": False,
+        "params": {
+            "user": "root",
+            "password": "",
+            "host": "localhost",
+            "port": 5432
+        }
+    }
 }
+
+ENGINES = ENGINES_CONF.keys()
 
 
 #===============================================================================
@@ -68,7 +92,7 @@ class YatelConnection(object):
             
         """
         try:
-            self.database = ENGINES[engine](name, **kwargs)
+            self.database = ENGINES_CONF[engine]["class"](name, **kwargs)
             self.database.connect()
             self._inited = False
             
