@@ -199,6 +199,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     def on_closeFileButtonWeights_pressed(self):
         if hasattr(self, "weightFrame"):
             self.weightsLayout.removeWidget(self.weightFrame)
+            self.weightFrame.setParent(None)
             self.weightFrame.destroy()
             self.updateGeometry()
         self.fileLabelWeights.setText(self.tr("<NO-FILE>"))
@@ -222,6 +223,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     def on_closeFileButtonFacts_pressed(self):
         if hasattr(self, "factsFrame"):
             self.factsLayout.removeWidget(self.factsFrame)
+            self.factsFrame.setParent(None)
             self.factsFrame.destroy()
             self.updateGeometry()
         self.fileLabelFacts.setText(self.tr("<NO-FILE>"))
@@ -246,6 +248,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     def on_closeFileButtonHaps_pressed(self):
         if hasattr(self, "haplotypesFrame"):
             self.hapsLayout.removeWidget(self.haplotypesFrame)
+            self.haplotypesFrame.setParent(None)
             self.haplotypesFrame.destroy()
             self.updateGeometry()
         self.fileLabelHaps.setText(self.tr("<NO-FILE>"))

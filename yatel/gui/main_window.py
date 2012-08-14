@@ -129,11 +129,17 @@ class MainWindow(uis.UI("MainWindow.ui")):
                         processing = self.wizard.weightFrame.path
                         edges = self.wizard.weightFrame.dom_objects
                          
+                    self.wizard.setParent(None)
                     self.wizard.destroy()
+                    
                     del self.wizard
 
-                    processing = "render"
-                    self.open_explorer(facts, haplotypes, edges)
+                    processing = "database"
+                    self.dialog = ConnectionSetupDialog(self)
+                    if self.dialog._exec():
+                        conn = db.YatelConnection(**self.dialog.params)
+                        processing = "render"
+                        self.open_explorer(conn)
                 
                 except Exception as err:
                     msg = self.tr(
@@ -180,7 +186,7 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
     def __init__(self, parent=None, *args, **kwargs):
         super(ConnectionSetupDialog, self).__init__(parent, *args, **kwargs)
         self.engineComboBox.addItems(db.ENGINES)
-        self.params = {}
+        self._params = {}
         self.on_engineComboBox_activated(self.engineComboBox.currentText())
     
     def on_openFileButton_pressed(self):
@@ -198,23 +204,39 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
         self.openFileButton.setVisible(name_isfile)
         self.nameLineEdit.setEnabled(not name_isfile)
         self.nameLineEdit.setText("")
-        for label, lineEdit in self.params.values():
+        for label, lineEdit in self._params.values():
             self.formLayout.removeWidget(label)
             self.formLayout.removeWidget(lineEdit)
             label.setParent(None)
             lineEdit.setParent(None)
             label.destroy()
             lineEdit.destroy()
+        self._params.clear()
         confs = sorted(db.ENGINES_CONF[unicode(engine)]["params"].items())
         for idx, conf in enumerate(confs):
             pn, pdv = conf
             label = QtGui.QLabel(pn)
             lineEdit = QtGui.QLineEdit(unicode(pdv))
-            
+            if isinstance(pdv, int):
+                lineEdit.setValidator(QtGui.QIntValidator())
             self.formLayout.insertRow(idx+2, label, lineEdit)
-            self.params[pn] = (label, lineEdit)
+            self._params[pn] = (label, lineEdit)
             
-            
+    @property
+    def params(self):
+        data = {}
+        engine = unicode(self.engineComboBox.currentText())
+        data["engine"] = engine
+        data["name"] = unicode(self.nameLineEdit.text())
+        confs_params = db.ENGINES_CONF[engine]["params"]
+        for pn, pws in self._params.items():
+            lineEdit = pws[1]
+            param_type = type(confs_params[pn])
+            try:
+                data[pn] = param_type(lineEdit.text())
+            except:
+                data[pn] = confs_params[pn]
+        return data        
         
         
         
