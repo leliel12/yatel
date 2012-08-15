@@ -56,10 +56,11 @@ class MainWindow(uis.UI("MainWindow.ui")):
         )
         super(self.__class__, self).setWindowTitle(title)
 
-    def open_explorer(self, facts, haplotypes, edges):
+    def open_explorer(self, yatel_connection):
         self.explorerFrame = explorer.ExplorerFrame(
-            self.centralWidget(), haplotypes, facts, edges
+            self.centralWidget(), yatel_connection
         )
+        self.setWindowTitle(yatel_connection.name)
         self.centralLayout.addWidget(self.explorerFrame)
 
     def close_explorer(self):
@@ -109,46 +110,38 @@ class MainWindow(uis.UI("MainWindow.ui")):
 
     # SLOTS
     def on_actionWizard_triggered(self, *chk):
-        if chk and self.close_explorer():
-            
-            self.wizard = csv_wizard.CSVWizard(self)
+        if not chk or not self.close_explorer():
+            return
+        self.wizard = csv_wizard.CSVWizard(self)
+        self.dialog = ConnectionSetupDialog(self)
+        try:
+            if not self.wizard.exec_():
+                return
+            haplotypes = None
+            facts = None
+            edges = None            
+            if hasattr(self.wizard, "haplotypesFrame"):
+                haplotypes = self.wizard.haplotypesFrame.dom_objects 
+            if hasattr(self.wizard, "factsFrame"):
+                facts = self.wizard.factsFrame.dom_objects
+            if hasattr(self.wizard, "weightFrame"):
+                edges = self.wizard.weightFrame.dom_objects
+            if not self.dialog.exec_():
+                return 
+            conn = db.YatelConnection(**self.dialog.params)
+            conn.init_with_values(haplotypes, facts, edges)
+        except Exception as err:
+            QtGui.QMessageBox.critical(self, self.tr("Error"), err.msg)
+        else:
+            self.open_explorer(conn)
+        finally:
+            self.wizard.setParent(None)
+            self.wizard.destroy()
+            del self.wizard
+            self.dialog.setParent(None)
+            self.dialog.destroy()
+            del self.dialog
 
-            if self.wizard.exec_():
-                processing = ""
-                try:
-                    haplotypes = None
-                    if hasattr(self.wizard, "haplotypesFrame"):
-                        processing = self.wizard.haplotypesFrame.path
-                        haplotypes = self.wizard.haplotypesFrame.dom_objects 
-                    facts = None
-                    if hasattr(self.wizard, "factsFrame"):
-                        processing = self.wizard.factsFrame.path
-                        facts = self.wizard.factsFrame.dom_objects
-                    edges = None
-                    if hasattr(self.wizard, "weightFrame"):
-                        processing = self.wizard.weightFrame.path
-                        edges = self.wizard.weightFrame.dom_objects
-                         
-                    self.wizard.setParent(None)
-                    self.wizard.destroy()
-                    
-                    del self.wizard
-
-                    processing = "database"
-                    self.dialog = ConnectionSetupDialog(self)
-                    if self.dialog._exec():
-                        conn = db.YatelConnection(**self.dialog.params)
-                        processing = "render"
-                        self.open_explorer(conn)
-                
-                except Exception as err:
-                    msg = self.tr(
-                        "Error on processing '%1'\n\n%2"
-                    ).arg(processing, err.message)
-                    QtGui.QMessageBox.critical(
-                        self, self.tr("Error on Wizard"), msg
-                    )
-                    
     def on_actionAboutQt_triggered(self, *chk):
         if chk:
             QtGui.QApplication.aboutQt()

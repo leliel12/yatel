@@ -25,7 +25,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     
     """
     
-    def __init__(self, parent, haplotypes, facts, edges):
+    def __init__(self, parent, yatel_connection):
         super(ExplorerFrame, self).__init__(parent=parent)
         
         from yatel.gui import network
@@ -34,7 +34,10 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.network = network.NetworkProxy()
         self.network.widget.setParent(self)
         self.pilasLayout.addWidget(self.network.widget)
+        self.conn = yatel_connection
         
+        haplotypes = tuple(self.conn.iter_haplotypes())
+        edges = tuple(self.conn.iter_edges())
         xysorted = self._add_xys(haplotypes, edges, self.network.widget)
         for hap, xy in xysorted.items():
             self.network.add_node(hap, x=xy[0], y=xy[1])
@@ -42,13 +45,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             
         for edge in edges:
             self.network.add_edge(edge)
-            
-        self.facts = {}
-        for f in facts:
-            for an, av in f.items_attrs():
-                if an not in self.facts:
-                    self.facts[an] = set()
-                self.facts[an].add(av)
         
         self.network.node_clicked.conectar(self.on_node_clicked)
     
@@ -73,15 +69,18 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     #===========================================================================
     
     def on_addEnviromentPushButton_pressed(self):
-        self.envDialog = EnviromentDialog(self, self.facts.keys())
+        self.envDialog = EnviromentDialog(
+            self, self.conn.facts_attributes_names()
+        )
         if self.envDialog.exec_():
             atts = self.envDialog.selected_attributes
-            if atts:
+            print atts
+            """if atts:
                 self.env = EnvItem(atts)
                 self.env.atttributeValueChanged.connect(
                     self.on_envAttributeValueChanged
-                )
-                
+                )"""
+        self.envDialog.setParent(None)
         self.envDialog.destroy()
         del self.envDialog
     
@@ -118,7 +117,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     def destroy(self):
         self.network.clear()
         self.pilasLayout.removeWidget(self.network.widget)
-        self.setParent(None)
         super(ExplorerFrame, self).destroy()
 
 

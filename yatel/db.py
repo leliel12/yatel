@@ -94,6 +94,7 @@ class YatelConnection(object):
         try:
             self.database = ENGINES_CONF[engine]["class"](name, **kwargs)
             self.database.connect()
+            self._name = "{}://{}/{}".format(engine, kwargs.get("host", "localhost"), name)
             self._inited = False
             
             class Meta:
@@ -237,6 +238,10 @@ class YatelConnection(object):
     def hap_sql(self, query, *args):
         for hdbo in self.HaplotypeDBO.raw(query, *args):
             dom.Haplotype(**hdbo.get_field_dict())
+            
+    @property
+    def name(self):
+        return self._name
             
     
 #===============================================================================
