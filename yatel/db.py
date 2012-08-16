@@ -71,6 +71,32 @@ ENGINES_CONF = {
 
 ENGINES = ENGINES_CONF.keys()
 
+NAME2FIELD = {
+    "CharField": peewee.CharField,
+    "TextField": peewee.TextField,
+    "DateTimeField": peewee.DateTimeField,
+    "IntegerField": peewee.IntegerField,
+    "BooleanField": peewee.BooleanField,
+    "FloatField": peewee.FloatField,
+    "DoubleField": peewee.DoubleField,
+    "BigIntegerField": peewee.BigIntegerField,
+    "DecimalField": peewee.DecimalField,
+    "PrimaryKeyField": peewee.PrimaryKeyField,
+    "ForeignKeyField": peewee.ForeignKeyField,
+    "DateField": peewee.DateField,
+    "TimeField": peewee.TimeField,
+}
+
+FIELD2NAME = dict((v, k) for k, v in NAME2FIELD.items())
+
+HAPLOTYPES_TABLE = "haplotypes"
+
+FACTS_TABLE = "facts"
+
+EDGES_TABLE = "edges"
+
+TABLES = (HAPLOTYPES_TABLE, FACTS_TABLE, EDGES_TABLE)
+
 
 #===============================================================================
 # ERROR
@@ -106,13 +132,57 @@ class YatelConnection(object):
             raise ValueError(msg.format(ENGINES.keys(), engine))
     
     def __getattr__(self, k):
+        if not self._inited:
+            msg = "Connection not inited"
+            raise YatelConnectionError(msg)
         return getattr(self.database, k)
-    
+        
+    def _generate_meta_tables(self):
+        self.YatelTableDBO = type(
+            "_yatel_tables", (peewee.Model, ), {
+                "type": peewee.CharField(unique=True, 
+                                         choices=[(t,t) for t in TABLES]),
+                "name": peewee.CharField(unique=True),
+                "Meta": self.model_meta,
+            }
+        )
+        self.YatelFieldDBO = type(
+            "_yatel_fields", (peewee.Model, ), {
+                "name": peewee.CharField(),
+                "table": peewee.ForeignKeyField(self.YatelTableDBO),
+                "type": peewee.CharField(),
+                "reference_to": peewee.ForeignKeyField(self.YatelTableDBO, null=True),
+                "Meta": self.model_meta,
+            }
+        )
+        self.YatelTableDBO.create_table(fail_silently=False)
+        self.YatelFieldDBO.create_table(fail_silently=True)
+        
+    def _add_field_metadata(self, name, table, field):
+        nf = self.YatelFieldDBO()
+        nf.name = name
+        nf.table = table
+        nf.type = FIELD2NAME[type(field)]
+        if isinstance(field, peewee.ForeignKeyField):
+            reference_name = field.to.__name__
+            table_reference = self.YatelTableDBO.get(name=reference_name)
+            nf.reference_to = self.YatelTableDBO.get(name=reference_name)
+        nf.save()
+        
     def init_with_values(self, haps, facts, edges):
         
         if self._inited:
             msg = "Connection already inited"
             raise YatelConnectionError(msg)
+            
+        self._generate_meta_tables()
+        
+        metatable_haps = self.YatelTableDBO(type=HAPLOTYPES_TABLE, name=HAPLOTYPES_TABLE)
+        metatable_haps.save()
+        metatable_facts = self.YatelTableDBO(type=FACTS_TABLE, name=FACTS_TABLE)
+        metatable_facts.save()
+        metatable_edges = self.YatelTableDBO(type=EDGES_TABLE, name=EDGES_TABLE)
+        metatable_edges.save()
             
         haps_columns = {"hap_id": []}
         for hap in haps:
@@ -124,7 +194,8 @@ class YatelConnection(object):
         hapdbo_dict = {"Meta": self.model_meta}
         for cn, values in haps_columns.items():
             hapdbo_dict[cn] = field(values, pk=(cn=="hap_id"), null=True)
-        self.HaplotypeDBO = type("Haplotypes", (peewee.Model, ), hapdbo_dict)
+            self._add_field_metadata(cn, metatable_haps, hapdbo_dict[cn])
+        self.HaplotypeDBO = type(HAPLOTYPES_TABLE, (peewee.Model, ), hapdbo_dict)
         
         facts_columns = {}
         for fact in facts:
@@ -132,14 +203,15 @@ class YatelConnection(object):
                 if an not in facts_columns:
                     facts_columns[an] = []
                 facts_columns[an].append(av)
-
         factsdbo_dict = {
             "Meta": self.model_meta, 
             "haplotype": peewee.ForeignKeyField(self.HaplotypeDBO, null=True)
         }
+        self._add_field_metadata("haplotype", metatable_facts, factsdbo_dict["haplotype"])
         for cn, values in facts_columns.items():
             factsdbo_dict[cn] = field(values, null=True)
-        self.FactDBO = type("Facts", (peewee.Model, ), factsdbo_dict)
+            self._add_field_metadata(cn, metatable_facts, factsdbo_dict[cn])
+        self.FactDBO = type(FACTS_TABLE, (peewee.Model, ), factsdbo_dict)
         
         weight_column = []
         max_number_of_haps = 0
@@ -151,12 +223,14 @@ class YatelConnection(object):
             "Meta": self.model_meta, 
             "weight": field(weight_column)
         }
+        self._add_field_metadata("weight", metatable_edges, edgesdbo_dict["weight"])
         for idx in range(max_number_of_haps):
             key = "haplotype_{}".format(idx)
             edgesdbo_dict[key] = peewee.ForeignKeyField(
                 self.HaplotypeDBO, null=True
             )
-        self.EdgeDBO = type("Edges", (peewee.Model,), edgesdbo_dict)
+            self._add_field_metadata(key, metatable_edges, edgesdbo_dict[key])
+        self.EdgeDBO = type(EDGES_TABLE, (peewee.Model,), edgesdbo_dict)
         
         self.HaplotypeDBO.create_table(fail_silently=True)
         self.FactDBO.create_table(fail_silently=True)
