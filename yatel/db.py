@@ -144,7 +144,7 @@ class YatelConnection(object):
         return getattr(self.database, k)
         
     def _generate_meta_tables_dbo(self):
-        self.YatelTableDBO = type(
+        self._YatelTableDBO = type(
             "_yatel_tables", (peewee.Model, ), {
                 "type": peewee.CharField(unique=True, 
                                          choices=[(t,t) for t in TABLES]),
@@ -153,27 +153,26 @@ class YatelConnection(object):
                 "Meta": self.model_meta,
             }
         )
-        self.YatelFieldDBO = type(
+        self._YatelFieldDBO = type(
             "_yatel_fields", (peewee.Model, ), {
                 "name": peewee.CharField(),
-                "table": peewee.ForeignKeyField(self.YatelTableDBO),
+                "table": peewee.ForeignKeyField(self._YatelTableDBO),
                 "type": peewee.CharField(),
-                "reference_to": peewee.ForeignKeyField(self.YatelTableDBO, null=True),
+                "reference_to": peewee.ForeignKeyField(self._YatelTableDBO, null=True),
                 "pk_column_class": peewee.CharField(null=True),
                 "Meta": self.model_meta,
             }
         )
         
-        
     def _add_field_metadata(self, name, table, field):
-        nf = self.YatelFieldDBO()
+        nf = self._YatelFieldDBO()
         nf.name = name
         nf.table = table
         nf.type = FIELD2NAME[type(field)]
         if isinstance(field, peewee.ForeignKeyField):
             reference_name = field.to.__name__
-            table_reference = self.YatelTableDBO.get(name=reference_name)
-            nf.reference_to = self.YatelTableDBO.get(name=reference_name)
+            table_reference = self._YatelTableDBO.get(name=reference_name)
+            nf.reference_to = self._YatelTableDBO.get(name=reference_name)
         elif isinstance(field, peewee.PrimaryKeyField):
             nf.pk_column_class = COLUMNCLASS2NAME[field.column_class]
         nf.save()
@@ -185,14 +184,14 @@ class YatelConnection(object):
             raise YatelConnectionError(msg)
             
         self._generate_meta_tables_dbo()
-        self.YatelTableDBO.create_table(fail_silently=False)
-        self.YatelFieldDBO.create_table(fail_silently=True)
+        self._YatelTableDBO.create_table(fail_silently=False)
+        self._YatelFieldDBO.create_table(fail_silently=True)
         
-        metatable_haps = self.YatelTableDBO(type=HAPLOTYPES_TABLE, name=HAPLOTYPES_TABLE)
+        metatable_haps = self._YatelTableDBO(type=HAPLOTYPES_TABLE, name=HAPLOTYPES_TABLE)
         metatable_haps.save()
-        metatable_facts = self.YatelTableDBO(type=FACTS_TABLE, name=FACTS_TABLE)
+        metatable_facts = self._YatelTableDBO(type=FACTS_TABLE, name=FACTS_TABLE)
         metatable_facts.save()
-        metatable_edges = self.YatelTableDBO(type=EDGES_TABLE, name=EDGES_TABLE)
+        metatable_edges = self._YatelTableDBO(type=EDGES_TABLE, name=EDGES_TABLE)
         metatable_edges.save()
             
         haps_columns = {"hap_id": []}
@@ -275,12 +274,11 @@ class YatelConnection(object):
         if self._inited:
             msg = "Connection already inited"
             raise YatelConnectionError(msg)
-        
         self._generate_meta_tables_dbo()
         for table_type in TABLES:
-            tabledbo = self.YatelTableDBO.get(type=table_type)
+            tabledbo = self._YatelTableDBO.get(type=table_type)
             table_dict = {"Meta": self.model_meta}
-            for fdbo in self.YatelFieldDBO.filter(table=tabledbo):
+            for fdbo in self._YatelFieldDBO.filter(table=tabledbo):
                 field_cls = NAME2FIELD[fdbo.type]
                 field = None
                 if field_cls == peewee.ForeignKeyField:
@@ -295,8 +293,6 @@ class YatelConnection(object):
                 table_dict[fdbo.name] = field
             peewee_table_cls = type(str(tabledbo.name), (peewee.Model,), table_dict)
             setattr(self, tabledbo.cls_name, peewee_table_cls)
-            
-            
         self._inited = True
     
     def iter_haplotypes(self): 
