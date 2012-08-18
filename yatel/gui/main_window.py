@@ -100,6 +100,24 @@ class MainWindow(uis.UI("MainWindow.ui")):
         return True
 
     # SLOTS
+    def on_actionOpenYatelDB_triggered(self, *chk):
+        if not chk:
+            return
+        self.dialog = connection_setup.ConnectionSetupDialog(self, "open")
+        try:
+            if not self.dialog.exec_():
+                return 
+            conn = db.YatelConnection(**self.dialog.params)
+            conn.init_yatel_database()
+        except Exception as err:
+            QtGui.QMessageBox.critical(self, self.tr("Error"), err.msg)
+        else:
+            self.open_explorer(conn)
+        finally:
+            self.dialog.setParent(None)
+            self.dialog.destroy()
+            del self.dialog
+            
     def on_actionWizard_triggered(self, *chk):
         if not chk or not self.close_explorer():
             return

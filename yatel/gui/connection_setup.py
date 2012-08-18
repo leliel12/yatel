@@ -32,9 +32,9 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
         self._action = action
         self._params = {}
         if action == self.OPEN:
-            self.setTitle(self.tr("Open Database"))
+            self.setWindowTitle(self.tr("Open Database"))
         elif action == self.CREATE:
-            self.setTitle(self.tr("Create Database"))
+            self.setWindowTitle(self.tr("Create Database"))
         self.on_engineComboBox_activated(self.engineComboBox.currentText())
     
     def on_openFileButton_pressed(self):
