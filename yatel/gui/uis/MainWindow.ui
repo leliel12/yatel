@@ -33,7 +33,9 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionOpenYatelDB"/>
     <addaction name="actionWizard"/>
+    <addaction name="separator"/>
     <addaction name="actionClose"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
@@ -65,6 +67,11 @@
   <action name="actionAboutQt">
    <property name="text">
     <string>About Qt...</string>
+   </property>
+  </action>
+  <action name="actionOpenYatelDB">
+   <property name="text">
+    <string>&amp;Open Yatel DB...</string>
    </property>
   </action>
  </widget>

@@ -145,16 +145,16 @@ class YatelConnection(object):
         
     def _generate_meta_tables_dbo(self):
         self._YatelTableDBO = type(
-            "_yatel_tables", (peewee.Model, ), {
-                "type": peewee.CharField(unique=True, 
-                                         choices=[(t,t) for t in TABLES]),
+            "_yatel_tables", (peewee.Model,), {
+                "type": peewee.CharField(unique=True,
+                                         choices=[(t, t) for t in TABLES]),
                 "name": peewee.CharField(unique=True),
                 "cls_name": property(lambda self: str(self.type[:-1].title() + "DBO")),
                 "Meta": self.model_meta,
             }
         )
         self._YatelFieldDBO = type(
-            "_yatel_fields", (peewee.Model, ), {
+            "_yatel_fields", (peewee.Model,), {
                 "name": peewee.CharField(),
                 "table": peewee.ForeignKeyField(self._YatelTableDBO),
                 "type": peewee.CharField(),
@@ -203,9 +203,9 @@ class YatelConnection(object):
                 haps_columns[an].append(av)
         hapdbo_dict = {"Meta": self.model_meta}
         for cn, values in haps_columns.items():
-            hapdbo_dict[cn] = field(values, pk=(cn=="hap_id"), null=True)
+            hapdbo_dict[cn] = field(values, pk=(cn == "hap_id"), null=True)
             self._add_field_metadata(cn, metatable_haps, hapdbo_dict[cn])
-        self.HaplotypeDBO = type(HAPLOTYPES_TABLE, (peewee.Model, ), hapdbo_dict)
+        self.HaplotypeDBO = type(HAPLOTYPES_TABLE, (peewee.Model,), hapdbo_dict)
         
         facts_columns = {}
         for fact in facts:
@@ -214,14 +214,14 @@ class YatelConnection(object):
                     facts_columns[an] = []
                 facts_columns[an].append(av)
         factsdbo_dict = {
-            "Meta": self.model_meta, 
+            "Meta": self.model_meta,
             "haplotype": peewee.ForeignKeyField(self.HaplotypeDBO)
         }
         self._add_field_metadata("haplotype", metatable_facts, factsdbo_dict["haplotype"])
         for cn, values in facts_columns.items():
             factsdbo_dict[cn] = field(values, null=True)
             self._add_field_metadata(cn, metatable_facts, factsdbo_dict[cn])
-        self.FactDBO = type(FACTS_TABLE, (peewee.Model, ), factsdbo_dict)
+        self.FactDBO = type(FACTS_TABLE, (peewee.Model,), factsdbo_dict)
         
         weight_column = []
         max_number_of_haps = 0
@@ -230,7 +230,7 @@ class YatelConnection(object):
             if len(edge.haps_id) > max_number_of_haps:
                 max_number_of_haps = len(edge.haps_id)
         edgesdbo_dict = {
-            "Meta": self.model_meta, 
+            "Meta": self.model_meta,
             "weight": field(weight_column)
         }
         self._add_field_metadata("weight", metatable_edges, edgesdbo_dict["weight"])
@@ -387,7 +387,7 @@ def field(objs, pk=False, **kwargs):
         if pk or max(map(len, objs)) < 255:
             peewee_field = peewee.CharField
         else:
-            peewee_field =  peewee.TextField
+            peewee_field = peewee.TextField
     elif isinstance(peek, datetime.datetime):
         peewee_field = peewee.DateTimeField
     elif isinstance(peek, bool):
@@ -422,10 +422,10 @@ def field(objs, pk=False, **kwargs):
 
 if __name__ == "__main__":
     haps = [
-        dom.Haplotype("hola", a=1, b="h1",z=23),
+        dom.Haplotype("hola", a=1, b="h1", z=23),
         dom.Haplotype("hola2", a=4, b="h4"),
         dom.Haplotype("hola3", b="h"),
-        dom.Haplotype("hola4", a=4, ),
+        dom.Haplotype("hola4", a=4,),
         dom.Haplotype("hola5", a=5, b="h3")
     ]
 

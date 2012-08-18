@@ -8,9 +8,6 @@
 import string
 
 from PyQt4 import QtGui
-from PyQt4 import QtCore
-
-import yatel
 
 from yatel import constants
 from yatel import db
@@ -19,7 +16,7 @@ from yatel.gui import uis
 from yatel.gui import csv_wizard
 from yatel.gui import resources
 from yatel.gui import explorer
-
+from yatel.gui import connection_setup
 
 #===============================================================================
 # CONSTANTS
@@ -69,16 +66,12 @@ class MainWindow(uis.UI("MainWindow.ui")):
         """
         if self.explorerFrame:
             if not self.explorerFrame.is_saved:
-                msg = self.tr(
-                    "The project has been modified.\n"
-                    "Do you want to save your changes before close?"
-                )
-                status = QtGui.QMessageBox.warning(
-                    self, yatel.__prj__, msg,
-                    QtGui.QMessageBox.Ok,
-                    QtGui.QMessageBox.Cancel,
-                    QtGui.QMessageBox.Discard
-                )
+                msg = self.tr("The project has been modified.\n"
+                              "Do you want to save your changes before close?")
+                status = QtGui.QMessageBox.warning(self, constants.PRJ, msg,
+                                                   QtGui.QMessageBox.Ok,
+                                                   QtGui.QMessageBox.Cancel,
+                                                   QtGui.QMessageBox.Discard)
                 if status == QtGui.QMessageBox.Ok:
                     self.explorerFrame.save()
                     self.centralLayout.removeWidget(self.explorerFrame)
@@ -94,11 +87,9 @@ class MainWindow(uis.UI("MainWindow.ui")):
                 return False
             else:
                 msg = self.tr("Do you want to close the actual project?")
-                status = QtGui.QMessageBox.warning(
-                    self, yatel.__prj__, msg,
-                    QtGui.QMessageBox.Ok,
-                    QtGui.QMessageBox.Cancel
-                )
+                status = QtGui.QMessageBox.warning(self, constants.PRJ, msg,
+                                                   QtGui.QMessageBox.Ok,
+                                                   QtGui.QMessageBox.Cancel)
                 if status == QtGui.QMessageBox.Ok:
                     self.centralLayout.removeWidget(self.explorerFrame)
                     self.explorerFrame.destroy()
@@ -113,7 +104,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
         if not chk or not self.close_explorer():
             return
         self.wizard = csv_wizard.CSVWizard(self)
-        self.dialog = ConnectionSetupDialog(self)
+        self.dialog = connection_setup.ConnectionSetupDialog(self, "create")
         try:
             if not self.wizard.exec_():
                 return
@@ -151,88 +142,20 @@ class MainWindow(uis.UI("MainWindow.ui")):
             
             def richtext(code):
                 code = unicode(self.tr(code))
-                return "<br/>".join(
-                    code.replace("<", "&lt;").replace(">", "&gt;").splitlines()
-                )
+                code = code.replace("<", "&lt;").replace(">", "&gt;")
+                lines = code.splitlines()
+                return "<br/>".join(lines)
             
-            QtGui.QMessageBox.about(
-                self, self.tr("About %1 - %2").arg(
-                    constants.PRJ, constants.STR_VERSION
-                ), 
-                ABOUT_TEMPLATE.substitute(
-                    title=richtext(constants.PRJ),
-                    doc=richtext(constants.DOC),
-                    author=richtext(constants.AUTHOR),
-                    version=richtext(constants.STR_VERSION),
-                    url=richtext(constants.URL),
-                    license=richtext(constants.LICENSE)
-                )
-            )
+            title = self.tr("About %1 - %2").arg(constants.PRJ,
+                                                 constants.STR_VERSION)
+            about = ABOUT_TEMPLATE.substitute(title=richtext(constants.PRJ),
+                                              doc=richtext(constants.DOC),
+                                              author=richtext(constants.AUTHOR),
+                                              version=richtext(constants.STR_VERSION),
+                                              url=richtext(constants.URL),
+                                              license=richtext(constants.LICENSE))
+            QtGui.QMessageBox.about(self, title, about)
 
-
-#===============================================================================
-# CONNECTION SETUP DIALOG
-#===============================================================================
-
-class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
-    
-    def __init__(self, parent=None, *args, **kwargs):
-        super(ConnectionSetupDialog, self).__init__(parent, *args, **kwargs)
-        self.engineComboBox.addItems(db.ENGINES)
-        self._params = {}
-        self.on_engineComboBox_activated(self.engineComboBox.currentText())
-    
-    def on_openFileButton_pressed(self):
-        filename = QtGui.QFileDialog.getSaveFileName(
-            self, self.tr("Database File"),
-            constants.HOME_PATH,
-            self.tr("sqlite (*.db)")
-        )
-        if filename:
-            self.nameLineEdit.setText(filename)
-    
-    @QtCore.pyqtSlot('QString')
-    def on_engineComboBox_activated(self, engine):
-        name_isfile = db.ENGINES_CONF[unicode(engine)]["name_isfile"]
-        self.openFileButton.setVisible(name_isfile)
-        self.nameLineEdit.setEnabled(not name_isfile)
-        self.nameLineEdit.setText("")
-        for label, lineEdit in self._params.values():
-            self.formLayout.removeWidget(label)
-            self.formLayout.removeWidget(lineEdit)
-            label.setParent(None)
-            lineEdit.setParent(None)
-            label.destroy()
-            lineEdit.destroy()
-        self._params.clear()
-        confs = sorted(db.ENGINES_CONF[unicode(engine)]["params"].items())
-        for idx, conf in enumerate(confs):
-            pn, pdv = conf
-            label = QtGui.QLabel(pn)
-            lineEdit = QtGui.QLineEdit(unicode(pdv))
-            if isinstance(pdv, int):
-                lineEdit.setValidator(QtGui.QIntValidator())
-            self.formLayout.insertRow(idx+2, label, lineEdit)
-            self._params[pn] = (label, lineEdit)
-            
-    @property
-    def params(self):
-        data = {}
-        engine = unicode(self.engineComboBox.currentText())
-        data["engine"] = engine
-        data["name"] = unicode(self.nameLineEdit.text())
-        confs_params = db.ENGINES_CONF[engine]["params"]
-        for pn, pws in self._params.items():
-            lineEdit = pws[1]
-            param_type = type(confs_params[pn])
-            try:
-                data[pn] = param_type(lineEdit.text())
-            except:
-                data[pn] = confs_params[pn]
-        return data        
-        
-        
-        
 
 #===============================================================================
 # SPLASH

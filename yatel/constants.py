@@ -31,7 +31,6 @@
 
 import encodings
 import os
-import pkgutil
 import sys
 
 
@@ -98,7 +97,7 @@ HOME_PATH = os.path.expanduser("~")
 #: This is a folder where user put his data
 YATEL_USER_PATH = os.path.join(HOME_PATH, ".yatel")
 if not os.path.isdir(YATEL_USER_PATH):
-    os.mkdir(YATEL_USER_PATH)
+    os.makedirs(YATEL_USER_PATH)
 
 
 #: A Set containing all the encodings knowin by python

@@ -53,7 +53,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             width = widget.size().width() / 2 #xs
             height = widget.size().height() / 2 #ys
             bounds = (
-                -width + width / 4, height - height / 4,
+ -width + width / 4, height - height / 4,
                 width, -height
             )            
             xysorted = topsort.xy(edges, "randomsort", bounds=bounds)
