@@ -51,6 +51,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         self.edgesLimitSlider.setMinimum(int(minw or 0))
         self.edgesLimitSlider.setMaximum(int(maxw or 0))
+        self.edgesLimitSlider.setSliderPosition(maxw)
         
         self.network.node_clicked.conectar(self.on_node_clicked)
     
@@ -118,7 +119,10 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             actual_hap = self.hapsComboBox.itemData(idx).toPyObject()
             if hap == actual_hap:
                 self.hapsComboBox.setCurrentIndex(idx)
-            
+    
+    def on_edgesLimitSlider_valueChanged(self, v):
+        edges = tuple(self.conn.filter_edges(0, v))
+        self.network.filter_edges(*edges)
 
     #===========================================================================
     # SAVE & DESTROY

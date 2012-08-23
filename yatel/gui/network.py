@@ -271,6 +271,11 @@ class NetworkProxy(object):
     def add_edges(self, *edges):
         for edge in edges:
             self.add_edge(edge)
+            
+    def filter_edges(self, *edges):
+        self._edges.clear()
+        for edge in edges:
+            self.add_edge(edge)
         
     def del_edge(self, edge):
         assert isinstance(edge, dom.Edge)
