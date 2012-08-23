@@ -40,9 +40,17 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         for hap, xy in xysorted.items():
             self.network.add_node(hap, x=xy[0], y=xy[1])
             self.hapsComboBox.addItem(unicode(hap.hap_id), QtCore.QVariant(hap))
-            
+        
+        minw, maxw = None, None
         for edge in edges:
             self.network.add_edge(edge)
+            if maxw < edge.weight or minw is None:
+                maxw = edge.weight
+            if minw > edge.weight or maxw is None:
+                minw = edge.weight
+        
+        self.edgesLimitSlider.setMinimum(int(minw or 0))
+        self.edgesLimitSlider.setMaximum(int(maxw or 0))
         
         self.network.node_clicked.conectar(self.on_node_clicked)
     

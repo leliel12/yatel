@@ -454,29 +454,30 @@ def field(objs, pk=False, **kwargs):
 # MAIN
 #===============================================================================
 
+if __name__ == "__main__":
+        
+    haps = [
+        dom.Haplotype("hola", a=1, b="h1", z=23),
+        dom.Haplotype("hola2", a=4, b="h4"),
+        dom.Haplotype("hola3", b="h"),
+        dom.Haplotype("hola4", a=4,),
+        dom.Haplotype("hola5", a=5, b="h3")
+    ]
 
-haps = [
-    dom.Haplotype("hola", a=1, b="h1", z=23),
-    dom.Haplotype("hola2", a=4, b="h4"),
-    dom.Haplotype("hola3", b="h"),
-    dom.Haplotype("hola4", a=4,),
-    dom.Haplotype("hola5", a=5, b="h3")
-]
+    facts = [
+        dom.Fact("hola", b=1, c=2, k=2),
+        dom.Fact("hola2", j=1, k=2, c=3)
+    ]
 
-facts = [
-    dom.Fact("hola", b=1, c=2, k=2),
-    dom.Fact("hola2", j=1, k=2, c=3)
-]
+    edges = [
+        dom.Edge(23, "hola", "hola2"),
+        dom.Edge(22, "hola", "hola2", "hola5")
 
-edges = [
-    dom.Edge(23, "hola", "hola2"),
-    dom.Edge(22, "hola", "hola2", "hola5")
+    ]
 
-]
+    conn = YatelConnection("sqlite", name="tito.db")
 
-conn = YatelConnection("sqlite", name="tito.db")
-
-#conn.init_with_values(haps, facts, edges)
-conn.init_yatel_database()
+    #conn.init_with_values(haps, facts, edges)
+    conn.init_yatel_database()
 
 
