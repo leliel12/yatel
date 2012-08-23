@@ -9,9 +9,7 @@ import collections
 
 from PyQt4 import QtGui, QtCore
 
-from yatel import constants
 from yatel import topsort
-from yatel import db
 
 from yatel.gui import uis
 
@@ -52,10 +50,9 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             hapmapped = collections.OrderedDict()
             width = widget.size().width() / 2 #xs
             height = widget.size().height() / 2 #ys
-            bounds = (
- -width + width / 4, height - height / 4,
-                width, -height
-            )            
+            bounds = (-width + width / 4,
+                      height - height / 4,
+                      width, -height)            
             xysorted = topsort.xy(edges, "randomsort", bounds=bounds)
             for x, y, hap_id in xysorted:
                 for hap in haps:
@@ -74,12 +71,20 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         )
         if self.envDialog.exec_():
             atts = self.envDialog.selected_attributes
-            print atts
-            """if atts:
-                self.env = EnvItem(atts)
-                self.env.atttributeValueChanged.connect(
-                    self.on_envAttributeValueChanged
-                )"""
+            facts_and_values = {}
+            for att in atts:
+                facts_and_values[att] = self.conn.get_fact_attribute_values(att)
+            if facts_and_values:
+                row = self.enviromentsTableWidget.rowCount()
+                self.enviromentsTableWidget.insertRow(row)
+                envWidget = EnviromentListItem(env=facts_and_values)
+                self.enviromentsTableWidget.setCellWidget(row, 0,
+                                                          QtGui.QCheckBox())
+                self.enviromentsTableWidget.setCellWidget(row, 1,
+                                                          envWidget)
+                self.enviromentsTableWidget.resizeRowToContents(row)
+                self.enviromentsTableWidget.resizeColumnsToContents()
+                
         self.envDialog.setParent(None)
         self.envDialog.destroy()
         del self.envDialog
@@ -165,6 +170,24 @@ class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
                 unicode(self.selectedAttributesListWidget.item(idx).text())
             )
         return tuple(atts)
+
+
+#===============================================================================
+# ENVIROMENT LIST ITEM
+#===============================================================================
+
+class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
+    
+    def __init__(self, env):
+        super(EnviromentListItem, self).__init__()
+        for k, values in sorted(env.items()):
+            self.envLayout.addWidget(QtGui.QLabel(k))
+            combo = QtGui.QComboBox()
+            combo.addItem("", QtCore.QVariant(None))
+            for v in values:
+                combo.addItem(unicode(v), QtCore.QVariant(v))
+            self.envLayout.addWidget(combo)
+        self.setVisible(True)
 
 
 #===============================================================================

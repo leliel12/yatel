@@ -73,7 +73,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -118,13 +118,23 @@
         </layout>
        </item>
        <item>
-        <widget class="QListWidget" name="listWidget">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <widget class="QTableWidget" name="enviromentsTableWidget">
+         <property name="showGrid">
+          <bool>false</bool>
          </property>
+         <column>
+          <property name="text">
+           <string>Activated</string>
+          </property>
+          <property name="textAlignment">
+           <set>AlignHCenter|AlignVCenter|AlignCenter</set>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Filter</string>
+          </property>
+         </column>
         </widget>
        </item>
       </layout>

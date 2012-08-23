@@ -46,6 +46,10 @@ class MainWindow(uis.UI("MainWindow.ui")):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
         self.explorerFrame = None
+        # TODO: remove this
+        conn = db.YatelConnection("sqlite", "/home/juan/ejemplodb.db")
+        conn.init_yatel_database()
+        self.open_explorer(conn)
 
     def setWindowTitle(self, prj=""):
         title = "{0} v.{1} - {2}".format(
