@@ -325,7 +325,12 @@ class YatelConnection(object):
     
     def ambient(self, **kwargs):
         haps = {}
-        for fdbo in self.FactDBO.filter(**kwargs):
+        query = {}
+        for k, v in kwargs.items():
+            if v is None:
+                k += "__is"
+            query[k] = v
+        for fdbo in self.FactDBO.filter(**query):
             hap_id = fdbo.get_field_dict()["haplotype"]
             if  hap_id not in haps:
                 hdbo = fdbo.haplotype
@@ -346,6 +351,35 @@ class YatelConnection(object):
             getattr(fdbo, att_name)
             for fdbo in self.FactDBO.filter(~peewee.Q(**query))
         )
+        
+    def min_max_edge(self):
+        minedge = None
+        maxedge = None
+        for edbo in self.EdgeDBO.select().order_by(("weight", "ASC")).limit(1):
+            weight = edbo.weight
+            haps_id = [
+                v for k, v in edbo.get_field_dict().items()
+                if k.startswith("haplotype_") and v is not None
+            ]
+            minedge = dom.Edge(weight, *haps_id)
+        for edbo in self.EdgeDBO.select().order_by(("weight", "DESC")).limit(1):
+            weight = edbo.weight
+            haps_id = [
+                v for k, v in edbo.get_field_dict().items()
+                if k.startswith("haplotype_") and v is not None
+            ]
+            maxedge = dom.Edge(weight, *haps_id)
+        return minedge, maxedge
+        
+    def filter_edges(self, minweight, maxweight):
+        for edbo in self.EdgeDBO.filter(weight__gte=minweight, 
+                                         weight__lte=maxweight):
+            weight = edbo.weight
+            haps_id = [
+                v for k, v in edbo.get_field_dict().items()
+                if k.startswith("haplotype_") and v is not None
+            ]
+            yield dom.Edge(weight, *haps_id)
         
     def hap_sql(self, query, *args):
         for hdbo in self.HaplotypeDBO.raw(query, *args):
@@ -420,29 +454,29 @@ def field(objs, pk=False, **kwargs):
 # MAIN
 #===============================================================================
 
-if __name__ == "__main__":
-    haps = [
-        dom.Haplotype("hola", a=1, b="h1", z=23),
-        dom.Haplotype("hola2", a=4, b="h4"),
-        dom.Haplotype("hola3", b="h"),
-        dom.Haplotype("hola4", a=4,),
-        dom.Haplotype("hola5", a=5, b="h3")
-    ]
 
-    facts = [
-        dom.Fact("hola", b=1, c=2, k=2),
-        dom.Fact("hola2", j=1, k=2, c=3)
-    ]
+haps = [
+    dom.Haplotype("hola", a=1, b="h1", z=23),
+    dom.Haplotype("hola2", a=4, b="h4"),
+    dom.Haplotype("hola3", b="h"),
+    dom.Haplotype("hola4", a=4,),
+    dom.Haplotype("hola5", a=5, b="h3")
+]
 
-    edges = [
-        dom.Edge(23, "hola", "hola2"),
-        dom.Edge(22, "hola", "hola2", "hola5")
+facts = [
+    dom.Fact("hola", b=1, c=2, k=2),
+    dom.Fact("hola2", j=1, k=2, c=3)
+]
 
-    ]
+edges = [
+    dom.Edge(23, "hola", "hola2"),
+    dom.Edge(22, "hola", "hola2", "hola5")
 
-    conn = YatelConnection("sqlite", name="tito.db")
+]
 
-    #conn.init_with_values(haps, facts, edges)
-    conn.init_yatel_database()
+conn = YatelConnection("sqlite", name="tito.db")
+
+#conn.init_with_values(haps, facts, edges)
+conn.init_yatel_database()
 
 
