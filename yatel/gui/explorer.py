@@ -48,9 +48,14 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 maxw = edge.weight
             if minw > edge.weight or maxw is None:
                 minw = edge.weight
-        
-        self.edgesLimitSlider.setMinimum(int(minw or 0))
-        self.edgesLimitSlider.setMaximum(int(maxw or 0))
+                
+        minw = minw or 0
+        maxw = maxw or 0
+        minw = int(minw) - (1 if minw > int(minw) else 0)
+        maxw = int(maxw) + (1 if maxw >  int(maxw) else 0)
+            
+        self.edgesLimitSlider.setMinimum(minw)
+        self.edgesLimitSlider.setMaximum(maxw)
         self.edgesLimitSlider.setSliderPosition(maxw)
         
         self.network.node_clicked.conectar(self.on_node_clicked)
@@ -87,17 +92,28 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 row = self.enviromentsTableWidget.rowCount()
                 self.enviromentsTableWidget.insertRow(row)
                 envWidget = EnviromentListItem(env=facts_and_values)
-                self.enviromentsTableWidget.setCellWidget(row, 0,
-                                                          QtGui.QCheckBox())
-                self.enviromentsTableWidget.setCellWidget(row, 1,
-                                                          envWidget)
+                checkbox = QtGui.QCheckBox()
+                checkbox.stateChanged.connect(self.on_filter_changed)
+                envWidget.filterChanged.connect(self.on_filter_changed)
+                self.enviromentsTableWidget.setCellWidget(row, 0, checkbox)
+                self.enviromentsTableWidget.setCellWidget(row, 1, envWidget)
                 self.enviromentsTableWidget.resizeRowToContents(row)
                 self.enviromentsTableWidget.resizeColumnsToContents()
-                
         self.envDialog.setParent(None)
         self.envDialog.destroy()
         del self.envDialog
     
+    def on_filter_changed(self):
+        haps = []
+        for ridx in range(self.enviromentsTableWidget.rowCount()):
+            check = self.enviromentsTableWidget.cellWidget(ridx, 0)
+            if check.isChecked():
+                envwidget = self.enviromentsTableWidget.cellWidget(ridx, 1)
+                for hap in self.conn.ambient(**envwidget.filters):
+                    haps.append(hap)
+        if haps:
+            self.network.highlight_nodes(*haps)
+                
     def on_hapsComboBox_currentIndexChanged(self, idx):
         if isinstance(idx, int):
             hap = self.hapsComboBox.itemData(idx).toPyObject()
@@ -190,16 +206,36 @@ class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
 
 class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
     
+    filterChanged = QtCore.pyqtSignal()
+    
     def __init__(self, env):
         super(EnviromentListItem, self).__init__()
+        self._filters = {}
         for k, values in sorted(env.items()):
-            self.envLayout.addWidget(QtGui.QLabel(k))
+            label = QtGui.QLabel(k)
+            self.envLayout.addWidget(label)
             combo = QtGui.QComboBox()
             combo.addItem("", QtCore.QVariant(None))
             for v in values:
                 combo.addItem(unicode(v), QtCore.QVariant(v))
             self.envLayout.addWidget(combo)
+            combo.currentIndexChanged.connect(self.on_combo_currentIndexChanged)
+            self._filters[k] = combo
         self.setVisible(True)
+        
+    def on_combo_currentIndexChanged(self, idx):
+        self.filterChanged.emit()
+    
+    @property
+    def filters(self):
+        f = {}
+        for label_text, combo in self._filters.items():
+            idx = combo.currentIndex()
+            value = combo.itemData(idx).toPyObject()
+            if isinstance(value, QtCore.QString):
+                value = unicode(value)
+            f[label_text] = value
+        return f
 
 
 #===============================================================================
