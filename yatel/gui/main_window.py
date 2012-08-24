@@ -79,11 +79,13 @@ class MainWindow(uis.UI("MainWindow.ui")):
                 if status == QtGui.QMessageBox.Ok:
                     self.explorerFrame.save()
                     self.centralLayout.removeWidget(self.explorerFrame)
+                    self.explorerFrame.setParent(None)
                     self.explorerFrame.destroy()
                     self.explorerFrame = None
                     return True
                 elif status == QtGui.QMessageBox.Discard:
                     self.centralLayout.removeWidget(self.explorerFrame)
+                    self.explorerFrame.setParent(None)
                     self.explorerFrame.destroy()
                     self.explorerFrame = None
                     return True
@@ -96,6 +98,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
                                                    QtGui.QMessageBox.Cancel)
                 if status == QtGui.QMessageBox.Ok:
                     self.centralLayout.removeWidget(self.explorerFrame)
+                    self.explorerFrame.setParent(None)
                     self.explorerFrame.destroy()
                     self.explorerFrame = None
                     return True
@@ -105,7 +108,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
 
     # SLOTS
     def on_actionOpenYatelDB_triggered(self, *chk):
-        if not chk:
+        if not chk or not self.close_explorer():
             return
         self.dialog = connection_setup.ConnectionSetupDialog(self, "open")
         try:

@@ -228,7 +228,6 @@ class NetworkProxy(object):
         self._selected = None
         self._highlighted = ()
         self.widget.setParent(None)
-        self.node_selected.respuestas.clear()
     
     def select_node(self, hap):
         for hid, n in self._nodes.items():
