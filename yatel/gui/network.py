@@ -243,13 +243,18 @@ class NetworkProxy(object):
             map(lambda h: isinstance(h, dom.Haplotype), haps)
         )
         highs = []
-        for hid, n in self._nodes.items():
+        for n in self._nodes.values():
             if n.haplotype in haps:
                 n.set_highlighted(True)
                 highs.append(n.haplotype)
             else:
                 n.set_highlighted(False)
         self._highlighted = tuple(highs)
+        
+    def unhighlightall(self):
+        for n in self._nodes.values():
+            n.set_highlighted(False)
+        self._highlighted = ()
                 
     def add_node(self, hap, x=0, y=0):
         node = _HaplotypeActor(hap, x=x, y=y)

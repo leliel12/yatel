@@ -113,6 +113,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                     haps.append(hap)
         if haps:
             self.network.highlight_nodes(*haps)
+        else:
+            self.network.unhighlightall()
                 
     def on_hapsComboBox_currentIndexChanged(self, idx):
         if isinstance(idx, int):
