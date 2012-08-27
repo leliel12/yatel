@@ -95,6 +95,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 checkbox = QtGui.QCheckBox()
                 checkbox.stateChanged.connect(self.on_filter_changed)
                 envWidget.filterChanged.connect(self.on_filter_changed)
+                envWidget.removeRequested.connect(self.on_filter_removeRequested)
                 self.enviromentsTableWidget.setCellWidget(row, 0, checkbox)
                 self.enviromentsTableWidget.setCellWidget(row, 1, envWidget)
                 self.enviromentsTableWidget.resizeRowToContents(row)
@@ -102,6 +103,12 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.envDialog.setParent(None)
         self.envDialog.destroy()
         del self.envDialog
+    
+    def on_filter_removeRequested(self, widget):
+        for ridx in range(self.enviromentsTableWidget.rowCount()):
+            if self.enviromentsTableWidget.cellWidget(ridx, 1) == widget:
+                self.enviromentsTableWidget.removeRow(ridx)
+                break
     
     def on_filter_changed(self):
         haps = []
@@ -209,6 +216,7 @@ class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
 class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
     
     filterChanged = QtCore.pyqtSignal()
+    removeRequested = QtCore.pyqtSignal('QWidget')
     
     def __init__(self, env):
         super(EnviromentListItem, self).__init__()
@@ -227,6 +235,10 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
         
     def on_combo_currentIndexChanged(self, idx):
         self.filterChanged.emit()
+    
+    @QtCore.pyqtSlot()
+    def on_removeButton_clicked(self):
+        self.removeRequested.emit(self)
     
     @property
     def filters(self):

@@ -133,13 +133,6 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_2">
-           <property name="text">
-            <string>Remove Enviroment</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
        <item>
