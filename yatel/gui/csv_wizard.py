@@ -91,7 +91,8 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
                 escapechar=escapechar, doublequote=doublequote,
                 skipinitialspace=skipinitialspace
             )
-        except Exception:
+        except Exception as ex:
+            print str(ex)
             self.cool = csvcool.CSVCool(keys=[], rows=[])
         
         # setup table of csv

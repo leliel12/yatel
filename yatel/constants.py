@@ -110,6 +110,8 @@ DEFAULT_FILE_ENCODING = encodings.aliases.aliases.get(
     "utf_8"
 )
 
+DEBUG = __debug__
+
 
 #===============================================================================
 # MAIN

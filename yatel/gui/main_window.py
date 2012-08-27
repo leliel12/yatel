@@ -17,6 +17,8 @@ from yatel.gui import csv_wizard
 from yatel.gui import resources
 from yatel.gui import explorer
 from yatel.gui import connection_setup
+from yatel.gui import error_dialog
+
 
 #===============================================================================
 # CONSTANTS
@@ -47,9 +49,9 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
         self.explorerFrame = None
         # TODO: remove this
-        conn = db.YatelConnection("sqlite", "/home/juan/ejemplodb.db")
+        """conn = db.YatelConnection("sqlite", "/home/juan/ejemplodb.db")
         conn.init_yatel_database()
-        self.open_explorer(conn)
+        self.open_explorer(conn)"""
 
     def setWindowTitle(self, prj=""):
         title = "{0} v.{1} - {2}".format(
@@ -117,7 +119,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
             conn = db.YatelConnection(**self.dialog.params)
             conn.init_yatel_database()
         except Exception as err:
-            QtGui.QMessageBox.critical(self, self.tr("Error"), err.msg)
+            error_dialog.critical(self, self.tr("Error"), err)
         else:
             self.open_explorer(conn)
         finally:
@@ -147,7 +149,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
             conn = db.YatelConnection(**self.dialog.params)
             conn.init_with_values(haplotypes, facts, edges)
         except Exception as err:
-            QtGui.QMessageBox.critical(self, self.tr("Error"), err.msg)
+            error_dialog.critical(self, self.tr("Error"), err)
         else:
             self.open_explorer(conn)
         finally:
