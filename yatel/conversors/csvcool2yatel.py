@@ -36,6 +36,7 @@ import cStringIO
 import csvcool
 
 from yatel import dom
+from yatel import util
 
 
 #===============================================================================
@@ -66,7 +67,7 @@ def construct_facts(cool, column_haplotype):
     facts = []
     for row in cool:
         hap_id = None
-        atts = {}
+        atts = util.UniqueNonUnicodeKey()
         for cname, cvalue in row.items():
             if cname == column_haplotype:
                 hap_id = cvalue
@@ -94,7 +95,7 @@ def construct_haplotypes(cool, column_id):
     assert column_id in cool.columnnames or column_id == None
     haps = []
     for hap_id, row in enumerate(cool):
-        atts = {}
+        atts = util.UniqueNonUnicodeKey()
         for cname, cvalue in row.items():
             if cname == column_id:
                 hap_id = cvalue

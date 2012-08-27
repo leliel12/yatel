@@ -33,6 +33,7 @@
 #===============================================================================
 
 import re
+import collections
 from unicodedata import normalize
 
 
@@ -49,6 +50,51 @@ _RX_N = re.compile(u"ñ", re.UNICODE)
 _RX_START_END_WORD = re.compile("^\W+|\W+$", re.UNICODE)
 _RX_SPLITTER = re.compile("[^a-zA-Z0-9-_]*", re.UNICODE)
 
+
+#===============================================================================
+# CLASSES
+#===============================================================================
+
+class UniqueNonUnicodeKey(collections.MutableMapping):
+    
+    def __init__(self, d=None, **kwargs):
+        self._d = {}
+        if isinstance(d, dict):
+            for k in d:
+                self[k] = d[k]
+        for k in kwargs:
+            self[k] = kwargs[k]
+
+    def __repr__(self):
+        return "<{} {} at {}>".format(self.__class__.__name__, 
+                                       str(self._d), 
+                                       hex(id(self)))
+
+    def __iter__(self):
+        return iter(self._d)
+        
+    def __len__(self):
+        return len(self._d)
+
+    def __getitem__(self, k):
+        return self._d[k]
+
+    def __setitem__(self, k, v):
+        if not isinstance(k, basestring):
+            msg = "Key must be a instance of 'str' or 'unicode', found {}"
+            raise TypeError(msg.format(type(k)))
+        norm = norm_text(k)
+        if norm in self._d:
+            norm += "_"
+            idx = 1
+            while (norm + str(idx)) in self._d:
+                idx += 1
+            norm += str(idx)
+        self._d[norm] = v
+        
+    def __delitem__(self, k):
+        self._d.__delitem__(k)
+    
 
 #===============================================================================
 # FUNCTIONS
