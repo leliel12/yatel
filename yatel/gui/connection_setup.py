@@ -36,6 +36,7 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
         elif action == self.CREATE:
             self.setWindowTitle(self.tr("Create Database"))
         self.on_engineComboBox_activated(self.engineComboBox.currentText())
+        self.adjustSize()
     
     def on_openFileButton_pressed(self):
         filename = None
@@ -77,6 +78,8 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
                 lineEdit.setValidator(QtGui.QIntValidator())
             self.formLayout.insertRow(idx + 2, label, lineEdit)
             self._params[pn] = (label, lineEdit)
+        if name_isfile:
+            self.adjustSize()
             
     @property
     def params(self):

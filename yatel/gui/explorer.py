@@ -74,6 +74,13 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                         hapmapped[hap] = (x, y)
                         break
             return hapmapped
+            
+    #===============================================================================
+    # EVENT
+    #===============================================================================
+    
+    def resizeEvent(self, event):
+        print dir(self.pilasLayout)
     
     #===========================================================================
     # SLOTS
