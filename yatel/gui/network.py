@@ -318,7 +318,7 @@ if __name__ == "__main__":
         pilas.avisar(str(evt))
     
     n = NetworkProxy()
-    
+    print n.size().height()
     a0 = dom.Haplotype("hap0")
     a1 = dom.Haplotype("hap1")
     a2 = dom.Haplotype("hap2")

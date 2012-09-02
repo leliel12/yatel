@@ -9,6 +9,12 @@ import random
 
 import dom
 
+#===============================================================================
+# GLOBALS
+#===============================================================================
+
+_sorts = {}
+
 
 #===============================================================================
 # TOPOLOGICAL SORT
@@ -230,17 +236,31 @@ def xy(edges, algorithm, bounds=(-100, 100, 100, -100), *args, **kwargs):
             Keyword arguments of the algorithm
         
     """
-    func = None
-    if algorithm == "topsort":
-        func = xymap_topsort
-    elif algorithm == "randomsort":
-        func = xymap_randomsort
-    else:
-        raise ValueError("Invalid algorithm")
+    global _sorts
+    func = _sorts[algorithm]
     xymap = func(edges, bounds, *args, **kwargs)
     for hapid in sorted(xymap.keys()):
         x, y = xymap[hapid]
         yield x, y, hapid
+
+
+#===============================================================================
+# REGISTRATIONS
+#===============================================================================
+
+def register_sort(name, function):
+    assert hasattr(function, "__call__")
+    global _sorts
+    _sorts[name] = function
+    
+    
+def sorts():
+    global _sorts
+    return _sorts.keys()
+
+# Autho register    
+register_sort("randomsort", xymap_randomsort)
+register_sort("topsort", xymap_topsort)
 
 
 #===============================================================================

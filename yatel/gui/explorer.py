@@ -32,6 +32,11 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.network = network.NetworkProxy()
         self.network.widget.setParent(self)
         self.pilasLayout.addWidget(self.network.widget)
+        self.pilasLayout.sizeHit = self.network.size
+        self.pilasLayout.hasHeightForWidth = lambda: True
+        self.pilasLayout.heightForWidth = lambda w: ( 
+            (w * self.network.size().height()) / self.network.size().width()
+        )
         self.conn = yatel_connection
         
         haplotypes = tuple(self.conn.iter_haplotypes())
@@ -79,8 +84,10 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     # EVENT
     #===============================================================================
     
-    def resizeEvent(self, event):
-        print dir(self.pilasLayout)
+    #~ def resizeEvent(self, event):
+        #~ for de in dir(self.network.widget):
+            #~ if not de.startswith("_") and "size" in de:
+                #~ print de
     
     #===========================================================================
     # SLOTS
@@ -165,7 +172,9 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
     def destroy(self):
         self.network.clear()
+        self.network.setParent(None)
         self.pilasLayout.removeWidget(self.network.widget)
+        self.network.destroy()
         super(ExplorerFrame, self).destroy()
 
 
