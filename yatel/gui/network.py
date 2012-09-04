@@ -92,19 +92,6 @@ class _HaplotypeActor(actores.Actor):
             or self._texto.colisiona_con_un_punto(x, y) \
             or self._selected.colisiona_con_un_punto(x, y):
                 self.clicked.emitir(sender=self)
-    
-    def actualizar(self):
-        size = pilas.mundo.motor.widget.size()
-        width = (size.width() / 2) - (IMAGE_NODE_NORMAL.ancho() / 2)
-        height = (size.height() / 2) - (IMAGE_NODE_NORMAL.alto() / 2)
-        if self.x <= -width:
-            self.x = -width
-        elif self.x >= width:
-            self.x = width
-        if self.y <= -height:
-            self.y = -height
-        elif self.y >= height:
-            self.y = height
         
     def destruir(self):
         self._selected.destruir()
