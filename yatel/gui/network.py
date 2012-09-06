@@ -208,7 +208,7 @@ class NetworkProxy(object):
         self.node_clicked.emitir(node=sender.haplotype)
 
     def clear(self):
-        for hid, n in self._nodes.items():
+        for n in self._nodes.values():
             n.destruir()
         self._nodes.clear()
         self._edges.clear()
@@ -283,7 +283,7 @@ class NetworkProxy(object):
         
     @property
     def widget(self):
-        return pilas.mundo.motor.widget
+        return pilas.mundo.motor.ventana
     
     @property
     def selected_node(self):
@@ -301,10 +301,14 @@ class NetworkProxy(object):
 if __name__ == "__main__":
     print "Test"
     
+    n = NetworkProxy()
+    
     def printer(evt):
         pilas.avisar(str(evt))
     
-    n = NetworkProxy()
+    def selector(evt):
+        n.select_node(evt["node"])
+    
     
     a0 = dom.Haplotype("hap0")
     a1 = dom.Haplotype("hap1")
@@ -321,6 +325,7 @@ if __name__ == "__main__":
     f = dom.Fact(a1.hap_id, a=1)
     n.highlight_nodes(a1, a2)
     n.node_clicked.conectar(printer)
+    n.node_clicked.conectar(selector)
     
     pilas.ejecutar()
     
