@@ -283,7 +283,7 @@ class NetworkProxy(object):
         
     @property
     def widget(self):
-        return pilas.mundo.motor.ventana
+        return pilas.mundo.motor.widget
     
     @property
     def selected_node(self):

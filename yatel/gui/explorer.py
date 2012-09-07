@@ -107,6 +107,10 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     def on_filter_removeRequested(self, widget):
         for ridx in range(self.enviromentsTableWidget.rowCount()):
             if self.enviromentsTableWidget.cellWidget(ridx, 1) == widget:
+                check = self.enviromentsTableWidget.cellWidget(ridx, 0)
+                if check.isChecked():
+                    check.setChecked(False)
+                    self.on_filter_changed()
                 self.enviromentsTableWidget.removeRow(ridx)
                 break
     
