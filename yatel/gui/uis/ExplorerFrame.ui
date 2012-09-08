@@ -71,36 +71,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QLabel" name="minWeight">
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSlider" name="edgesMinLimitSlider">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSlider" name="edgesMaxLimitSlider">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="maxWeight">
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <layout class="QHBoxLayout" name="sliderLayout"/>
    </item>
    <item>
     <widget class="QTabWidget" name="tabWidget">
@@ -169,38 +140,5 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>edgesMaxLimitSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>maxWeight</receiver>
-   <slot>setNum(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>263</x>
-     <y>208</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>426</x>
-     <y>217</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>edgesMinLimitSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>minWeight</receiver>
-   <slot>setNum(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>81</x>
-     <y>212</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>14</x>
-     <y>209</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

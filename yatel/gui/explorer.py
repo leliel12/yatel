@@ -12,6 +12,7 @@ from PyQt4 import QtGui, QtCore
 from yatel import topsort
 
 from yatel.gui import uis
+from yatel.gui import qrangeslider
 
 
 #===============================================================================
@@ -53,13 +54,29 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         maxw = maxw or 0
         minw = int(minw) - (1 if minw > int(minw) else 0)
         maxw = int(maxw) + (1 if maxw >  int(maxw) else 0)
-    
-        self.edgesMaxLimitSlider.setMinimum(minw)
-        self.edgesMaxLimitSlider.setMaximum(maxw)
-        self.edgesMaxLimitSlider.setSliderPosition(maxw)
+        
+        self._startw, self._endw = minw, maxw
+        
+        self.rs = qrangeslider.QRangeSlider()
+        self.rs.setMin(minw)
+        self.rs.setMax(maxw)
+        self.rs.setRange(self._startw, self._endw)
+        self.rs.endValueChanged.connect(self.on_weightEnd_changed)
+        self.rs.startValueChanged.connect(self.on_weightStart_changed)
+        self.sliderLayout.addWidget(self.rs)
         
         self.network.node_clicked.conectar(self.on_node_clicked)
     
+    def on_weightStart_changed(self, start):
+        if start != self._startw:
+            edges = tuple(self.conn.filter_edges(start, self._endw))
+            self.network.filter_edges(*edges)
+    
+    def on_weightEnd_changed(self, end):
+        if end != self._endw:
+            edges = tuple(self.conn.filter_edges(self._startw, end))
+            self.network.filter_edges(*edges)
+            
     def _add_xys(self, haps, edges, widget):
             hapmapped = collections.OrderedDict()
             width = widget.size().width() / 2 #xs
@@ -151,10 +168,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             if hap == actual_hap:
                 self.hapsComboBox.setCurrentIndex(idx)
     
-    def on_edgesLimitSlider_valueChanged(self, v):
-        edges = tuple(self.conn.filter_edges(0, v))
-        self.network.filter_edges(*edges)
-
     #===========================================================================
     # SAVE & DESTROY
     #===========================================================================
