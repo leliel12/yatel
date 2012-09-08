@@ -66,16 +66,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.sliderLayout.addWidget(self.rs)
         
         self.network.node_clicked.conectar(self.on_node_clicked)
-    
-    def on_weightStart_changed(self, start):
-        if start != self._startw:
-            edges = tuple(self.conn.filter_edges(start, self._endw))
-            self.network.filter_edges(*edges)
-    
-    def on_weightEnd_changed(self, end):
-        if end != self._endw:
-            edges = tuple(self.conn.filter_edges(self._startw, end))
-            self.network.filter_edges(*edges)
             
     def _add_xys(self, haps, edges, widget):
             hapmapped = collections.OrderedDict()
@@ -95,6 +85,16 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     #===========================================================================
     # SLOTS
     #===========================================================================
+    
+    def on_weightStart_changed(self, start):
+        if start != self._startw:
+            edges = tuple(self.conn.filter_edges(start, self._endw))
+            self.network.filter_edges(*edges)
+    
+    def on_weightEnd_changed(self, end):
+        if end != self._endw:
+            edges = tuple(self.conn.filter_edges(self._startw, end))
+            self.network.filter_edges(*edges)
     
     def on_addEnviromentPushButton_pressed(self):
         self.envDialog = EnviromentDialog(self, 
