@@ -73,14 +73,21 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="minWeight">
        <property name="text">
-        <string>Max Weight</string>
+        <string>0</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QSlider" name="edgesLimitSlider">
+      <widget class="QSlider" name="edgesMinLimitSlider">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="edgesMaxLimitSlider">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -164,7 +171,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>edgesLimitSlider</sender>
+   <sender>edgesMaxLimitSlider</sender>
    <signal>valueChanged(int)</signal>
    <receiver>maxWeight</receiver>
    <slot>setNum(int)</slot>
@@ -174,8 +181,24 @@
      <y>208</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>208</y>
+     <x>426</x>
+     <y>217</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>edgesMinLimitSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>minWeight</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>81</x>
+     <y>212</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>14</x>
+     <y>209</y>
     </hint>
    </hints>
   </connection>

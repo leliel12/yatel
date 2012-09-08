@@ -53,10 +53,10 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         maxw = maxw or 0
         minw = int(minw) - (1 if minw > int(minw) else 0)
         maxw = int(maxw) + (1 if maxw >  int(maxw) else 0)
-            
-        self.edgesLimitSlider.setMinimum(minw)
-        self.edgesLimitSlider.setMaximum(maxw)
-        self.edgesLimitSlider.setSliderPosition(maxw)
+    
+        self.edgesMaxLimitSlider.setMinimum(minw)
+        self.edgesMaxLimitSlider.setMaximum(maxw)
+        self.edgesMaxLimitSlider.setSliderPosition(maxw)
         
         self.network.node_clicked.conectar(self.on_node_clicked)
     
@@ -80,9 +80,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     #===========================================================================
     
     def on_addEnviromentPushButton_pressed(self):
-        self.envDialog = EnviromentDialog(
-            self, self.conn.facts_attributes_names()
-        )
+        self.envDialog = EnviromentDialog(self, 
+                                          self.conn.facts_attributes_names())
         if self.envDialog.exec_():
             atts = self.envDialog.selected_attributes
             facts_and_values = {}
@@ -112,6 +111,9 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                     check.setChecked(False)
                     self.on_filter_changed()
                 self.enviromentsTableWidget.removeRow(ridx)
+                check.stateChanged.disconnect(self.on_filter_changed)
+                widget.removeRequested.disconnect(self.on_removeRequested)
+                widget.filterChanged.disconnect(self.on_filter_changed)
                 break
     
     def on_filter_changed(self):
