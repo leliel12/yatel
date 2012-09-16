@@ -5,7 +5,7 @@
 # IMPORTS
 #===============================================================================
 
-import sys, os
+import sys, os, random, hashlib
 
 from yatel import db, dom
 
@@ -27,30 +27,43 @@ def connect(create=False):
     global CONN
     
     if create:
+    
+        choices = {
+            int: lambda: random.randint(1, 100000),
+            float: lambda: random.randint(1, 100000) + random.random(),
+            str: lambda: hashlib.sha1(str(random.random)).hexdigest(),
+            bool: lambda: bool(random.randint(0, 1)),
+        }
         
         if os.path.exists(DB_PATH):
             os.remove(DB_PATH)
         
         CONN = db.YatelConnection("sqlite", name=DB_PATH)
         
-        haps = [
-            dom.Haplotype("hola", a=1, b="h1", z=23),
-            dom.Haplotype("hola2", a=4, b="h4"),
-            dom.Haplotype("hola3", b="h"),
-            dom.Haplotype("hola4", a=4,),
-            dom.Haplotype("hola5", a=5, b="h3")
-        ]
-
-        facts = [
-            dom.Fact("hola", b=1, c=2, k=2),
-            dom.Fact("hola2", j=1, k=2, c=3)
-        ]
-
-        edges = [
-            dom.Edge(23, "hola", "hola2"),
-            dom.Edge(22, "hola", "hola2", "hola5")
-
-        ]
+        haps = []
+        for idx in range(random.randint(10, 50)):
+            name = "haplotype_" + str(idx)
+            attrs = {}
+            for jdx, func in enumerate(sorted(choices.values())):
+                attrs["attr_" + str(jdx)] = func()
+            haps.append(dom.Haplotype(name, **attrs))
+            
+        facts = []
+        for _ in range(random.randint(10, 50)):
+            hap_id = random.choice(haps).hap_id
+            attrs = {}
+            for jdx, func in enumerate(sorted(choices.values())):
+                attrs["attr_" + str(jdx)] = func()
+            facts.append(dom.Fact(hap_id, b=1, c=2, k=2))
+            
+        edges = []
+        for _ in range(random.randint(10, 50)):
+            weight = choices[float]()
+            hap_0 = random.choice(haps).hap_id
+            hap_1 = random.choice(haps).hap_id
+            while hap_1 == hap_0:
+                hap_1 = random.choice(haps).hap_id
+            edges.append(dom.Edge(weight, hap_0, hap_1))
 
         CONN.init_with_values(haps, facts, edges)
     else:
