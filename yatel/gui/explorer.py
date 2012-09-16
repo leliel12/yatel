@@ -90,11 +90,13 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         if start != self._startw:
             edges = tuple(self.conn.filter_edges(start, self._endw))
             self.network.filter_edges(*edges)
+            self._startw = start
     
     def on_weightEnd_changed(self, end):
         if end != self._endw:
             edges = tuple(self.conn.filter_edges(self._startw, end))
             self.network.filter_edges(*edges)
+            self._endw = end
     
     def on_addEnviromentPushButton_pressed(self):
         self.envDialog = EnviromentDialog(self, 
@@ -129,7 +131,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                     self.on_filter_changed()
                 self.enviromentsTableWidget.removeRow(ridx)
                 check.stateChanged.disconnect(self.on_filter_changed)
-                widget.removeRequested.disconnect(self.on_removeRequested)
+                widget.removeRequested.disconnect(self.on_filter_removeRequested)
                 widget.filterChanged.disconnect(self.on_filter_changed)
                 break
     
