@@ -33,6 +33,7 @@ import sys
 import datetime
 import os
 import json
+import decimal
 
 import peewee
 
@@ -129,7 +130,7 @@ class YatelConnection(object):
             self.database = ENGINES_CONF[engine]["class"](name, **kwargs)
             self.database.connect()
             self._name = "{}://{}/{}".format(engine, kwargs.get("host", "localhost"), name)
-            self._minedge, self._maxedge = None, None
+            self._minmaxedge = None
             self._inited = False
             
             class Meta:
@@ -152,7 +153,8 @@ class YatelConnection(object):
                 "type": peewee.CharField(unique=True,
                                          choices=[(t, t) for t in TABLES]),
                 "name": peewee.CharField(unique=True),
-                "cls_name": property(lambda self: str(self.type[:-1].title() + "DBO")),
+                "cls_name": property(lambda self: str(self.type[:-1].title() 
+                                                       + "DBO")),
                 "Meta": self.model_meta,
             }
         )
@@ -321,6 +323,15 @@ class YatelConnection(object):
                 setattr(self, tabledbo.cls_name, peewee_table_cls)
             self._inited = True
     
+    def haplotype_by_id(self, hap_id):
+        hdbo = self.HaplotypeDBO.get(hap_id=hap_id)
+        data = dict(
+            (k, v) 
+            for k, v in hdbo.get_field_dict().items()
+            if v is not None
+        )
+        return dom.Haplotype(**data)
+            
     def iter_haplotypes(self): 
         for hdbo in self.HaplotypeDBO.select():
             data = dict(
@@ -329,7 +340,7 @@ class YatelConnection(object):
                 if v is not None
             )
             yield dom.Haplotype(**data)
-        
+    
     def iter_edges(self):
         for edbo in self.EdgeDBO.select():
             weight = edbo.weight
@@ -379,9 +390,9 @@ class YatelConnection(object):
         )
         
     def min_max_edge(self):
-        if self._minedge is None or self._maxedge is None:
-            self._minedge = None
-            self._maxedge = None
+        if self._minmaxedge is None:
+            minedge = None
+            maxedge = None
             query = self.EdgeDBO.select().order_by(("weight", "ASC")).limit(1)
             for edbo in query:
                 weight = edbo.weight
@@ -389,7 +400,7 @@ class YatelConnection(object):
                     v for k, v in edbo.get_field_dict().items()
                     if k.startswith("haplotype_") and v is not None
                 ]
-                self._minedge = dom.Edge(weight, *haps_id)
+                minedge = dom.Edge(weight, *haps_id)
             query = self.EdgeDBO.select().order_by(("weight", "DESC")).limit(1)
             for edbo in query:
                 weight = edbo.weight
@@ -397,8 +408,9 @@ class YatelConnection(object):
                     v for k, v in edbo.get_field_dict().items()
                     if k.startswith("haplotype_") and v is not None
                 ]
-                self._maxedge = dom.Edge(weight, *haps_id)
-        return self._minedge, self._maxedge
+                maxedge = dom.Edge(weight, *haps_id)
+            self._minmaxedge = minedge, maxedge
+        return self._minmaxedge
         
     def filter_edges(self, minweight, maxweight):
         for edbo in self.EdgeDBO.filter(weight__gte=minweight, 
@@ -420,7 +432,7 @@ class YatelConnection(object):
         for hap, xy in topology.items():
             
             # validate if this hap is in this network
-            self.HaplotypeDBO.get(hap.hap_id) 
+            self.HaplotypeDBO.get(hap_id=hap.hap_id) 
             td[hap.hap_id] = list(xy)
         
         minw, maxw = weight_range
@@ -487,7 +499,13 @@ class YatelConnection(object):
             raise TypeError(msg)
         
         data = json.loads(data.decode("base64"))
-        return data
+        
+        weight_range = tuple(data["weight_range"])
+        
+        hd = {}
+        for hap_id, xy in data["topology"]:
+             hd[self.HaplotypeDBO.get(hap_id=hap_id)] = tuple(xy)
+        
             
             
     @property

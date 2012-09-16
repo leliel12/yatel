@@ -12,7 +12,7 @@ from PyQt4 import QtGui, QtCore
 from yatel import topsort
 
 from yatel.gui import uis
-from yatel.gui import qrangeslider
+from yatel.gui import double_slider
 
 
 #===============================================================================
@@ -57,10 +57,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         self._startw, self._endw = minw, maxw
         
-        self.rs = qrangeslider.QRangeSlider()
-        self.rs.setMin(minw)
-        self.rs.setMax(maxw)
-        self.rs.setRange(self._startw, self._endw)
+        self.rs = double_slider.DoubleSlider(self, "Weights", minw, maxw)
         self.rs.endValueChanged.connect(self.on_weightEnd_changed)
         self.rs.startValueChanged.connect(self.on_weightStart_changed)
         self.sliderLayout.addWidget(self.rs)
