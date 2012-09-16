@@ -29,8 +29,8 @@ def connect(create=False):
     if create:
     
         choices = {
-            int: lambda: random.randint(1, 100000),
-            float: lambda: random.randint(1, 100000) + random.random(),
+            int: lambda: random.randint(1, 100),
+            float: lambda: random.randint(1, 100) + random.random(),
             str: lambda: hashlib.sha1(str(random.random)).hexdigest(),
             bool: lambda: bool(random.randint(0, 1)),
         }
