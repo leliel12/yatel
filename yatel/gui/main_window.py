@@ -65,12 +65,15 @@ class MainWindow(uis.UI("MainWindow.ui")):
         )
         self.setWindowTitle(yatel_connection.name)
         self.centralLayout.addWidget(self.explorerFrame)
+        self.actionSave.setEnabled(True)
+        self.actionClose.setEnabled(True)
 
     def close_explorer(self):
         """Return false if the project is not closed
 
         """
         if self.explorerFrame:
+            closed = False
             if not self.explorerFrame.is_saved:
                 msg = self.tr("The project has been modified.\n"
                               "Do you want to save your changes before close?")
@@ -84,15 +87,16 @@ class MainWindow(uis.UI("MainWindow.ui")):
                     self.explorerFrame.setParent(None)
                     self.explorerFrame.destroy()
                     self.explorerFrame = None
-                    return True
+                    closed = True
                 elif status == QtGui.QMessageBox.Discard:
                     self.centralLayout.removeWidget(self.explorerFrame)
                     self.explorerFrame.setParent(None)
                     self.explorerFrame.destroy()
                     self.explorerFrame = None
-                    return True
-                # status == QtGui.QMessageBox.Cancel:
-                return False
+                    self.actionSave.setEnabled(False)
+                    closed = True
+                else: # status == QtGui.QMessageBox.Cancel:
+                    clossed = False
             else:
                 msg = self.tr("Do you want to close the actual project?")
                 status = QtGui.QMessageBox.warning(self, constants.PRJ, msg,
@@ -103,12 +107,25 @@ class MainWindow(uis.UI("MainWindow.ui")):
                     self.explorerFrame.setParent(None)
                     self.explorerFrame.destroy()
                     self.explorerFrame = None
-                    return True
-                # status == QtGui.QMessageBox.Cancel:
-                return False
+                    self.actionSave.setEnabled(False)
+                    closed = True
+                else: # status == QtGui.QMessageBox.Cancel:
+                    closed = False
+            if closed:
+                self.actionSave.setEnabled(False)
+                self.actionClose.setEnabled(False)
+            return closed
         return True
 
     # SLOTS
+    def on_actionExit_triggered(self, *chk):
+        if chk and self.close_explorer():
+            self.close()
+    
+    def on_actionClose_triggered(self, *chk):
+        if chk:
+            self.close_explorer()
+    
     def on_actionOpenYatelDB_triggered(self, *chk):
         if not chk or not self.close_explorer():
             return

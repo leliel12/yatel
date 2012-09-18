@@ -131,6 +131,7 @@ class YatelConnection(object):
             self.database.connect()
             self._name = "{}://{}/{}".format(engine, kwargs.get("host", "localhost"), name)
             self._minmaxedge = None
+            self._versions = None
             self._inited = False
             
             class Meta:
@@ -478,6 +479,14 @@ class YatelConnection(object):
                 raise ValueError(msg)
         version.save()
         return version.id, version.datetime
+    
+    def versions(self):
+        if self._versions is None:
+            versions = []
+            for vdbo in self.YatelVersionDBO.select():
+                versions.append((vdbo.id, vdbo.datetime, vdbo.tag))
+            self._versions = tuple(versions)
+        return self._versions
     
     def get_version(self, match=None):
         data = None

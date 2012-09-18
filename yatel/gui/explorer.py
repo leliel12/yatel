@@ -13,6 +13,7 @@ from yatel import topsort
 
 from yatel.gui import uis
 from yatel.gui import double_slider
+from yatel.gui import version_dialog
 
 
 #===============================================================================
@@ -172,7 +173,14 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     #===========================================================================
     
     def save(self):
-        pass
+        dtsave = version_dialog.VersionDialog.SAVE
+        vers = self.conn.versions()
+        self.dialog = version_dialog.VersionDialog(self, dtsave, vers)
+        status = self.dialog.exec_()
+        self.dialog.setParent(None)
+        self.dialog.destroy()
+        del self.dialog
+                                                    
         
     def destroy(self):
         self.network.clear()
@@ -192,14 +200,10 @@ class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
         self.factAttributesListWidget.sortItems()
     
     def on_factAttributesListWidget_currentItemChanged(self, entered, exited):
-        self.addButton.setEnabled(
-            bool(entered)
-        )
+        self.addButton.setEnabled(bool(entered))
         
     def on_selectedAttributesListWidget_currentItemChanged(self, entered, exited):
-        self.removeButton.setEnabled(
-            bool(entered)
-        )
+        self.removeButton.setEnabled(bool(entered))
     
     def on_addButton_pressed(self):
         idx = self.factAttributesListWidget.currentIndex().row()
@@ -221,9 +225,8 @@ class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
     def selected_attributes(self):
         atts = []
         for idx in range(self.selectedAttributesListWidget.count()):
-            atts.append(
-                unicode(self.selectedAttributesListWidget.item(idx).text())
-            )
+            text =unicode(self.selectedAttributesListWidget.item(idx).text())
+            atts.append(text)
         return tuple(atts)
 
 
