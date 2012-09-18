@@ -45,18 +45,17 @@ PRJ = "Yatel"
 VERSION = ("0", "1")
 
 #: For "what" is usefull yatel
-DOC = u"""Yatel permite  crear redes basadas en distancias entre perfiles de 
-individuos y analizarlas multidimensionalmente mediante un proceso de
-exploración.
+DOC = u"""Yatel allows the creation of user-profile-distance-based networks and
+their multidimensional analysis through a process of exploration.
 
-Para el análisis de datos de distinta naturaleza, como biológicos, sociales, 
-de marketing, etc., a menudo es posible identificar individuos o clases 
-(grupos de individuos  con características compartidas). Estos individuos o 
-grupos se identifican a partir atributos que fueron medidos y almacenados en 
-bases de datos. Por ejemplo, en un análisis biológico, el perfil puede estar 
-definido por ciertas propiedades de la cadena de ácido nucleico, en un análisis 
-social por datos personales, y en un análisis de ventas por la composición de 
-los tickets.
+In the process of analyzing data from heterogeneous sources - like data
+regarding biology, social studies, marketing, etc. -, it is often possible to
+identify individuals or classes (groups of individuals that share some
+characteristic). This individuals or groups are identified by attributes that
+were measured and stored in the data base. For instance, in a biological
+analysis, the profile can be defined by some certain properties of the
+nucleic acid, in a social analysis by the data from people and in a
+sales analysis by the data from sales point tickets.
     
 """
 
