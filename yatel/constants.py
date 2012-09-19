@@ -109,7 +109,7 @@ DEFAULT_FILE_ENCODING = encodings.aliases.aliases.get(
     "utf_8"
 )
 
-DATETIME_FORMAT = "%Y/%M/%d %H:%M:%S.%f"
+DATETIME_FORMAT = "%Y/%M/%d %H:%M:%S"
 
 DEBUG = __debug__
 

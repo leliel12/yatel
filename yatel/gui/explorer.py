@@ -194,7 +194,13 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         if new_version:
             topology = self.network.topology()
             weight_range = self._startw, self._endw
-            self.conn.save_version(new_version, topology, weight_range)
+            ambients = []
+            for ridx in range(self.enviromentsTableWidget.rowCount()):
+                check = self.enviromentsTableWidget.cellWidget(ridx, 0)
+                envwidget = self.enviromentsTableWidget.cellWidget(ridx, 1)
+                ambients.append((check.isChecked(), envwidget.filters))
+            self.conn.save_version(new_version, topology, 
+                                   weight_range, ambients)
             self._is_saved = True
             self.saveStatusChanged.emit(self._is_saved)
         
