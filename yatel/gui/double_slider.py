@@ -5,14 +5,10 @@
 # IMPORTS
 #===============================================================================
 
-import collections
-
-from PyQt4 import QtGui, QtCore
-
-from yatel import topsort
+from PyQt4 import QtCore
 
 from yatel.gui import uis
-from yatel.gui import qrangeslider
+
 
 #===============================================================================
 # CLASS

@@ -31,8 +31,12 @@ class ErrorDialog(uis.UI("ErrorDialog.ui")):
         self.stackTextBrowser = QtGui.QTextBrowser()
         self.stackTextBrowser.setText(self.stack)
         self.verticalLayout.addWidget(self.stackTextBrowser)
+
     
-    
+#===============================================================================
+# FUNCTIONS
+#===============================================================================
+
 def critical(parent, title, err):
     msg = getattr(err, "msg", None) \
         or getattr(err, "message", None)\

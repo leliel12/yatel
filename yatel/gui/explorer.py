@@ -24,13 +24,14 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     """This is the frame to show for select types of given csv file
     
     """
+    saveStatusChanged = QtCore.pyqtSignal(bool)
     
-    def __init__(self, parent, yatel_connection):
+    def __init__(self, parent, yatel_connection, saved=True):
         super(ExplorerFrame, self).__init__(parent=parent)
         
         from yatel.gui import network
         
-        self.is_saved = False
+        self._is_saved = saved
         self.network = network.NetworkProxy()
         self.network.widget.setParent(self)
         self.pilasLayout.addWidget(self.network.widget)
@@ -64,6 +65,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.sliderLayout.addWidget(self.rs)
         
         self.network.node_clicked.conectar(self.on_node_clicked)
+        
             
     def _add_xys(self, haps, edges, widget):
             hapmapped = collections.OrderedDict()
@@ -80,6 +82,11 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                         break
             return hapmapped
     
+    def _set_unsaved(self):
+        self._is_saved = False
+        self.saveStatusChanged.emit(self._is_saved)
+        
+        
     #===========================================================================
     # SLOTS
     #===========================================================================
@@ -89,12 +96,14 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             edges = tuple(self.conn.filter_edges(start, self._endw))
             self.network.filter_edges(*edges)
             self._startw = start
+            self._set_unsaved()
     
     def on_weightEnd_changed(self, end):
         if end != self._endw:
             edges = tuple(self.conn.filter_edges(self._startw, end))
             self.network.filter_edges(*edges)
             self._endw = end
+            self._set_unsaved()
     
     def on_addEnviromentPushButton_pressed(self):
         self.envDialog = EnviromentDialog(self, 
@@ -116,6 +125,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 self.enviromentsTableWidget.setCellWidget(row, 1, envWidget)
                 self.enviromentsTableWidget.resizeRowToContents(row)
                 self.enviromentsTableWidget.resizeColumnsToContents()
+            self._set_unsaved()
         self.envDialog.setParent(None)
         self.envDialog.destroy()
         del self.envDialog
@@ -131,6 +141,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 check.stateChanged.disconnect(self.on_filter_changed)
                 widget.removeRequested.disconnect(self.on_filter_removeRequested)
                 widget.filterChanged.disconnect(self.on_filter_changed)
+                self._set_unsaved()
                 break
     
     def on_filter_changed(self):
@@ -145,24 +156,26 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self.network.highlight_nodes(*haps)
         else:
             self.network.unhighlightall()
-                
+        self._set_unsaved()
+    
+    @QtCore.pyqtSlot(int)
     def on_hapsComboBox_currentIndexChanged(self, idx):
-        if isinstance(idx, int):
-            hap = self.hapsComboBox.itemData(idx).toPyObject()
-            atts = hap.items_attrs()
-            
-            self.network.select_node(hap)
-            self.attTableWidget.clearContents()
-            self.attTableWidget.setRowCount(len(atts))
-            
-            for idx, atts in enumerate(atts):
-                nameitem = QtGui.QTableWidgetItem(atts[0])
-                valueitem = QtGui.QTableWidgetItem(unicode(atts[1]))
-                self.attTableWidget.setItem(idx, 0, nameitem)
-                self.attTableWidget.setItem(idx, 1, valueitem)
+        hap = self.hapsComboBox.itemData(idx).toPyObject()
+        atts = hap.items_attrs()
+        
+        self.network.select_node(hap)
+        self.attTableWidget.clearContents()
+        self.attTableWidget.setRowCount(len(atts))
+        
+        for idx, atts in enumerate(atts):
+            nameitem = QtGui.QTableWidgetItem(atts[0])
+            valueitem = QtGui.QTableWidgetItem(unicode(atts[1]))
+            self.attTableWidget.setItem(idx, 0, nameitem)
+            self.attTableWidget.setItem(idx, 1, valueitem)
     
     def on_node_clicked(self, evt):
         hap = evt["node"]
+        self._set_unsaved()
         for idx in range(self.hapsComboBox.count()):
             actual_hap = self.hapsComboBox.itemData(idx).toPyObject()
             if hap == actual_hap:
@@ -172,15 +185,18 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     # SAVE & DESTROY
     #===========================================================================
     
+    def is_saved(self):
+        return self._is_saved
+    
     def save(self):
-        dtsave = version_dialog.VersionDialog.SAVE
         vers = self.conn.versions()
-        self.dialog = version_dialog.VersionDialog(self, dtsave, vers)
-        status = self.dialog.exec_()
-        self.dialog.setParent(None)
-        self.dialog.destroy()
-        del self.dialog
-                                                    
+        new_version = version_dialog.save_version(*vers)
+        if new_version:
+            topology = self.network.topology()
+            weight_range = self._startw, self._endw
+            self.conn.save_version(new_version, topology, weight_range)
+            self._is_saved = True
+            self.saveStatusChanged.emit(self._is_saved)
         
     def destroy(self):
         self.network.clear()

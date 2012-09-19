@@ -48,10 +48,6 @@ class MainWindow(uis.UI("MainWindow.ui")):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
         self.explorerFrame = None
-        # TODO: remove this
-        """conn = db.YatelConnection("sqlite", "/home/juan/ejemplodb.db")
-        conn.init_yatel_database()
-        self.open_explorer(conn)"""
 
     def setWindowTitle(self, prj=""):
         title = "{0} v.{1} - {2}".format(
@@ -59,13 +55,15 @@ class MainWindow(uis.UI("MainWindow.ui")):
         )
         super(self.__class__, self).setWindowTitle(title)
 
-    def open_explorer(self, yatel_connection):
-        self.explorerFrame = explorer.ExplorerFrame(
-            self.centralWidget(), yatel_connection
+    def open_explorer(self, yatel_connection, saved=True):
+        self.explorerFrame = explorer.ExplorerFrame(self.centralWidget(), 
+                                                    yatel_connection, saved)
+        self.explorerFrame.saveStatusChanged.connect(
+            self.on_explorerFrame_saveStatusChanged
         )
         self.setWindowTitle(yatel_connection.name)
         self.centralLayout.addWidget(self.explorerFrame)
-        self.actionSave.setEnabled(True)
+        self.actionSave.setEnabled(not self.explorerFrame.is_saved())
         self.actionClose.setEnabled(True)
 
     def close_explorer(self):
@@ -74,7 +72,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
         """
         if self.explorerFrame:
             closed = False
-            if not self.explorerFrame.is_saved:
+            if not self.explorerFrame.is_saved():
                 msg = self.tr("The project has been modified.\n"
                               "Do you want to save your changes before close?")
                 status = QtGui.QMessageBox.warning(self, constants.PRJ, msg,
@@ -84,12 +82,18 @@ class MainWindow(uis.UI("MainWindow.ui")):
                 if status == QtGui.QMessageBox.Ok:
                     self.explorerFrame.save()
                     self.centralLayout.removeWidget(self.explorerFrame)
+                    self.explorerFrame.saveStatusChanged.disconnect(
+                        self.on_explorerFrame_saveStatusChanged
+                    )
                     self.explorerFrame.setParent(None)
                     self.explorerFrame.destroy()
                     self.explorerFrame = None
                     closed = True
                 elif status == QtGui.QMessageBox.Discard:
                     self.centralLayout.removeWidget(self.explorerFrame)
+                    self.explorerFrame.saveStatusChanged.disconnect(
+                        self.on_explorerFrame_saveStatusChanged
+                    )
                     self.explorerFrame.setParent(None)
                     self.explorerFrame.destroy()
                     self.explorerFrame = None
@@ -104,6 +108,9 @@ class MainWindow(uis.UI("MainWindow.ui")):
                                                    QtGui.QMessageBox.Cancel)
                 if status == QtGui.QMessageBox.Ok:
                     self.centralLayout.removeWidget(self.explorerFrame)
+                    self.explorerFrame.saveStatusChanged.disconnect(
+                        self.on_explorerFrame_saveStatusChanged
+                    )
                     self.explorerFrame.setParent(None)
                     self.explorerFrame.destroy()
                     self.explorerFrame = None
@@ -117,7 +124,13 @@ class MainWindow(uis.UI("MainWindow.ui")):
             return closed
         return True
 
+    #===========================================================================
     # SLOTS
+    #===========================================================================
+    
+    def on_explorerFrame_saveStatusChanged(self, is_saved):
+        self.actionSave.setEnabled(not is_saved)
+    
     def on_actionExit_triggered(self, *chk):
         if chk and self.close_explorer():
             self.close()
@@ -125,6 +138,10 @@ class MainWindow(uis.UI("MainWindow.ui")):
     def on_actionClose_triggered(self, *chk):
         if chk:
             self.close_explorer()
+    
+    def on_actionSave_triggered(self, *chk):
+        if chk and not self.explorerFrame.is_saved():
+            self.explorerFrame.save()
     
     def on_actionOpenYatelDB_triggered(self, *chk):
         if not chk or not self.close_explorer():
@@ -168,7 +185,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
         except Exception as err:
             error_dialog.critical(self, self.tr("Error"), err)
         else:
-            self.open_explorer(conn)
+            self.open_explorer(conn, saved=False)
         finally:
             self.wizard.setParent(None)
             self.wizard.destroy()

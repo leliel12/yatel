@@ -440,12 +440,8 @@ class YatelConnection(object):
         minlimit, maxlimit = [e.weight for e in self.min_max_edge()]
         if minw is None:
             minw = minlimit
-        elif not (minlimit <= minw <= maxlimit):
-            raise ValueError("Invalid range: ({}, {})".format(minw, maxw))
         if maxw is None:
             maxw = maxlimit
-        elif not (minlimit <= maxw <= maxlimit):
-            raise ValueError("Invalid range: ({}, {})".format(minw, maxw))
         if minw > maxw:
             raise ValueError("Invalid range: ({}, {})".format(minw, maxw))
         wrl = [minw, maxw]
@@ -478,6 +474,7 @@ class YatelConnection(object):
                 msg = msg.format(vdbo.tag)
                 raise ValueError(msg)
         version.save()
+        self._versions = None
         return version.id, version.datetime
     
     def versions(self):

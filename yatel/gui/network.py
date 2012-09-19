@@ -280,6 +280,12 @@ class NetworkProxy(object):
         
     def actor_of(self, hap):
         return self._nodes[hap.hap_id]
+    
+    def topology(self):
+        top = {}
+        for actor in self._nodes.values():
+            top[actor.haplotype] = (actor.x, actor.y)
+        return top
         
     @property
     def widget(self):

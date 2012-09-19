@@ -31,7 +31,8 @@ class VersionDialog(uis.UI("VersionDialog.ui")):
         else:
             raise ValueError("Invalid dialog_type")
         self.dialog_type = dialog_type
-        for id, date, name in sorted(vers, reverse=True):
+        for ver in sorted(vers, reverse=True):
+            id, date, name = ver
             item = QtGui.QListWidgetItem(name)
             item.setToolTip(self.tr("Saved at: ") 
                             + date.strftime(constants.DATETIME_FORMAT))
