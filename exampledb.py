@@ -16,15 +16,13 @@ from yatel import db, dom
 
 DB_PATH = os.path.join("data", "example.db")
 
-CONN = None
-
 
 #===============================================================================
 # FUNCTIONS
 #===============================================================================
 
 def connect(create=False):
-    global CONN
+    conn = None
     
     if create:
     
@@ -38,7 +36,7 @@ def connect(create=False):
         if os.path.exists(DB_PATH):
             os.remove(DB_PATH)
         
-        CONN = db.YatelConnection("sqlite", name=DB_PATH)
+        conn = db.YatelConnection("sqlite", name=DB_PATH)
         
         haps = []
         for idx in range(random.randint(10, 50)):
@@ -65,10 +63,11 @@ def connect(create=False):
                 hap_1 = random.choice(haps).hap_id
             edges.append(dom.Edge(weight, hap_0, hap_1))
 
-        CONN.init_with_values(haps, facts, edges)
+        conn.init_with_values(haps, facts, edges)
     else:
-        CONN = db.YatelConnection("sqlite", name=DB_PATH)
-        CONN.init_yatel_database()
+        conn = db.YatelConnection("sqlite", name=DB_PATH)
+        conn.init_yatel_database()
+    return conn
             
 
 #===============================================================================
@@ -85,3 +84,4 @@ if __name__ == "__main__":
         print "--create or --load (over {})".format(DB_PATH)
         sys.exit(1)
     connect(create)
+    

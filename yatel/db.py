@@ -482,38 +482,40 @@ class YatelConnection(object):
             versions = []
             for vdbo in self.YatelVersionDBO.select():
                 versions.append((vdbo.id, vdbo.datetime, vdbo.tag))
+            versions.sort()
             self._versions = tuple(versions)
         return self._versions
     
     def get_version(self, match=None):
-        data = None
+        vdbo = None
         if match is None:
             query = self.YatelVersionDBO.select()
             vdbo = tuple(query.order_by(("datetime", "DESC")).limit(1))[0]
-            data = vdbo.data
         elif isinstance(match, int):
             vdbo = self.YatelVersionDBO.get(id=match)
             data = vdbo.data
         elif isinstance(match, datetime.datetime):
             vdbo = self.YatelVersionDBO.get(datetime=match)
-            data = vdbo.data
         elif isinstance(match, basestring):
             vdbo = self.YatelVersionDBO.get(tag=match)
-            data = vdbo.data
         else:
             msg = "Match must be None, int, str, unicode or datetime instance"
             raise TypeError(msg)
         
-        data = json.loads(data.decode("base64"))
+        version = json.loads(vdbo.data.decode("base64"))
         
-        weight_range = tuple(data["weight_range"])
+        weight_range = tuple(version["weight_range"])
         
-        hd = {}
-        for hap_id, xy in data["topology"]:
-             hd[self.HaplotypeDBO.get(hap_id=hap_id)] = tuple(xy)
+        topology = {}
+        for hap_id, xy in version["topology"].items():
+             topology[self.HaplotypeDBO.get(hap_id=hap_id)] = tuple(xy)
+             
+        version["topology"] = topology
+        version["tag"] = vdbo.tag
+        version["id"] = vdbo.id
+        version["datetime"] = vdbo.datetime
+        return version
         
-            
-            
     @property
     def name(self):
         return self._name
