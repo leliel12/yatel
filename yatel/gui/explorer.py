@@ -36,14 +36,14 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.network.widget.setParent(self)
         self.pilasLayout.addWidget(self.network.widget)
         self.conn = yatel_connection
-        self._version = None
+        self._version = self.conn.get_version(match)
         
-        haplotypes = tuple(self.conn.iter_haplotypes())
-        edges = tuple(self.conn.iter_edges())
-        xysorted = self._add_xys(haplotypes, edges, self.network.widget)
-        for hap, xy in xysorted.items():
-            self.network.add_node(hap, x=xy[0], y=xy[1])
-            self.hapsComboBox.addItem(unicode(hap.hap_id), QtCore.QVariant(hap))
+        if not self._version["topology"]
+            haplotypes = tuple(self.conn.iter_haplotypes())
+            edges = tuple(self.conn.iter_edges())
+            xysorted = self._add_xys(haplotypes, edges, self.network.widget)
+            for hap, xy in xysorted.items():
+                version["topology"][hap] = xy
         
         minw, maxw = None, None
         for edge in edges:
@@ -57,18 +57,20 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         maxw = maxw or 0
         minw = int(minw) - (1 if minw > int(minw) else 0)
         maxw = int(maxw) + (1 if maxw > int(maxw) else 0)
-        
-        self._startw, self._endw = minw, maxw
-        
-        self.rs = double_slider.DoubleSlider(self, "Weights", minw, maxw)
+        self._startw = minw
+        self._endw = maxw
+        self.rs = double_slider.DoubleSlider(self, self.tr("Weights"), 
+                                             minw, maxw)
         self.rs.endValueChanged.connect(self.on_weightEnd_changed)
         self.rs.startValueChanged.connect(self.on_weightStart_changed)
         self.sliderLayout.addWidget(self.rs)
+        if not self._version["weight_range"]:
+            self._version["weight_range"] = minw, maxw
         
         self.network.node_clicked.conectar(self.on_node_clicked)
         
         # load latest version
-        self.load_match_version(None)
+        self.load_version(self._version)
         if self._version["id"] == 1:
             self.save_new_version("topology_added")
             
@@ -196,22 +198,14 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     # PUBLIC
     #===========================================================================
     
-    def load_version(self):
-        vers = self.conn.versions()
-        vid = version_dialog.open_version(*vers)
-        if isinstance(vid, int):
-            print  vid
-            self.load_match_version(vid) 
-    
-    def load_match_version(self, match):
-        version = self.conn.get_version(match)
+    def load_version(self, version):
+        self.network.clear()
         minw, maxw = version["weight_range"]
-        if minw is not None:
-            self.rs.setStart(minw)
-        if maxw is not None:
-            self.rs.setEnd(maxw)
+        self.rs.setStart(minw)
+        self.rs.setEnd(maxw)
         for hap, xy in version["topology"].items():
-            self.network.move_node(hap, xy[0], xy[1])
+            self.network.add_node(hap, x=xy[0], y=xy[1])
+            self.hapsComboBox.addItem(unicode(hap.hap_id), QtCore.QVariant(hap))
         for checked, ambient in version["ambients"]:
             self._add_filter(checked, ambient)
         self._version = version        
@@ -219,13 +213,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     def is_saved(self):
         return self._is_saved
     
-    def save_version(self):
-        vers = self.conn.versions()
-        new_version = version_dialog.save_version(*vers)
-        if new_version:
-            self.save_new_version(new_version)
-    
-    def save_new_version(self, new_version):        
+    def save_version(self, new_version):        
         topology = self.network.topology()
         weight_range = self._startw, self._endw
         ambients = []
