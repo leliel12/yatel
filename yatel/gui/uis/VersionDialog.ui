@@ -69,6 +69,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>acceptPushButton</tabstop>
+  <tabstop>versionLineEdit</tabstop>
+  <tabstop>versionsList</tabstop>
+  <tabstop>cancelPushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

@@ -80,7 +80,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
                                                    QtGui.QMessageBox.Cancel,
                                                    QtGui.QMessageBox.Discard)
                 if status == QtGui.QMessageBox.Ok:
-                    self.explorerFrame.save()
+                    self.explorerFrame.save_version()
                     self.centralLayout.removeWidget(self.explorerFrame)
                     self.explorerFrame.saveStatusChanged.disconnect(
                         self.on_explorerFrame_saveStatusChanged
@@ -141,7 +141,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
     
     def on_actionSave_triggered(self, *chk):
         if chk and not self.explorerFrame.is_saved():
-            self.explorerFrame.save()
+            self.explorerFrame.save_version()
     
     def on_actionOpenYatelDB_triggered(self, *chk):
         if not chk or not self.close_explorer():

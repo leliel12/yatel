@@ -5,12 +5,12 @@
 # IMPORTS
 #===============================================================================
 
-
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 
 from yatel import constants
 from yatel.gui import uis
+
 
 #===============================================================================
 # VERSION DIALOG

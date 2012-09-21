@@ -36,6 +36,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.network.widget.setParent(self)
         self.pilasLayout.addWidget(self.network.widget)
         self.conn = yatel_connection
+        self._version = None
         
         haplotypes = tuple(self.conn.iter_haplotypes())
         edges = tuple(self.conn.iter_edges())
@@ -67,7 +68,9 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.network.node_clicked.conectar(self.on_node_clicked)
         
         # load latest version
-        self.load_version(None)
+        self.load_match_version(None)
+        if self._version["id"] == 1:
+            self.save_new_version("topology_added")
             
     def _add_xys(self, haps, edges, widget):
             hapmapped = collections.OrderedDict()
@@ -193,7 +196,13 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     # PUBLIC
     #===========================================================================
     
-    def load_version(self, match):
+    def load_version(self):
+        vers = self.conn.versions()
+        vid = version_dialog.open_version(*vers)
+        if isinstance(vid, int):
+           self.load_match_version(vid) 
+    
+    def load_match_version(self, match):
         version = self.conn.get_version(match)
         minw, maxw = version["weight_range"]
         if minw is not None:
@@ -204,27 +213,29 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self.network.move_node(hap, xy[0], xy[1])
         for checked, ambient in version["ambients"]:
             self._add_filter(checked, ambient)
-        if version["id"] == 1:
-            self.save()
+        self._version = version        
     
     def is_saved(self):
         return self._is_saved
     
-    def save(self):
+    def save_version(self):
         vers = self.conn.versions()
         new_version = version_dialog.save_version(*vers)
         if new_version:
-            topology = self.network.topology()
-            weight_range = self._startw, self._endw
-            ambients = []
-            for ridx in range(self.enviromentsTableWidget.rowCount()):
-                check = self.enviromentsTableWidget.cellWidget(ridx, 0)
-                envwidget = self.enviromentsTableWidget.cellWidget(ridx, 1)
-                ambients.append((check.isChecked(), envwidget.filters))
-            self.conn.save_version(new_version, topology,
-                                   weight_range, ambients)
-            self._is_saved = True
-            self.saveStatusChanged.emit(self._is_saved)
+            self.save_new_version(new_version)
+    
+    def save_new_version(self):        
+        topology = self.network.topology()
+        weight_range = self._startw, self._endw
+        ambients = []
+        for ridx in range(self.enviromentsTableWidget.rowCount()):
+            check = self.enviromentsTableWidget.cellWidget(ridx, 0)
+            envwidget = self.enviromentsTableWidget.cellWidget(ridx, 1)
+            ambients.append((check.isChecked(), envwidget.filters))
+        self.conn.save_version(new_version, topology,
+                               weight_range, ambients)
+        self._is_saved = True
+        self.saveStatusChanged.emit(self._is_saved)
         
     def destroy(self):
         self.network.clear()
