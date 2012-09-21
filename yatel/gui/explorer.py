@@ -200,7 +200,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         vers = self.conn.versions()
         vid = version_dialog.open_version(*vers)
         if isinstance(vid, int):
-           self.load_match_version(vid) 
+            print  vid
+            self.load_match_version(vid) 
     
     def load_match_version(self, match):
         version = self.conn.get_version(match)
@@ -224,7 +225,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         if new_version:
             self.save_new_version(new_version)
     
-    def save_new_version(self):        
+    def save_new_version(self, new_version):        
         topology = self.network.topology()
         weight_range = self._startw, self._endw
         ambients = []

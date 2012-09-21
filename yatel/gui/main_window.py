@@ -65,6 +65,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.centralLayout.addWidget(self.explorerFrame)
         self.actionSave.setEnabled(not self.explorerFrame.is_saved())
         self.actionClose.setEnabled(True)
+        self.actionLoad.setEnabled(True)
 
     def close_explorer(self):
         """Return false if the project is not closed
@@ -121,12 +122,17 @@ class MainWindow(uis.UI("MainWindow.ui")):
             if closed:
                 self.actionSave.setEnabled(False)
                 self.actionClose.setEnabled(False)
+                self.actionLoad.setEnabled(False)
             return closed
         return True
 
     #===========================================================================
     # SLOTS
     #===========================================================================
+    
+    def on_actionLoad_triggered(self, *chk):
+        if chk:
+            self.explorerFrame.load_version()
     
     def on_explorerFrame_saveStatusChanged(self, is_saved):
         self.actionSave.setEnabled(not is_saved)
