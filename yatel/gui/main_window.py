@@ -56,7 +56,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
         super(self.__class__, self).setWindowTitle(title)
 
     def open_explorer(self, yatel_connection, saved=True):
-        self.explorerFrame = explorer.ExplorerFrame(self.centralWidget(), 
+        self.explorerFrame = explorer.ExplorerFrame(self.centralWidget(),
                                                     yatel_connection, saved)
         self.explorerFrame.saveStatusChanged.connect(
             self.on_explorerFrame_saveStatusChanged

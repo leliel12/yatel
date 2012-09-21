@@ -66,8 +66,8 @@ class UniqueNonUnicodeKey(collections.MutableMapping):
             self[k] = kwargs[k]
 
     def __repr__(self):
-        return "<{} {} at {}>".format(self.__class__.__name__, 
-                                       str(self._d), 
+        return "<{} {} at {}>".format(self.__class__.__name__,
+                                       str(self._d),
                                        hex(id(self)))
 
     def __iter__(self):

@@ -55,7 +55,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         minw = minw or 0
         maxw = maxw or 0
         minw = int(minw) - (1 if minw > int(minw) else 0)
-        maxw = int(maxw) + (1 if maxw >  int(maxw) else 0)
+        maxw = int(maxw) + (1 if maxw > int(maxw) else 0)
         
         self._startw, self._endw = minw, maxw
         
@@ -68,16 +68,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         # load latest version
         self.load_version(None)
-        
-    def load_version(self, match):
-        version = self.conn.get_version(match)
-        minw, maxw = version["weight_range"]
-        if minw is not None:
-            self.rs.setStart(minw)
-        if maxw is not None:
-            self.rs.setEnd(maxw)
-        for hap, xy in version["topology"].items():
-            self.network.move_node(hap, xy[0], xy[1])
             
     def _add_xys(self, haps, edges, widget):
             hapmapped = collections.OrderedDict()
@@ -98,7 +88,26 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self._is_saved = False
         self.saveStatusChanged.emit(self._is_saved)
         
-        
+    def _add_filter(self, checked, ambient):
+        facts_and_values = {}
+        for att in ambient.keys():
+            facts_and_values[att] = self.conn.get_fact_attribute_values(att)
+        if facts_and_values:
+            row = self.enviromentsTableWidget.rowCount()
+            self.enviromentsTableWidget.insertRow(row)
+            envWidget = EnviromentListItem(env=facts_and_values)
+            checkbox = QtGui.QCheckBox()
+            checkbox.stateChanged.connect(self.on_filter_changed)
+            envWidget.filterChanged.connect(self.on_filter_changed)
+            envWidget.removeRequested.connect(self.on_filter_removeRequested)
+            self.enviromentsTableWidget.setCellWidget(row, 0, checkbox)
+            self.enviromentsTableWidget.setCellWidget(row, 1, envWidget)
+            self.enviromentsTableWidget.resizeRowToContents(row)
+            self.enviromentsTableWidget.resizeColumnsToContents()
+            checkbox.setChecked(checked)
+            for att, value in ambient.items():
+                envWidget.select_attribute_value(att, value)
+    
     #===========================================================================
     # SLOTS
     #===========================================================================
@@ -118,25 +127,12 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self._set_unsaved()
     
     def on_addEnviromentPushButton_pressed(self):
-        self.envDialog = EnviromentDialog(self, 
+        self.envDialog = EnviromentDialog(self,
                                           self.conn.facts_attributes_names())
         if self.envDialog.exec_():
             atts = self.envDialog.selected_attributes
-            facts_and_values = {}
-            for att in atts:
-                facts_and_values[att] = self.conn.get_fact_attribute_values(att)
-            if facts_and_values:
-                row = self.enviromentsTableWidget.rowCount()
-                self.enviromentsTableWidget.insertRow(row)
-                envWidget = EnviromentListItem(env=facts_and_values)
-                checkbox = QtGui.QCheckBox()
-                checkbox.stateChanged.connect(self.on_filter_changed)
-                envWidget.filterChanged.connect(self.on_filter_changed)
-                envWidget.removeRequested.connect(self.on_filter_removeRequested)
-                self.enviromentsTableWidget.setCellWidget(row, 0, checkbox)
-                self.enviromentsTableWidget.setCellWidget(row, 1, envWidget)
-                self.enviromentsTableWidget.resizeRowToContents(row)
-                self.enviromentsTableWidget.resizeColumnsToContents()
+            ambient = dict((att, None) for att in atts)
+            self._add_filter(False, ambient)
             self._set_unsaved()
         self.envDialog.setParent(None)
         self.envDialog.destroy()
@@ -194,8 +190,22 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 self.hapsComboBox.setCurrentIndex(idx)
     
     #===========================================================================
-    # SAVE & DESTROY
+    # PUBLIC
     #===========================================================================
+    
+    def load_version(self, match):
+        version = self.conn.get_version(match)
+        minw, maxw = version["weight_range"]
+        if minw is not None:
+            self.rs.setStart(minw)
+        if maxw is not None:
+            self.rs.setEnd(maxw)
+        for hap, xy in version["topology"].items():
+            self.network.move_node(hap, xy[0], xy[1])
+        for checked, ambient in version["ambients"]:
+            self._add_filter(checked, ambient)
+        if version["id"] == 1:
+            self.save()
     
     def is_saved(self):
         return self._is_saved
@@ -211,7 +221,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 check = self.enviromentsTableWidget.cellWidget(ridx, 0)
                 envwidget = self.enviromentsTableWidget.cellWidget(ridx, 1)
                 ambients.append((check.isChecked(), envwidget.filters))
-            self.conn.save_version(new_version, topology, 
+            self.conn.save_version(new_version, topology,
                                    weight_range, ambients)
             self._is_saved = True
             self.saveStatusChanged.emit(self._is_saved)
@@ -259,7 +269,7 @@ class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
     def selected_attributes(self):
         atts = []
         for idx in range(self.selectedAttributesListWidget.count()):
-            text =unicode(self.selectedAttributesListWidget.item(idx).text())
+            text = unicode(self.selectedAttributesListWidget.item(idx).text())
             atts.append(text)
         return tuple(atts)
 
@@ -291,6 +301,14 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
     def on_combo_currentIndexChanged(self, idx):
         self.filterChanged.emit()
     
+    def select_attribute_value(self, name, value):
+        combo = self._filters[name]
+        for idx in range(combo.count()):
+            avalue = combo.itemData(idx).toPyObject()
+            if value == avalue:
+                combo.setCurrentIndex(idx)
+                break  
+            
     @QtCore.pyqtSlot()
     def on_removeButton_clicked(self):
         self.removeRequested.emit(self)
