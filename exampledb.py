@@ -23,21 +23,21 @@ DB_PATH = os.path.join("data", "example.db")
 
 def connect(create=False):
     conn = None
-    
+
     if create:
-    
+
         choices = {
             int: lambda: random.randint(1, 100),
             float: lambda: random.randint(1, 100) + random.random(),
             str: lambda: hashlib.sha1(str(random.random)).hexdigest(),
             bool: lambda: bool(random.randint(0, 1)),
         }
-        
+
         if os.path.exists(DB_PATH):
             os.remove(DB_PATH)
-        
+
         conn = db.YatelConnection("sqlite", name=DB_PATH)
-        
+
         haps = []
         for idx in range(random.randint(10, 50)):
             name = "haplotype_" + str(idx)
@@ -45,7 +45,7 @@ def connect(create=False):
             for jdx, func in enumerate(sorted(choices.values())):
                 attrs["attr_" + str(jdx)] = func()
             haps.append(dom.Haplotype(name, **attrs))
-            
+
         facts = []
         for _ in range(random.randint(10, 50)):
             hap_id = random.choice(haps).hap_id
@@ -53,7 +53,7 @@ def connect(create=False):
             for jdx, func in enumerate(sorted(choices.values())):
                 attrs["attr_" + str(jdx)] = func()
             facts.append(dom.Fact(hap_id, b=1, c=2, k=2))
-            
+
         edges = []
         for _ in range(random.randint(10, 50)):
             weight = choices[float]()
@@ -68,7 +68,7 @@ def connect(create=False):
         conn = db.YatelConnection("sqlite", name=DB_PATH)
         conn.init_yatel_database()
     return conn
-            
+
 
 #===============================================================================
 # MAIN
@@ -84,4 +84,4 @@ if __name__ == "__main__":
         print "--create or --load (over {})".format(DB_PATH)
         sys.exit(1)
     connect(create)
-    
+

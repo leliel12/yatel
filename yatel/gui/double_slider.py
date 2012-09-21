@@ -32,7 +32,13 @@ class DoubleSlider(uis.UI("DoubleSlider.ui")):
         self.maxSlider.setMaximum(max_value)
         self.maxSlider.setSliderPosition(max_value)
         self.maxValueLabel.setNum(max_value)
+    
+    def setStart(self, start):
+        self.minSlider.setSliderPosition(start)
         
+    def setEnd(self, end):
+        self.maxSlider.setSliderPosition(end)
+    
     def on_minSlider_valueChanged(self, v):
         if v > self.maxSlider.value():
             self.maxSlider.setSliderPosition(v)

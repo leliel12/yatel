@@ -66,6 +66,18 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         self.network.node_clicked.conectar(self.on_node_clicked)
         
+        # load latest version
+        self.load_version(None)
+        
+    def load_version(self, match):
+        version = self.conn.get_version(match)
+        minw, maxw = version["weight_range"]
+        if minw is not None:
+            self.rs.setStart(minw)
+        if maxw is not None:
+            self.rs.setEnd(maxw)
+        for hap, xy in version["topology"].items():
+            self.network.move_node(hap, xy[0], xy[1])
             
     def _add_xys(self, haps, edges, widget):
             hapmapped = collections.OrderedDict()

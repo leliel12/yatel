@@ -287,6 +287,11 @@ class NetworkProxy(object):
             top[actor.haplotype] = (actor.x, actor.y)
         return top
         
+    def move_node(self, hap, x, y):
+        actor = self.actor_of(hap)
+        actor.x = x
+        actor.y = y
+        
     @property
     def widget(self):
         return pilas.mundo.motor.widget
