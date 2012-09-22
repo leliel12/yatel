@@ -504,7 +504,7 @@ class YatelConnection(object):
 
         topology = {}
         for hap_id, xy in version["topology"].items():
-             topology[self.HaplotypeDBO.get(hap_id=hap_id)] = tuple(xy)
+             topology[self.haplotype_by_id(hap_id)] = tuple(xy)
 
         version["topology"] = topology
         version["tag"] = vdbo.tag

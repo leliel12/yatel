@@ -206,7 +206,10 @@ class NetworkProxy(object):
     def _on_node_clicked(self, evt):
         sender = evt["sender"]
         self.node_clicked.emitir(node=sender.haplotype)
-
+    
+    def get_unussed_coord(self):
+        return (0, 0)
+    
     def clear(self):
         for n in self._nodes.values():
             n.destruir()
@@ -214,7 +217,6 @@ class NetworkProxy(object):
         self._edges.clear()
         self._selected = None
         self._highlighted = ()
-        self.widget.setParent(None)
     
     def select_node(self, hap):
         for hid, n in self._nodes.items():

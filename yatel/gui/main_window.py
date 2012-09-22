@@ -18,6 +18,7 @@ from yatel.gui import resources
 from yatel.gui import explorer
 from yatel.gui import connection_setup
 from yatel.gui import error_dialog
+from yatel.gui import version_dialog
 
 
 #===============================================================================
@@ -81,7 +82,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
                                                    QtGui.QMessageBox.Cancel,
                                                    QtGui.QMessageBox.Discard)
                 if status == QtGui.QMessageBox.Ok:
-                    self.explorerFrame.save_version()
+                    self.on_actionSave_triggered(True)
                     self.centralLayout.removeWidget(self.explorerFrame)
                     self.explorerFrame.saveStatusChanged.disconnect(
                         self.on_explorerFrame_saveStatusChanged
@@ -132,7 +133,11 @@ class MainWindow(uis.UI("MainWindow.ui")):
     
     def on_actionLoad_triggered(self, *chk):
         if chk:
-            self.explorerFrame.load_version()
+            conn = self.explorerFrame.conn
+            vid = version_dialog.open_version(*conn.versions())
+            if vid:
+                version = conn.get_version(vid)
+                self.explorerFrame.load_version(version)
     
     def on_explorerFrame_saveStatusChanged(self, is_saved):
         self.actionSave.setEnabled(not is_saved)

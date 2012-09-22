@@ -5,15 +5,11 @@
 # IMPORTS
 #===============================================================================
 
-import collections
 
 from PyQt4 import QtGui, QtCore
 
-from yatel import topsort
-
 from yatel.gui import uis
 from yatel.gui import double_slider
-from yatel.gui import version_dialog
 
 
 #===============================================================================
@@ -32,63 +28,33 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         from yatel.gui import network
         
         self._is_saved = saved
+        self._version = ()
+        self._startw, self._endw = None, None
+        
         self.network = network.NetworkProxy()
         self.network.widget.setParent(self)
         self.pilasLayout.addWidget(self.network.widget)
         self.conn = yatel_connection
-        self._version = self.conn.get_version(match)
         
-        if not self._version["topology"]
-            haplotypes = tuple(self.conn.iter_haplotypes())
-            edges = tuple(self.conn.iter_edges())
-            xysorted = self._add_xys(haplotypes, edges, self.network.widget)
-            for hap, xy in xysorted.items():
-                version["topology"][hap] = xy
-        
-        minw, maxw = None, None
-        for edge in edges:
-            self.network.add_edge(edge)
-            if maxw < edge.weight or minw is None:
-                maxw = edge.weight
-            if minw > edge.weight or maxw is None:
-                minw = edge.weight
+        version = self.conn.get_version() # the latest
                 
-        minw = minw or 0
-        maxw = maxw or 0
+        minw, maxw = [e.weight or 0 for e in self.conn.min_max_edge()]
         minw = int(minw) - (1 if minw > int(minw) else 0)
         maxw = int(maxw) + (1 if maxw > int(maxw) else 0)
-        self._startw = minw
-        self._endw = maxw
-        self.rs = double_slider.DoubleSlider(self, self.tr("Weights"), 
+        self.rs = double_slider.DoubleSlider(self,
+                                             self.tr("Weights"),
                                              minw, maxw)
         self.rs.endValueChanged.connect(self.on_weightEnd_changed)
         self.rs.startValueChanged.connect(self.on_weightStart_changed)
         self.sliderLayout.addWidget(self.rs)
-        if not self._version["weight_range"]:
-            self._version["weight_range"] = minw, maxw
         
         self.network.node_clicked.conectar(self.on_node_clicked)
         
         # load latest version
-        self.load_version(self._version)
-        if self._version["id"] == 1:
+        self.load_version(version)
+        if version["id"] == 1:
             self.save_new_version("topology_added")
-            
-    def _add_xys(self, haps, edges, widget):
-            hapmapped = collections.OrderedDict()
-            width = widget.size().width() / 2 #xs
-            height = widget.size().height() / 2 #ys
-            bounds = (-width + width / 4,
-                      height - height / 4,
-                      width, -height)            
-            xysorted = topsort.xy(edges, "randomsort", bounds=bounds)
-            for x, y, hap_id in xysorted:
-                for hap in haps:
-                    if hap.hap_id == hap_id:
-                        hapmapped[hap] = (x, y)
-                        break
-            return hapmapped
-    
+                
     def _set_unsaved(self):
         self._is_saved = False
         self.saveStatusChanged.emit(self._is_saved)
@@ -200,15 +166,25 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     
     def load_version(self, version):
         self.network.clear()
-        minw, maxw = version["weight_range"]
-        self.rs.setStart(minw)
-        self.rs.setEnd(maxw)
+        
+        if None in version["weight_range"]:
+            version["weight_range"] = self.rs.tops()
+        self._startw, self._endw = version["weight_range"]
+        self.rs.setStart(self._startw)
+        self.rs.setEnd(self._endw)
+        
+        if not version["topology"]:
+            for hap in self.conn.iter_haplotypes():
+                version["topology"][hap] = self.network.get_unussed_coord()
         for hap, xy in version["topology"].items():
             self.network.add_node(hap, x=xy[0], y=xy[1])
             self.hapsComboBox.addItem(unicode(hap.hap_id), QtCore.QVariant(hap))
+        
         for checked, ambient in version["ambients"]:
             self._add_filter(checked, ambient)
-        self._version = version        
+        for edge in self.conn.iter_edges():
+            self.network.add_edge(edge)
+        self._version = (version["id"], version["datetime"], version["tag"])       
     
     def is_saved(self):
         return self._is_saved
@@ -228,6 +204,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
     def destroy(self):
         self.network.clear()
+        self.network.setParent(None)
         self.pilasLayout.removeWidget(self.network.widget)
         super(ExplorerFrame, self).destroy()
 
