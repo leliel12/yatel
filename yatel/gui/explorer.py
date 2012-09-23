@@ -10,6 +10,7 @@ from PyQt4 import QtGui, QtCore
 
 from yatel.gui import uis
 from yatel.gui import double_slider
+from yatel.gui import sheditor
 
 
 #===============================================================================
@@ -31,10 +32,17 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self._version = ()
         self._startw, self._endw = None, None
         
+        self.conn = yatel_connection
+        
         self.network = network.NetworkProxy()
         self.network.widget.setParent(self)
+        self.network.node_clicked.conectar(self.on_node_clicked)
         self.pilasLayout.addWidget(self.network.widget)
-        self.conn = yatel_connection
+        
+        self.sqleditor = sheditor.HiglightedEditor("sql")
+        self.sqlLayout.addWidget(self.sqleditor)
+        self.sqleditor.textChanged.connect(self.on_sqleditor_textChanged)
+        self.sqleditor.setText("SELECT * FROM `haplotypes`")
         
         version = self.conn.get_version() # the latest
                 
@@ -47,8 +55,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.rs.endValueChanged.connect(self.on_weightEnd_changed)
         self.rs.startValueChanged.connect(self.on_weightStart_changed)
         self.sliderLayout.addWidget(self.rs)
-        
-        self.network.node_clicked.conectar(self.on_node_clicked)
         
         # load latest version
         self.load_version(version)
@@ -81,6 +87,26 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     #===========================================================================
     # SLOTS
     #===========================================================================
+    
+    @QtCore.pyqtSlot(int)
+    def on_tabWidget_currentChanged(self, idx):
+        if idx == 0:
+            self.on_filter_changed()
+        else:
+            self.network.unhighlightall()
+    
+    def on_sqleditor_textChanged(self):
+        text = unicode(self.sqleditor.text()).strip()
+        self.executeSQLButton.setEnabled(bool(text))
+    
+    def on_executeSQLButton_pressed(self):
+        query = unicode(self.sqleditor.text()).strip()
+        haps = self.conn.hap_sql(query)
+        if haps:
+            self.network.highlight_nodes(*haps)
+        else:
+            self.network.unhighlightall()
+            
     
     def on_weightStart_changed(self, start):
         if start != self._startw:

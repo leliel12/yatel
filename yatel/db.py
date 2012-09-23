@@ -425,8 +425,11 @@ class YatelConnection(object):
             yield dom.Edge(weight, *haps_id)
 
     def hap_sql(self, query, *args):
+        haps = []
         for hdbo in self.HaplotypeDBO.raw(query, *args):
-            dom.Haplotype(**hdbo.get_field_dict())
+            hap = dom.Haplotype(**hdbo.get_field_dict())
+            haps.append(hap)
+        return tuple(haps)
 
     def save_version(self, tag, comment="",
                      topology={}, weight_range=(None, None), ambients=()):
