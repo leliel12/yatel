@@ -42,7 +42,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.sqleditor = sheditor.HiglightedEditor("sql")
         self.sqlLayout.addWidget(self.sqleditor)
         self.sqleditor.textChanged.connect(self.on_sqleditor_textChanged)
-        self.sqleditor.setText("SELECT * FROM `haplotypes`")
         
         version = self.conn.get_version() # the latest
                 
@@ -107,7 +106,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         else:
             self.network.unhighlightall()
             
-    
     def on_weightStart_changed(self, start):
         if start != self._startw:
             edges = tuple(self.conn.filter_edges(start, self._endw))
@@ -212,6 +210,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.rs.setStart(self._startw)
         self.rs.setEnd(self._endw)
         
+        if not version["sql"]:
+            version["sql"] = "SELECT * FROM `haplotypes`"
         if not version["topology"]:
             for hap in self.conn.iter_haplotypes():
                 version["topology"][hap] = self.network.get_unussed_coord()
@@ -225,10 +225,13 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         for edge in self.conn.iter_edges():
             self.network.add_edge(edge)
+            
+        self.sqleditor.setText(version["sql"])
         
         self._is_saved = True
         self._version = (version["id"], version["datetime"], version["tag"])       
         self.saveStatusChanged.emit(self._is_saved)
+        self.on_tabWidget_currentChanged(self.tabWidget.currentIndex())
     
     def is_saved(self):
         return self._is_saved
@@ -236,12 +239,13 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     def save_version(self, new_version, comment):        
         topology = self.network.topology()
         weight_range = self._startw, self._endw
+        sql = unicode(self.sqleditor.text()).strip()
         ambients = []
         for ridx in range(self.enviromentsTableWidget.rowCount()):
             check = self.enviromentsTableWidget.cellWidget(ridx, 0)
             envwidget = self.enviromentsTableWidget.cellWidget(ridx, 1)
             ambients.append((check.isChecked(), envwidget.filters))
-        self.conn.save_version(new_version, comment, topology,
+        self.conn.save_version(new_version, comment, sql, topology,
                                weight_range, ambients)
         self._is_saved = True
         self.saveStatusChanged.emit(self._is_saved)
