@@ -48,14 +48,15 @@
    </item>
    <item>
     <widget class="QTableWidget" name="versionsTableWidget">
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
      </attribute>
-     <row>
-      <property name="text">
-       <string>una</string>
-      </property>
-     </row>
      <column>
       <property name="text">
        <string>ID</string>
@@ -71,21 +72,6 @@
        <string>Datetime</string>
       </property>
      </column>
-     <item row="0" column="0">
-      <property name="text">
-       <string>d</string>
-      </property>
-     </item>
-     <item row="0" column="1">
-      <property name="text">
-       <string>d</string>
-      </property>
-     </item>
-     <item row="0" column="2">
-      <property name="text">
-       <string>d</string>
-      </property>
-     </item>
     </widget>
    </item>
    <item>

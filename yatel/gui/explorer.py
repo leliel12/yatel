@@ -74,7 +74,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self.enviromentsTableWidget.setCellWidget(row, 0, checkbox)
             self.enviromentsTableWidget.setCellWidget(row, 1, envWidget)
             self.enviromentsTableWidget.resizeRowsToContents()
-            self.enviromentsTableWidget.resizeColumnsToContents()
             checkbox.setChecked(checked)
             for att, value in ambient.items():
                 envWidget.select_attribute_value(att, value)
@@ -151,7 +150,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             valueitem = QtGui.QTableWidgetItem(unicode(atts[1]))
             self.attTableWidget.setItem(idx, 0, nameitem)
             self.attTableWidget.setItem(idx, 1, valueitem)
-        self.attTableWidget.resizeColumnsToContents()
     
     def on_node_clicked(self, evt):
         hap = evt["node"]

@@ -51,6 +51,9 @@
          <attribute name="horizontalHeaderVisible">
           <bool>true</bool>
          </attribute>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
          <attribute name="verticalHeaderVisible">
           <bool>false</bool>
          </attribute>
@@ -120,6 +123,9 @@
            <property name="showGrid">
             <bool>false</bool>
            </property>
+           <attribute name="horizontalHeaderStretchLastSection">
+            <bool>true</bool>
+           </attribute>
            <column>
             <property name="text">
              <string>Activated</string>

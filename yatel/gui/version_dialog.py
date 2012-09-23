@@ -43,7 +43,6 @@ class VersionDialog(uis.UI("VersionDialog.ui")):
             self.versionsTableWidget.setItem(idx, 2, dateItem)
             if dialog_type == self.SAVE:
                 self._existing.append(tag)
-        self.versionsTableWidget.resizeColumnsToContents()
     
     def on_versionsTableWidget_itemSelectionChanged(self):
         row = self.versionsTableWidget.currentRow()
