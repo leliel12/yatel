@@ -174,6 +174,7 @@ class YatelConnection(object):
                 "datetime": peewee.DateTimeField(uniqe=True),
                 "tag": peewee.CharField(unique=True),
                 "data": peewee.TextField(),
+                "comment": peewee.TextField(default=""),
                 "Meta": self.model_meta,
             }
         )
@@ -293,7 +294,7 @@ class YatelConnection(object):
                     setattr(edbo, key, hap_instances[hap_id])
                 edbo.save(True)
 
-            self.save_version(tag="init")
+            self.save_version(tag="init", comment="first save")
             self._inited = True
 
     def init_yatel_database(self):
@@ -427,7 +428,7 @@ class YatelConnection(object):
         for hdbo in self.HaplotypeDBO.raw(query, *args):
             dom.Haplotype(**hdbo.get_field_dict())
 
-    def save_version(self, tag,
+    def save_version(self, tag, comment="",
                      topology={}, weight_range=(None, None), ambients=()):
         td = {}
         for hap, xy in topology.items():
@@ -448,10 +449,10 @@ class YatelConnection(object):
                 if varname not in self.facts_attributes_names():
                     msg = "Invalid fact attribute: '{}'".format(varname)
                     raise ValueError(msg)
-                if (varvalue is None
-                    or varvalue not in self.get_fact_attribute_values(varname)):
+                if (varvalue is not None
+                    and varvalue not in self.get_fact_attribute_values(varname)):
                         msg = "Invalid value '{}' for fact attribute '{}'"
-                        mag = msg.format(varvalue, varname)
+                        msg = msg.format(varvalue, varname)
                         raise ValueError(msg)
             al.append([active, ambient])
 
@@ -460,6 +461,7 @@ class YatelConnection(object):
         vdbo = self.YatelVersionDBO()
         vdbo.tag = tag
         vdbo.datetime = datetime.datetime.now()
+        vdbo.comment = comment
         vdbo.data = json.dumps(data).encode("base64")
 
         query = self.YatelVersionDBO.select()
@@ -473,15 +475,15 @@ class YatelConnection(object):
         if self._versions is None:
             self.versions()
         else:
-            self._versions.append((vdbo.id, vdbo.datetime, vdbo.tag))
-            self._versions.sort()
+            self._versions.insert(0, (vdbo.id, vdbo.datetime, vdbo.tag))
         return vdbo.id, vdbo.datetime, vdbo.tag
 
     def versions(self):
         if self._versions is None:
             self._versions = []
-            for vdbo in self.YatelVersionDBO.select().order_by("id"):
-                self._versions.append((vdbo.id, vdbo.datetime, vdbo.tag))
+            for vdbo in self.YatelVersionDBO.select().order_by(("id", "DESC")):
+                ver = (vdbo.id, vdbo.datetime, vdbo.tag)
+                self._versions.append(ver)
         return tuple(self._versions)
 
     def get_version(self, match=None):
@@ -510,6 +512,7 @@ class YatelConnection(object):
         version["tag"] = vdbo.tag
         version["id"] = vdbo.id
         version["datetime"] = vdbo.datetime
+        version["comment"] = vdbo.comment
         return version
 
     @property

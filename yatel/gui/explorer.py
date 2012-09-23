@@ -53,7 +53,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         # load latest version
         self.load_version(version)
         if version["id"] == 1:
-            self.save_version("topology_added")
+            self.save_version("topology_added", "added topological info")
                 
     def _set_unsaved(self):
         self._is_saved = False
@@ -73,7 +73,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             envWidget.removeRequested.connect(self.on_filter_removeRequested)
             self.enviromentsTableWidget.setCellWidget(row, 0, checkbox)
             self.enviromentsTableWidget.setCellWidget(row, 1, envWidget)
-            self.enviromentsTableWidget.resizeRowToContents(row)
+            self.enviromentsTableWidget.resizeRowsToContents()
             self.enviromentsTableWidget.resizeColumnsToContents()
             checkbox.setChecked(checked)
             for att, value in ambient.items():
@@ -151,6 +151,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             valueitem = QtGui.QTableWidgetItem(unicode(atts[1]))
             self.attTableWidget.setItem(idx, 0, nameitem)
             self.attTableWidget.setItem(idx, 1, valueitem)
+        self.attTableWidget.resizeColumnsToContents()
     
     def on_node_clicked(self, evt):
         hap = evt["node"]
@@ -203,11 +204,12 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         self._is_saved = True
         self._version = (version["id"], version["datetime"], version["tag"])       
+        self.saveStatusChanged.emit(self._is_saved)
     
     def is_saved(self):
         return self._is_saved
     
-    def save_version(self, new_version):        
+    def save_version(self, new_version, comment):        
         topology = self.network.topology()
         weight_range = self._startw, self._endw
         ambients = []
@@ -215,7 +217,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             check = self.enviromentsTableWidget.cellWidget(ridx, 0)
             envwidget = self.enviromentsTableWidget.cellWidget(ridx, 1)
             ambients.append((check.isChecked(), envwidget.filters))
-        self.conn.save_version(new_version, topology,
+        self.conn.save_version(new_version, comment, topology,
                                weight_range, ambients)
         self._is_saved = True
         self.saveStatusChanged.emit(self._is_saved)

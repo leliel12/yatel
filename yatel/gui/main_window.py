@@ -139,7 +139,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
     def on_actionLoad_triggered(self, *chk):
         if chk:
             conn = self.explorerFrame.conn
-            vid = version_dialog.open_version(*conn.versions())
+            vid = version_dialog.open_version(conn)
             if isinstance(vid, int):
                 version = conn.get_version(vid)
                 self.explorerFrame.load_version(version)
@@ -160,9 +160,9 @@ class MainWindow(uis.UI("MainWindow.ui")):
     def on_actionSave_triggered(self, *chk):
         if chk and not self.explorerFrame.is_saved():
             conn = self.explorerFrame.conn
-            tag = version_dialog.save_version(*conn.versions())
-            if tag:
-                self.explorerFrame.save_version(tag)
+            tag, comment = version_dialog.save_version(conn)
+            if tag :
+                self.explorerFrame.save_version(tag, comment)
     
     def on_actionOpenYatelDB_triggered(self, *chk):
         if not chk or not self.close_explorer():
