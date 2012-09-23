@@ -53,7 +53,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         # load latest version
         self.load_version(version)
         if version["id"] == 1:
-            self.save_new_version("topology_added")
+            self.save_version("topology_added")
                 
     def _set_unsaved(self):
         self._is_saved = False
@@ -164,6 +164,20 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     # PUBLIC
     #===========================================================================
     
+    def remove_all_filters(self):
+        for ridx in range(self.enviromentsTableWidget.rowCount()):
+            widget = self.enviromentsTableWidget.cellWidget(ridx, 1)
+            check = self.enviromentsTableWidget.cellWidget(ridx, 0)
+            if check.isChecked():
+                check.setChecked(False)
+                self.on_filter_changed()
+            self.enviromentsTableWidget.removeRow(ridx)
+            check.stateChanged.disconnect(self.on_filter_changed)
+            widget.removeRequested.disconnect(self.on_filter_removeRequested)
+            widget.filterChanged.disconnect(self.on_filter_changed)
+        self._set_unsaved()
+    
+    
     def load_version(self, version):
         self.network.clear()
         
@@ -180,10 +194,14 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self.network.add_node(hap, x=xy[0], y=xy[1])
             self.hapsComboBox.addItem(unicode(hap.hap_id), QtCore.QVariant(hap))
         
+        self.remove_all_filters()
         for checked, ambient in version["ambients"]:
             self._add_filter(checked, ambient)
+        
         for edge in self.conn.iter_edges():
             self.network.add_edge(edge)
+        
+        self._is_saved = True
         self._version = (version["id"], version["datetime"], version["tag"])       
     
     def is_saved(self):
@@ -207,6 +225,9 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.network.setParent(None)
         self.pilasLayout.removeWidget(self.network.widget)
         super(ExplorerFrame, self).destroy()
+        
+    def version(self):
+        return self._version
 
 
 #===============================================================================

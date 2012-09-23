@@ -16,6 +16,8 @@ if __name__ == "__main__":
 # IMPORTS
 #===============================================================================
 
+import random
+
 import pilas
 from pilas import actores
 from pilas import imagenes
@@ -86,11 +88,14 @@ class _HaplotypeActor(actores.Actor):
             id=hex(id(self))
         )
     
+    def collide(self, x, y):
+        return self.colisiona_con_un_punto(x, y) \
+            or self._texto.colisiona_con_un_punto(x, y) \
+            or self._selected.colisiona_con_un_punto(x, y)
+    
     def _on_mouse_clicked(self, evt):
         x, y = evt["x"], evt["y"]
-        if self.colisiona_con_un_punto(x, y) \
-            or self._texto.colisiona_con_un_punto(x, y) \
-            or self._selected.colisiona_con_un_punto(x, y):
+        if self.collide(x, y):
                 self.clicked.emitir(sender=self)
         
     def destruir(self):
@@ -195,6 +200,7 @@ class NetworkProxy(object):
     def __init__(self):
         self._nodes = {}
         self._edges = _EdgesDrawActor()
+        self._bounds = None
         self._selected = None
         self._highlighted = ()
         self.node_clicked = eventos.Evento("node_clicked")
@@ -208,8 +214,19 @@ class NetworkProxy(object):
         self.node_clicked.emitir(node=sender.haplotype)
     
     def get_unussed_coord(self):
-        return (0, 0)
-    
+        x0, y0, x1, y1 = self.bounds
+        x, y = None, None
+        collide = False
+        count = 0
+        while (x is None and y is None) or (collide and count < 100):
+            count = 1
+            x, y = random.randint(x0, x1), random.randint(y1, y0)
+            for act in self._nodes.values():
+                if act.collide(x, y):
+                    collide = True
+                    break
+        return x, y
+            
     def clear(self):
         for n in self._nodes.values():
             n.destruir()
@@ -273,8 +290,8 @@ class NetworkProxy(object):
     def del_edge(self, edge):
         assert isinstance(edge, dom.Edge)
         nodes = []
-        for hap_id in edges.haps_id:
-            self._nodes[hap_id]
+        for hap_id in edge.haps_id:
+            self._nodes.append(hap_id)
         self._edges.del_edge(*nodes)
         
     def del_edges_with_node(self, hap):
@@ -293,7 +310,15 @@ class NetworkProxy(object):
         actor = self.actor_of(hap)
         actor.x = x
         actor.y = y
-        
+    
+    @property
+    def bounds(self):
+        if self._bounds is None:
+            width = self.widget.size().width() / 2 #xs
+            height = self.widget.size().height() / 2 #ys
+            self._bounds = (-width, height, width, -height)
+        return self._bounds
+    
     @property
     def widget(self):
         return pilas.mundo.motor.widget
@@ -340,5 +365,8 @@ if __name__ == "__main__":
     n.node_clicked.conectar(printer)
     n.node_clicked.conectar(selector)
     
+    print n.bounds
+    print n.get_unussed_coord()
+    print n.size()
     pilas.ejecutar()
     

@@ -50,10 +50,14 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
         self.explorerFrame = None
 
-    def setWindowTitle(self, prj=""):
-        title = "{0} v.{1} - {2}".format(
-            constants.PRJ, constants.STR_VERSION, prj
-        )
+    def reloadTitle(self):
+        prj, saved = "", ""
+        if self.explorerFrame:
+            prj = self.explorerFrame.conn.name
+            saved = "" if self.explorerFrame.is_saved() else "*"
+        title = "{} v.{} - {} {}".format(constants.PRJ,
+                                         constants.STR_VERSION,
+                                         prj, saved)
         super(self.__class__, self).setWindowTitle(title)
 
     def open_explorer(self, yatel_connection, saved=True):
@@ -62,11 +66,11 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.explorerFrame.saveStatusChanged.connect(
             self.on_explorerFrame_saveStatusChanged
         )
-        self.setWindowTitle(yatel_connection.name)
         self.centralLayout.addWidget(self.explorerFrame)
         self.actionSave.setEnabled(not self.explorerFrame.is_saved())
         self.actionClose.setEnabled(True)
         self.actionLoad.setEnabled(True)
+        self.reloadTitle()
 
     def close_explorer(self):
         """Return false if the project is not closed
@@ -102,7 +106,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
                     self.actionSave.setEnabled(False)
                     closed = True
                 else: # status == QtGui.QMessageBox.Cancel:
-                    clossed = False
+                    closed = False
             else:
                 msg = self.tr("Do you want to close the actual project?")
                 status = QtGui.QMessageBox.warning(self, constants.PRJ, msg,
@@ -124,6 +128,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
                 self.actionSave.setEnabled(False)
                 self.actionClose.setEnabled(False)
                 self.actionLoad.setEnabled(False)
+            self.reloadTitle()
             return closed
         return True
 
@@ -135,11 +140,13 @@ class MainWindow(uis.UI("MainWindow.ui")):
         if chk:
             conn = self.explorerFrame.conn
             vid = version_dialog.open_version(*conn.versions())
-            if vid:
+            if isinstance(vid, int):
                 version = conn.get_version(vid)
                 self.explorerFrame.load_version(version)
+                self.reloadTitle()
     
     def on_explorerFrame_saveStatusChanged(self, is_saved):
+        self.reloadTitle()
         self.actionSave.setEnabled(not is_saved)
     
     def on_actionExit_triggered(self, *chk):
@@ -152,7 +159,10 @@ class MainWindow(uis.UI("MainWindow.ui")):
     
     def on_actionSave_triggered(self, *chk):
         if chk and not self.explorerFrame.is_saved():
-            self.explorerFrame.save_version()
+            conn = self.explorerFrame.conn
+            tag = version_dialog.save_version(*conn.versions())
+            if tag:
+                self.explorerFrame.save_version(tag)
     
     def on_actionOpenYatelDB_triggered(self, *chk):
         if not chk or not self.close_explorer():
