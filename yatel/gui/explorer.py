@@ -88,6 +88,12 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     # SLOTS
     #===========================================================================
     
+    def on_haplotypesNamesCheckBox_stateChanged(self, state):
+        self.network.show_haps_names(bool(state))
+        
+    def on_weightsCheckBox_stateChanged(self, state):
+        self.network.show_weights(bool(state))
+    
     @QtCore.pyqtSlot(int)
     def on_tabWidget_currentChanged(self, idx):
         if idx == 0:
