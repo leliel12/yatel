@@ -65,14 +65,13 @@ IMAGE_NODE_UNSELECTED = imagenes.cargar(
 class _HaplotypeActor(actores.Actor):
     
     def __init__(self, hap, x=0, y=0):
-        super(_HaplotypeActor, self).__init__(
-            imagen=IMAGE_NODE_NORMAL,
-            x=x, y=y
-        )
+        super(_HaplotypeActor, self).__init__(imagen=IMAGE_NODE_NORMAL, 
+                                              x=x, y=y)
         
         # internal data
         self._selected = actores.Actor(imagen=IMAGE_NODE_UNSELECTED)
         self._texto = actores.Texto(magnitud=12)
+        self._show_text= True
         self.clicked = eventos.Evento("clicked")
         
         # conf
@@ -87,6 +86,13 @@ class _HaplotypeActor(actores.Actor):
             self._on_mouse_clicked,
             id=hex(id(self))
         )
+    
+    def show_text(self, show):
+        self._show_text = show
+        if show:
+            self._texto.texto = unicode(self._hap.hap_id)
+        else:
+            self._texto.texto = u""
     
     def collide(self, x, y):
         return self.colisiona_con_un_punto(x, y) \
@@ -125,7 +131,8 @@ class _HaplotypeActor(actores.Actor):
     def haplotype(self, hap):
         assert isinstance(hap, dom.Haplotype)
         self._hap = hap
-        self._texto.texto = unicode(self._hap.hap_id)
+        self.show_text(self._show_text)
+        
         
 
 #===============================================================================
@@ -137,10 +144,12 @@ class _EdgesDrawActor(actores.Pizarra):
     def __init__(self):
         pilas.actores.Pizarra.__init__(self)
         self._edges = {}
+        self._show_weights = True
 
     def clear(self):
         self._edges.clear()
         self.limpiar()
+        self._show_weights = True
 
     def del_edge(self, *nodes):
         self._edges.pop(nodes)
@@ -156,6 +165,9 @@ class _EdgesDrawActor(actores.Pizarra):
             map(lambda n: isinstance(n, _HaplotypeActor), nodes)
         )
         self._edges[nodes] = weight
+
+    def show_weights(self, show):
+        self._show_weights = show
 
     def actualizar(self):
         self.limpiar()
@@ -173,13 +185,15 @@ class _EdgesDrawActor(actores.Pizarra):
                 yp = sum([act.y for act in nodes]) / len(nodes)
                 text_x, text_y = xp + 10, yp + 10
                 for act in nodes:
-                    self.linea(
-                        xp, yp, act.x, act.y,
-                        grosor=2, color=colores.rojo
-                    )
-            self.texto(
-                unicode(weight), text_x, text_y, color=colores.blanco
-            )
+                    self.linea(xp, yp, act.x, act.y, 
+                               grosor=2, color=colores.rojo)
+            if self._show_weights:
+                self.texto(unicode(weight), text_x, text_y, 
+                           color=colores.blanco)
+        
+    @property
+    def weights_showed(self):
+        return self._show_weights
 
 
 #===============================================================================
@@ -203,6 +217,7 @@ class NetworkProxy(object):
         self._bounds = None
         self._selected = None
         self._highlighted = ()
+        self._haps_names_showed = True
         self.node_clicked = eventos.Evento("node_clicked")
         fondos.Color(colores.grisoscuro)
         
@@ -242,7 +257,15 @@ class NetworkProxy(object):
                 self._selected = n.haplotype
             else:
                 n.set_selected(False)
-
+    
+    def show_haps_names(self, show):
+        self._haps_names_showed = show
+        for n in self._nodes.values():
+            n.show_text(show)
+            
+    def show_weights(self, show):
+        self._edges.show_weights(show)
+        
     def highlight_nodes(self, *haps):
         assert haps and all(
             map(lambda h: isinstance(h, dom.Haplotype), haps)
@@ -312,6 +335,14 @@ class NetworkProxy(object):
         actor.y = y
     
     @property
+    def haps_names_showed(self):
+        return self._haps_names_showed
+        
+    @property
+    def weights_showed(self):
+        return self._edges.weights_showed
+    
+    @property
     def bounds(self):
         if self._bounds is None:
             width = self.widget.size().width() / 2 #xs
@@ -341,7 +372,10 @@ if __name__ == "__main__":
     
     n = NetworkProxy()
     
+    
     def printer(evt):
+        n.show_haps_names(not n.haps_names_showed)
+        n.show_weights(not n.weights_showed)
         pilas.avisar(str(evt))
     
     def selector(evt):
@@ -364,6 +398,7 @@ if __name__ == "__main__":
     n.highlight_nodes(a1, a2)
     n.node_clicked.conectar(printer)
     n.node_clicked.conectar(selector)
+    
     
     print n.bounds
     print n.get_unussed_coord()
