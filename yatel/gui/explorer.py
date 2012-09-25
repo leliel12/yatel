@@ -174,7 +174,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     def on_hapsComboBox_currentIndexChanged(self, idx):
         hap = self.hapsComboBox.itemData(idx).toPyObject()
         atts = hap.items_attrs()
-        
+        atts.sort()
+
         self.network.select_node(hap)
         self.attTableWidget.clearContents()
         self.attTableWidget.setRowCount(len(atts))
