@@ -87,7 +87,7 @@
         </sizepolicy>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -145,11 +145,11 @@
        </widget>
        <widget class="QWidget" name="tab_2">
         <attribute name="title">
-         <string>SQL</string>
+         <string>Haplotype SQL</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <layout class="QVBoxLayout" name="sqlLayout"/>
+          <layout class="QVBoxLayout" name="hapSQLLayout"/>
          </item>
          <item>
           <widget class="QWidget" name="widget" native="true">
@@ -168,7 +168,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="executeSQLButton">
+             <widget class="QPushButton" name="executeHapSQLButton">
               <property name="enabled">
                <bool>false</bool>
               </property>

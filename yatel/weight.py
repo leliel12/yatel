@@ -57,10 +57,10 @@ class AbstractWeight(object):
         comb = itertools.combinations_with_replacement \
                if repeated else itertools.combinations
         for hap0, hap1 in comb(haps, 2):
-            ws[(hap0, hap1)] = self._weight(hap0, hap1)
+            ws[(hap0, hap1)] = self.weight(hap0, hap1)
         return ws
     
-    def _weight(self, hap0, hap1):
+    def weight(self, hap0, hap1):
         """"""
         raise NotImplementedError()
         
@@ -88,7 +88,7 @@ class Hamming(AbstractWeight):
     
     """
     
-    def _weight(self, hap0, hap1):
+    def weight(self, hap0, hap1):
         w = 0
         for name in set(hap0.names_attrs() + hap1.names_attrs()):
             if name not in h0.names_attrs() \
@@ -110,7 +110,7 @@ def Expert(AbstractWeight):
             self._ws[(h0, h1)] = w
 
 
-    def _weight(self, hap0, hap1):
+    def weight(self, hap0, hap1):
         return self._ws.get((hap0, hap1))
 
 
@@ -120,7 +120,7 @@ def Expert(AbstractWeight):
 
 class Euclidean(AbstractWeight):
     
-    def _weight(self, hap0, hap1):
+    def weight(self, hap0, hap1):
         
         def to_num(attr):
             value = 0
@@ -142,7 +142,7 @@ class Euclidean(AbstractWeight):
 
 class Levenshtein(AbstractWeight):
     
-    def _weight(self, hap0, hap1):
+    def weight(self, hap0, hap1):
     
         def levenshtein(a, b):
             """Calculates the Levenshtein distance between a and b.
@@ -192,7 +192,7 @@ class DamerauLevenshtein(AbstractWeight):
 
     """
     
-    def _weight(self, hap0, hap1):
+    def weight(self, hap0, hap1):
         
         def dameraulevenshtein(seq1, seq2):
             """This is the original code found in: 

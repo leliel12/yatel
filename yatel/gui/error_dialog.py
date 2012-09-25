@@ -20,8 +20,8 @@ from yatel.gui import uis
 
 class ErrorDialog(uis.UI("ErrorDialog.ui")):
     
-    def __init__(self, parent, title, msg, stack):
-        super(ErrorDialog, self).__init__(parent=parent)
+    def __init__(self, title, msg, stack):
+        super(ErrorDialog, self).__init__(parent=None)
         self.stack = stack
         self.setWindowTitle(title)
         self.messageLabel.setText(msg)
@@ -37,12 +37,12 @@ class ErrorDialog(uis.UI("ErrorDialog.ui")):
 # FUNCTIONS
 #===============================================================================
 
-def critical(parent, title, err):
+def critical(title, err):
     msg = getattr(err, "msg", None) \
         or getattr(err, "message", None)\
         or str(err)
     stack = "\n".join(traceback.format_exception(*sys.exc_info()))
-    return ErrorDialog(parent, title, msg, stack).exec_()
+    return ErrorDialog(title, msg, stack).exec_()
     
 
 #===============================================================================

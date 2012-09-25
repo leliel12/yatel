@@ -49,6 +49,11 @@ class MainWindow(uis.UI("MainWindow.ui")):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
         self.explorerFrame = None
+        #~ 
+        #~ example_db = "/home/juan/proyectos/yatel_hg/data/example.db"
+        #~ conn = db.YatelConnection("sqlite", example_db)
+        #~ conn.init_yatel_database()
+        #~ self.open_explorer(conn)
 
     def reloadTitle(self):
         prj, saved = "", ""
@@ -174,7 +179,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
             conn = db.YatelConnection(**self.dialog.params)
             conn.init_yatel_database()
         except Exception as err:
-            error_dialog.critical(self, self.tr("Error"), err)
+            error_dialog.critical(self.tr("Error"), err)
         else:
             self.open_explorer(conn)
         finally:
@@ -204,7 +209,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
             conn = db.YatelConnection(**self.dialog.params)
             conn.init_with_values(haplotypes, facts, edges)
         except Exception as err:
-            error_dialog.critical(self, self.tr("Error"), err)
+            error_dialog.critical(self.tr("Error"), err)
         else:
             self.open_explorer(conn, saved=False)
         finally:

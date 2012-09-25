@@ -175,7 +175,6 @@ class YatelConnection(object):
                 "tag": peewee.CharField(unique=True),
                 "data": peewee.TextField(),
                 "comment": peewee.TextField(default=""),
-                "sql": peewee.TextField(default=""),
                 "Meta": self.model_meta,
             }
         )
@@ -432,7 +431,7 @@ class YatelConnection(object):
             haps.append(hap)
         return tuple(haps)
 
-    def save_version(self, tag, comment="", sql="",
+    def save_version(self, tag, comment="", hap_sql="",
                      topology={}, weight_range=(None, None), ambients=()):
         td = {}
         for hap, xy in topology.items():
@@ -460,11 +459,11 @@ class YatelConnection(object):
                         raise ValueError(msg)
             al.append([active, ambient])
 
-        data = {"topology": td, "weight_range": wrl, "ambients": al}
+        data = {"topology": td, "weight_range": wrl, 
+                "ambients": al, "hap_sql": hap_sql}
         
         vdbo = self.YatelVersionDBO()
         vdbo.tag = tag
-        vdbo.sql = sql.encode("base64")
         vdbo.datetime = datetime.datetime.now()
         vdbo.comment = comment
         vdbo.data = json.dumps(data).encode("base64")
@@ -516,7 +515,6 @@ class YatelConnection(object):
         version["topology"] = topology
         version["tag"] = vdbo.tag
         version["id"] = vdbo.id
-        version["sql"] = vdbo.sql.decode("base64")
         version["datetime"] = vdbo.datetime
         version["comment"] = vdbo.comment
         return version

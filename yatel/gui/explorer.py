@@ -10,6 +10,7 @@ from PyQt4 import QtGui, QtCore
 
 from yatel.gui import uis
 from yatel.gui import double_slider
+from yatel.gui import error_dialog
 from yatel.gui import sheditor
 
 
@@ -39,9 +40,9 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.network.node_clicked.conectar(self.on_node_clicked)
         self.pilasLayout.addWidget(self.network.widget)
         
-        self.sqleditor = sheditor.HiglightedEditor("sql")
-        self.sqlLayout.addWidget(self.sqleditor)
-        self.sqleditor.textChanged.connect(self.on_sqleditor_textChanged)
+        self.hapSQLeditor = sheditor.HiglightedEditor("sql")
+        self.hapSQLLayout.addWidget(self.hapSQLeditor)
+        self.hapSQLeditor.textChanged.connect(self.on_hapSQLeditor_textChanged)
         
         version = self.conn.get_version() # the latest
                 
@@ -94,17 +95,20 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         else:
             self.network.unhighlightall()
     
-    def on_sqleditor_textChanged(self):
-        text = unicode(self.sqleditor.text()).strip()
-        self.executeSQLButton.setEnabled(bool(text))
+    def on_hapSQLeditor_textChanged(self):
+        text = unicode(self.hapSQLeditor.text()).strip()
+        self.executeHapSQLButton.setEnabled(bool(text))
     
-    def on_executeSQLButton_pressed(self):
-        query = unicode(self.sqleditor.text()).strip()
-        haps = self.conn.hap_sql(query)
-        if haps:
-            self.network.highlight_nodes(*haps)
-        else:
-            self.network.unhighlightall()
+    def on_executeHapSQLButton_pressed(self):
+        try:
+            query = unicode(self.hapSQLeditor.text()).strip()
+            haps = self.conn.hap_sql(query)
+            if haps:
+                self.network.highlight_nodes(*haps)
+            else:
+                self.network.unhighlightall()
+        except Exception as err:
+            error_dialog.critical(self.tr("Error on Haplotype SQL"), err)
             
     def on_weightStart_changed(self, start):
         if start != self._startw:
@@ -200,7 +204,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             widget.filterChanged.disconnect(self.on_filter_changed)
         self._set_unsaved()
     
-    
     def load_version(self, version):
         self.network.clear()
         
@@ -210,8 +213,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.rs.setStart(self._startw)
         self.rs.setEnd(self._endw)
         
-        if not version["sql"]:
-            version["sql"] = "SELECT * FROM `haplotypes`"
+        if not version["hap_sql"]:
+            version["hap_sql"] = "SELECT * FROM `haplotypes`"
         if not version["topology"]:
             for hap in self.conn.iter_haplotypes():
                 version["topology"][hap] = self.network.get_unussed_coord()
@@ -226,7 +229,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         for edge in self.conn.iter_edges():
             self.network.add_edge(edge)
             
-        self.sqleditor.setText(version["sql"])
+        self.hapSQLeditor.setText(version["hap_sql"])
         
         self._is_saved = True
         self._version = (version["id"], version["datetime"], version["tag"])       
@@ -239,7 +242,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     def save_version(self, new_version, comment):        
         topology = self.network.topology()
         weight_range = self._startw, self._endw
-        sql = unicode(self.sqleditor.text()).strip()
+        sql = unicode(self.hapSQLeditor.text()).strip()
         ambients = []
         for ridx in range(self.enviromentsTableWidget.rowCount()):
             check = self.enviromentsTableWidget.cellWidget(ridx, 0)
