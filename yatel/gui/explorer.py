@@ -79,10 +79,13 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             envWidget.removeRequested.connect(self.on_filter_removeRequested)
             self.enviromentsTableWidget.setCellWidget(row, 0, checkbox)
             self.enviromentsTableWidget.setCellWidget(row, 1, envWidget)
-            self.enviromentsTableWidget.resizeRowsToContents()
             checkbox.setChecked(checked)
             for att, value in ambient.items():
                 envWidget.select_attribute_value(att, value)
+            size = envWidget.size().height() \
+                   if row == 0 else \
+                   self.enviromentsTableWidget.rowHeight(0)
+            self.enviromentsTableWidget.setRowHeight(row, size)
     
     #===========================================================================
     # SLOTS
