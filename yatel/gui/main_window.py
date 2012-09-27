@@ -165,9 +165,9 @@ class MainWindow(uis.UI("MainWindow.ui")):
     def on_actionSave_triggered(self, *chk):
         if chk and not self.explorerFrame.is_saved():
             conn = self.explorerFrame.conn
-            tag, comment = version_dialog.save_version(conn)
-            if tag :
-                self.explorerFrame.save_version(tag, comment)
+            tag_comment = version_dialog.save_version(conn)
+            if tag_comment :
+                self.explorerFrame.save_version(*tag_comment)
     
     def on_actionOpenYatelDB_triggered(self, *chk):
         if not chk or not self.close_explorer():

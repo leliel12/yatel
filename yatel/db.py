@@ -471,7 +471,7 @@ class YatelConnection(object):
         query = self.YatelVersionDBO.select()
         if query.count():
             vdbo_old = tuple(query.order_by(("datetime", "DESC")).limit(1))[0]
-            if vdbo.data == vdbo_old.data and vdbo.sql == vdbo_old.sql:
+            if vdbo.data == vdbo_old.data:
                 msg = "Nothing changed from the last version '{}'"
                 msg = msg.format(vdbo.tag)
                 raise ValueError(msg)

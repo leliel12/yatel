@@ -5,13 +5,13 @@
 # IMPORTS
 #===============================================================================
 
-
 from PyQt4 import QtGui, QtCore
 
 from yatel.gui import uis
 from yatel.gui import double_slider
 from yatel.gui import error_dialog
 from yatel.gui import sheditor
+from yatel.gui import ipython
 
 
 #===============================================================================
@@ -34,6 +34,9 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self._startw, self._endw = None, None
         
         self.conn = yatel_connection
+        
+        self.ipythonWidget = ipython.IPythonWidget()
+        self.consoleLayout.addWidget(self.ipythonWidget)
         
         self.network = network.NetworkProxy()
         self.network.widget.setParent(self)
@@ -60,6 +63,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.load_version(version)
         if version["id"] == 1:
             self.save_version("topology_added", "added topological info")
+            
+        self.ipythonWidget.reset_ns(network=self.network, connection=self.conn)
                 
     def _set_unsaved(self):
         self._is_saved = False
@@ -165,7 +170,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             check = self.enviromentsTableWidget.cellWidget(ridx, 0)
             if check.isChecked():
                 envwidget = self.enviromentsTableWidget.cellWidget(ridx, 1)
-                for hap in self.conn.ambient(**envwidget.filters):
+                for hap in self.conn.ambient(**envwidget.filters()):
                     haps.append(hap)
         if haps:
             self.network.highlight_nodes(*haps)
@@ -175,7 +180,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     
     @QtCore.pyqtSlot(int)
     def on_hapsComboBox_currentIndexChanged(self, idx):
-        hap = self.hapsComboBox.itemData(idx).toPyObject()
+        hap = self.hapsComboBox.itemData(idx)
         atts = hap.items_attrs()
         atts.sort()
 
@@ -193,7 +198,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         hap = evt["node"]
         self._set_unsaved()
         for idx in range(self.hapsComboBox.count()):
-            actual_hap = self.hapsComboBox.itemData(idx).toPyObject()
+            actual_hap = self.hapsComboBox.itemData(idx)
             if hap == actual_hap:
                 self.hapsComboBox.setCurrentIndex(idx)
     
@@ -230,7 +235,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 version["topology"][hap] = self.network.get_unussed_coord()
         for hap, xy in version["topology"].items():
             self.network.add_node(hap, x=xy[0], y=xy[1])
-            self.hapsComboBox.addItem(unicode(hap.hap_id), QtCore.QVariant(hap))
+            self.hapsComboBox.addItem(unicode(hap.hap_id), hap)
         
         self.remove_all_filters()
         for checked, ambient in version["ambients"]:
@@ -331,9 +336,9 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
             label = QtGui.QLabel(k)
             self.envLayout.addWidget(label)
             combo = QtGui.QComboBox()
-            combo.addItem("", QtCore.QVariant(None))
+            combo.addItem("", None)
             for v in values:
-                combo.addItem(unicode(v), QtCore.QVariant(v))
+                combo.addItem(unicode(v), v)
             self.envLayout.addWidget(combo)
             combo.currentIndexChanged.connect(self.on_combo_currentIndexChanged)
             self._filters[k] = combo
@@ -345,7 +350,7 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
     def select_attribute_value(self, name, value):
         combo = self._filters[name]
         for idx in range(combo.count()):
-            avalue = combo.itemData(idx).toPyObject()
+            avalue = combo.itemData(idx)
             if value == avalue:
                 combo.setCurrentIndex(idx)
                 break  
@@ -354,14 +359,11 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
     def on_removeButton_clicked(self):
         self.removeRequested.emit(self)
     
-    @property
     def filters(self):
         f = {}
         for label_text, combo in self._filters.items():
             idx = combo.currentIndex()
-            value = combo.itemData(idx).toPyObject()
-            if isinstance(value, QtCore.QString):
-                value = unicode(value)
+            value = combo.itemData(idx)
             f[label_text] = value
         return f
 

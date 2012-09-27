@@ -14,11 +14,15 @@ a gui of yatel
 # IMPORTS
 #===============================================================================
 
+import sip
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)
+
 import sys
 
 from PyQt4 import QtCore, QtGui
 
-import main_window
+from yatel.gui import main_window
 
 
 #===============================================================================
