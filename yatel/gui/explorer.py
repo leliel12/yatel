@@ -110,12 +110,12 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self.network.unhighlightall()
     
     def on_hapSQLeditor_textChanged(self):
-        text = unicode(self.hapSQLeditor.text()).strip()
+        text = self.hapSQLeditor.text().strip()
         self.executeHapSQLButton.setEnabled(bool(text))
     
     def on_executeHapSQLButton_pressed(self):
         try:
-            query = unicode(self.hapSQLeditor.text()).strip()
+            query = self.hapSQLeditor.text().strip()
             haps = self.conn.hap_sql(query)
             if haps:
                 self.network.highlight_nodes(*haps)
@@ -257,7 +257,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     def save_version(self, new_version, comment):        
         topology = self.network.topology()
         weight_range = self._startw, self._endw
-        sql = unicode(self.hapSQLeditor.text()).strip()
+        sql = self.hapSQLeditor.text().strip()
         ambients = []
         for ridx in range(self.enviromentsTableWidget.rowCount()):
             check = self.enviromentsTableWidget.cellWidget(ridx, 0)
@@ -315,7 +315,7 @@ class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
     def selected_attributes(self):
         atts = []
         for idx in range(self.selectedAttributesListWidget.count()):
-            text = unicode(self.selectedAttributesListWidget.item(idx).text())
+            text = self.selectedAttributesListWidget.item(idx).text()
             atts.append(text)
         return tuple(atts)
 

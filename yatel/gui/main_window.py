@@ -199,11 +199,11 @@ class MainWindow(uis.UI("MainWindow.ui")):
             facts = None
             edges = None            
             if hasattr(self.wizard, "haplotypesFrame"):
-                haplotypes = self.wizard.haplotypesFrame.dom_objects 
+                haplotypes = self.wizard.haplotypesFrame.dom_objects ()
             if hasattr(self.wizard, "factsFrame"):
-                facts = self.wizard.factsFrame.dom_objects
+                facts = self.wizard.factsFrame.dom_objects()
             if hasattr(self.wizard, "weightFrame"):
-                edges = self.wizard.weightFrame.dom_objects
+                edges = self.wizard.weightFrame.dom_objects()
             if not self.dialog.exec_():
                 return 
             conn = db.YatelConnection(**self.dialog.params)
@@ -228,12 +228,12 @@ class MainWindow(uis.UI("MainWindow.ui")):
         if chk:
             
             def richtext(code):
-                code = unicode(self.tr(code))
+                code = self.tr(code)
                 code = code.replace("<", "&lt;").replace(">", "&gt;")
                 lines = code.splitlines()
                 return "<br/>".join(lines)
             
-            title = self.tr("About %1 - %2").arg(constants.PRJ,
+            title = self.tr("About {} - {}").format(constants.PRJ,
                                                  constants.STR_VERSION)
             about = ABOUT_TEMPLATE.substitute(title=richtext(constants.PRJ),
                                               doc=richtext(constants.DOC),

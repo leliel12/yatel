@@ -77,7 +77,7 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
     # SLOTS
     def on_csvconf_changed(self, *args, **kwargs):
         # reload csv conf
-        encoding = unicode(self.encodingComboBox.currentText())
+        encoding = self.encodingComboBox.currentText()
         delimiter = str(self.delimiterLineEdit.text()).strip()
         escapechar = str(self.escapeCharLineEdit.text()) or None
         doublequote = bool(self.doubleQuoteCheckBox.checkState())
@@ -112,13 +112,13 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
             if len(self.cool.column(cname)) == len(set(self.cool.column(cname)))
                 or self.file_content != CSVChargeFrame.CONTENT_HAPLOTYPES
         ]
-        selected_id = self.id_column
+        selected_id = self.id_column()
         if selected_id == None and len(id_candidates):
             selected_id = id_candidates[0]
         all_types = self.cool.discover_types()
         self.tableTypes.setRowCount(len(all_types))
         self.tableTypes.setVerticalHeaderLabels(self.cool.columnnames)
-        types = [(t.__name__, QtCore.QVariant(t)) for t in csvcool.types()]
+        types = [(t.__name__, t) for t in csvcool.types()]
         for cidx, cname in enumerate(self.cool.columnnames):
             column_type = all_types[cname]
             type_idx = csvcool.types().index(column_type)
@@ -142,33 +142,28 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
             
         self.tableTypes.resizeColumnsToContents()
     
-    @property
     def types(self):
         tps = {}
         for ridx in range(self.tableTypes.rowCount()):
-            header = unicode(self.tableTypes.verticalHeaderItem(ridx).text())
+            header = self.tableTypes.verticalHeaderItem(ridx).text()
             combo = self.tableTypes.cellWidget(ridx, 0)
-            tps[header] = combo.itemData(combo.currentIndex()).toPyObject()
+            tps[header] = combo.itemData(combo.currentIndex())
         return tps
     
-    @property
     def id_column(self):
         for ridx in range(self.tableTypes.rowCount()):
             radiobutton = self.tableTypes.cellWidget(ridx, 1)
             if radiobutton.isChecked():
-                return unicode(
-                    self.tableTypes.verticalHeaderItem(ridx).text()
-                )
+                return self.tableTypes.verticalHeaderItem(ridx).text()
                 
-    @property
     def dom_objects(self):
-        cool = self.cool.type_corrector(self.types)
+        cool = self.cool.type_corrector(self.types())
         if self.file_content == self.CONTENT_HAPLOTYPES:
-            return csvcool2yatel.construct_haplotypes(cool, self.id_column)
+            return csvcool2yatel.construct_haplotypes(cool, self.id_column())
         elif self.file_content == self.CONTENT_FACTS:
-            return csvcool2yatel.construct_facts(cool, self.id_column)
+            return csvcool2yatel.construct_facts(cool, self.id_column())
         elif self.file_content == self.CONTENT_EDGES:
-            return csvcool2yatel.construct_edges(cool, self.id_column)
+            return csvcool2yatel.construct_edges(cool, self.id_column())
             
 
 
