@@ -37,6 +37,12 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         
         self.ipythonWidget = ipython.IPythonWidget()
         self.consoleLayout.addWidget(self.ipythonWidget)
+        self.ipythonWidget.reset_ns(explorer=self)
+        msg = ("\nUse:\n" 
+               "    'explorer' -> all context gui.\n"
+               "    'explorer.conn' -> context connection\n"
+               "    'explorer.network' ->  the network graph\n")
+        self.ipythonWidget.write(self.tr(msg))
         
         self.network = network.NetworkProxy()
         self.network.widget.setParent(self)
@@ -63,9 +69,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.load_version(version)
         if version["id"] == 1:
             self.save_version("topology_added", "added topological info")
-            
-        self.ipythonWidget.reset_ns(network=self.network, connection=self.conn)
-                
+    
     def _set_unsaved(self):
         self._is_saved = False
         self.saveStatusChanged.emit(self._is_saved)

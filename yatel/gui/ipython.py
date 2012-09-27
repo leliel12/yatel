@@ -59,6 +59,9 @@ class IPythonWidget(RichIPythonWidget):
         _kernel_app.shell.reset()
         _kernel_app.shell.user_ns.update(kwargs)
         
+    def write(self, msg):
+        _kernel_app.shell.write(msg)
+        
     def destroy(self):
         _kernel_app.shell.reset()
         super(IPythonWidget, self).destroy()
