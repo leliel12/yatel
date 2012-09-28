@@ -40,6 +40,7 @@ _manager.load_connection_file()
 _manager.start_channels()
 atexit.register(_manager.cleanup_connection_file)
 
+
 #===============================================================================
 # CLASS
 #===============================================================================

@@ -45,25 +45,26 @@ PRJ = "Yatel"
 VERSION = ("0", "1")
 
 #: For "what" is usefull yatel
-DOC = u"""Yatel allows the creation of user-profile-distance-based networks and
-their multidimensional analysis through a process of exploration.
-
-In the process of analyzing data from heterogeneous sources - like data
-regarding biology, social studies, marketing, etc. -, it is often possible to
-identify individuals or classes (groups of individuals that share some
-characteristic). This individuals or groups are identified by attributes that
-were measured and stored in the data base. For instance, in a biological
-analysis, the profile can be defined by some certain properties of the
-nucleic acid, in a social analysis by the data from people and in a
-sales analysis by the data from sales point tickets.
-    
-"""
+DOC = (u"Yatel allows the creation of user-profile-distance-based networks and"
+       u"their multidimensional analysis through a process of exploration.\n"
+       u"In the process of analyzing data from heterogeneous sources - like"
+       u"data regarding biology, social studies, marketing, etc. -, it is often"
+       u"possible to identify individuals or classes (groups of individuals"
+       u"that share some characteristic). This individuals or groups are"
+       u"identified by attributes that were measured and stored in the data"
+       u"base. For instance, in a biological analysis, the profile can be"
+       u"defined by some certain properties of the nucleic acid, in a social"
+       u"analysis by the data from people and in a sales analysis by the data"
+       u"from sales point tickets.")
 
 #: Home Page of yatel
 URL = "http://yatel.readthedocs.org"
 
 #: Author of this yatel
-AUTHOR = "Yatel Team <utn_kdd@googlegroups.com>"
+AUTHOR = "Yatel Team"
+
+#: Email ot the autor
+EMAIL = "utn_kdd@googlegroups.com"
 
 #: The project version as string
 STR_VERSION = ".".join(VERSION)
