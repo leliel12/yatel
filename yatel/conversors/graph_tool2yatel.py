@@ -21,8 +21,8 @@
 # DOCS
 #===============================================================================
 
-"""This module is used for construct yatel.dom object using graph-tool Graph's
-instances
+"""This module is used for bidirectional conversions between 
+yatel.dom objects and graph-tool Graph's instances
 
 """
 
@@ -46,9 +46,9 @@ def dump(haps, facts, edges):
     
     The original objects are stores in internal properties:
     
-        haps -> graph.vertex_properties["haplotypes"]
-        facts -> graph.vertex_properties["facts"]
-        edges -> graph.edge_properties["edges"]
+        - ``haps`` -> ``graph.vertex_properties["haplotypes"]``
+        - ``facts`` -> ``graph.vertex_properties["facts"]``
+        - ``edges`` -> ``graph.edge_properties["edges"]``
         
     """
     
@@ -93,9 +93,9 @@ def load(graph):
     
     The original objects are stores in internal properties:
     
-        haps <- graph.vertex_properties["haplotypes"]
-        facts <- graph.vertex_properties["facts"]
-        edges <- graph.edge_properties["edges"]
+        - ``haps`` <- ``graph.vertex_properties["haplotypes"]``
+        - ``facts`` <- ``graph.vertex_properties["facts"]``
+        - ``edges`` <- ``graph.edge_properties["edges"]``
         
     """
     haps = []
