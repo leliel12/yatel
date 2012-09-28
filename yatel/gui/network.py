@@ -6,6 +6,9 @@
 #===============================================================================
 
 if __name__ == "__main__":
+    import sip
+    sip.setapi('QString', 2)
+    sip.setapi('QVariant', 2)
     import sys, os
     path = os.path.abspath(os.path.dirname(__file__))
     rel = os.path.join(path, "..", "..")
@@ -35,7 +38,12 @@ from yatel.gui import resources
 # PILAS INIT
 #===============================================================================
 
-pilas.iniciar(usar_motor="qt" if __name__ == "__main__" else "qtsugar")
+ANCHO = 600
+
+ALTO = 300
+
+pilas.iniciar(ANCHO, ALTO,
+              usar_motor="qt" if __name__ == "__main__" else "qtsugar")
 
 
 #===============================================================================
@@ -58,6 +66,28 @@ IMAGE_NODE_UNSELECTED = imagenes.cargar(
     resources.get("node_unselected.png")
 )
 
+MAX_X = ANCHO / 2.0
+
+MAX_Y = ALTO / 2.0
+
+
+#===============================================================================
+# HABILIDADES
+#===============================================================================
+
+class NoSaleDeEcena(habilidades.Habilidad):
+    
+    def actualizar(self):
+        if self.receptor.derecha > MAX_X:
+            self.receptor.derecha = MAX_X
+        elif self.receptor.izquierda < -MAX_X:
+            self.receptor.izquierda = -MAX_X
+        if self.receptor.arriba > MAX_Y:
+            self.receptor.arriba = MAX_Y
+        elif self.receptor.abajo < -MAX_Y:
+            self.receptor.abajo = -MAX_Y
+        
+
 #===============================================================================
 # ACTOR NODO
 #===============================================================================
@@ -78,6 +108,7 @@ class _HaplotypeActor(actores.Actor):
         self.haplotype = hap
         self.x, self.y = x, y
         self.aprender(habilidades.Arrastrable)
+        self.aprender(NoSaleDeEcena)
         self._texto.aprender(habilidades.Imitar, self)
         self._selected.aprender(habilidades.Imitar, self)
         

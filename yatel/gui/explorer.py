@@ -5,6 +5,8 @@
 # IMPORTS
 #===============================================================================
 
+import collections
+
 from PyQt4 import QtGui, QtCore
 
 from yatel.gui import uis
@@ -69,6 +71,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.load_version(version)
         if version["id"] == 1:
             self.save_version("topology_added", "added topological info")
+        self.tabWidget.setCurrentIndex(0)
     
     def _set_unsaved(self):
         self._is_saved = False
@@ -232,12 +235,13 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.rs.setStart(self._startw)
         self.rs.setEnd(self._endw)
         
+        
         if not version["hap_sql"]:
             version["hap_sql"] = "SELECT * FROM `haplotypes`"
         if not version["topology"]:
             for hap in self.conn.iter_haplotypes():
                 version["topology"][hap] = self.network.get_unussed_coord()
-        for hap, xy in version["topology"].items():
+        for hap, xy in sorted(version["topology"].items(), key=lambda h: h[0].hap_id):
             self.network.add_node(hap, x=xy[0], y=xy[1])
             self.hapsComboBox.addItem(unicode(hap.hap_id), hap)
         
