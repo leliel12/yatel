@@ -227,54 +227,60 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self._set_unsaved()
     
     def load_version(self, version):
-        self.network.clear()
-        
-        if None in version["weight_range"]:
-            version["weight_range"] = self.rs.tops()
-        self._startw, self._endw = version["weight_range"]
-        self.rs.setStart(self._startw)
-        self.rs.setEnd(self._endw)
-        
-        
-        if not version["hap_sql"]:
-            version["hap_sql"] = "SELECT * FROM `haplotypes`"
-        if not version["topology"]:
-            for hap in self.conn.iter_haplotypes():
-                version["topology"][hap] = self.network.get_unussed_coord()
-        for hap, xy in sorted(version["topology"].items(), key=lambda h: h[0].hap_id):
-            self.network.add_node(hap, x=xy[0], y=xy[1])
-            self.hapsComboBox.addItem(unicode(hap.hap_id), hap)
-        
-        self.remove_all_filters()
-        for checked, ambient in version["ambients"]:
-            self._add_filter(checked, ambient)
-        
-        for edge in self.conn.iter_edges():
-            self.network.add_edge(edge)
+        try:
+            self.network.clear()
             
-        self.hapSQLeditor.setText(version["hap_sql"])
-        
-        self._is_saved = True
-        self._version = (version["id"], version["datetime"], version["tag"])       
-        self.saveStatusChanged.emit(self._is_saved)
-        self.on_tabWidget_currentChanged(self.tabWidget.currentIndex())
+            if None in version["weight_range"]:
+                version["weight_range"] = self.rs.tops()
+            self._startw, self._endw = version["weight_range"]
+            self.rs.setStart(self._startw)
+            self.rs.setEnd(self._endw)
+            
+            
+            if not version["hap_sql"]:
+                version["hap_sql"] = "SELECT * FROM `haplotypes`"
+            if not version["topology"]:
+                for hap in self.conn.iter_haplotypes():
+                    version["topology"][hap] = self.network.get_unussed_coord()
+            for hap, xy in sorted(version["topology"].items(), key=lambda h: h[0].hap_id):
+                self.network.add_node(hap, x=xy[0], y=xy[1])
+                self.hapsComboBox.addItem(unicode(hap.hap_id), hap)
+            
+            self.remove_all_filters()
+            for checked, ambient in version["ambients"]:
+                self._add_filter(checked, ambient)
+            
+            for edge in self.conn.iter_edges():
+                self.network.add_edge(edge)
+                
+            self.hapSQLeditor.setText(version["hap_sql"])
+            
+            self._is_saved = True
+            self._version = (version["id"], version["datetime"], version["tag"])       
+            self.saveStatusChanged.emit(self._is_saved)
+            self.on_tabWidget_currentChanged(self.tabWidget.currentIndex())
+        except Exception as err:
+            error_dialog.critical(self.tr("Load Error"), err)
     
     def is_saved(self):
         return self._is_saved
     
-    def save_version(self, new_version, comment):        
-        topology = self.network.topology()
-        weight_range = self._startw, self._endw
-        sql = self.hapSQLeditor.text().strip()
-        ambients = []
-        for ridx in range(self.enviromentsTableWidget.rowCount()):
-            check = self.enviromentsTableWidget.cellWidget(ridx, 0)
-            envwidget = self.enviromentsTableWidget.cellWidget(ridx, 1)
-            ambients.append((check.isChecked(), envwidget.filters))
-        self.conn.save_version(new_version, comment, sql, topology,
-                               weight_range, ambients)
-        self._is_saved = True
-        self.saveStatusChanged.emit(self._is_saved)
+    def save_version(self, new_version, comment):
+        try:
+            topology = self.network.topology()
+            weight_range = self._startw, self._endw
+            sql = self.hapSQLeditor.text().strip()
+            ambients = []
+            for ridx in range(self.enviromentsTableWidget.rowCount()):
+                check = self.enviromentsTableWidget.cellWidget(ridx, 0)
+                envwidget = self.enviromentsTableWidget.cellWidget(ridx, 1)
+                ambients.append((check.isChecked(), envwidget.filters()))
+            self.conn.save_version(new_version, comment, sql, topology,
+                                   weight_range, ambients)
+            self._is_saved = True
+            self.saveStatusChanged.emit(self._is_saved)
+        except Exception as err:
+            error_dialog.critical(self.tr("Save Error"), err)
         
     def destroy(self):
         self.network.clear()
