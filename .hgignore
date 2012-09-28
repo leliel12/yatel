@@ -18,4 +18,6 @@ syntax: regexp
 
 syntax: glob
 data/*.db
+dist/*
+Yatel.egg-info/*
 
