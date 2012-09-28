@@ -13,9 +13,12 @@ import constants
 #===============================================================================
 
 for k, v in vars(constants).items():
-    if isinstance(v, basestring):
+    if k.isupper():
         metaname = "__{}__".format(k.lower())
         locals()[metaname] = v
+del k
+del v
+del metaname
 
 
 #===============================================================================

@@ -1,6 +1,0 @@
-modificar njd, csv nyd y nxd para que soporte hechos
-
-Capacidad para leer tipos de archivos que no necesariamente son una red en su
-totalidad si no una de las 3 partes - hechos, distancias y haplotipos al
-mezclarlos escupe uno de los formatos anteriores, csv no es un formato de red
-sacarlo de io, hacer algun otro modulo entrada.

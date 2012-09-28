@@ -1,0 +1,5 @@
+recursive-include yatel/gui/resources *
+recursive-exclude yatel/gui/resources *.pyo
+recursive-include yatel/gui/uis *
+recursive-exclude yatel/gui/uis *.pyo
+include LICENSE
