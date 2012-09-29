@@ -390,6 +390,10 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self._version = (version["id"], version["datetime"], version["tag"])       
             self.saveStatusChanged.emit(self._is_saved)
             self.on_tabWidget_currentChanged(self.tabWidget.currentIndex())
+            self.on_weightsCheckBox_stateChanged(
+                self.weightsCheckBox.isChecked())
+            self.on_haplotypesNamesCheckBox_stateChanged(
+                self.haplotypesNamesCheckBox.isChecked())
         except Exception as err:
             error_dialog.critical(self.tr("Load Error"), err)
     
