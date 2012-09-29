@@ -1,6 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# "THE WISKEY-WARE LICENSE":
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# you can do whatever you want with this stuff. If we meet some day, and you
+# think this stuff is worth it, you can buy us a WISKEY us return.
+
+
+#===============================================================================
+# DOCS
+#===============================================================================
+
+"""Creates a default test database in data directory.
+
+"""
+
+
 #===============================================================================
 # IMPORTS
 #===============================================================================
@@ -22,6 +37,16 @@ DB_PATH = os.path.join("data", "example.db")
 #===============================================================================
 
 def connect(create=False):
+    """Connect to the *data/example.db* database.
+    
+    **Params**
+        :create: ``bool``; if true a new database is created; otherwise connect
+                 to the existing one.
+                 
+    **Return**
+        A ``yatel.db.YatelConnection`` instance
+        
+    """
     conn = None
 
     if create:
