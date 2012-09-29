@@ -362,7 +362,7 @@ class YatelConnection(object):
                     data[k] = v
             yield dom.Fact(**data)
 
-    def ambient(self, **kwargs):
+    def enviroment(self, **kwargs):
         haps = {}
         query = {}
         for k, v in kwargs.items():
@@ -432,7 +432,7 @@ class YatelConnection(object):
         return tuple(haps)
 
     def save_version(self, tag, comment="", hap_sql="",
-                     topology={}, weight_range=(None, None), ambients=()):
+                     topology={}, weight_range=(None, None), enviroments=()):
         td = {}
         for hap, xy in topology.items():
 
@@ -445,10 +445,10 @@ class YatelConnection(object):
             raise ValueError("Invalid range: ({}, {})".format(minw, maxw))
         wrl = [minw, maxw]
 
-        al = []
-        for active, ambient in ambients:
+        envl = []
+        for active, enviroment in enviroments:
             active = bool(active)
-            for varname, varvalue in ambient.items():
+            for varname, varvalue in enviroment.items():
                 if varname not in self.facts_attributes_names():
                     msg = "Invalid fact attribute: '{}'".format(varname)
                     raise ValueError(msg)
@@ -457,10 +457,10 @@ class YatelConnection(object):
                         msg = "Invalid value '{}' for fact attribute '{}'"
                         msg = msg.format(varvalue, varname)
                         raise ValueError(msg)
-            al.append([active, ambient])
+            envl.append([active, enviroment])
 
         data = {"topology": td, "weight_range": wrl, 
-                "ambients": al, "hap_sql": hap_sql}
+                "enviroments": envl, "hap_sql": hap_sql}
         
         vdbo = self.YatelVersionDBO()
         vdbo.tag = tag

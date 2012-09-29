@@ -103,9 +103,9 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self._is_saved = False
         self.saveStatusChanged.emit(self._is_saved)
         
-    def _add_filter(self, checked, ambient):
+    def _add_filter(self, checked, enviroment):
         facts_and_values = {}
-        for att in ambient.keys():
+        for att in enviroment.keys():
             facts_and_values[att] = self.conn.get_fact_attribute_values(att)
         if facts_and_values:
             row = self.enviromentsTableWidget.rowCount()
@@ -115,7 +115,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             envWidget.removeRequested.connect(self.on_filter_removeRequested)
             self.enviromentsTableWidget.setCellWidget(row, 0, envWidget)
             envWidget.set_active(checked)
-            for att, value in ambient.items():
+            for att, value in enviroment.items():
                 envWidget.select_attribute_value(att, value)
             size = envWidget.size().height() \
                    if row == 0 else \
@@ -243,8 +243,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                                           self.conn.facts_attributes_names())
         if self.envDialog.exec_():
             atts = self.envDialog.selected_attributes()
-            ambient = dict((att, None) for att in atts)
-            self._add_filter(False, ambient)
+            enviroment = dict((att, None) for att in atts)
+            self._add_filter(False, enviroment)
             self._set_unsaved()
         self.envDialog.setParent(None)
         self.envDialog.destroy()
@@ -258,7 +258,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         Save status is setted  to ``False``.
         
         **Params**
-            :widget: The widget to be removed from the ambient table.
+            :widget: The widget to be removed from the enviroment table.
         
         """   
         for ridx in range(self.enviromentsTableWidget.rowCount()):
@@ -276,7 +276,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         """Slot executed when a combo box of a filter or a checkbox status 
         change.
         
-        This method iterates over all ambients and highlight all match nodes.
+        This method iterates over all enviroments and highlight all match nodes.
         
         Save status is setted  to ``False``.
 
@@ -285,7 +285,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         for ridx in range(self.enviromentsTableWidget.rowCount()):
             envwidget = self.enviromentsTableWidget.cellWidget(ridx, 0)
             if envwidget.is_active():
-                for hap in self.conn.ambient(**envwidget.filters()):
+                for hap in self.conn.enviroment(**envwidget.filters()):
                     haps.append(hap)
         if haps:
             self.network.highlight_nodes(*haps)
@@ -340,7 +340,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     #===========================================================================
     
     def remove_all_filters(self):
-        """Removes all filters from ambient table.
+        """Removes all filters from enviroment table.
         
         """
         while self.enviromentsTableWidget.rowCount():
@@ -378,8 +378,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 self.hapsComboBox.addItem(unicode(hap.hap_id), hap)
             
             self.remove_all_filters()
-            for checked, ambient in version["ambients"]:
-                self._add_filter(checked, ambient)
+            for checked, enviroment in version["enviroments"]:
+                self._add_filter(checked, enviroment)
             
             for edge in self.conn.iter_edges():
                 self.network.add_edge(edge)
@@ -414,12 +414,12 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             topology = self.network.topology()
             weight_range = self._startw, self._endw
             sql = self.hapSQLeditor.text().strip()
-            ambients = []
+            enviroments = []
             for ridx in range(self.enviromentsTableWidget.rowCount()):
                 envwidget = self.enviromentsTableWidget.cellWidget(ridx, 0)
-                ambients.append((envwidget.is_active(), envwidget.filters()))
+                enviroments.append((envwidget.is_active(), envwidget.filters()))
             self.conn.save_version(new_version, comment, sql, topology,
-                                   weight_range, ambients)
+                                   weight_range, enviroments)
             self._is_saved = True
             self.saveStatusChanged.emit(self._is_saved)
         except Exception as err:
@@ -447,6 +447,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
 #===============================================================================
 
 class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
+    """This dialog is used for select ``yatel.dom.Fact`` atributes for creante
+    new enviroments"""
     
     def __init__(self, parent, facts_names):
         super(EnviromentDialog, self).__init__(parent=parent)
@@ -478,6 +480,9 @@ class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
             self.factAttributesListWidget.sortItems()
         
     def selected_attributes(self):
+        """Return a ``tuple`` with a list of all selected attributes.
+        
+        """
         atts = []
         for idx in range(self.selectedAttributesListWidget.count()):
             text = self.selectedAttributesListWidget.item(idx).text()
@@ -565,6 +570,10 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
         self.checkBox.setChecked(status)
     
     def select_attribute_value(self, name, value):
+        """Change the value of a given combo by name (if the value not exists
+        nothing happend).
+        
+        """
         combo = self._filters[name]
         for idx in range(combo.count()):
             avalue = combo.itemData(idx)
