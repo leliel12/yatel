@@ -6,6 +6,7 @@
 # you can do whatever you want with this stuff. If we meet some day, and you
 # think this stuff is worth it, you can buy me a WISKEY us return.
 
+
 #===============================================================================
 # DOCS
 #===============================================================================
@@ -44,7 +45,7 @@ class DoubleSlider(uis.UI("DoubleSlider.ui")):
         
         **Params**
             :parent: A gui parent of this widget.
-            :texs: Text of label of the component
+            :text: Text of label of the component
             :min_value: the minimum value of the slider.
             :max_value: the maximum value of the slider.
         
