@@ -4,7 +4,7 @@
 # "THE WISKEY-WARE LICENSE":
 # <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
 # you can do whatever you want with this stuff. If we meet some day, and you
-# think this stuff is worth it, you can buy me a WISKEY us return.
+# think this stuff is worth it, you can buy us a WISKEY us return.
 
 
 #===============================================================================
@@ -41,7 +41,7 @@ class DoubleSlider(uis.UI("DoubleSlider.ui")):
     startValueChanged = QtCore.pyqtSignal(int)
     
     def __init__(self, parent, text, min_value, max_value):
-        """Create a new instance of DoubleSlider
+        """Create a new instance of ``DoubleSlider``
         
         **Params**
             :parent: A gui parent of this widget.
@@ -64,7 +64,7 @@ class DoubleSlider(uis.UI("DoubleSlider.ui")):
         self.maxValueLabel.setNum(max_value)
     
     def tops(self):
-        """Return a tuple with minimun and maximum value of the slider
+        """Return a tuple with minimun and maximum value of the slider.
         
         **Returns**
             A tuple ``(min_value, max_value)``.
@@ -91,7 +91,9 @@ class DoubleSlider(uis.UI("DoubleSlider.ui")):
         self.maxSlider.setSliderPosition(end)
     
     def on_minSlider_valueChanged(self, v):
-        """Slot executed when slider representing the lower limit change
+        """Slot executed when slider representing the lower limit change.
+        
+        This method keeps ``minSlider <= maxSlider``.
         
         **Params**
             :v: New value of the slider as ``int``.
@@ -103,6 +105,8 @@ class DoubleSlider(uis.UI("DoubleSlider.ui")):
             
     def on_maxSlider_valueChanged(self, v):
         """Slot executed when slider representing the uper limit change
+        
+        This method keeps ``minSlider <= maxSlider``.
         
         **Params**
             :v: New value of the slider as ``int``.

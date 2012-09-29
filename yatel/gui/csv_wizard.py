@@ -4,7 +4,7 @@
 # "THE WISKEY-WARE LICENSE":
 # <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
 # you can do whatever you want with this stuff. If we meet some day, and you
-# think this stuff is worth it, you can buy me a WISKEY us return.
+# think this stuff is worth it, you can buy us a WISKEY us return.
 
 
 #===============================================================================
@@ -59,7 +59,7 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
     }
     
     def __init__(self, parent, file_content, csv_path):
-        """Create a new instance of CSVChargeFrame
+        """Create a new instance of ``CSVChargeFrame``
         
         **Params**
             :parent: A gui parent of this widget.
@@ -233,7 +233,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     
     @QtCore.pyqtSlot()
     def on_openFileButtonWeights_clicked(self):
-        """Slot executed when openFileButtonWeights is clicked.
+        """Slot executed when ``openFileButtonWeights`` are clicked.
         
         """
         filename = QtGui.QFileDialog.getOpenFileName(
@@ -252,7 +252,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     
     @QtCore.pyqtSlot()
     def on_closeFileButtonWeights_clicked(self):
-        """Slot executed when closeFileButtonWeights is clicked.
+        """Slot executed when ``closeFileButtonWeights`` are clicked.
         
         """
         if hasattr(self, "weightFrame"):
@@ -265,7 +265,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     
     @QtCore.pyqtSlot()
     def on_openFileButtonFacts_clicked(self):
-        """Slot executed when openFileButtonFacts is clicked.
+        """Slot executed when ``openFileButtonFacts`` are clicked.
         
         """
         filename = QtGui.QFileDialog.getOpenFileName(
@@ -284,7 +284,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     
     @QtCore.pyqtSlot()
     def on_closeFileButtonFacts_clicked(self):
-        """Slot executed when closeFileButtonFacts is clicked.
+        """Slot executed when ``closeFileButtonFacts`` are clicked.
         
         """
         if hasattr(self, "factsFrame"):
@@ -297,7 +297,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     
     @QtCore.pyqtSlot()
     def on_openFileButtonHaps_clicked(self):
-        """Slot executed when openFileButtonHaps is clicked
+        """Slot executed when ``openFileButtonHaps`` are clicked.
         
         """
         filename = QtGui.QFileDialog.getOpenFileName(
@@ -316,7 +316,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     
     @QtCore.pyqtSlot()
     def on_closeFileButtonHaps_clicked(self):
-        """Slot executed when closeFileButtonHaps is clicked
+        """Slot executed when ``closeFileButtonHaps`` are clicked.
         
         """
         if hasattr(self, "haplotypesFrame"):

@@ -4,7 +4,7 @@
 # "THE WISKEY-WARE LICENSE":
 # <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
 # you can do whatever you want with this stuff. If we meet some day, and you
-# think this stuff is worth it, you can buy me a WISKEY us return.
+# think this stuff is worth it, you can buy us a WISKEY us return.
 
 
 #===============================================================================
@@ -45,7 +45,7 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
     CREATE = "create"
     
     def __init__(self, parent, action, *args, **kwargs):
-        """Create a new instance of ConnectionSetupDialog
+        """Create a new instance of ``ConnectionSetupDialog``
         
         **Params**
             :parent: A gui parent of this widget.
@@ -67,7 +67,12 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
         self.on_engineComboBox_activated(self.engineComboBox.currentText())
     
     def on_openFileButton_pressed(self):
-        """Slot executed when a openFileButton is pressed.
+        """Slot executed when a ``openFileButton`` is pressed for select an 
+        Sqlite file.
+        
+        If the mode is ``ConnectionSetupDialog.CREATE`` open for create a new 
+        file. If the mode is ``ConnectionSetupDialog.OPEN`` open for create 
+        read an existing file.
         
         """
         filename = None
@@ -88,7 +93,9 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
     
     @QtCore.pyqtSlot('QString')
     def on_engineComboBox_activated(self, engine):
-        """Slot executed when a engineComboBox is activated
+        """Slot executed when a ``engineComboBox`` is activated.
+        
+        This method show widgets acording to engine for configure it.
         
         **params**
             :engine: Engine dictionary info (see ``yatel.db``).

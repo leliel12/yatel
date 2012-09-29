@@ -1,11 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# "THE WISKEY-WARE LICENSE":
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# you can do whatever you want with this stuff. If we meet some day, and you
+# think this stuff is worth it, you can buy us a WISKEY us return.
+
+
+#===============================================================================
+# DOCS
+#===============================================================================
+
+"""This module contains a gui of the main widget.
+
+"""
+
+
 #===============================================================================
 # IMPORTS
 #===============================================================================
-
-import collections
 
 from PyQt4 import QtGui, QtCore
 
@@ -21,12 +34,23 @@ from yatel.gui import ipython
 #===============================================================================
 
 class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
-    """This is the frame to show for select types of given csv file
+    """This is the frame make all explorations
     
     """
+    
+    #: Signal emited when the save status of the exploration is chaged.
     saveStatusChanged = QtCore.pyqtSignal(bool)
     
     def __init__(self, parent, yatel_connection, saved=True):
+         """Create a new instance of ``ExplorerFrame``.
+        
+        **Params**
+            :parent: A gui parent of this widget.
+            :action: A conection to the database.
+            :saved: If the status of the connection is saved.
+            
+        """
+        
         super(ExplorerFrame, self).__init__(parent=parent)
         
         from yatel.gui import network
@@ -104,25 +128,65 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     #===========================================================================
     
     def on_haplotypesNamesCheckBox_stateChanged(self, state):
+        """Slot executed when ``haplotypesNamesCheckBox`` state changed.
+        
+        If the ``state`` is *True* the names of the haplotypes are showed.
+        
+        **Params**
+            :state: ``bool`` value if the checkbox is checked or not.
+
+        """
         self.network.show_haps_names(bool(state))
         
     def on_weightsCheckBox_stateChanged(self, state):
+        """Slot executed when ``weightsCheckBox`` state changed.
+        
+        If the ``state`` is *True* the weights of the edges are showed. 
+        
+        **Params**
+            :state: ``bool`` value if the checkbox is checked or not.
+
+        """
         self.network.show_weights(bool(state))
     
     @QtCore.pyqtSlot(int)
     def on_tabWidget_currentChanged(self, idx):
+        """Slot executed when ``tabWidget`` tab change.
+        
+        If the ``idx`` is *0* the execute the slot ``on_filter_changed``
+        otherwise ``NetworkProxy.unhighlightall``.
+        
+        **Params**
+            :idx: Index of the current tab as ``int``.
+
+        """
         if idx == 0:
             self.on_filter_changed()
         else:
             self.network.unhighlightall()
     
     def on_hapSQLeditor_textChanged(self):
+        """Slot executed when ``hapSQLeditor`` text changed.
+        
+        If the editor is empty the
+
+        """
         text = self.hapSQLeditor.text().strip()
         self.executeHapSQLButton.setEnabled(bool(text))
     
-    def on_executeHapSQLButton_pressed(self):
+    @QtCore.pyqtSlot()
+    def on_executeHapSQLButton_clicked(self):
+        """Slot executed when ``hapSQLButton`` are clicked.
+        
+        Executes the sql query over all haplotypes of the connection and
+        highligth the result in the network.
+
+        """        
         try:
             query = self.hapSQLeditor.text().strip()
+            if not query.lower().startswith("select"):
+                msg = "The query must be start with the 'select' command"
+                raise ValueError(msg)
             haps = self.conn.hap_sql(query)
             if haps:
                 self.network.highlight_nodes(*haps)
@@ -132,6 +196,9 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             error_dialog.critical(self.tr("Error on Haplotype SQL"), err)
             
     def on_weightStart_changed(self, start):
+        """Slot executed when ``hapSQLButton`` are clicked.
+        
+        """
         if start != self._startw:
             edges = tuple(self.conn.filter_edges(start, self._endw))
             self.network.filter_edges(*edges)
@@ -145,7 +212,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self._endw = end
             self._set_unsaved()
     
-    def on_addEnviromentPushButton_pressed(self):
+    @QtCore.pyqtSlot()
+    def on_addEnviromentPushButton_clicked(self):
         self.envDialog = EnviromentDialog(self,
                                           self.conn.facts_attributes_names())
         if self.envDialog.exec_():
@@ -309,15 +377,17 @@ class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
     def on_selectedAttributesListWidget_currentItemChanged(self, entered, exited):
         self.removeButton.setEnabled(bool(entered))
     
-    def on_addButton_pressed(self):
+    @QtCore.pyqtSlot()
+    def on_addButton_clicked(self):
         idx = self.factAttributesListWidget.currentIndex().row()
         item = self.factAttributesListWidget.takeItem(idx)
         if item:
             self.selectedAttributesListWidget.addItem(item)
             self.selectedAttributesListWidget.sortItems()
             self.factAttributesListWidget.sortItems()
-        
-    def on_removeButton_pressed(self):
+    
+    @QtCore.pyqtSlot()
+    def on_removeButton_clicked(self):
         idx = self.selectedAttributesListWidget.currentIndex().row()
         item = self.selectedAttributesListWidget.takeItem(idx)
         if item:

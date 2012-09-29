@@ -4,7 +4,7 @@
 # "THE WISKEY-WARE LICENSE":
 # <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
 # you can do whatever you want with this stuff. If we meet some day, and you
-# think this stuff is worth it, you can buy me a WISKEY us return.
+# think this stuff is worth it, you can buy us a WISKEY us return.
 
 
 #===============================================================================
@@ -14,6 +14,7 @@
 """Implementation of a error dialog
 
 """
+
 
 #===============================================================================
 # IMPORTS
@@ -38,7 +39,7 @@ class ErrorDialog(uis.UI("ErrorDialog.ui")):
     """
     
     def __init__(self, title, msg, stack, parent=None):
-        """Create a new instance of ErrorDialog
+        """Create a new instance of ``ErrorDialog``
         
         **Params**
             :title: A text for use as title of the dialog.
@@ -54,7 +55,9 @@ class ErrorDialog(uis.UI("ErrorDialog.ui")):
     
     @QtCore.pyqtSlot()
     def on_detailsPushButton_clicked(self):
-        """Slot executed when detailsPushButton is clicked
+        """Slot executed when ``detailsPushButton`` are clicked.
+        
+        This methos show a text of the stacktrace as a widget.
 
         """
         self.stackTextBrowser = QtGui.QTextBrowser()
