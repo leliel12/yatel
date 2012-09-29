@@ -49,11 +49,11 @@ class MainWindow(uis.UI("MainWindow.ui")):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
         self.explorerFrame = None
-        #~ 
-        #~ example_db = "/home/juan/proyectos/yatel_hg/data/example.db"
-        #~ conn = db.YatelConnection("sqlite", example_db)
-        #~ conn.init_yatel_database()
-        #~ self.open_explorer(conn)
+        
+        example_db = "/home/juan/proyectos/yatel_hg/data/example.db"
+        conn = db.YatelConnection("sqlite", example_db)
+        conn.init_yatel_database()
+        self.open_explorer(conn)
 
     def reloadTitle(self):
         prj, saved = "", ""
