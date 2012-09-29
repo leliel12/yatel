@@ -180,7 +180,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     
     @QtCore.pyqtSlot()
     def on_executeHapSQLButton_clicked(self):
-        """Slot executed when ``hapSQLButton`` are clicked.
+        """Slot executed when ``hapSQLButton`` is clicked.
         
         Executes the sql query over all haplotypes of the connection and
         highligth the result in the network.
@@ -231,7 +231,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     
     @QtCore.pyqtSlot()
     def on_addEnviromentPushButton_clicked(self):
-        """Slot executed when ``addEnviromentPushButton`` are clicked.
+        """Slot executed when ``addEnviromentPushButton`` is clicked.
         
         This method open a ``EnviromentDialog`` instance for configure the
         new filter and if its accepted add a new filter to the ambien table.
@@ -251,7 +251,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         del self.envDialog
     
     def on_filter_removeRequested(self, widget):
-        """Slot executed when *remove* button of a filter are clicked.
+        """Slot executed when *remove* button of a filter is clicked.
         
         This method remove a parent row of the widget.
         
@@ -455,18 +455,53 @@ class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
     new enviroments"""
     
     def __init__(self, parent, facts_names):
+        """Creates a new instance of the ``EnviromentDialog``
+        
+        **Params**
+            :parent: The parent widget.
+            :facts_names: A list of all posible facts values.
+            
+        """
         super(EnviromentDialog, self).__init__(parent=parent)
         self.factAttributesListWidget.addItems(facts_names)
         self.factAttributesListWidget.sortItems()
     
     def on_factAttributesListWidget_currentItemChanged(self, entered, exited):
+        """Slot executed when ``factAttributesListWidget`` item change.
+        
+        This method validates if a new item is selected the ``addButton`` is
+        activated otherwise is deactivated.
+        
+        **Param**
+            :entered: The new curren item (can be ``None``).
+            :exited: The previous selected item (not used).
+            
+        """
         self.addButton.setEnabled(bool(entered))
         
-    def on_selectedAttributesListWidget_currentItemChanged(self, entered, exited):
+    def on_selectedAttributesListWidget_currentItemChanged(self, 
+                                                           entered, exited):
+        """Slot executed when ``selectedAttributesListWidget`` item change.
+        
+        This method validates if a new item is selected the ``removeButton`` is
+        activated otherwise is deactivated.
+        
+        **Param**
+            :entered: The new curren item (can be ``None``).
+            :exited: The previous selected item (not used).
+            
+        """
         self.removeButton.setEnabled(bool(entered))
     
     @QtCore.pyqtSlot()
     def on_addButton_clicked(self):
+        """Slot executed when ``addButton`` is clicked.
+        
+        This method peek the selected attribut to the 
+        ``factAttributesListWidget`` and put it on 
+        ``selectedAttributesListWidget``.
+        
+        """
         idx = self.factAttributesListWidget.currentIndex().row()
         item = self.factAttributesListWidget.takeItem(idx)
         if item:
@@ -476,6 +511,13 @@ class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
     
     @QtCore.pyqtSlot()
     def on_removeButton_clicked(self):
+        """Slot executed when ``removeButton`` is clicked.
+        
+        This method peek the selected attribut to the 
+        ``selectedAttributesListWidget`` and put it on 
+        ``factAttributesListWidget``.
+        
+        """
         idx = self.selectedAttributesListWidget.currentIndex().row()
         item = self.selectedAttributesListWidget.takeItem(idx)
         if item:
@@ -551,7 +593,7 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
             
     @QtCore.pyqtSlot()
     def on_removeButton_clicked(self):
-        """Slot executed when ``removeButton`` are clicked.
+        """Slot executed when ``removeButton`` is clicked.
         
         This method emit the signal ``removeRequested`` sending the instance as
         param.
