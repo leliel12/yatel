@@ -68,7 +68,6 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
                       CSVChargeFrame.CONTENT_FACTS
                       CSVChargeFrame.CONTENT_EDGES]
             :csv_path: The path of the csv file to be open.
-            
         
         """
         assert file_content in CSVChargeFrame.CONTENT_IDS
