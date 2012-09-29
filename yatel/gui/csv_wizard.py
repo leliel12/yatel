@@ -1,6 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# "THE WISKEY-WARE LICENSE":
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# you can do whatever you want with this stuff. If we meet some day, and you
+# think this stuff is worth it, you can buy me a WISKEY us return.
+
+
+#===============================================================================
+# DOCS
+#===============================================================================
+
+"""This module contains a gui of a wizard for create a new database from
+diferents csv files.
+
+"""
+
+
 #===============================================================================
 # IMPORTS
 #===============================================================================
@@ -22,14 +38,20 @@ from yatel.gui import uis
 #===============================================================================
 
 class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
-    """This is the frame to show for select types of given csv file
+    """This is the frame to show for select types of given csv file.
     
     """
     
+    #: Constant for open create a wizard page for creation of haplotypes.
     CONTENT_HAPLOTYPES = "haplotypes"
+    
+    #: Constant for open create a wizard page for creation of facts.
     CONTENT_FACTS = "facts"
+    
+    #: Constant for open create a wizard page for creation of edges.
     CONTENT_EDGES = "edges"
     
+    #: Constant for identify a id of diferete a diferent types of objects.
     CONTENT_IDS = {
         CONTENT_HAPLOTYPES: "ID",
         CONTENT_FACTS: "Hap ID",
@@ -37,6 +59,18 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
     }
     
     def __init__(self, parent, file_content, csv_path):
+        """Create a new instance of CSVChargeFrame
+        
+        **Params**
+            :parent: A gui parent of this widget.
+            :action: A frame mode. 
+                     [CSVChargeFrame.CONTENT_FACTS|
+                      CSVChargeFrame.CONTENT_FACTS
+                      CSVChargeFrame.CONTENT_EDGES]
+            :csv_path: The path of the csv file to be open.
+            
+        
+        """
         assert file_content in CSVChargeFrame.CONTENT_IDS
         
         super(CSVChargeFrame, self).__init__(parent)
@@ -52,9 +86,15 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
             self.encodingComboBox.setCurrentIndex(idx)
         except ValueError:
             pass
-        self.delimiterLineEdit.setText(csvcool2yatel.EXCEL_DIALECT.delimiter or ",")
-        self.escapeCharLineEdit.setText(csvcool2yatel.EXCEL_DIALECT.escapechar or "")
-        self.doubleQuoteCheckBox.setChecked(csvcool2yatel.EXCEL_DIALECT.doublequote)
+        self.delimiterLineEdit.setText(
+            csvcool2yatel.EXCEL_DIALECT.delimiter or ","
+        )
+        self.escapeCharLineEdit.setText(
+            csvcool2yatel.EXCEL_DIALECT.escapechar or ""
+        )
+        self.doubleQuoteCheckBox.setChecked(
+            csvcool2yatel.EXCEL_DIALECT.doublequote
+        )
         self.skipInitialSpaceCheckBox.setChecked(
             csvcool2yatel.EXCEL_DIALECT.skipinitialspace
         )
@@ -75,7 +115,10 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
         self.on_csvconf_changed()
     
     # SLOTS
-    def on_csvconf_changed(self, *args, **kwargs):
+    def on_csvconf_changed(self):
+        """Slot executed when a any configuration is changed on anythis frame.
+        
+        """
         # reload csv conf
         encoding = self.encodingComboBox.currentText()
         delimiter = str(self.delimiterLineEdit.text()).strip()
@@ -143,6 +186,12 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
         self.tableTypes.resizeColumnsToContents()
     
     def types(self):
+        """Return all types in selected for all columns as a dict.
+        
+        **Returns**
+            A dict with column names as *keys*, and selected types as *values*.
+            
+        """
         tps = {}
         for ridx in range(self.tableTypes.rowCount()):
             header = self.tableTypes.verticalHeaderItem(ridx).text()
@@ -151,12 +200,19 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
         return tps
     
     def id_column(self):
+        """Return a str with the name of the column selected as unique id of
+        all registers.
+        
+        """
         for ridx in range(self.tableTypes.rowCount()):
             radiobutton = self.tableTypes.cellWidget(ridx, 1)
             if radiobutton.isChecked():
                 return self.tableTypes.verticalHeaderItem(ridx).text()
                 
     def dom_objects(self):
+        """Returns a ``yatel.dom`` objects acording of frame content type.
+        
+        """
         cool = self.cool.type_corrector(self.types())
         if self.file_content == self.CONTENT_HAPLOTYPES:
             return csvcool2yatel.construct_haplotypes(cool, self.id_column())
@@ -166,18 +222,20 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
             return csvcool2yatel.construct_edges(cool, self.id_column())
             
 
-
 #===============================================================================
 # 
 #===============================================================================
 
 class CSVWizard(uis.UI("CSVWizard.ui")):
-    """Wizard for charge csv file as networks
+    """Wizard for charge csv file as ``yatel.dom`` objects.
     
     """
     
     # SLOTS
     def on_openFileButtonWeights_pressed(self):
+        """Slot executed when openFileButtonWeights is pressed.
+        
+        """
         filename = QtGui.QFileDialog.getOpenFileName(
             self, self.tr("Open Edges File"),
             constants.HOME_PATH,
@@ -193,6 +251,9 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
             self.closeFileButtonWeights.setEnabled(True)
     
     def on_closeFileButtonWeights_pressed(self):
+        """Slot executed when closeFileButtonWeights is pressed.
+        
+        """
         if hasattr(self, "weightFrame"):
             self.weightsLayout.removeWidget(self.weightFrame)
             self.weightFrame.setParent(None)
@@ -202,6 +263,9 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
         self.closeFileButtonWeights.setEnabled(False)
     
     def on_openFileButtonFacts_pressed(self):
+        """Slot executed when openFileButtonFacts is pressed.
+        
+        """
         filename = QtGui.QFileDialog.getOpenFileName(
             self, self.tr("Open Facts File"),
             constants.HOME_PATH,
@@ -217,6 +281,9 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
             self.closeFileButtonFacts.setEnabled(True)
     
     def on_closeFileButtonFacts_pressed(self):
+        """Slot executed when closeFileButtonFacts is pressed.
+        
+        """
         if hasattr(self, "factsFrame"):
             self.factsLayout.removeWidget(self.factsFrame)
             self.factsFrame.setParent(None)
@@ -226,6 +293,9 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
         self.closeFileButtonFacts.setEnabled(False)
     
     def on_openFileButtonHaps_pressed(self):
+        """Slot executed when openFileButtonHaps is pressed
+        
+        """
         filename = QtGui.QFileDialog.getOpenFileName(
             self, self.tr("Open Haplotypes File"),
             constants.HOME_PATH,
@@ -240,8 +310,10 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
             self.hapsLayout.addWidget(self.haplotypesFrame)
             self.closeFileButtonHaps.setEnabled(True)
             
-        
     def on_closeFileButtonHaps_pressed(self):
+        """Slot executed when closeFileButtonHaps is pressed
+        
+        """
         if hasattr(self, "haplotypesFrame"):
             self.hapsLayout.removeWidget(self.haplotypesFrame)
             self.haplotypesFrame.setParent(None)
@@ -249,7 +321,6 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
             self.updateGeometry()
         self.fileLabelHaps.setText(self.tr("<NO-FILE>"))
         self.closeFileButtonHaps.setEnabled(False)
-    
 
 
 #===============================================================================

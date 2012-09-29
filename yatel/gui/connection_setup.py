@@ -1,10 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# "THE WISKEY-WARE LICENSE":
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# you can do whatever you want with this stuff. If we meet some day, and you
+# think this stuff is worth it, you can buy me a WISKEY us return.
+
+
+#===============================================================================
+# DOCS
+#===============================================================================
+
+"""This module contains a gui for retrieve information for create conection 
+to databases 
+
+"""
+
+
 #===============================================================================
 # IMPORTS
 #===============================================================================
-
 
 from PyQt4 import QtGui
 from PyQt4 import QtCore
@@ -15,17 +30,31 @@ from yatel import db
 from yatel.gui import uis
 
 
-
 #===============================================================================
 # CONNECTION SETUP DIALOG
 #===============================================================================
 
 class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
+    """Dialog for setup a connection to databases
     
+    """
+    #: Constant for open a dialog as open conection mode.
     OPEN = "open"
+    
+    #: Constant for open a dialog as create coneccion mode.
     CREATE = "create"
     
     def __init__(self, parent, action, *args, **kwargs):
+        """Create a new instance of ConnectionSetupDialog
+        
+        **Params**
+            :parent: A gui parent of this widget.
+            :action: A dialog mode 
+                     [ConnectionSetupDialog.OPEN|ConnectionSetupDialog.CREATE]
+            :*args: Extra params for QDialog.
+            :**kwags: Extra keywords arguments for QDialog.
+        
+        """
         assert action in (self.OPEN, self.CREATE)
         super(ConnectionSetupDialog, self).__init__(parent, *args, **kwargs)
         self.engineComboBox.addItems(db.ENGINES)
@@ -38,6 +67,9 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
         self.on_engineComboBox_activated(self.engineComboBox.currentText())
     
     def on_openFileButton_pressed(self):
+        """Slot executed when a openFileButton is pressed.
+        
+        """
         filename = None
         if self._action == self.CREATE:
             filename = QtGui.QFileDialog.getSaveFileName(
@@ -56,6 +88,12 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
     
     @QtCore.pyqtSlot('QString')
     def on_engineComboBox_activated(self, engine):
+        """Slot executed when a engineComboBox is activated
+        
+        **params**
+            :engine: Engine dictionary info (see ``yatel.db``).
+        
+        """
         name_isfile = db.ENGINES_CONF[unicode(engine)]["name_isfile"]
         self.openFileButton.setVisible(name_isfile)
         self.nameLineEdit.setEnabled(not name_isfile)
@@ -78,8 +116,14 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
             self.formLayout.insertRow(idx + 2, label, lineEdit)
             self._params[pn] = (label, lineEdit)
             
-    @property
     def params(self):
+        """Returns a params of the conection as dictionary.
+        
+        **returns**
+            A dict instance with all parameters of the engine 
+            (see ``yatel.db``).
+        
+        """
         data = {}
         engine = unicode(self.engineComboBox.currentText())
         data["engine"] = engine
@@ -93,8 +137,8 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
             except:
                 data[pn] = confs_params[pn]
         return data
-    
-                
+
+
 #===============================================================================
 # MAIN
 #===============================================================================

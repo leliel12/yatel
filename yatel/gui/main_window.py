@@ -176,7 +176,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
         try:
             if not self.dialog.exec_():
                 return 
-            conn = db.YatelConnection(**self.dialog.params)
+            conn = db.YatelConnection(**self.dialog.params())
             conn.init_yatel_database()
         except Exception as err:
             error_dialog.critical(self.tr("Error"), err)
@@ -206,7 +206,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
                 edges = self.wizard.weightFrame.dom_objects()
             if not self.dialog.exec_():
                 return 
-            conn = db.YatelConnection(**self.dialog.params)
+            conn = db.YatelConnection(**self.dialog.params())
             conn.init_with_values(haplotypes, facts, edges)
         except Exception as err:
             error_dialog.critical(self.tr("Error"), err)
