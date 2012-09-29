@@ -115,8 +115,11 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
         self.on_csvconf_changed()
     
     # SLOTS
-    def on_csvconf_changed(self):
+    def on_csvconf_changed(self, *args, **kwargs):
         """Slot executed when a any configuration is changed on anythis frame.
+        
+        NOTE: the ``*args`` ``**kwargs`` params are not used. Only exists for
+        connect any event to this slot.
         
         """
         # reload csv conf
