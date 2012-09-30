@@ -179,7 +179,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
     def on_actionLoad_triggered(self):
         """Slot executed when ``actionLoad`` is triggered.
         
-        Open a popup for select othr version of the actual exploration and send
+        Open a popup for select other version of the actual exploration and send
         to the explorer information to recondigure the gui.
         
         """
@@ -191,20 +191,45 @@ class MainWindow(uis.UI("MainWindow.ui")):
             self.reloadTitle()
             
     def on_explorerFrame_saveStatusChanged(self, is_saved):
+        """Slot executed when ``explorerFrame`` change the save status.
+        
+        Reload a title (acording to the new status) ad if the status is save,
+        disabled the action ``actionSave``
+        
+        **Params**
+            :is_saved: ``bool`` if the explorer is saved or not.
+        
+        """
         self.reloadTitle()
         self.actionSave.setEnabled(not is_saved)
     
     @QtCore.pyqtSlot()
     def on_actionExit_triggered(self):
+        """Slot executed when ``actionExit`` is triggered.
+        
+        Close the explorer (asking for save  depending on *save-state*) and
+        close the app.
+        
+        """
         if self.close_explorer():
             self.close()
     
     @QtCore.pyqtSlot()
     def on_actionClose_triggered(self):
+        """Slot executed when ``actionClose`` is triggered.
+        
+        Close the explorer (asking for save  depending on *save-state*).
+        
+        """
         self.close_explorer()
     
     @QtCore.pyqtSlot()
     def on_actionSave_triggered(self):
+        """Slot executed when ``actionSave`` is triggered.
+        
+        Show a popup for create a new version and create it.
+        
+        """
         if not self.explorerFrame.is_saved():
             conn = self.explorerFrame.conn
             tag_comment = version_dialog.save_version(conn)
@@ -213,6 +238,12 @@ class MainWindow(uis.UI("MainWindow.ui")):
     
     @QtCore.pyqtSlot()
     def on_actionOpenYatelDB_triggered(self):
+        """Slot executed when ``actionOpenYatelDB`` is triggered.
+        
+        Show a popup to select a database that contains all the metadata 
+        needed to build an exploration.
+        
+        """
         if not self.close_explorer():
             return
         self.dialog = connection_setup.ConnectionSetupDialog(self, "open")
@@ -232,6 +263,11 @@ class MainWindow(uis.UI("MainWindow.ui")):
     
     @QtCore.pyqtSlot()
     def on_actionWizard_triggered(self):
+        """Slot executed when ``actionWizard`` is triggered.
+        
+        Show a wizard for create a database importing ``csv``files.
+        
+        """
         if not self.close_explorer():
             return
         self.wizard = csv_wizard.CSVWizard(self)
@@ -266,10 +302,20 @@ class MainWindow(uis.UI("MainWindow.ui")):
 
     @QtCore.pyqtSlot()
     def on_actionAboutQt_triggered(self):
+        """Slot executed when ``actionAboutQt`` is triggered.
+        
+        Show a default popup of ``about Qt...`` message.
+        
+        """
         QtGui.QApplication.aboutQt()
     
     @QtCore.pyqtSlot()
     def on_actionAbout_triggered(self):
+        """Slot executed when ``actionAbout`` is triggered.
+        
+        Show a popup of ``about Yatel...`` message.
+        
+        """
         def richtext(code):
             code = self.tr(code)
             code = code.replace("<", "&lt;").replace(">", "&gt;")
@@ -293,8 +339,10 @@ class MainWindow(uis.UI("MainWindow.ui")):
 #===============================================================================
 
 class SplashScreen(QtGui.QSplashScreen):
+    """Splash screen of yatel"""
 
     def __init__(self):
+        """Creates a new instance of ``SplashScreen``."""
         pixmap = QtGui.QPixmap(resources.get("splash.png"))
         super(self.__class__, self).__init__(pixmap)
 
