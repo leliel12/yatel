@@ -6,6 +6,14 @@
 # you can do whatever you want with this stuff. If we meet some day, and you
 # think this stuff is worth it, you can buy me a WISKEY us return.
 
+#===============================================================================
+# DOCS
+#===============================================================================
+
+"""Package containing all *QtDegigner* ``ui`` files.
+
+"""
+
 
 #===============================================================================
 # IMPORTS
@@ -20,8 +28,10 @@ import pycante
 # CONSTANTS
 #===============================================================================
 
+#: Path of the uis folder
 PATH = os.path.abspath(os.path.dirname(__file__))
 
+#: Function to construct a class hierarchy from a *QtDesigner* ``ui`` files.
 UI = pycante.EDir(PATH)
 
 
