@@ -1,6 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# "THE WISKEY-WARE LICENSE":
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# you can do whatever you want with this stuff. If we meet some day, and you
+# think this stuff is worth it, you can buy me a WISKEY us return.
+
+
+#===============================================================================
+# DOCS
+#===============================================================================
+
+"""widgets an utilities for use syntax highligt of QScintilla
+
+"""
+
+
 #===============================================================================
 # IMPORTS
 #===============================================================================
@@ -15,8 +30,16 @@ from PyQt4 import Qsci
 #===============================================================================
 
 class HiglightedEditor(Qsci.QsciScintilla):
+    """Editor with syntax highligt"""
     
     def __init__(self, syntax, parent=None):
+        """Creates a new instance of ``HiglightedEditor``.
+        
+        **Params**
+            :syntax: A name of existing lexer.
+            :parent: The parent widget.
+            
+        """
         super(HiglightedEditor, self).__init__(parent)
         self.setLexer(lexer(syntax)())
         self.setAutoIndent(True)
@@ -31,6 +54,12 @@ class HiglightedEditor(Qsci.QsciScintilla):
 #===============================================================================
 
 def lexer(syntax):
+    """Return the lexer for the given language
+    
+    **Params**
+        :syntax: A name of existing lexer.
+    
+    """
     if syntax == "java":
         return Qsci.QsciLexerJava
     if syntax == "pascal":
