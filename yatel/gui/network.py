@@ -8,6 +8,16 @@
 
 
 #===============================================================================
+# DOC
+#===============================================================================
+
+"""Wrapper for use actors and pilas widget inside a qt app as a interactive
+network.
+
+"""
+
+
+#===============================================================================
 # TEST PROPUSES PATCH
 #===============================================================================
 
@@ -44,36 +54,39 @@ from yatel.gui import resources
 # PILAS INIT
 #===============================================================================
 
+#: Default height of pilas widget
 ANCHO = 600
 
+#: Default width of pilas widget
 ALTO = 300
 
 pilas.iniciar(ANCHO, ALTO,
               usar_motor="qt" if __name__ == "__main__" else "qtsugar")
 
-
-#===============================================================================
-# CONSTANTS
-#===============================================================================
-
+#: Instance of pilas image representing the clicked and not highlighted node.
 IMAGE_NODE_NORMAL = imagenes.cargar(
     resources.get("node_normal.png")
 )
 
+#: Instance of pilas image representing highlighted node.
 IMAGE_NODE_HIGLIGHTED = imagenes.cargar(
     resources.get("node_highlighted.png")
 )
 
+#: Instance of pilas image representing clicked node.
 IMAGE_NODE_SELECTED = imagenes.cargar(
     resources.get("node_selected.png")
 )
 
+#: Instance of pilas image empty (for internal propouse)
 IMAGE_NODE_UNSELECTED = imagenes.cargar(
     resources.get("node_unselected.png")
 )
 
+#: Absolute value of maximun heigh of the pilas widget 
 MAX_X = ANCHO / 2.0
 
+#: Absolute value of maximun width of the pilas widget 
 MAX_Y = ALTO / 2.0
 
 __key__ = "ZnVjayB0aGUgZ3Jhdml0eSE=\n"
@@ -83,9 +96,13 @@ __key__ = "ZnVjayB0aGUgZ3Jhdml0eSE=\n"
 # HABILIDADES
 #===============================================================================
 
-class NoSaleDeEcena(habilidades.Habilidad):
+class _NoSaleDeEcena(habilidades.Habilidad):
+    """Pilas ``habilidad`` to prevent a actor go outside the widget.
+    
+    """
     
     def actualizar(self):
+        """The logic for keep the actor inside the widget"""
         if self.receptor.derecha > MAX_X:
             self.receptor.derecha = MAX_X
         elif self.receptor.izquierda < -MAX_X:
@@ -101,32 +118,52 @@ class NoSaleDeEcena(habilidades.Habilidad):
 #===============================================================================
 
 class _HaplotypeActor(actores.Actor):
+    """Actor for represent a node and haplotype inside the network
+    
+    """
     
     def __init__(self, hap, x=0, y=0):
+        """Creates a new instance of ``_HaplotypeActor.
+        
+        **Params**
+            :haplotype: The ``dom.Haplotype`` instance for extract data to
+                        create the node.
+            :x: ``int`` of the relative position from center of the widget where
+                the node will be drawed.
+            :y: ``int`` of the relative position from center of the widget where
+                the node will be drawed.
+        
+        """
         super(_HaplotypeActor, self).__init__(imagen=IMAGE_NODE_NORMAL, 
                                               x=x, y=y)
-        
         # internal data
         self._selected = actores.Actor(imagen=IMAGE_NODE_UNSELECTED)
         self._texto = actores.Texto(magnitud=12)
         self._show_text= True
         self.clicked = eventos.Evento("clicked")
-        
         # conf
         self.haplotype = hap
         self.x, self.y = x, y
         self.aprender(habilidades.Arrastrable)
-        self.aprender(NoSaleDeEcena)
+        self.aprender(_NoSaleDeEcena)
         self._texto.aprender(habilidades.Imitar, self)
         self._selected.aprender(habilidades.Imitar, self)
-        
         # connect events
-        eventos.click_de_mouse.conectar(
-            self._on_mouse_clicked,
-            id=hex(id(self))
-        )
+        eventos.click_de_mouse.conectar(self._on_mouse_clicked,
+                                        id=hex(id(self)))
+    
+    def _on_mouse_clicked(self, evt):
+        x, y = evt["x"], evt["y"]
+        if self.collide(x, y):
+                self.clicked.emitir(sender=self)
     
     def show_text(self, show):
+        """Show the name of the haplotype over the node.
+        
+        **Params**
+            :show: ``bool`` flag to show or hide the haplotype name
+            
+        """
         self._show_text = show
         if show:
             self._texto.texto = unicode(self._hap.hap_id)
@@ -134,16 +171,13 @@ class _HaplotypeActor(actores.Actor):
             self._texto.texto = u""
     
     def collide(self, x, y):
+        """Returns ``True`` if the ``x`` and ``y`` is inside the node."""
         return self.colisiona_con_un_punto(x, y) \
             or self._texto.colisiona_con_un_punto(x, y) \
             or self._selected.colisiona_con_un_punto(x, y)
-    
-    def _on_mouse_clicked(self, evt):
-        x, y = evt["x"], evt["y"]
-        if self.collide(x, y):
-                self.clicked.emitir(sender=self)
         
     def destruir(self):
+        """Detroy the instance of the actor."""
         self._selected.destruir()
         self._texto.destruir()
         self.clicked.respuestas.clear()
@@ -151,12 +185,20 @@ class _HaplotypeActor(actores.Actor):
         super(_HaplotypeActor, self).destruir()
     
     def set_selected(self, is_selected):
+        """If ``is_selected`` is ``True`` change the image of the node from
+        ``IMAGE_NODE_SELECTED``.
+        
+        """
         if is_selected:
             self._selected.imagen = IMAGE_NODE_SELECTED
         else:
             self._selected.imagen = IMAGE_NODE_UNSELECTED
         
     def set_highlighted(self, is_highlighted):
+        """If ``is_highlighted`` is ``True`` change the image of the node from
+        ``IMAGE_NODE_HIGLIGHTED``.
+        
+        """
         if is_highlighted:
             self.imagen = IMAGE_NODE_HIGLIGHTED
         else:
@@ -164,41 +206,49 @@ class _HaplotypeActor(actores.Actor):
     
     @property
     def haplotype(self):
+        """Returns the ``yatel.dom.Haplotype`` object subjacent to this node."""
         return self._hap
         
     @haplotype.setter
     def haplotype(self, hap):
+        """Set the ``yatel.dom.Haplotype`` object subjacent to this node."""
         assert isinstance(hap, dom.Haplotype)
         self._hap = hap
         self.show_text(self._show_text)
         
         
-
 #===============================================================================
 # EDGE ACTOR
 #===============================================================================
 
 class _EdgesDrawActor(actores.Pizarra):
-
+    """This actor is used for draw edges between nodes"""
+    
     def __init__(self):
+        """Creates a new instance"""
         pilas.actores.Pizarra.__init__(self)
         self._edges = {}
         self._show_weights = True
 
     def clear(self):
+        """Deletes all edges from the actor"""
         self._edges.clear()
         self.limpiar()
         self._show_weights = True
 
     def del_edge(self, *nodes):
+        """Delete edges between this nodes"""
         self._edges.pop(nodes)
         
     def del_edges_with_node(self, n):
+        """Deletes all edges containing the node ``n``."""
         for haps in tuple(self._edges):
             if n in haps:
                 self.del_edge(*haps)
 
     def add_edge(self, weight, *nodes):
+        """Create an edge between ``*nodes`` with the given ``weight`` as 
+        ``int`` or ``float``."""
         assert isinstance(weight, (float, int))
         assert len(nodes) > 1 and all(
             map(lambda n: isinstance(n, _HaplotypeActor), nodes)
@@ -206,9 +256,11 @@ class _EdgesDrawActor(actores.Pizarra):
         self._edges[nodes] = weight
 
     def show_weights(self, show):
+        """If ``show`` is ``True`` draw the weights of the edges"""
         self._show_weights = show
 
     def actualizar(self):
+        """The logic for keep the edges correctly draw"""
         self.limpiar()
         for nodes, weight in self._edges.items():
             text_x, text_y = 0, 0
@@ -232,6 +284,7 @@ class _EdgesDrawActor(actores.Pizarra):
         
     @property
     def weights_showed(self):
+        """Return if the weights are showed"""
         return self._show_weights
 
 
@@ -240,31 +293,41 @@ class _EdgesDrawActor(actores.Pizarra):
 #===============================================================================
 
 class NetworkProxy(object):
+    """Singleton instance for use Pilas widget as QtWidget ofr draw networks
     
-    _instance = None
+    """
+    
+    _instance = None # the singleton instance
     
     @staticmethod
     def __new__(cls, *args, **kwargs):
+        """Only 1 instance
+        
+        """
         if not NetworkProxy._instance:
             instance = super(NetworkProxy, cls).__new__(cls, *args, **kwargs)
             NetworkProxy._instance = instance
         return NetworkProxy._instance
             
     def __init__(self):
+        """Init the instance of ``NetworkProxy`` singleton."""
         self._nodes = {}
         self._edges = _EdgesDrawActor()
-        self._bounds = None
         self._selected = None
         self._highlighted = ()
         self._haps_names_showed = True
         self.node_clicked = eventos.Evento("node_clicked")
         fondos.Color(colores.grisoscuro)
         
-    def __getattr__(self, att_name):
-        return getattr(self.widget, att_name)
+    def __getattr__(self, name):
+        """x.__getattr__('name') <==> x.widget.name"""
+        return getattr(self.widget, name)
     
-    def _mro_(self, v):
-        self._dabc = (v.strip().encode("base64") == __key__) 
+    def _mro_(self, *v):
+        """``None``"""
+        if v:
+            v = v[0]
+            self._dabc = (v.strip().encode("base64") == __key__) 
     
     def _on_node_clicked(self, evt):
         sender = evt["sender"]
@@ -272,7 +335,8 @@ class NetworkProxy(object):
             sender.aprender(habilidades.RebotarComoCaja)
         self.node_clicked.emitir(node=sender.haplotype)
     
-    def get_unussed_coord(self):
+    def get_unused_coord(self):
+        """Return a probably *free of node* coordinate"""
         x0, y0, x1, y1 = self.bounds
         x, y = None, None
         collide = False
@@ -287,6 +351,7 @@ class NetworkProxy(object):
         return x, y
             
     def clear(self):
+        """Clear all widget from *nodes* and *edges*."""
         for n in self._nodes.values():
             n.destruir()
         self._nodes.clear()
@@ -295,6 +360,7 @@ class NetworkProxy(object):
         self._highlighted = ()
     
     def select_node(self, hap):
+        """Select a node asociated to the given ``yatel.dom.Haplotype``"""
         for hid, n in self._nodes.items():
             if hid == hap.hap_id:
                 n.set_selected(True)
@@ -303,14 +369,27 @@ class NetworkProxy(object):
                 n.set_selected(False)
     
     def show_haps_names(self, show):
+        """Show the name of the haplotype over all the nodes.
+        
+        **Params**
+            :show: ``bool`` flag to show or hide the haplotype name
+            
+        """
         self._haps_names_showed = show
         for n in self._nodes.values():
             n.show_text(show)
             
     def show_weights(self, show):
+        """Show the weights over all the edges.
+        
+        **Params**
+            :show: ``bool`` flag to show or hide the edge's weight.
+            
+        """
         self._edges.show_weights(show)
         
     def highlight_nodes(self, *haps):
+        """Highlight all the nodes given in a tuple ``*haps``."""
         assert haps and all(
             map(lambda h: isinstance(h, dom.Haplotype), haps)
         )
@@ -324,21 +403,40 @@ class NetworkProxy(object):
         self._highlighted = tuple(highs)
         
     def unhighlightall(self):
+        """Unhighlight all the nodes."""
         for n in self._nodes.values():
             n.set_highlighted(False)
         self._highlighted = ()
                 
     def add_node(self, hap, x=0, y=0):
+        """Add a new node.
+        
+        **Params**
+            :hap: The ``dom.Haplotype`` instance for extract data to
+                  create the node.
+            :x: ``int`` of the relative position from center of the widget where
+                the node will be drawed.
+            :y: ``int`` of the relative position from center of the widget where
+                the node will be drawed.
+                
+        """
         node = _HaplotypeActor(hap, x=x, y=y)
         node.clicked.conectar(self._on_node_clicked)
         self._nodes[hap.hap_id] = node
         
     def del_node(self, hap):
+        """Delete the node asociated to the given ``yatel.dom.Haplotype`` *hap*.
+        
+        """
         node = self._nodes.pop(hap.hap_id)
         self._edges.del_edges_with_node(node)
         node.destruir()
         
     def add_edge(self, edge):
+        """Add a new edge between the nodes asociated to the *haplotypes* of
+        the ``yatel.dom.Edge`` instance.
+        
+        """
         assert isinstance(edge, dom.Edge)
         nodes = []
         for hap_id in edge.haps_id:
@@ -346,15 +444,21 @@ class NetworkProxy(object):
         self._edges.add_edge(edge.weight, *nodes)
         
     def add_edges(self, *edges):
+        """Add a multiple new edge between the nodes asociated to the 
+        *haplotypes* of the tuple ``yatel.dom.Edge`` instances.
+        
+        """
         for edge in edges:
             self.add_edge(edge)
             
     def filter_edges(self, *edges):
+        """Show only the listed ``*edges``"""
         self._edges.clear()
         for edge in edges:
             self.add_edge(edge)
         
     def del_edge(self, edge):
+        """Delete the given edge"""
         assert isinstance(edge, dom.Edge)
         nodes = []
         for hap_id in edge.haps_id:
@@ -362,48 +466,60 @@ class NetworkProxy(object):
         self._edges.del_edge(*nodes)
         
     def del_edges_with_node(self, hap):
+        """Deletes all edges containing the node asociated with haplotype
+        ``hap``.
+        
+        """
         self._edges.del_edges_with_node(self._nodes[hap.hap_id])
         
     def actor_of(self, hap):
+        """Get the node asociated to the given haplotype"""
         return self._nodes[hap.hap_id]
     
     def topology(self):
+        """Gets a ``dict`` qith keys as ``yatel.dom.Haplotype`` and value a 
+        ``tuple`` with the position of the asociated node.
+        
+        """
         top = {}
         for actor in self._nodes.values():
             top[actor.haplotype] = (actor.x, actor.y)
         return top
         
     def move_node(self, hap, x, y):
+        """Move node asociated to the given *haplotype* to ``x, y``"""
         actor = self.actor_of(hap)
         actor.x = x
         actor.y = y
     
     @property
     def haps_names_showed(self):
+        """Return if the haplotypes names are actually showed."""
         return self._haps_names_showed
         
     @property
     def weights_showed(self):
+        """Return if the weight edges are actually showed."""
         return self._edges.weights_showed
     
     @property
     def bounds(self):
-        if self._bounds is None:
-            width = self.widget.size().width() / 2 #xs
-            height = self.widget.size().height() / 2 #ys
-            self._bounds = (-width, height, width, -height)
-        return self._bounds
+        """The size os the drawable area."""
+        return (-MAX_X, MAX_Y, MAX_X, -MAX_Y)
     
     @property
     def widget(self):
+        """The pilas widget."""
         return pilas.mundo.motor.widget
     
     @property
     def selected_node(self):
+        """The selected node."""
         return self._selected
         
     @property
     def highlighted_nodes(self):
+        """The list of higlighted nodes."""
         return self._highlighted
         
 
@@ -444,7 +560,7 @@ if __name__ == "__main__":
     
     n._mro_()
     print n.bounds
-    print n.get_unussed_coord()
+    print n.get_unused_coord()
     print n.size()
     pilas.ejecutar()
     

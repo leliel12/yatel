@@ -373,7 +373,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 version["hap_sql"] = "SELECT * FROM `haplotypes`"
             if not version["topology"]:
                 for hap in self.conn.iter_haplotypes():
-                    version["topology"][hap] = self.network.get_unussed_coord()
+                    version["topology"][hap] = self.network.get_unused_coord()
             for hap, xy in sorted(version["topology"].items(), key=lambda h: h[0].hap_id):
                 self.network.add_node(hap, x=xy[0], y=xy[1])
                 self.hapsComboBox.addItem(unicode(hap.hap_id), hap)
