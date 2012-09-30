@@ -1,7 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# THIS CODE FOUND AT: http://stackoverflow.com/questions/11513132/embedding-ipython-qt-console-in-a-pyqt-application
+# "THE WISKEY-WARE LICENSE":
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# you can do whatever you want with this stuff. If we meet some day, and you
+# think this stuff is worth it, you can buy us a WISKEY us return.
+
+# Based on: http://stackoverflow.com/questions/11513132
+
+
+#===============================================================================
+# DOCS
+#===============================================================================
+
+"""Wraper around IPython
+
+"""
 
 #===============================================================================
 # IMPORTS
@@ -20,19 +34,18 @@ from PyQt4 import QtCore
 
 
 #===============================================================================
-# INIT
+# INIT OF IPYTHON KERNEL
 #===============================================================================
 
-def event_loop(kernel):
+def _event_loop(kernel):
     kernel.timer = QtCore.QTimer()
     kernel.timer.timeout.connect(kernel.do_one_iteration)
     kernel.timer.start(1000*kernel._poll_interval)
 
-
 _kernel_app = None
 _kernel_app = IPKernelApp.instance()
 _kernel_app.initialize(['python', '--pylab=qt'])
-_kernel_app.kernel.eventloop = event_loop
+_kernel_app.kernel.eventloop = _event_loop
 
 _connection_file = find_connection_file(_kernel_app.connection_file)
 _manager = QtKernelManager(connection_file=_connection_file)
@@ -46,8 +59,16 @@ atexit.register(_manager.cleanup_connection_file)
 #===============================================================================
 
 class IPythonWidget(RichIPythonWidget):
+    """IPython console connected to the default kernel embeddable in *Qt*.
+    
+    Nota: if you have 2 instances of this class is shared console.
+    
+    """
 
     def __init__(self):
+        """Creates a new instance of ``IPythonWidget``.
+        
+        """
         try: # Ipython v0.13
             super(IPythonWidget, self).__init__(gui_completion='droplist')
         except TraitError:  # IPython v0.12
@@ -57,13 +78,23 @@ class IPythonWidget(RichIPythonWidget):
         _kernel_app.start()
     
     def reset_ns(self, **kwargs):
+        """Reset all commands and locals variables of the shell and setup anew
+        vars on the namespace.
+        
+        **Params**
+            :**kwargs: Variables to be seted in the namespace.
+            
+        """
         _kernel_app.shell.reset()
         _kernel_app.shell.user_ns.update(kwargs)
         
     def write(self, msg):
+        """Write the ``msg`` in the console."""
         _kernel_app.shell.write(msg)
         
     def destroy(self):
+        """Reset all commands and locals variables of the shell and destroy
+        this widget."""
         _kernel_app.shell.reset()
         super(IPythonWidget, self).destroy()
 
