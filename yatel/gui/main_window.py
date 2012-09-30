@@ -1,6 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# "THE WISKEY-WARE LICENSE":
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# you can do whatever you want with this stuff. If we meet some day, and you
+# think this stuff is worth it, you can buy us a WISKEY us return.
+
+
+#===============================================================================
+# DOCS
+#===============================================================================
+
+"""The main container of yatel gui client
+
+"""
+
+
 #===============================================================================
 # IMPORTS
 #===============================================================================
@@ -8,6 +23,7 @@
 import string
 
 from PyQt4 import QtGui
+from PyQt4 import QtCore
 
 from yatel import constants
 from yatel import db
@@ -25,6 +41,7 @@ from yatel.gui import version_dialog
 # CONSTANTS
 #===============================================================================
 
+#: Template for create the *About Yatel..* pop-up
 ABOUT_TEMPLATE = string.Template("""
 <p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-weight:600;">$title</span></p>
 <p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-weight:600;"></p>
@@ -46,6 +63,11 @@ class MainWindow(uis.UI("MainWindow.ui")):
     """The main window class"""
 
     def __init__(self, *args, **kwargs):
+        """Creates a new instance of ``MainWindow``
+        
+        All params are pased to superclass
+        
+        """
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
         self.explorerFrame = None
@@ -56,6 +78,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.open_explorer(conn)
 
     def reloadTitle(self):
+        """Reload the window title based on status of the actual project."""
         prj, saved = "", ""
         if self.explorerFrame:
             prj = self.explorerFrame.conn.name
@@ -66,6 +89,14 @@ class MainWindow(uis.UI("MainWindow.ui")):
         super(self.__class__, self).setWindowTitle(title)
 
     def open_explorer(self, yatel_connection, saved=True):
+        """Creates a new explorer frame with a given ``yatel_connection`` and
+        set their save status.
+        
+        **Params**
+            :yatel_connection: A ``yatel.db.YatelConnection`` instance.
+            :saved: ``bool``
+        
+        """
         self.explorerFrame = explorer.ExplorerFrame(self.centralWidget(),
                                                     yatel_connection, saved)
         self.explorerFrame.saveStatusChanged.connect(
@@ -78,7 +109,10 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.reloadTitle()
 
     def close_explorer(self):
-        """Return false if the project is not closed
+        """If a project are open; ask to the user for close it.
+        
+        **Return**
+            Return ``False`` if the project is not closed otherwise ``True``.
 
         """
         if self.explorerFrame:
@@ -141,36 +175,45 @@ class MainWindow(uis.UI("MainWindow.ui")):
     # SLOTS
     #===========================================================================
     
-    def on_actionLoad_triggered(self, *chk):
-        if chk:
-            conn = self.explorerFrame.conn
-            vid = version_dialog.open_version(conn)
-            if isinstance(vid, int):
-                version = conn.get_version(vid)
-                self.explorerFrame.load_version(version)
-                self.reloadTitle()
-    
+    @QtCore.pyqtSlot()
+    def on_actionLoad_triggered(self):
+        """Slot executed when ``actionLoad`` is triggered.
+        
+        Open a popup for select othr version of the actual exploration and send
+        to the explorer information to recondigure the gui.
+        
+        """
+        conn = self.explorerFrame.conn
+        vid = version_dialog.open_version(conn)
+        if isinstance(vid, int):
+            version = conn.get_version(vid)
+            self.explorerFrame.load_version(version)
+            self.reloadTitle()
+            
     def on_explorerFrame_saveStatusChanged(self, is_saved):
         self.reloadTitle()
         self.actionSave.setEnabled(not is_saved)
     
-    def on_actionExit_triggered(self, *chk):
-        if chk and self.close_explorer():
+    @QtCore.pyqtSlot()
+    def on_actionExit_triggered(self):
+        if self.close_explorer():
             self.close()
     
-    def on_actionClose_triggered(self, *chk):
-        if chk:
-            self.close_explorer()
+    @QtCore.pyqtSlot()
+    def on_actionClose_triggered(self):
+        self.close_explorer()
     
-    def on_actionSave_triggered(self, *chk):
-        if chk and not self.explorerFrame.is_saved():
+    @QtCore.pyqtSlot()
+    def on_actionSave_triggered(self):
+        if not self.explorerFrame.is_saved():
             conn = self.explorerFrame.conn
             tag_comment = version_dialog.save_version(conn)
             if tag_comment :
                 self.explorerFrame.save_version(*tag_comment)
     
-    def on_actionOpenYatelDB_triggered(self, *chk):
-        if not chk or not self.close_explorer():
+    @QtCore.pyqtSlot()
+    def on_actionOpenYatelDB_triggered(self):
+        if not self.close_explorer():
             return
         self.dialog = connection_setup.ConnectionSetupDialog(self, "open")
         try:
@@ -186,9 +229,10 @@ class MainWindow(uis.UI("MainWindow.ui")):
             self.dialog.setParent(None)
             self.dialog.destroy()
             del self.dialog
-            
-    def on_actionWizard_triggered(self, *chk):
-        if not chk or not self.close_explorer():
+    
+    @QtCore.pyqtSlot()
+    def on_actionWizard_triggered(self):
+        if not self.close_explorer():
             return
         self.wizard = csv_wizard.CSVWizard(self)
         self.dialog = connection_setup.ConnectionSetupDialog(self, "create")
@@ -220,29 +264,28 @@ class MainWindow(uis.UI("MainWindow.ui")):
             self.dialog.destroy()
             del self.dialog
 
-    def on_actionAboutQt_triggered(self, *chk):
-        if chk:
-            QtGui.QApplication.aboutQt()
+    @QtCore.pyqtSlot()
+    def on_actionAboutQt_triggered(self):
+        QtGui.QApplication.aboutQt()
+    
+    @QtCore.pyqtSlot()
+    def on_actionAbout_triggered(self):
+        def richtext(code):
+            code = self.tr(code)
+            code = code.replace("<", "&lt;").replace(">", "&gt;")
+            lines = code.splitlines()
+            return "<br/>".join(lines)
         
-    def on_actionAbout_triggered(self, *chk):
-        if chk:
-            
-            def richtext(code):
-                code = self.tr(code)
-                code = code.replace("<", "&lt;").replace(">", "&gt;")
-                lines = code.splitlines()
-                return "<br/>".join(lines)
-            
-            title = self.tr("About {} - {}").format(constants.PRJ,
-                                                 constants.STR_VERSION)
-            about = ABOUT_TEMPLATE.substitute(title=richtext(constants.PRJ),
-                                              doc=richtext(constants.DOC),
-                                              author=richtext(constants.AUTHOR),
-                                              email=richtext(constants.EMAIL),
-                                              version=richtext(constants.STR_VERSION),
-                                              url=richtext(constants.URL),
-                                              license=richtext(constants.LICENSE))
-            QtGui.QMessageBox.about(self, title, about)
+        title = self.tr("About {} - {}").format(constants.PRJ,
+                                             constants.STR_VERSION)
+        abt = ABOUT_TEMPLATE.substitute(title=richtext(constants.PRJ),
+                                        doc=richtext(constants.DOC),
+                                        author=richtext(constants.AUTHOR),
+                                        email=richtext(constants.EMAIL),
+                                        version=richtext(constants.STR_VERSION),
+                                        url=richtext(constants.URL),
+                                        license=richtext(constants.LICENSE))
+        QtGui.QMessageBox.about(self, title, abt)
 
 
 #===============================================================================
