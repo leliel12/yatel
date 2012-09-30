@@ -55,7 +55,7 @@ class ErrorDialog(uis.UI("ErrorDialog.ui")):
     
     @QtCore.pyqtSlot()
     def on_detailsPushButton_clicked(self):
-        """Slot executed when ``detailsPushButton`` are clicked.
+        """Slot executed when ``detailsPushButton`` is clicked.
         
         This methos show a text of the stacktrace as a widget.
 

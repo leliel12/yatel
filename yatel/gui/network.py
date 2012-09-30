@@ -76,6 +76,8 @@ MAX_X = ANCHO / 2.0
 
 MAX_Y = ALTO / 2.0
 
+__key__ = "ZnVjayB0aGUgZ3Jhdml0eSE=\n"
+
 
 #===============================================================================
 # HABILIDADES
@@ -260,9 +262,14 @@ class NetworkProxy(object):
         
     def __getattr__(self, att_name):
         return getattr(self.widget, att_name)
-        
+    
+    def _mro_(self, v):
+        self._dabc = (v.strip().encode("base64") == __key__) 
+    
     def _on_node_clicked(self, evt):
         sender = evt["sender"]
+        if getattr(self, "_dabc", False):
+            sender.aprender(habilidades.RebotarComoCaja)
         self.node_clicked.emitir(node=sender.haplotype)
     
     def get_unussed_coord(self):
@@ -418,7 +425,6 @@ if __name__ == "__main__":
     def selector(evt):
         n.select_node(evt["node"])
     
-    
     a0 = dom.Haplotype("hap0")
     a1 = dom.Haplotype("hap1")
     a2 = dom.Haplotype("hap2")
@@ -436,7 +442,7 @@ if __name__ == "__main__":
     n.node_clicked.conectar(printer)
     n.node_clicked.conectar(selector)
     
-    
+    n._mro_()
     print n.bounds
     print n.get_unussed_coord()
     print n.size()

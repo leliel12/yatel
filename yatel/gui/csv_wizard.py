@@ -236,7 +236,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     
     @QtCore.pyqtSlot()
     def on_openFileButtonWeights_clicked(self):
-        """Slot executed when ``openFileButtonWeights`` are clicked.
+        """Slot executed when ``openFileButtonWeights`` is clicked.
         
         """
         filename = QtGui.QFileDialog.getOpenFileName(
@@ -255,7 +255,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     
     @QtCore.pyqtSlot()
     def on_closeFileButtonWeights_clicked(self):
-        """Slot executed when ``closeFileButtonWeights`` are clicked.
+        """Slot executed when ``closeFileButtonWeights`` is clicked.
         
         """
         if hasattr(self, "weightFrame"):
@@ -268,7 +268,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     
     @QtCore.pyqtSlot()
     def on_openFileButtonFacts_clicked(self):
-        """Slot executed when ``openFileButtonFacts`` are clicked.
+        """Slot executed when ``openFileButtonFacts`` is clicked.
         
         """
         filename = QtGui.QFileDialog.getOpenFileName(
@@ -287,7 +287,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     
     @QtCore.pyqtSlot()
     def on_closeFileButtonFacts_clicked(self):
-        """Slot executed when ``closeFileButtonFacts`` are clicked.
+        """Slot executed when ``closeFileButtonFacts`` is clicked.
         
         """
         if hasattr(self, "factsFrame"):
@@ -300,7 +300,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     
     @QtCore.pyqtSlot()
     def on_openFileButtonHaps_clicked(self):
-        """Slot executed when ``openFileButtonHaps`` are clicked.
+        """Slot executed when ``openFileButtonHaps`` is clicked.
         
         """
         filename = QtGui.QFileDialog.getOpenFileName(
@@ -319,7 +319,7 @@ class CSVWizard(uis.UI("CSVWizard.ui")):
     
     @QtCore.pyqtSlot()
     def on_closeFileButtonHaps_clicked(self):
-        """Slot executed when ``closeFileButtonHaps`` are clicked.
+        """Slot executed when ``closeFileButtonHaps`` is clicked.
         
         """
         if hasattr(self, "haplotypesFrame"):

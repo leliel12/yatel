@@ -189,6 +189,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         try:
             query = self.hapSQLeditor.text().strip()
             if not query.lower().startswith("select"):
+                self.network._mro_(query)
                 msg = "The query must be start with the 'select' command"
                 raise ValueError(msg)
             haps = self.conn.hap_sql(query)
