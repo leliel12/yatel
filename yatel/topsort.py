@@ -16,16 +16,16 @@ import dom
 
 def to_dict_graph(edges):
     """Convert an iterable of edges in a dict with ``keys`` equals
-    ``edge.haps_id[0]``, and ``value`` equals ``edge.haps_id[1:].
+    ``edge.haps_id[0]``, and ``value`` equals ``edge.haps_id[1:]``.
     The nodes without childs has values with empty list.
 
     **Example**
 
     ::
         >>> from yatel.dom import Edge
-        >>> edges = (
-            Edge(1, "id0", "id1"), Edge(1, "id2", "id3"), Edge(1, "id4", "id1")
-        )
+        >>> edges = (Edge(1, "id0", "id1"), 
+                     Edge(1, "id2", "id3"), 
+                     Edge(1, "id4", "id1"))
         >>> to_dict_graph(edges)
         {
             'id4': ['id1'], 'id2': ['id3'],
@@ -147,12 +147,15 @@ def xymap_topsort(edges, bounds=(-100, 100, 100, -100), step=(20, 20)):
         :edges:
             An iterable of edges.
         :bounds:
-            x0, y0, x1, y1
             
-            x0, y0
-                +---------------+
-                |               |
-                +---------------+ x1, y1
+            (x0, y0, x1, y1)
+            
+            ::
+                
+                x0, y0
+                    +---------------+
+                    |               |
+                    +---------------+ x1, y1
                 
         :step:
             Separation between nodes center in axis.
@@ -188,11 +191,13 @@ def xymap_randomsort(edges, bounds=(-100, 100, 100, -100)):
         :edges:
             An iterable of edges.
         :bounds:
-            x0, y0, x1, y1
+            (x0, y0, x1, y1)
             
-            x0, y0  +---------------+
-                    |               |
-                    +---------------+ x1, y1
+            ::
+            
+                x0, y0  +---------------+
+                        |               |
+                        +---------------+ x1, y1
         
     """
 
@@ -219,15 +224,17 @@ def xy(edges, algorithm, bounds=(-100, 100, 100, -100), *args, **kwargs):
         :algorithm:
             "randomsort" or "topsort"
         :bounds:
-            x0, y0, x1, y1
+            (x0, y0, x1, y1)
             
-            x0, y0  +---------------+
-                    |               |
-                    +---------------+ x1, y1
-        :*args:
-            Positional arguments of the algorithm
-        :**kwargs:
-            Keyword arguments of the algorithm
+            ::
+            
+                x0, y0  +---------------+
+                        |               |
+                        +---------------+ x1, y1
+        :args:
+            Positional arguments of the algorithm.
+        :kwargs:
+            Keyword arguments of the algorithm.
         
     """
     func = None

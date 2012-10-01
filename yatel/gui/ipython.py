@@ -90,7 +90,7 @@ class IPythonWidget(RichIPythonWidget):
         vars on the namespace.
         
         **Params**
-            :**kwargs: Variables to be seted in the namespace.
+            :kwargs: Variables to be seted in the namespace.
             
         """
         self._kernel_app.shell.reset()

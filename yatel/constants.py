@@ -72,7 +72,7 @@ CLASSIFIERS = (
 )
 
 #: Home Page of yatel
-URL = "http://bitbucket.org/liricus/socialframe"
+URL = "http://bitbucket.org/leliel12/yatel"
 
 #: Download for pypi
 DOWNLOAD_URL = "{}/downloads/{}-{}.tar.gz".format(URL, PRJ.lower(), STR_VERSION)

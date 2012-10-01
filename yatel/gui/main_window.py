@@ -265,7 +265,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
     def on_actionWizard_triggered(self):
         """Slot executed when ``actionWizard`` is triggered.
         
-        Show a wizard for create a database importing ``csv``files.
+        Show a wizard for create a database importing ``csv`` files.
         
         """
         if not self.close_explorer():

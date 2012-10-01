@@ -574,7 +574,7 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
     def on_checkBox_clicked(self):
         """Slot executed when ``checkBox`` status change.
         
-        This method emit the signal ``filterChanged`.
+        This method emit the signal ``filterChanged``.
         
         """
         self.filterChanged.emit()
@@ -582,7 +582,7 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
     def on_combo_currentIndexChanged(self, idx):
         """Slot executed when ``combo`` index change.
         
-        This method emit the signal ``filterChanged` only if the filter is 
+        This method emit the signal ``filterChanged`` only if the filter is 
         active.
         
         **Param**
