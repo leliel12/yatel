@@ -6,6 +6,9 @@
 Welcome to Yatel's documentation!
 =================================
 
+.. image:: _static/splash.png
+    :align: center
+
 Contents:
 
 .. toctree::
