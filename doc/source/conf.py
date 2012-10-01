@@ -20,6 +20,48 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 
 # -- General configuration -----------------------------------------------------
 
+#===============================================================================
+# MOKS
+#===============================================================================
+
+class SuperMock(object):
+    
+    def __init__(self, *args, **kwargs):
+        pass
+    
+    def __call__(self, *args, **kwargs):
+        return SuperMock()
+    
+    def __getattribute__(cls, name):
+        return SuperMock()
+        
+
+class Mock(object):
+    
+    __metaclass__ = SuperMock
+    
+    @classmethod
+    def __getattr__(cls, name):
+        if name in ('__file__', '__path__'):
+            return '/dev/null'
+        elif name[0] == name[0].upper():
+            mockType = type(name, (), {})
+            mockType.__module__ = __name__
+            return mockType
+        else:
+            return Mock()        
+
+
+MOCK_MODULES = "sip graph_tool PyQt4 peewee csvcool pycante IPython"
+for mod_name in MOCK_MODULES.split():
+    sys.modules[mod_name] = Mock()
+
+
+
+#===============================================================================
+# END MOKS
+#===============================================================================
+
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
 
