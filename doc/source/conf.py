@@ -43,7 +43,7 @@ class Mock(object):
         else:
             return Mock()
 
-MOCK_MODULES = "sip graph_tool"
+MOCK_MODULES = "sip graph_tool PyQt4"
 for mod_name in MOCK_MODULES.split():
     sys.modules[mod_name] = Mock()
 
