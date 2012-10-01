@@ -30,6 +30,13 @@ from PyQt4 import QtCore, QtGui
 
 from yatel.gui import main_window
 
+#===============================================================================
+# GLOBALS
+#===============================================================================
+
+#: Before anything start a QAplication is created 
+APP = QtGui.QApplication(sys.argv)
+
 
 #===============================================================================
 # FUNCTIONS
@@ -39,15 +46,14 @@ def run_gui():
     """Launch yatel gui client
     
     """
-    app = QtGui.QApplication(sys.argv)
     splash = main_window.SplashScreen()
     splash.show()
-    app.processEvents()
+    APP.processEvents()
     win = main_window.MainWindow()
     win.show()
     QtCore.QThread.sleep(1)
     splash.finish(win)
-    sys.exit(app.exec_())    
+    sys.exit(APP.exec_())    
 
 
 #===============================================================================

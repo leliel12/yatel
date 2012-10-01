@@ -37,6 +37,8 @@ if __name__ == "__main__":
 
 import random
 
+from PyQt4 import QtGui
+
 import pilas
 from pilas import actores
 from pilas import imagenes

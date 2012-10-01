@@ -20,4 +20,5 @@ syntax: glob
 data/*.db
 dist/*
 Yatel.egg-info/*
+doc/build/*
 
