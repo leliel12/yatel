@@ -26,12 +26,13 @@ sys.path.insert(0, os.path.abspath('../..'))
 #===============================================================================
 
 class Mock(object):
+    
     def __init__(self, *args, **kwargs):
         pass
 
     def __call__(self, *args, **kwargs):
         return Mock()
-
+    
     @classmethod
     def __getattr__(cls, name):
         if name in ('__file__', '__path__'):
@@ -42,6 +43,10 @@ class Mock(object):
             return mockType
         else:
             return Mock()
+            
+    @property
+    def __class__(self):
+        return Mock()
 
 MOCK_MODULES = "sip graph_tool PyQt4 peewee csvcool"
 for mod_name in MOCK_MODULES.split():
