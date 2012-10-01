@@ -40,8 +40,10 @@ from PyQt4 import QtCore
 _kernel_app = None
 _manager = None
 def _get_kernel_and_manager():
+    
     global _kernel_app
     global _manager
+    
     if _kernel_app is None:
         def _event_loop(kernel):
             kernel.timer = QtCore.QTimer()
