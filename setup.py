@@ -35,9 +35,8 @@ import yatel
 #===============================================================================
 
 with open("DEPENDENCIES") as fp:
-    DEPENDENCIES = [l.strip() for l in fp.readlines()]
+    DEPENDENCIES = [l.strip() for l in fp.readlines() if l.strip()]
 
-print DEPENDENCIES
 
 #===============================================================================
 # FUNCTIONS
