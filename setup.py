@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # "THE WISKEY-WARE LICENSE":
-# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
 # you can do whatever you want with this stuff. If we meet some day, and you
 # think this stuff is worth it, you can buy us a WISKEY us return.
 
@@ -34,6 +34,15 @@ import yatel
 # CONSTANTS
 #===============================================================================
 
+with open("DEPENDENCIES") as fp:
+    DEPENDENCIES = [l.strip() for l in fp.readlines()]
+
+print DEPENDENCIES
+
+#===============================================================================
+# FUNCTIONS
+#===============================================================================
+
 setup(
     name=yatel.__prj__,
     version=yatel.__str_version__,
@@ -51,5 +60,5 @@ setup(
                   'uis': ['yatel/gui/uis/*']},
     py_modules=["ez_setup"],
     scripts=["yatelgui"],
-    install_requires=yatel.__dependencies__,
+    install_requires=DEPENDENCIES,
 )

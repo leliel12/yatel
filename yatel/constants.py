@@ -59,7 +59,7 @@ DOC = (u"Yatel allows the creation of user-profile-distance-based networks and "
        u"defined by some certain properties of the nucleic acid, in a social "
        u"analysis by the data from people and in a sales analysis by the data "
        u"from sales point tickets.")
-       
+
 
 #: The short description for pypi
 SHORT_DESCRIPTION = DOC.splitlines()[0]
@@ -90,28 +90,19 @@ PRJ_PATH = os.path.dirname(os.path.abspath(__file__))
 LICENSE = "GPL3"
 
 #: The license of yatel
-FULL_LICENSE = u"""This program is free software; you can redistribute it and/or 
-modify it under the terms of the GNU General Public License as published by the 
-Free Software Foundation; either version 3 of the License, or (at your option) 
+FULL_LICENSE = u"""This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 3 of the License, or (at your option)
 any later version.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY 
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along with 
-this program; if not, write to the Free Software Foundation, Inc., 51 Franklin 
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
 Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """
-#: external libraries for made yatel work
-DEPENDENCIES = ("peewee", 
-                "pycante", 
-                "csvcool",
-                "pyzmq",
-                "ipython",
-                "PyQt",
-                "graph-tool",
-                "pilas==0.68")
 
 #: Keywords for search of pypi
 KEYWORDS = """Yatel user-profile-distance-based networks  multidimensional

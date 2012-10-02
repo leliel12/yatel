@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # "THE WISKEY-WARE LICENSE":
-# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
 # you can do whatever you want with this stuff. If we meet some day, and you
 # think this stuff is worth it, you can buy us a WISKEY us return.
 
@@ -28,7 +28,7 @@ from yatel import gui
 
 def main():
     """Run a yatel qt app client
-    
+
     """
     gui.run_gui()
 
