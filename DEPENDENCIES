@@ -1,4 +1,5 @@
 peewee
+numpy
 pycante
 csvcool
 pyzmq
