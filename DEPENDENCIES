@@ -1,9 +1,9 @@
+PyQt
 peewee
 numpy
 pycante
 csvcool
 pyzmq
 ipython
-PyQt
 graph-tool
 pilas==0.68
