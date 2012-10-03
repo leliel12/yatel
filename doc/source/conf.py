@@ -27,7 +27,8 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 if os.environ.get('READTHEDOCS', None) == 'True':
     import shutil
     print "JEJEJE"
-    print os.listdir(".")
+    for s in os.listdir("."):
+        print s, os.path.isdir(s), os.path.isfile(s)
     sys.exit(0)
 
 
