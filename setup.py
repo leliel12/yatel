@@ -94,5 +94,5 @@ setup(
                   'uis': ['yatel/gui/uis/*']},
     py_modules=["ez_setup"],
     scripts=["yatelgui"],
-    install_requires=PYPI_REQUIRES,
+    install_requires=PYPI_REQUIRE,
 )
