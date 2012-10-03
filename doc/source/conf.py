@@ -29,8 +29,9 @@ if os.environ.get('READTHEDOCS', None) == 'True':
     import shutil
 
     def copyto(dirsrc, dirdst):
+        root_src_dir, root_dst_dir = dirsrc, dirdst
+        dst_dir = src_dir.replace(root_src_dir, root_dst_dir)
         for src_dir, dirs, files in os.walk(root_src_dir):
-            dst_dir = src_dir.replace(root_src_dir, root_dst_dir)
             if not os.path.exists(dst_dir):
                 os.mkdir(dst_dir)
             for file_ in files:
