@@ -25,8 +25,9 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 #===============================================================================
 
 if os.environ.get('READTHEDOCS', None) == 'True':
+    import shutil
     print "JEJEJE"
-    print os.listdir(".")
+    print os.listdir("./_builds")
     sys.exit(0)
 
 
