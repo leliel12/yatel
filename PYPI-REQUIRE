@@ -4,5 +4,4 @@ pycante
 csvcool
 pyzmq
 ipython
-graph-tool
 pilas==0.68
