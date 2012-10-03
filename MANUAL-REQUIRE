@@ -3,3 +3,4 @@ PyQt4.Qsci http://www.riverbankcomputing.co.uk/software/qscintilla
 PyQt4.phonon http://www.riverbankcomputing.co.uk/software/pyqt
 graph_tool http://projects.skewed.de/graph-tool/
 box2d
+numpy
