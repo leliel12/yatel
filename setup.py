@@ -34,9 +34,38 @@ import yatel
 # CONSTANTS
 #===============================================================================
 
-with open("DEPENDENCIES") as fp:
-    DEPENDENCIES = [l.strip() for l in fp.readlines() if l.strip()]
+PATH = os.path.dirname(os.path.abspath(__file__))
 
+with open(os.path.join(PATH, "PYPI-REQUIRE")) as fp:
+    PYPI_REQUIRES = {}
+    for l in fp.readlines():
+        if l.strip():
+            pkg = l.split()
+            PYPI_REQUIRES[pkg[0]] = pkg[1] if len(pkg) > 1 else ""
+
+with open(os.path.join(PATH, "MANUAL-REQUIRE")) as fp:
+    MANUAL_REQUIRES = {}
+    for l in fp.readlines():
+        if l.strip():
+            pkg = l.split()
+            MANUAL_REQUIRES[pkg[0]] = pkg[1] if len(pkg) > 1 else ""
+
+
+#===============================================================================
+# WARNINGS FOR MANUAL REQUIRES
+#===============================================================================
+
+not_found = []
+for name, url in MANUAL_REQUIRES.items():
+    try:
+        __import__(name)
+    except ImportError:
+        not_found.append("{} requires '{}' ({})".format(yatel.__prj__,
+                                                        name, url))
+
+if not_found:
+    limits = "=" * max(map(len, not_found))
+    print "\nWARNING\n{}\n{}\n{}\n".format(limits, "\n".join(not_found), limits)
 
 #===============================================================================
 # FUNCTIONS
@@ -59,5 +88,5 @@ setup(
                   'uis': ['yatel/gui/uis/*']},
     py_modules=["ez_setup"],
     scripts=["yatelgui"],
-    install_requires=DEPENDENCIES,
+    install_requires=PYPI_REQUIRES,
 )

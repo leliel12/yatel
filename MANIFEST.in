@@ -3,3 +3,5 @@ recursive-exclude yatel/gui/resources *.pyo
 recursive-include yatel/gui/uis *
 recursive-exclude yatel/gui/uis *.pyo
 include LICENSE
+include PYPI-REQUIRE
+include MANUAL-REQUIRE
