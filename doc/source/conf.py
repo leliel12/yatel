@@ -25,6 +25,7 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 #===============================================================================
 
 if os.environ.get('READTHEDOCS', None) == 'True':
+    print os.listdir("..")
     sys.exit(0)
 
 
