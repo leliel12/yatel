@@ -24,24 +24,6 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 # READ THE DOCS!
 #===============================================================================
 
-if os.environ.get('READTHEDOCS', None) == 'True':
-
-    import shutil
-
-
-    static_html = os.path.join("..", "build", "html")
-    dest = os.path.join("_build", "html")
-
-    shutil.rmtree(dest)
-    shutil.copytree(static_html, dest)
-
-
-    print os.listdir("_build")
-
-
-    sys.exit(0)
-
-
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
 
