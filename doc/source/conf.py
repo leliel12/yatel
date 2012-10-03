@@ -44,7 +44,7 @@ if os.environ.get('READTHEDOCS', None) == 'True':
             else:
                 return Mock()
 
-    MOCK_MODULES = "pilas graph_tool"
+    MOCK_MODULES = "pilas graph_tool pilas PyQt4"
     for mod_name in MOCK_MODULES.split():
         sys.modules[mod_name] = Mock()
 
