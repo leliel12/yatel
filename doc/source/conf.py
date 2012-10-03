@@ -26,9 +26,8 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 
 if os.environ.get('READTHEDOCS', None) == 'True':
     import shutil
-    print "JEJEJE"
-    for s in os.listdir("."):
-        print s, os.path.isdir(s), os.path.isfile(s)
+    print "JEJEJE 2"
+    print os.listdir("_build")
     sys.exit(0)
 
 
