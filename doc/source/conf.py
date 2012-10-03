@@ -27,19 +27,20 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 if os.environ.get('READTHEDOCS', None) == 'True':
 
     class SuperMock(object):
+
         def __init__(self, *args, **kwargs):
             pass
 
         def __call__(self, *args, **kwargs):
-            return Mock()
+            return SuperMock()
 
         def __getattr__(cls, name):
             if name in ('__file__', '__path__'):
                 return '/dev/null'
             elif name[0] == name[0].upper() and name not in "EDir":
-                return Mock
+                return SuperMock
             else:
-                return Mock()
+                return SuperMock()
 
     class Mock(object):
         __metaclass__ = SuperMock
