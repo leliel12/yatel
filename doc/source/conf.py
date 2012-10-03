@@ -25,7 +25,28 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 #===============================================================================
 
 if os.environ.get('READTHEDOCS', None) == 'True':
-    print os.listdir("..")
+
+    import shutil
+
+    def copyto(dirsrc, dirdst):
+        for src_dir, dirs, files in os.walk(root_src_dir):
+        dst_dir = src_dir.replace(root_src_dir, root_dst_dir)
+        if not os.path.exists(dst_dir):
+            os.mkdir(dst_dir)
+        for file_ in files:
+            src_file = os.path.join(src_dir, file_)
+            dst_file = os.path.join(dst_dir, file_)
+            if os.path.exists(dst_file):
+                os.remove(dst_file)
+            shutil.move(src_file, dst_dir)
+
+    static_html = os.path.join("..", "build", "html")
+    dest = os.path.join("_build", "html")
+    copyto(static_html, dest)
+
+    print os.listdir("_build")
+
+
     sys.exit(0)
 
 
