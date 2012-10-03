@@ -25,9 +25,6 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 #===============================================================================
 
 if os.environ.get('READTHEDOCS', None) == 'True':
-    import shutil
-    print "JEJEJE 2"
-    print os.path.abspath(__file__)
     sys.exit(0)
 
 
