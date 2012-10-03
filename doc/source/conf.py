@@ -44,9 +44,12 @@ if os.environ.get('READTHEDOCS', None) == 'True':
             else:
                 return Mock()
 
-    MOCK_MODULES = "pilas graph_tool pilas PyQt4 numpy QtCore QtGui Qsci sip"
+    MOCK_MODULES = """pilas graph_tool pilas PyQt4 numpy QtCore QtGui Qsci
+                      sip pycante"""
     for mod_name in MOCK_MODULES.split():
-        sys.modules[mod_name] = Mock()
+        mod_name = mod_name.strip()
+        if mod_name:
+            sys.modules[mod_name] = Mock()
 
 
 # If your documentation needs a minimal Sphinx version, state it here.

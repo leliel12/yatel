@@ -35,21 +35,23 @@ import yatel
 # CONSTANTS
 #===============================================================================
 
-PATH = os.path.dirname(os.path.abspath(__file__))
+PYPI_REQUIRE = [
+    "peewee",
+    "pycante",
+    "csvcool",
+    "pyzmq",
+    "ipython",
+    "Box2D",
+    "pilas",
+    "numpy"
+]
 
-with open(os.path.join(PATH, "PYPI-REQUIRE")) as fp:
-    PYPI_REQUIRES = collections.OrderedDict()
-    for l in fp.readlines():
-        if l.strip():
-            pkg = l.split()
-            PYPI_REQUIRES[pkg[0]] = pkg[1] if len(pkg) > 1 else ""
-
-with open(os.path.join(PATH, "MANUAL-REQUIRE")) as fp:
-    MANUAL_REQUIRES = collections.OrderedDict()
-    for l in fp.readlines():
-        if l.strip():
-            pkg = l.split()
-            MANUAL_REQUIRES[pkg[0]] = pkg[1] if len(pkg) > 1 else ""
+MANUAL_REQUIRE = {
+    "PyQt4" : "http://www.riverbankcomputing.co.uk/software/pyqt",
+    "PyQt4.Qsci" : "http://www.riverbankcomputing.co.uk/software/qscintilla",
+    "PyQt4.phonon" : "http://www.riverbankcomputing.co.uk/software/pyqt",
+    "graph_tool" : "http://projects.skewed.de/graph-tool/",
+}
 
 
 #===============================================================================
@@ -57,7 +59,7 @@ with open(os.path.join(PATH, "MANUAL-REQUIRE")) as fp:
 #===============================================================================
 
 not_found = []
-for name, url in MANUAL_REQUIRES.items():
+for name, url in MANUAL_REQUIRE.items():
     try:
         __import__(name)
     except ImportError:
