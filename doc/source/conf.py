@@ -26,23 +26,23 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 
 if os.environ.get('READTHEDOCS', None) == 'True':
 
-    class Mock(object):
+    class SuperMock(object):
         def __init__(self, *args, **kwargs):
             pass
 
         def __call__(self, *args, **kwargs):
             return Mock()
 
-        @classmethod
         def __getattr__(cls, name):
             if name in ('__file__', '__path__'):
                 return '/dev/null'
             elif name[0] == name[0].upper() and name not in "EDir":
-                mockType = type(name, (), {})
-                mockType.__module__ = __name__
-                return mockType
+                return Mock
             else:
                 return Mock()
+
+    class Mock(object):
+        __metaclass__ = SuperMock
 
     MOCK_MODULES = """pilas graph_tool pilas PyQt4 numpy QtCore QtGui Qsci
                       sip pycante"""
