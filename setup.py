@@ -21,6 +21,7 @@
 #===============================================================================
 
 import os
+import collections
 
 from ez_setup import use_setuptools
 use_setuptools()
@@ -37,14 +38,14 @@ import yatel
 PATH = os.path.dirname(os.path.abspath(__file__))
 
 with open(os.path.join(PATH, "PYPI-REQUIRE")) as fp:
-    PYPI_REQUIRES = {}
+    PYPI_REQUIRES = collections.OrderedDict()
     for l in fp.readlines():
         if l.strip():
             pkg = l.split()
             PYPI_REQUIRES[pkg[0]] = pkg[1] if len(pkg) > 1 else ""
 
 with open(os.path.join(PATH, "MANUAL-REQUIRE")) as fp:
-    MANUAL_REQUIRES = {}
+    MANUAL_REQUIRES = collections.OrderedDict()
     for l in fp.readlines():
         if l.strip():
             pkg = l.split()
