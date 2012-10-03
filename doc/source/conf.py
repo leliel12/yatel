@@ -21,8 +21,14 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 
 
 #===============================================================================
-# END MOKS
+# READ THE DOCS!
 #===============================================================================
+
+if os.environ.get('READTHEDOCS', None) == 'True':
+    print "JEJEJE"
+    print os.listdir(".")
+    sys.exit(0)
+
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
