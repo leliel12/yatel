@@ -68,7 +68,6 @@ if not_found:
     print "\nWARNING\n{}\n{}\n{}\n".format(limits,
                                             "\n".join(not_found),
                                             limits)
-    sys.exit(1)
 
 
 #===============================================================================
