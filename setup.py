@@ -65,7 +65,10 @@ for name, url in MANUAL_REQUIRES.items():
 
 if not_found:
     limits = "=" * max(map(len, not_found))
-    print "\nWARNING\n{}\n{}\n{}\n".format(limits, "\n".join(not_found), limits)
+    print "\nWARNING\n{}\n{}\n{}\n".format(limits,
+                                            "\n".join(not_found),
+                                            limits)
+
 
 #===============================================================================
 # FUNCTIONS
