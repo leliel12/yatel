@@ -25,8 +25,14 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 #===============================================================================
 
 if os.environ.get('READTHEDOCS', None) == 'True':
-    print "TODO"
-    sys.exit(1)
+    import shutil
+
+    dest = os.path.join("_build", "html")
+    shutil.rmtree(dest)
+    os.makedirs(dest)
+    print os.listdir(".")
+    print dest, os.listdir(dest)
+    sys.exit(0)
 
 
 # If your documentation needs a minimal Sphinx version, state it here.
