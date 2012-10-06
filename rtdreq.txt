@@ -3,3 +3,4 @@ csvcool
 pyzmq
 ipython
 pilas
+pycante
