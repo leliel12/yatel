@@ -12,6 +12,11 @@ import sys
 NOT_CLASS = ("EDir", )
 
 class Mock(object):
+
+    @staticmethod
+    def __new__(self, *args, **kwargs):
+        return super(Mock, self).__new__()
+
     def __init__(self, *args, **kwargs):
             pass
 
