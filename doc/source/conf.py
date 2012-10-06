@@ -25,13 +25,8 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 #===============================================================================
 
 if os.environ.get('READTHEDOCS', None) == 'True':
-
     sys.path.insert(0, os.path.abspath("."))
-    print os.listdir(".")
     import mocks
-
-
-
 
 
 # If your documentation needs a minimal Sphinx version, state it here.
