@@ -94,5 +94,6 @@ setup(
                   'uis': ['yatel/gui/uis/*']},
     py_modules=["ez_setup"],
     scripts=["yatelgui"],
+    setup_require=["sphinx-pypi-upload"],
     install_requires=PYPI_REQUIRE,
 )
