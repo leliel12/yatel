@@ -2,5 +2,4 @@ peewee
 csvcool
 pyzmq
 ipython
-pilas
 pycante
