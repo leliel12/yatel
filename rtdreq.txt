@@ -1,5 +1,0 @@
-pycante
-peewee
-csvcool
-pyzmq
-ipython
