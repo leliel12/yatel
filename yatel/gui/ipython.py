@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # "THE WISKEY-WARE LICENSE":
-# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
 # you can do whatever you want with this stuff. If we meet some day, and you
 # think this stuff is worth it, you can buy us a WISKEY us return.
 
@@ -40,15 +40,15 @@ from PyQt4 import QtCore
 _kernel_app = None
 _manager = None
 def _get_kernel_and_manager():
-    
+
     global _kernel_app
     global _manager
-    
+
     if _kernel_app is None:
         def _event_loop(kernel):
             kernel.timer = QtCore.QTimer()
             kernel.timer.timeout.connect(kernel.do_one_iteration)
-            kernel.timer.start(1000*kernel._poll_interval)
+            kernel.timer.start(1000 * kernel._poll_interval)
 
         _kernel_app = None
         _kernel_app = IPKernelApp.instance()
@@ -70,43 +70,50 @@ def _get_kernel_and_manager():
 
 class IPythonWidget(RichIPythonWidget):
     """IPython console connected to the default kernel embeddable in *Qt*.
-    
-    Nota: if you have 2 instances of this class is shared console.
-    
+
+    Note: This class is a singleton.
+
     """
 
-    def __init__(self):
-        """Creates a new instance of ``IPythonWidget``.
-        
+    _instance = None # the singleton instance
+
+    @staticmethod
+    def __new__(cls, *args, **kwargs):
+        """Only 1 instance
+
         """
-        try: # Ipython v0.13
-            super(IPythonWidget, self).__init__(gui_completion='droplist')
-        except TraitError:  # IPython v0.12
-            super(IPythonWidget, self).__init__(gui_completion=True)
-            widget = RichIPythonWidget(gui_completion=True)
+        if not IPythonWidget._instance:
+            instance = super(IPythonWidget, cls).__new__(cls)
+            IPythonWidget._instance = instance
+        return IPythonWidget._instance
+
+    def __init__(self, welcome_message):
+        """Return the instance of ``IPythonWidget``.
+
+        """
+        super(IPythonWidget, self).__init__(gui_completion='droplist')
         self._kernel_app, self.kernel_manager = _get_kernel_and_manager()
-        
-    
+        self.write(welcome_message)
+
     def reset_ns(self, **kwargs):
         """Reset all commands and locals variables of the shell and setup anew
         vars on the namespace.
-        
+
         **Params**
             :kwargs: Variables to be seted in the namespace.
-            
+
         """
         self._kernel_app.shell.reset()
         self._kernel_app.shell.user_ns.update(kwargs)
-        
+
     def write(self, msg):
         """Write the ``msg`` in the console."""
         self._kernel_app.shell.write(msg)
-        
-    def destroy(self):
+
+    def clear(self):
         """Reset all commands and locals variables of the shell and destroy
         this widget."""
-        _kernel_app.shell.reset()
-        super(IPythonWidget, self).destroy()
+        self._kernel_app.shell.reset()
 
 
 #===============================================================================
@@ -116,7 +123,7 @@ class IPythonWidget(RichIPythonWidget):
 if __name__ == "__main__":
     print(__doc__)
     app = QtGui.QApplication([''])
-    widget = IPythonWidget()
+    widget = IPythonWidget("\n'k' is the kernel")
     widget.reset_ns(k=_kernel_app)
     widget.show()
     app.exec_()

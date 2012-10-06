@@ -436,7 +436,7 @@ class YatelConnection(object):
         td = {}
         for hap, xy in topology.items():
 
-            # validate if this hap is in this network
+            # validate if this hap is in this nejbc.develop@gmail.comtwork
             self.HaplotypeDBO.get(hap_id=hap.hap_id)
             td[hap.hap_id] = list(xy)
 
@@ -459,7 +459,7 @@ class YatelConnection(object):
                         raise ValueError(msg)
             envl.append([active, enviroment])
 
-        data = {"topology": td, "weight_range": wrl, 
+        data = {"topology": td, "weight_range": wrl,
                 "enviroments": envl, "hap_sql": hap_sql}
         
         vdbo = self.YatelVersionDBO()

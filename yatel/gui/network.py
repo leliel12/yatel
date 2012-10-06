@@ -136,12 +136,12 @@ class _HaplotypeActor(actores.Actor):
                 the node will be drawed.
         
         """
-        super(_HaplotypeActor, self).__init__(imagen=IMAGE_NODE_NORMAL, 
+        super(_HaplotypeActor, self).__init__(imagen=IMAGE_NODE_NORMAL,
                                               x=x, y=y)
         # internal data
         self._selected = actores.Actor(imagen=IMAGE_NODE_UNSELECTED)
         self._texto = actores.Texto(magnitud=12)
-        self._show_text= True
+        self._show_text = True
         self.clicked = eventos.Evento("clicked")
         # conf
         self.haplotype = hap
@@ -278,10 +278,10 @@ class _EdgesDrawActor(actores.Pizarra):
                 yp = sum([act.y for act in nodes]) / len(nodes)
                 text_x, text_y = xp + 10, yp + 10
                 for act in nodes:
-                    self.linea(xp, yp, act.x, act.y, 
+                    self.linea(xp, yp, act.x, act.y,
                                grosor=2, color=colores.rojo)
             if self._show_weights:
-                self.texto(unicode(weight), text_x, text_y, 
+                self.texto(unicode(weight), text_x, text_y,
                            color=colores.blanco)
         
     @property
