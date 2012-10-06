@@ -15,7 +15,7 @@ class Mock(object):
 
     @staticmethod
     def __new__(cls, *args, **kwargs):
-        return super(Mock, self).__new__(cls)
+        return super(Mock, cls).__new__(cls)
 
     def __init__(self, *args, **kwargs):
             pass
