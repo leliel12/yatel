@@ -14,8 +14,8 @@ NOT_CLASS = ("EDir", )
 class Mock(object):
 
     @staticmethod
-    def __new__(self, *args, **kwargs):
-        return super(Mock, self).__new__()
+    def __new__(cls, *args, **kwargs):
+        return super(Mock, self).__new__(cls)
 
     def __init__(self, *args, **kwargs):
             pass
