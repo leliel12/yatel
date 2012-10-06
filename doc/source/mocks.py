@@ -33,6 +33,7 @@ class Mock(object):
         else:
             return Mock()
 
-MOCK_MODULES = ("graph_tool", "PyQt4", "numpy",  "QtCore2", "QtGui", "sip", "pilas")
+MOCK_MODULES = ("graph_tool", "PyQt4", "numpy",
+                "QtCore2", "QtGui", "sip", "pilas")
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
