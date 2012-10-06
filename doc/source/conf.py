@@ -33,7 +33,6 @@ if os.environ.get('READTHEDOCS', None) == 'True':
     with open("redirect.html") as src:
         with open(os.path.join(dest, "index.html"), "w") as dst:
             dst.write(src.read())
-    print dest, os.listdir(dest)
     sys.exit(0)
 
 
