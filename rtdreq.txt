@@ -1,5 +1,5 @@
+pycante
 peewee
 csvcool
 pyzmq
 ipython
-pycante
