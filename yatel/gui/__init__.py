@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # "THE WISKEY-WARE LICENSE":
-# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
 # you can do whatever you want with this stuff. If we meet some day, and you
 # think this stuff is worth it, you can buy us a WISKEY us return.
 
@@ -28,14 +28,17 @@ import sys
 
 from PyQt4 import QtCore, QtGui
 
+from yatel import constants
 from yatel.gui import main_window
+
 
 #===============================================================================
 # GLOBALS
 #===============================================================================
 
-#: Before anything start a QAplication is created 
+#: Before anything start a QAplication is created
 APP = QtGui.QApplication(sys.argv)
+APP.setApplicationName(constants.PRJ);
 
 
 #===============================================================================
@@ -44,7 +47,7 @@ APP = QtGui.QApplication(sys.argv)
 
 def run_gui():
     """Launch yatel gui client
-    
+
     """
     splash = main_window.SplashScreen()
     splash.show()
@@ -53,7 +56,7 @@ def run_gui():
     win.show()
     QtCore.QThread.sleep(1)
     splash.finish(win)
-    sys.exit(APP.exec_())    
+    sys.exit(APP.exec_())
 
 
 #===============================================================================
