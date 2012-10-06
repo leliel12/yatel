@@ -26,31 +26,12 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 
 if os.environ.get('READTHEDOCS', None) == 'True':
 
-    class SuperMock(object):
+    sys.path.insert(0, os.path.abspath("."))
 
-        def __init__(self, *args, **kwargs):
-            pass
+    import mocks
 
-        def __call__(self, *args, **kwargs):
-            return SuperMock()
 
-        def __getattr__(cls, name):
-            if name in ('__file__', '__path__'):
-                return '/dev/null'
-            elif name[0] == name[0].upper() and name not in "EDir":
-                return SuperMock
-            else:
-                return SuperMock()
 
-    class Mock(object):
-        __metaclass__ = SuperMock
-
-    MOCK_MODULES = """pilas graph_tool pilas PyQt4 numpy QtCore QtGui Qsci
-                      sip pycante"""
-    for mod_name in MOCK_MODULES.split():
-        mod_name = mod_name.strip()
-        if mod_name:
-            sys.modules[mod_name] = Mock()
 
 
 # If your documentation needs a minimal Sphinx version, state it here.
