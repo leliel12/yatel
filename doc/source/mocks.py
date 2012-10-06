@@ -9,7 +9,7 @@
 import sys
 
 
-NOT_CLASS = ("EDir", )
+NOT_CLASS = ()
 
 class Mock(object):
 
@@ -33,6 +33,6 @@ class Mock(object):
         else:
             return Mock()
 
-MOCK_MODULES = ("graph_tool", "PyQt4", "numpy",  "QtCore2", "QtGui", "sip", "pycante")
+MOCK_MODULES = ("graph_tool", "PyQt4", "numpy",  "QtCore2", "QtGui", "sip")
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
