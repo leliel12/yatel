@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # "THE WISKEY-WARE LICENSE":
-# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
 # you can do whatever you want with this stuff. If we meet some day, and you
 # think this stuff is worth it, you can buy us a WISKEY us return.
 
@@ -11,8 +11,8 @@
 # DOCS
 #===============================================================================
 
-"""This module contains a gui for retrieve information for create conection 
-to databases 
+"""This module contains a gui for retrieve information for create conection
+to databases
 
 """
 
@@ -24,7 +24,7 @@ to databases
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 
-from yatel import constants
+import yatel
 from yatel import db
 
 from yatel.gui import uis
@@ -36,24 +36,24 @@ from yatel.gui import uis
 
 class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
     """Dialog for setup a connection to databases
-    
+
     """
     #: Constant for open a dialog as open conection mode.
     OPEN = "open"
-    
+
     #: Constant for open a dialog as create coneccion mode.
     CREATE = "create"
-    
+
     def __init__(self, parent, action, *args, **kwargs):
         """Create a new instance of ``ConnectionSetupDialog``
-        
+
         **Params**
             :parent: A gui parent of this widget.
-            :action: A dialog mode 
+            :action: A dialog mode
                      [ConnectionSetupDialog.OPEN|ConnectionSetupDialog.CREATE]
             :*args: Extra params for QDialog.
             :**kwags: Extra keywords arguments for QDialog.
-        
+
         """
         assert action in (self.OPEN, self.CREATE)
         super(ConnectionSetupDialog, self).__init__(parent, *args, **kwargs)
@@ -65,41 +65,41 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
         elif action == self.CREATE:
             self.setWindowTitle(self.tr("Create Database"))
         self.on_engineComboBox_activated(self.engineComboBox.currentText())
-    
+
     def on_openFileButton_pressed(self):
-        """Slot executed when a ``openFileButton`` is pressed for select an 
+        """Slot executed when a ``openFileButton`` is pressed for select an
         Sqlite file.
-        
-        If the mode is ``ConnectionSetupDialog.CREATE`` open for create a new 
-        file. If the mode is ``ConnectionSetupDialog.OPEN`` open for create 
+
+        If the mode is ``ConnectionSetupDialog.CREATE`` open for create a new
+        file. If the mode is ``ConnectionSetupDialog.OPEN`` open for create
         read an existing file.
-        
+
         """
         filename = None
         if self._action == self.CREATE:
             filename = QtGui.QFileDialog.getSaveFileName(
                 self, self.tr("Save Database"),
-                constants.HOME_PATH,
+                yatel.HOME_PATH,
                 self.tr("sqlite (*.db)")
             )
         elif self._action == self.OPEN:
             filename = QtGui.QFileDialog.getOpenFileName(
                 self, self.tr("Open Database File"),
-                constants.HOME_PATH,
+                yatel.HOME_PATH,
                 self.tr("sqlite (*.db)")
             )
         if filename:
             self.nameLineEdit.setText(filename)
-    
+
     @QtCore.pyqtSlot('QString')
     def on_engineComboBox_activated(self, engine):
         """Slot executed when a ``engineComboBox`` is activated.
-        
+
         This method show widgets acording to engine for configure it.
-        
+
         **params**
             :engine: Engine dictionary info (see ``yatel.db``).
-        
+
         """
         name_isfile = db.ENGINES_CONF[unicode(engine)]["name_isfile"]
         self.openFileButton.setVisible(name_isfile)
@@ -122,14 +122,14 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
                 lineEdit.setValidator(QtGui.QIntValidator())
             self.formLayout.insertRow(idx + 2, label, lineEdit)
             self._params[pn] = (label, lineEdit)
-            
+
     def params(self):
         """Returns a params of the conection as dictionary.
-        
+
         **returns**
-            A dict instance with all parameters of the engine 
+            A dict instance with all parameters of the engine
             (see ``yatel.db``).
-        
+
         """
         data = {}
         engine = unicode(self.engineComboBox.currentText())

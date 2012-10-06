@@ -28,7 +28,7 @@ import sys
 
 from PyQt4 import QtCore, QtGui
 
-from yatel import constants
+import yatel
 from yatel.gui import main_window
 
 
@@ -38,7 +38,7 @@ from yatel.gui import main_window
 
 #: Before anything start a QAplication is created
 APP = QtGui.QApplication(sys.argv)
-APP.setApplicationName(constants.PRJ);
+APP.setApplicationName(yatel.PRJ);
 
 
 #===============================================================================

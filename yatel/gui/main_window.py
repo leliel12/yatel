@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # "THE WISKEY-WARE LICENSE":
-# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
 # you can do whatever you want with this stuff. If we meet some day, and you
 # think this stuff is worth it, you can buy us a WISKEY us return.
 
@@ -25,7 +25,7 @@ import string
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 
-from yatel import constants
+import yatel
 from yatel import db
 
 from yatel.gui import uis
@@ -64,14 +64,14 @@ class MainWindow(uis.UI("MainWindow.ui")):
 
     def __init__(self, *args, **kwargs):
         """Creates a new instance of ``MainWindow``
-        
+
         All params are pased to superclass
-        
+
         """
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
         self.explorerFrame = None
-        
+
         example_db = "/home/juan/proyectos/yatel_hg/data/example.db"
         conn = db.YatelConnection("sqlite", example_db)
         conn.init_yatel_database()
@@ -83,19 +83,19 @@ class MainWindow(uis.UI("MainWindow.ui")):
         if self.explorerFrame:
             prj = self.explorerFrame.conn.name
             saved = "" if self.explorerFrame.is_saved() else "*"
-        title = "{} v.{} - {} {}".format(constants.PRJ,
-                                         constants.STR_VERSION,
+        title = "{} v.{} - {} {}".format(yatel.PRJ,
+                                         yatel.STR_VERSION,
                                          prj, saved)
         super(self.__class__, self).setWindowTitle(title)
 
     def open_explorer(self, yatel_connection, saved=True):
         """Creates a new explorer frame with a given ``yatel_connection`` and
         set their save status.
-        
+
         **Params**
             :yatel_connection: A ``yatel.db.YatelConnection`` instance.
             :saved: ``bool``
-        
+
         """
         self.explorerFrame = explorer.ExplorerFrame(self.centralWidget(),
                                                     yatel_connection, saved)
@@ -110,7 +110,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
 
     def close_explorer(self):
         """If a project are open; ask to the user for close it.
-        
+
         **Return**
             Return ``False`` if the project is not closed otherwise ``True``.
 
@@ -120,7 +120,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
             if not self.explorerFrame.is_saved():
                 msg = self.tr("The project has been modified.\n"
                               "Do you want to save your changes before close?")
-                status = QtGui.QMessageBox.warning(self, constants.PRJ, msg,
+                status = QtGui.QMessageBox.warning(self, yatel.PRJ, msg,
                                                    QtGui.QMessageBox.Ok,
                                                    QtGui.QMessageBox.Cancel,
                                                    QtGui.QMessageBox.Discard)
@@ -148,7 +148,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
                     closed = False
             else:
                 msg = self.tr("Do you want to close the actual project?")
-                status = QtGui.QMessageBox.warning(self, constants.PRJ, msg,
+                status = QtGui.QMessageBox.warning(self, yatel.PRJ, msg,
                                                    QtGui.QMessageBox.Ok,
                                                    QtGui.QMessageBox.Cancel)
                 if status == QtGui.QMessageBox.Ok:
@@ -174,14 +174,14 @@ class MainWindow(uis.UI("MainWindow.ui")):
     #===========================================================================
     # SLOTS
     #===========================================================================
-    
+
     @QtCore.pyqtSlot()
     def on_actionLoad_triggered(self):
         """Slot executed when ``actionLoad`` is triggered.
-        
+
         Open a popup for select other version of the actual exploration and send
         to the explorer information to recondigure the gui.
-        
+
         """
         conn = self.explorerFrame.conn
         vid = version_dialog.open_version(conn)
@@ -189,67 +189,67 @@ class MainWindow(uis.UI("MainWindow.ui")):
             version = conn.get_version(vid)
             self.explorerFrame.load_version(version)
             self.reloadTitle()
-            
+
     def on_explorerFrame_saveStatusChanged(self, is_saved):
         """Slot executed when ``explorerFrame`` change the save status.
-        
+
         Reload a title (acording to the new status) ad if the status is save,
         disabled the action ``actionSave``
-        
+
         **Params**
             :is_saved: ``bool`` if the explorer is saved or not.
-        
+
         """
         self.reloadTitle()
         self.actionSave.setEnabled(not is_saved)
-    
+
     @QtCore.pyqtSlot()
     def on_actionExit_triggered(self):
         """Slot executed when ``actionExit`` is triggered.
-        
+
         Close the explorer (asking for save  depending on *save-state*) and
         close the app.
-        
+
         """
         if self.close_explorer():
             self.close()
-    
+
     @QtCore.pyqtSlot()
     def on_actionClose_triggered(self):
         """Slot executed when ``actionClose`` is triggered.
-        
+
         Close the explorer (asking for save  depending on *save-state*).
-        
+
         """
         self.close_explorer()
-    
+
     @QtCore.pyqtSlot()
     def on_actionSave_triggered(self):
         """Slot executed when ``actionSave`` is triggered.
-        
+
         Show a popup for create a new version and create it.
-        
+
         """
         if not self.explorerFrame.is_saved():
             conn = self.explorerFrame.conn
             tag_comment = version_dialog.save_version(conn)
             if tag_comment :
                 self.explorerFrame.save_version(*tag_comment)
-    
+
     @QtCore.pyqtSlot()
     def on_actionOpenYatelDB_triggered(self):
         """Slot executed when ``actionOpenYatelDB`` is triggered.
-        
-        Show a popup to select a database that contains all the metadata 
+
+        Show a popup to select a database that contains all the metadata
         needed to build an exploration.
-        
+
         """
         if not self.close_explorer():
             return
         self.dialog = connection_setup.ConnectionSetupDialog(self, "open")
         try:
             if not self.dialog.exec_():
-                return 
+                return
             conn = db.YatelConnection(**self.dialog.params())
             conn.init_yatel_database()
         except Exception as err:
@@ -260,13 +260,13 @@ class MainWindow(uis.UI("MainWindow.ui")):
             self.dialog.setParent(None)
             self.dialog.destroy()
             del self.dialog
-    
+
     @QtCore.pyqtSlot()
     def on_actionWizard_triggered(self):
         """Slot executed when ``actionWizard`` is triggered.
-        
+
         Show a wizard for create a database importing ``csv`` files.
-        
+
         """
         if not self.close_explorer():
             return
@@ -277,7 +277,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
                 return
             haplotypes = None
             facts = None
-            edges = None            
+            edges = None
             if hasattr(self.wizard, "haplotypesFrame"):
                 haplotypes = self.wizard.haplotypesFrame.dom_objects ()
             if hasattr(self.wizard, "factsFrame"):
@@ -285,7 +285,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
             if hasattr(self.wizard, "weightFrame"):
                 edges = self.wizard.weightFrame.dom_objects()
             if not self.dialog.exec_():
-                return 
+                return
             conn = db.YatelConnection(**self.dialog.params())
             conn.init_with_values(haplotypes, facts, edges)
         except Exception as err:
@@ -303,34 +303,34 @@ class MainWindow(uis.UI("MainWindow.ui")):
     @QtCore.pyqtSlot()
     def on_actionAboutQt_triggered(self):
         """Slot executed when ``actionAboutQt`` is triggered.
-        
+
         Show a default popup of ``about Qt...`` message.
-        
+
         """
         QtGui.QApplication.aboutQt()
-    
+
     @QtCore.pyqtSlot()
     def on_actionAbout_triggered(self):
         """Slot executed when ``actionAbout`` is triggered.
-        
+
         Show a popup of ``about Yatel...`` message.
-        
+
         """
         def richtext(code):
             code = self.tr(code)
             code = code.replace("<", "&lt;").replace(">", "&gt;")
             lines = code.splitlines()
             return "<br/>".join(lines)
-        
-        title = self.tr("About {} - {}").format(constants.PRJ,
-                                             constants.STR_VERSION)
-        abt = ABOUT_TEMPLATE.substitute(title=richtext(constants.PRJ),
-                                        doc=richtext(constants.DOC),
-                                        author=richtext(constants.AUTHOR),
-                                        email=richtext(constants.EMAIL),
-                                        version=richtext(constants.STR_VERSION),
-                                        url=richtext(constants.URL),
-                                        license=richtext(constants.LICENSE))
+
+        title = self.tr("About {} - {}").format(yatel.PRJ,
+                                             yatel.STR_VERSION)
+        abt = ABOUT_TEMPLATE.substitute(title=richtext(yatel.PRJ),
+                                        doc=richtext(yatel.DOC),
+                                        author=richtext(yatel.AUTHOR),
+                                        email=richtext(yatel.EMAIL),
+                                        version=richtext(yatel.STR_VERSION),
+                                        url=richtext(yatel.URL),
+                                        license=richtext(yatel.LICENSE))
         QtGui.QMessageBox.about(self, title, abt)
 
 
