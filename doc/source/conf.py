@@ -26,13 +26,16 @@ sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 
 if os.environ.get('READTHEDOCS', None) == 'True':
     import shutil
+    import string
 
     dest = os.path.join("_build", "html")
     shutil.rmtree(dest)
     os.makedirs(dest)
-    with open("redirect.html") as src:
-        with open(os.path.join(dest, "index.html"), "w") as dst:
-            dst.write(src.read())
+    url = "https://bitbucket.org/leliel12/yatel"
+    with open("redirect.html") as src_fp:
+        src = string.Template(src_fp.read()).safe_substitute(url=url)
+        with open(os.path.join(dest, "index.html"), "w") as dst_fp:
+            dst_fp.write(src)
     sys.exit(0)
 
 
