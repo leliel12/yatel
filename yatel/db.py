@@ -91,7 +91,7 @@ NAME2COLUMNCLASS = dict(
     (v.column_class.__name__, v.column_class) for v in NAME2FIELD.values()
 )
 
-#: ``dict``  with ``peewee`` *column class* as *keys* and *column class names * as values.
+#: ``dict``  with ``peewee`` *column class* as *keys* and *column class names as values.
 COLUMNCLASS2NAME = dict((v, k) for k, v in NAME2COLUMNCLASS.items())
 
 #: The name of *haplotype* table type.

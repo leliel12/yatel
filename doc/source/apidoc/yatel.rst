@@ -9,14 +9,6 @@ yatel Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`constants` Module
------------------------
-
-.. automodule:: yatel.constants
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`db` Module
 ----------------
 
