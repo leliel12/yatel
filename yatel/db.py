@@ -1,27 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-# MA 02110-1301, USA.
+# "THE WISKEY-WARE LICENSE":
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
+# you can do whatever you want with this stuff. If we meet some day, and you
+# think this stuff is worth it, you can buy us a WISKEY us return.
 
 
 #===============================================================================
 # DOCS
 #===============================================================================
 
-"""Database interface for yatel
+"""Database abstraction layer
 
 """
 
@@ -44,6 +34,7 @@ import dom
 # CONSTANTS
 #===============================================================================
 
+#: Default configuration values for various rdbms supported by ``peewee``.
 ENGINES_CONF = {
     "sqlite": {
         "class": peewee.SqliteDatabase,
@@ -72,8 +63,10 @@ ENGINES_CONF = {
     }
 }
 
+#: Names of engines supported by ``peewee``.
 ENGINES = ENGINES_CONF.keys()
 
+#: ``dict``  with ``peewee`` *field names* as *keys* and *fields* as values.
 NAME2FIELD = {
     "CharField": peewee.CharField,
     "TextField": peewee.TextField,
@@ -90,20 +83,27 @@ NAME2FIELD = {
     "TimeField": peewee.TimeField,
 }
 
+#: ``dict``  with ``peewee`` *field* as *keys* and *fields names* as values.
 FIELD2NAME = dict((v, k) for k, v in NAME2FIELD.items())
 
+#: ``dict``  with ``peewee`` *column class names* as *keys* and *column class* as values.
 NAME2COLUMNCLASS = dict(
     (v.column_class.__name__, v.column_class) for v in NAME2FIELD.values()
 )
 
+#: ``dict``  with ``peewee`` *column class* as *keys* and *column class names * as values.
 COLUMNCLASS2NAME = dict((v, k) for k, v in NAME2COLUMNCLASS.items())
 
+#: The name of *haplotype* table type.
 HAPLOTYPES_TABLE = "haplotypes"
 
+#: The name of *fact* table type.
 FACTS_TABLE = "facts"
 
+#: The name of *edges* table type.
 EDGES_TABLE = "edges"
 
+#: The name of all table types.
 TABLES = (HAPLOTYPES_TABLE, FACTS_TABLE, EDGES_TABLE)
 
 
@@ -112,6 +112,7 @@ TABLES = (HAPLOTYPES_TABLE, FACTS_TABLE, EDGES_TABLE)
 #===============================================================================
 
 class YatelConnectionError(BaseException):
+    """Error for use when some *Yatel* logic fail in database."""
     pass
 
 
@@ -120,10 +121,20 @@ class YatelConnectionError(BaseException):
 #===============================================================================
 
 class YatelConnection(object):
+    """A database abstraction layer for *Yatel*"""
 
     def __init__(self, engine, name, **kwargs):
-        """
-            engine: sqlite, mysql or postgres
+        """Creates a new instance of ``YatelConnection``.
+
+        **NOTE:** Remember to init the database with one of the methods:
+            * ``init_with_values``.
+            * ``init_yatel_database``.
+
+        **Params**
+            :engine: some value specified in ``db.Engines``.
+            :name: A database name (or path if ``engine`` is *sqlite*.
+            :kwargs: Configuration parameters for the engine (specified in
+                     ``db.ENGINES_CON[engine]``.
 
         """
         try:
@@ -143,12 +154,19 @@ class YatelConnection(object):
             raise ValueError(msg.format(ENGINES.keys(), engine))
 
     def __getattr__(self, k):
+        """x.__getattr__('k') <==> x.database.k"""
         if not self._inited:
             msg = "Connection not inited"
             raise YatelConnectionError(msg)
         return getattr(self.database, k)
 
     def _generate_meta_tables_dbo(self):
+        """Generate a internal use tables.
+
+        This tables are used for store the structure to map ``dom`` objects and
+        the version status.
+
+        """
         self.YatelTableDBO = type(
             "_yatel_tables", (peewee.Model,), {
                 "type": peewee.CharField(unique=True,
@@ -180,6 +198,17 @@ class YatelConnection(object):
         )
 
     def _add_field_metadata(self, name, table, field):
+        """Relate a field of existing table to internal structure.
+
+        For example: If the table *A* has identified by yatel as the
+        *haplotype table* and we need to use a integer attribute *A.a1*;
+        you can use:
+
+        .. code-block:: python
+
+            x._add_field_metadata("a1", "haplotypes", peeweee.IntegerField)
+
+        """
         nf = self.YatelFieldDBO()
         nf.name = name
         nf.table = table
@@ -193,6 +222,19 @@ class YatelConnection(object):
         nf.save()
 
     def init_with_values(self, haps, facts, edges):
+        """Init the empety yatel database with the given objects.
+
+        This method:
+            * Creates all default tables (for exploration and internal).
+            * Maps all attributes of haps, facts and edges.
+            * Create a first version (called *init*).
+
+        **Params**
+            :haps: A ``list`` of ``dom.Haplotype`` instances.
+            :facts: A ``list`` of ``dom.Fact`` instances.
+            :edges: A ``list`` of ``dom.Edge`` instances.
+
+        """
 
         if self._inited:
             msg = "Connection already inited"
@@ -298,6 +340,10 @@ class YatelConnection(object):
             self._inited = True
 
     def init_yatel_database(self):
+        """Init the connection asumming all the intenal tables of *Yatel*
+        exists.
+
+        """
         if self._inited:
             msg = "Connection already inited"
             raise YatelConnectionError(msg)
@@ -326,6 +372,16 @@ class YatelConnection(object):
             self._inited = True
 
     def haplotype_by_id(self, hap_id):
+        """Return a ``dom.Haplotype`` instace store in the dabase with the
+        giver ``hap_id``.
+
+        **Params**
+            :hap_id: An existing id of the ``haplotypes`` type table.
+
+        **Return**
+            ``dom.Haplotype`` instance.
+
+        """
         hdbo = self.HaplotypeDBO.get(hap_id=hap_id)
         data = dict(
             (k, v)
@@ -335,6 +391,9 @@ class YatelConnection(object):
         return dom.Haplotype(**data)
 
     def iter_haplotypes(self):
+        """Iterates over all ``dom.Haplotype`` instances store in the database.
+
+        """
         for hdbo in self.HaplotypeDBO.select():
             data = dict(
                 (k, v)
@@ -344,6 +403,7 @@ class YatelConnection(object):
             yield dom.Haplotype(**data)
 
     def iter_edges(self):
+        """Iterates over all ``dom.Edge`` instances store in the database."""
         for edbo in self.EdgeDBO.select():
             weight = edbo.weight
             haps_id = [
@@ -353,6 +413,7 @@ class YatelConnection(object):
             yield dom.Edge(weight, *haps_id)
 
     def iter_facts(self):
+        """Iterates over all ``dom.Fact`` instances store in the database."""
         for fdbo in self.FactDBO.select():
             data = {}
             for k, v in fdbo.get_field_dict().items():
@@ -363,6 +424,34 @@ class YatelConnection(object):
             yield dom.Fact(**data)
 
     def enviroment(self, **kwargs):
+        """Return a list of ``dom.Haplotype`` related to a ``dom.Fact`` with
+        attribute and value specified in ``kwargs``
+
+        **Params**
+            :kwargs: Keys are ``dom.Fact`` attribute name and value a posible
+                     value of the given attribte.
+
+        **Return**
+            ``tuple`` of ``dom.Haplotype``.
+
+        **Example**
+
+            ::
+
+                >>> from yatel import db, dom
+                >>> haps = (dom.Haplotype("hap1"), dom.Haplotype("hap2"))
+                >>> facts = (dom.Fact("hap1", a=1, c="foo"), dom.Fact("hap2", a=1, b=2))
+                >>> edges = (dom.Edge(1, "hap1", "hap2"),)
+                >>> conn = db.YatelConnection("sqlite", "yateldatabase.db")
+                >>> conn.init_with_values(haps, facts, edges)
+                >>> conn.enviroment(a=1)
+                (<Haplotype 'hap1' at 0x2463250>, <Haplotype 'hap2' at 0x2463390>)
+                >>> conn.enviroment(c="foo")
+                (<Haplotype 'hap1' at 0x2463250>, )
+                >>> conn.enviroment(b=2)
+                (<Haplotype 'hap2' at 0x2463390>, )
+
+        """
         haps = {}
         query = {}
         for k, v in kwargs.items():
@@ -377,6 +466,7 @@ class YatelConnection(object):
         return tuple(haps.values())
 
     def facts_attributes_names(self):
+        """Return a ``tuple`` of all existing ``dom.Fact`` atributes."""
         return tuple([
             k for k, v in vars(self.FactDBO).items()
             if not k.startswith("_")
@@ -385,6 +475,10 @@ class YatelConnection(object):
         ])
 
     def get_fact_attribute_values(self, att_name):
+        """Return a ``frozenset`` of all posible values of given ``dom.Fact``
+           atribute.
+
+        """
         query = {att_name + "__is": None}
         return frozenset(
             getattr(fdbo, att_name)
@@ -392,6 +486,10 @@ class YatelConnection(object):
         )
 
     def min_max_edge(self):
+        """Return a ``tuple`` with ``len == 2`` containing the  edgest with
+        maximun and minimum *weight*
+
+        """
         if self._minmaxedge is None:
             minedge = None
             maxedge = None
@@ -415,6 +513,10 @@ class YatelConnection(object):
         return self._minmaxedge
 
     def filter_edges(self, minweight, maxweight):
+        """Iterates of a the ``dom.Edge`` instance with *weight* value between
+        ``minweight`` and ``maxwright``
+
+        """
         for edbo in self.EdgeDBO.filter(weight__gte=minweight,
                                          weight__lte=maxweight):
             weight = edbo.weight
@@ -425,6 +527,19 @@ class YatelConnection(object):
             yield dom.Edge(weight, *haps_id)
 
     def hap_sql(self, query, *args):
+        """Trye to execute an arbitrary *sql* and return the
+        ``dom.Haplotype`` instances selected by the query.
+
+        NOTE: Init all queries with ``select * from <HAPLOTYPE_TABLE>``
+
+        **Params**
+            :query: The *sql* query.
+            :args: Argument to replace the ``?`` in the query.
+
+        **Returns**
+            A ``tuple`` of ``dom.Haplotype`` instance.
+
+        """
         haps = []
         for hdbo in self.HaplotypeDBO.raw(query, *args):
             hap = dom.Haplotype(**hdbo.get_field_dict())
@@ -433,6 +548,26 @@ class YatelConnection(object):
 
     def save_version(self, tag, comment="", hap_sql="",
                      topology={}, weight_range=(None, None), enviroments=()):
+        """Store a new exploration status version in the database.
+
+        **Params**
+            :tag: The tag of the new version (unique).
+            :comment: A comment about the new version.
+            :hap_sql: For execute in ``YatelConnection.hap_sql``.
+            :topology: A dictionary with ``dom.Haplotype`` instances as keys
+                       and a *iterable* with (x, y) position as value.
+            :weight_tange: A *iterable* with two ``int`` or ``float``
+                           representing the relevante ``dom.Edge`` instance.
+            :enviroments: A *iterable* with 2 values: **1** a ``bool``
+                          representing if the enviroment is active or not;
+                          **2** A ``dict`` with ``dom.Fact`` attribute name
+                          as keys, and attribute value as value.
+
+        **Returns**
+            A ``tuple`` with 3 values: the new version ``id``, the new version
+            ``datetime`` of creation, and the new version ``tag``.
+
+        """
         td = {}
         for hap, xy in topology.items():
 
@@ -461,7 +596,7 @@ class YatelConnection(object):
 
         data = {"topology": td, "weight_range": wrl,
                 "enviroments": envl, "hap_sql": hap_sql}
-        
+
         vdbo = self.YatelVersionDBO()
         vdbo.tag = tag
         vdbo.datetime = datetime.datetime.now()
@@ -483,6 +618,12 @@ class YatelConnection(object):
         return vdbo.id, vdbo.datetime, vdbo.tag
 
     def versions(self):
+        """A ``tuple`` with all existing versions.
+
+        Each element contains 3 elements: the  version ``id``, the  version
+        ``datetime`` of creation, and the  version ``tag``
+
+        """
         if self._versions is None:
             self._versions = []
             for vdbo in self.YatelVersionDBO.select().order_by(("id", "DESC")):
@@ -491,6 +632,18 @@ class YatelConnection(object):
         return tuple(self._versions)
 
     def get_version(self, match=None):
+        """Return a version by the given filter.
+
+        Behavior:
+            * If ``match`` is ``None``: The last version is returned.
+            * If ``match`` is instance of ``int``: The search is by version
+              *id*.
+            * If ``match`` is instance of ``datetime``: The search is by
+              version creation *datetime*.
+            * If ``match`` is instance of ``str``: The search is by version
+              *tag*.
+
+        """
         vdbo = None
         if match is None:
             query = self.YatelVersionDBO.select()
@@ -521,10 +674,12 @@ class YatelConnection(object):
 
     @property
     def name(self):
+        """The name of the connection."""
         return self._name
 
     @property
     def inited(self):
+        """If the connection is innited."""
         return self._inited
 
 

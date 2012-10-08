@@ -124,6 +124,6 @@ if __name__ == "__main__":
     print(__doc__)
     app = QtGui.QApplication([''])
     widget = IPythonWidget("\n'k' is the kernel")
-    widget.reset_ns(k=_kernel_app)
+    widget.reset_ns(k=_kernel_app, w=widget)
     widget.show()
     app.exec_()
