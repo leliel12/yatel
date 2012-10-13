@@ -356,6 +356,7 @@ class NetworkProxy(object):
         """Clear all widget from *nodes* and *edges*."""
         for n in self._nodes.values():
             n.destruir()
+        self._dabc = None
         self._nodes.clear()
         self._edges.clear()
         self._selected = None
@@ -455,7 +456,9 @@ class NetworkProxy(object):
             
     def filter_edges(self, *edges):
         """Show only the listed ``*edges``"""
+        show_weights = self.weights_showed
         self._edges.clear()
+        self._edges.show_weights(show_weights)
         for edge in edges:
             self.add_edge(edge)
         
