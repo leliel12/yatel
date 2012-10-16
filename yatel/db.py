@@ -86,14 +86,6 @@ NAME2FIELD = {
 #: ``dict``  with ``peewee`` *field* as *keys* and *fields names* as values.
 FIELD2NAME = dict((v, k) for k, v in NAME2FIELD.items())
 
-#: ``dict``  with ``peewee`` *column class names* as *keys* and *column class* as values.
-NAME2COLUMNCLASS = dict(
-    (v.column_class.__name__, v.column_class) for v in NAME2FIELD.values()
-)
-
-#: ``dict``  with ``peewee`` *column class* as *keys* and *column class names as values.
-COLUMNCLASS2NAME = dict((v, k) for k, v in NAME2COLUMNCLASS.items())
-
 #: The name of *haplotype* table type.
 HAPLOTYPES_TABLE = "haplotypes"
 
@@ -183,7 +175,7 @@ class YatelConnection(object):
                 "table": peewee.ForeignKeyField(self.YatelTableDBO),
                 "type": peewee.CharField(),
                 "reference_to": peewee.ForeignKeyField(self.YatelTableDBO, null=True),
-                "pk_column_class": peewee.CharField(null=True),
+                "is_pk": peewee.BooleanField(default=False),
                 "Meta": self.model_meta,
             }
         )
@@ -214,11 +206,10 @@ class YatelConnection(object):
         nf.table = table
         nf.type = FIELD2NAME[type(field)]
         if isinstance(field, peewee.ForeignKeyField):
-            reference_name = field.to.__name__
+            reference_name = field.rel_model.__name__
             table_reference = self.YatelTableDBO.get(name=reference_name)
             nf.reference_to = self.YatelTableDBO.get(name=reference_name)
-        elif isinstance(field, peewee.PrimaryKeyField):
-            nf.pk_column_class = COLUMNCLASS2NAME[field.column_class]
+        nf.is_pk = field.primary_key
         nf.save()
 
     def init_with_values(self, haps, facts, edges):
@@ -358,9 +349,8 @@ class YatelConnection(object):
                     if field_cls == peewee.ForeignKeyField:
                         ref = getattr(self, fdbo.reference_to.cls_name)
                         field = field_cls(ref)
-                    elif field_cls == peewee.PrimaryKeyField:
-                        column_class = NAME2COLUMNCLASS[fdbo.pk_column_class]
-                        field = field_cls(column_class)
+                    elif fdbo.is_pk:
+                        field = field_cls(primary_key=True)
                     else:
                         null = (table_type != EDGES_TABLE
                                 or fdbo.name != "weight")
@@ -626,7 +616,9 @@ class YatelConnection(object):
         """
         if self._versions is None:
             self._versions = []
-            for vdbo in self.YatelVersionDBO.select().order_by(("id", "DESC")):
+            query = self.YatelVersionDBO.select()
+            query = query.order_by(self.YatelVersionDBO.id.desc())
+            for vdbo in query:
                 ver = (vdbo.id, vdbo.datetime, vdbo.tag)
                 self._versions.append(ver)
         return tuple(self._versions)
@@ -733,9 +725,7 @@ def field(objs, pk=False, **kwargs):
         peewee_field = peewee.DateTime
     if pk:
         kwargs.pop("null", None)
-        return peewee.PrimaryKeyField(
-            column_class=peewee_field.column_class, **kwargs
-        )
+        kwargs["primary_key"] = True
     return peewee_field(**kwargs)
 
 
