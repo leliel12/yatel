@@ -82,7 +82,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
 
         version = self.conn.get_version() # the latest
 
-        minw, maxw = [e.weight or 0 for e in self.conn.min_max_edge()]
+        minw, maxw = [e.weight or 0 for e in self.conn.minmax_edges()]
         minw = int(minw) - (1 if minw > int(minw) else 0)
         maxw = int(maxw) + (1 if maxw > int(maxw) else 0)
         self.rs = double_slider.DoubleSlider(self,
@@ -105,7 +105,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     def _add_filter(self, checked, enviroment):
         facts_and_values = {}
         for att in enviroment.keys():
-            facts_and_values[att] = self.conn.get_fact_attribute_values(att)
+            facts_and_values[att] = self.conn.fact_attribute_values(att)
         if facts_and_values:
             row = self.enviromentsTableWidget.rowCount()
             self.enviromentsTableWidget.insertRow(row)

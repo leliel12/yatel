@@ -450,7 +450,7 @@ class YatelConnection(object):
             else:
                 query = (field == v)
             queries.append(query)
-        for fdbo in self.FactDBO.filter(*query):
+        for fdbo in self.FactDBO.filter(*queries):
             hap_id = fdbo._data["haplotype"]
             if  hap_id not in haps:
                 haps[hap_id] = self.haplotype_by_id(hap_id)
@@ -476,7 +476,7 @@ class YatelConnection(object):
         return tuple(values)
 
 
-    def edge_minmax(self):
+    def minmax_edges(self):
         """Return a ``tuple`` with ``len == 2`` containing the  edgest with
         minimum ane maximun *weight*
 
@@ -580,7 +580,7 @@ class YatelConnection(object):
                     msg = "Invalid fact attribute: '{}'".format(varname)
                     raise ValueError(msg)
                 if (varvalue is not None
-                    and varvalue not in self.get_fact_attribute_values(varname)):
+                    and varvalue not in self.fact_attribute_values(varname)):
                         msg = "Invalid value '{}' for fact attribute '{}'"
                         msg = msg.format(varvalue, varname)
                         raise ValueError(msg)
