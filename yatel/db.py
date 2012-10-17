@@ -133,8 +133,6 @@ class YatelConnection(object):
             self.database = ENGINES_CONF[engine]["class"](name, **kwargs)
             self.database.connect()
             self._name = "{}://{}/{}".format(engine, kwargs.get("host", "localhost"), name)
-            self._minmaxedge = None
-            self._versions = None
             self._inited = False
 
             class Meta:
@@ -152,6 +150,8 @@ class YatelConnection(object):
             raise YatelConnectionError(msg)
         return getattr(self.database, k)
 
+    #===========================================================================
+    # INTERNAL
     def _generate_meta_tables_dbo(self):
         """Generate a internal use tables.
 
@@ -159,13 +159,13 @@ class YatelConnection(object):
         the version status.
 
         """
+        cls_name = property(lambda self: str(self.type[:-1].title()+"DBO"))
         self.YatelTableDBO = type(
             "_yatel_tables", (peewee.Model,), {
                 "type": peewee.CharField(unique=True,
                                          choices=[(t, t) for t in TABLES]),
                 "name": peewee.CharField(unique=True),
-                "cls_name": property(lambda self: str(self.type[:-1].title()
-                                                       + "DBO")),
+                "cls_name": cls_name,
                 "Meta": self.model_meta,
             }
         )
@@ -174,7 +174,8 @@ class YatelConnection(object):
                 "name": peewee.CharField(),
                 "table": peewee.ForeignKeyField(self.YatelTableDBO),
                 "type": peewee.CharField(),
-                "reference_to": peewee.ForeignKeyField(self.YatelTableDBO, null=True),
+                "reference_to": peewee.ForeignKeyField(self.YatelTableDBO,
+                                                       null=True),
                 "is_pk": peewee.BooleanField(default=False),
                 "Meta": self.model_meta,
             }
@@ -212,6 +213,8 @@ class YatelConnection(object):
         nf.is_pk = field.primary_key
         nf.save()
 
+    #===========================================================================
+    # INITS
     def init_with_values(self, haps, facts, edges):
         """Init the empety yatel database with the given objects.
 
@@ -268,10 +271,8 @@ class YatelConnection(object):
                     if an not in facts_columns:
                         facts_columns[an] = []
                     facts_columns[an].append(av)
-            factsdbo_dict = {
-                "Meta": self.model_meta,
-                "haplotype": peewee.ForeignKeyField(self.HaplotypeDBO)
-            }
+            factsdbo_dict = {"Meta": self.model_meta,
+                             "haplotype": peewee.ForeignKeyField(self.HaplotypeDBO)}
             self._add_field_metadata("haplotype", metatable_facts,
                                      factsdbo_dict["haplotype"])
             for cn, values in facts_columns.items():
@@ -361,6 +362,36 @@ class YatelConnection(object):
                 setattr(self, tabledbo.cls_name, peewee_table_cls)
             self._inited = True
 
+    #===========================================================================
+    # QUERIES
+    def iter_haplotypes(self):
+        """Iterates over all ``dom.Haplotype`` instances store in the database.
+
+        """
+        for hdbo in self.HaplotypeDBO.select():
+            data = dict((k, v) for k, v in hdbo._data.items()
+                         if v is not None)
+            yield dom.Haplotype(**data)
+
+    def iter_edges(self):
+        """Iterates over all ``dom.Edge`` instances store in the database."""
+        for edbo in self.EdgeDBO.select():
+            weight = edbo.weight
+            haps_id = [v for k, v in edbo._data.items()
+                       if k.startswith("haplotype_") and v is not None]
+            yield dom.Edge(weight, *haps_id)
+
+    def iter_facts(self):
+        """Iterates over all ``dom.Fact`` instances store in the database."""
+        for fdbo in self.FactDBO.select():
+            data = {}
+            for k, v in fdbo._data.items():
+                if k == "haplotype":
+                    data["hap_id"] = v
+                elif k != "id" and v is not None:
+                    data[k] = v
+            yield dom.Fact(**data)
+
     def haplotype_by_id(self, hap_id):
         """Return a ``dom.Haplotype`` instace store in the dabase with the
         giver ``hap_id``.
@@ -372,46 +403,13 @@ class YatelConnection(object):
             ``dom.Haplotype`` instance.
 
         """
-        hdbo = self.HaplotypeDBO.get(hap_id=hap_id)
+        hdbo = self.HaplotypeDBO.get(self.HaplotypeDBO.hap_id==hap_id)
         data = dict(
             (k, v)
-            for k, v in hdbo.get_field_dict().items()
+            for k, v in hdbo._data.items()
             if v is not None
         )
         return dom.Haplotype(**data)
-
-    def iter_haplotypes(self):
-        """Iterates over all ``dom.Haplotype`` instances store in the database.
-
-        """
-        for hdbo in self.HaplotypeDBO.select():
-            data = dict(
-                (k, v)
-                for k, v in hdbo.get_field_dict().items()
-                if v is not None
-            )
-            yield dom.Haplotype(**data)
-
-    def iter_edges(self):
-        """Iterates over all ``dom.Edge`` instances store in the database."""
-        for edbo in self.EdgeDBO.select():
-            weight = edbo.weight
-            haps_id = [
-                v for k, v in edbo.get_field_dict().items()
-                if k.startswith("haplotype_") and v is not None
-            ]
-            yield dom.Edge(weight, *haps_id)
-
-    def iter_facts(self):
-        """Iterates over all ``dom.Fact`` instances store in the database."""
-        for fdbo in self.FactDBO.select():
-            data = {}
-            for k, v in fdbo.get_field_dict().items():
-                if k == "haplotype":
-                    data["hap_id"] = v
-                elif k != "id" and v is not None:
-                    data[k] = v
-            yield dom.Fact(**data)
 
     def enviroment(self, **kwargs):
         """Return a list of ``dom.Haplotype`` related to a ``dom.Fact`` with
@@ -443,75 +441,79 @@ class YatelConnection(object):
 
         """
         haps = {}
-        query = {}
+        queries = []
         for k, v in kwargs.items():
+            field = getattr(self.FactDBO, k)
+            query = None
             if v is None:
-                k += "__is"
-            query[k] = v
-        for fdbo in self.FactDBO.filter(**query):
-            hap_id = fdbo.get_field_dict()["haplotype"]
+                query = (field >> None)
+            else:
+                query = (field == v)
+            queries.append(query)
+        for fdbo in self.FactDBO.filter(*query):
+            hap_id = fdbo._data["haplotype"]
             if  hap_id not in haps:
-                hdbo = fdbo.haplotype
-                haps[hap_id] = dom.Haplotype(**hdbo.get_field_dict())
+                haps[hap_id] = self.haplotype_by_id(hap_id)
         return tuple(haps.values())
 
     def facts_attributes_names(self):
         """Return a ``tuple`` of all existing ``dom.Fact`` atributes."""
-        return tuple([
-            k for k, v in vars(self.FactDBO).items()
-            if not k.startswith("_")
-            and isinstance(v, peewee.FieldDescriptor)
-            and k != "id"
-        ])
+        yt_dbo = self.YatelTableDBO.get(self.YatelTableDBO.type == FACTS_TABLE)
+        query = self.YatelFieldDBO.filter(self.YatelFieldDBO.table == yt_dbo)
+        query = query.filter(self.YatelFieldDBO.reference_to >> None)
+        return tuple(tfdbo.name for tfdbo in query)
 
-    def get_fact_attribute_values(self, att_name):
+    def fact_attribute_values(self, att_name):
         """Return a ``frozenset`` of all posible values of given ``dom.Fact``
            atribute.
 
         """
-        query = {att_name + "__is": None}
-        return frozenset(
-            getattr(fdbo, att_name)
-            for fdbo in self.FactDBO.filter(~peewee.Q(**query))
-        )
+        values = set()
+        for fdbo in self.FactDBO.select():
+            v = getattr(fdbo, att_name)
+            if v is not None:
+                values.add(v)
+        return tuple(values)
 
-    def min_max_edge(self):
+
+    def edge_minmax(self):
         """Return a ``tuple`` with ``len == 2`` containing the  edgest with
-        maximun and minimum *weight*
+        minimum ane maximun *weight*
 
         """
-        if self._minmaxedge is None:
-            minedge = None
-            maxedge = None
-            query = self.EdgeDBO.select().order_by(("weight", "ASC")).limit(1)
-            for edbo in query:
-                weight = edbo.weight
-                haps_id = [
-                    v for k, v in edbo.get_field_dict().items()
-                    if k.startswith("haplotype_") and v is not None
-                ]
-                minedge = dom.Edge(weight, *haps_id)
-            query = self.EdgeDBO.select().order_by(("weight", "DESC")).limit(1)
-            for edbo in query:
-                weight = edbo.weight
-                haps_id = [
-                    v for k, v in edbo.get_field_dict().items()
-                    if k.startswith("haplotype_") and v is not None
-                ]
-                maxedge = dom.Edge(weight, *haps_id)
-            self._minmaxedge = minedge, maxedge
-        return self._minmaxedge
+
+        minedge = None
+        maxedge = None
+        query = self.EdgeDBO.select()
+        query = query.order_by(self.EdgeDBO.weight.asc()).limit(1)
+        for edbo in query:
+            weight = edbo.weight
+            haps_id = [
+                v for k, v in edbo._data.items()
+                if k.startswith("haplotype_") and v is not None
+            ]
+            minedge = dom.Edge(weight, *haps_id)
+        query = self.EdgeDBO.select()
+        query = query.order_by(self.EdgeDBO.weight.desc()).limit(1)
+        for edbo in query:
+            weight = edbo.weight
+            haps_id = [
+                v for k, v in edbo._data.items()
+                if k.startswith("haplotype_") and v is not None
+            ]
+            maxedge = dom.Edge(weight, *haps_id)
+        return minedge, maxedge
 
     def filter_edges(self, minweight, maxweight):
         """Iterates of a the ``dom.Edge`` instance with *weight* value between
         ``minweight`` and ``maxwright``
 
         """
-        for edbo in self.EdgeDBO.filter(weight__gte=minweight,
-                                         weight__lte=maxweight):
+        for edbo in self.EdgeDBO.filter(self.EdgeDBO.weight >= minweight,
+                                          self.EdgeDBO.weight <=maxweight):
             weight = edbo.weight
             haps_id = [
-                v for k, v in edbo.get_field_dict().items()
+                v for k, v in edbo._data.items()
                 if k.startswith("haplotype_") and v is not None
             ]
             yield dom.Edge(weight, *haps_id)
@@ -532,7 +534,7 @@ class YatelConnection(object):
         """
         haps = []
         for hdbo in self.HaplotypeDBO.raw(query, *args):
-            hap = dom.Haplotype(**hdbo.get_field_dict())
+            hap = dom.Haplotype(**hdbo._data)
             haps.append(hap)
         return tuple(haps)
 
@@ -595,16 +597,13 @@ class YatelConnection(object):
 
         query = self.YatelVersionDBO.select()
         if query.count():
-            vdbo_old = tuple(query.order_by(("datetime", "DESC")).limit(1))[0]
+            query = query.order_by(self.YatelVersionDBO.datetime.desc())
+            vdbo_old = tuple(query.limit(1))[0]
             if vdbo.data == vdbo_old.data:
                 msg = "Nothing changed from the last version '{}'"
                 msg = msg.format(vdbo.tag)
                 raise ValueError(msg)
         vdbo.save()
-        if self._versions is None:
-            self.versions()
-        else:
-            self._versions.insert(0, (vdbo.id, vdbo.datetime, vdbo.tag))
         return vdbo.id, vdbo.datetime, vdbo.tag
 
     def versions(self):
@@ -614,14 +613,12 @@ class YatelConnection(object):
         ``datetime`` of creation, and the  version ``tag``
 
         """
-        if self._versions is None:
-            self._versions = []
-            query = self.YatelVersionDBO.select()
-            query = query.order_by(self.YatelVersionDBO.id.desc())
-            for vdbo in query:
-                ver = (vdbo.id, vdbo.datetime, vdbo.tag)
-                self._versions.append(ver)
-        return tuple(self._versions)
+        versions = []
+        query = self.YatelVersionDBO.select()
+        query = query.order_by(self.YatelVersionDBO.id.desc())
+        for vdbo in query:
+            versions.append((vdbo.id, vdbo.datetime, vdbo.tag))
+        return tuple(versions)
 
     def get_version(self, match=None):
         """Return a version by the given filter.
@@ -639,14 +636,15 @@ class YatelConnection(object):
         vdbo = None
         if match is None:
             query = self.YatelVersionDBO.select()
-            vdbo = tuple(query.order_by(("datetime", "DESC")).limit(1))[0]
+            query = query.order_by(self.YatelVersionDBO.datetime.desc())
+            vdbo = tuple(query.limit(1))[0]
         elif isinstance(match, int):
-            vdbo = self.YatelVersionDBO.get(id=match)
+            vdbo = self.YatelVersionDBO.get(self.YatelVersionDBO.id==match)
             data = vdbo.data
         elif isinstance(match, datetime.datetime):
-            vdbo = self.YatelVersionDBO.get(datetime=match)
+            vdbo = self.YatelVersionDBO.get(self.YatelVersionDBO.datetime==match)
         elif isinstance(match, basestring):
-            vdbo = self.YatelVersionDBO.get(tag=match)
+            vdbo = self.YatelVersionDBO.get(self.YatelVersionDBO.tag==match)
         else:
             msg = "Match must be None, int, str, unicode or datetime instance"
             raise TypeError(msg)
