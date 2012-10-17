@@ -1,22 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-# MA 02110-1301, USA.
+# "THE WISKEY-WARE LICENSE":
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
+# you can do whatever you want with this stuff. If we meet some day, and you
+# think this stuff is worth it, you can buy us a WISKEY us return.
 
 
 #===============================================================================
@@ -56,8 +44,30 @@ _RX_SPLITTER = re.compile("[^a-zA-Z0-9-_]*", re.UNICODE)
 #===============================================================================
 
 class UniqueNonUnicodeKey(collections.MutableMapping):
-    
+    """A dict thant only support str as keys"""
+
     def __init__(self, d=None, **kwargs):
+        """Contructor
+
+        - UniqueNonUnicodeKey() -> new empty dictionary
+        - UniqueNonUnicodeKey(mapping) -> new dictionary initialized
+          from a mapping object's (key, value) pairs
+        - UniqueNonUnicodeKey(iterable) -> new dictionary initialized as if via:
+
+            ::
+
+                d = {}
+                for k, v in iterable:
+                    d[k] = v
+
+        - ``UniqueNonUnicodeKey(**kwargs)`` -> new dictionary initialized with
+          the name=value pairs in the keyword argument list.  For example:
+
+          ::
+
+            dict(one=1, two=2)
+
+        """
         self._d = {}
         if isinstance(d, dict):
             for k in d:
@@ -72,7 +82,7 @@ class UniqueNonUnicodeKey(collections.MutableMapping):
 
     def __iter__(self):
         return iter(self._d)
-        
+
     def __len__(self):
         return len(self._d)
 
@@ -91,10 +101,10 @@ class UniqueNonUnicodeKey(collections.MutableMapping):
                 idx += 1
             norm += str(idx)
         self._d[norm] = v
-        
+
     def __delitem__(self, k):
         self._d.__delitem__(k)
-    
+
 
 #===============================================================================
 # FUNCTIONS
@@ -103,9 +113,9 @@ class UniqueNonUnicodeKey(collections.MutableMapping):
 def norm_text(text):
     """Convert a unicode or string in cleaned version of it, replacing all
     non alpha character for equivalent version or "_"
-    
+
     """
-    
+
     if isinstance(text, str):
         text = unicode(text)
     text = text.lower()
@@ -124,3 +134,10 @@ def norm_text(text):
         text = text[1:]
     return str(normalize('NFKD', text).encode('ASCII', 'ignore').lower())
 
+
+#===============================================================================
+# MAIN
+#===============================================================================
+
+if __name__ == "__main__":
+    print(__doc__)
