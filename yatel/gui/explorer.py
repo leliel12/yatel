@@ -59,7 +59,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
 
         self._is_saved = saved
         self._version = ()
-        self._startw, self._endw = None, None
 
         self.conn = yatel_connection
 
@@ -88,8 +87,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.rs = double_slider.DoubleSlider(self,
                                              self.tr("Weights"),
                                              minw, maxw)
-        self.rs.endValueChanged.connect(self.on_weightEnd_changed)
-        self.rs.startValueChanged.connect(self.on_weightStart_changed)
+        self.rs.rangeChanged.connect(self.on_weightRange_changed)
         self.sliderLayout.addWidget(self.rs)
 
         # load latest version
@@ -199,35 +197,17 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         except Exception as err:
             error_dialog.critical(self.tr("Error on Haplotype SQL"), err)
 
-    def on_weightStart_changed(self, start):
-        """Slot executed when the doble slider representing the the lower limit
-        of the weights to be showed change.
+    def on_weightRange_changed(self, start, end):
+        """Slot executed when the doble slider range change.
 
         This execute a query ober the database and filter all edges to show.
 
         Save status is setted  to ``False``.
 
         """
-        if start != self._startw:
-            edges = tuple(self.conn.filter_edges(start, self._endw))
-            self.network.filter_edges(*edges)
-            self._startw = start
-            self._set_unsaved()
-
-    def on_weightEnd_changed(self, end):
-        """Slot executed when the doble slider representing the the upper limit
-        of the weights to be showed change.
-
-        This execute a query ober the database and filter all edges to show.
-
-        Save status is setted  to ``False``.
-
-        """
-        if end != self._endw:
-            edges = tuple(self.conn.filter_edges(self._startw, end))
-            self.network.filter_edges(*edges)
-            self._endw = end
-            self._set_unsaved()
+        edges = tuple(self.conn.filter_edges(start, end))
+        self.network.filter_edges(*edges)
+        self._set_unsaved()
 
     @QtCore.pyqtSlot()
     def on_addEnviromentPushButton_clicked(self):
@@ -362,12 +342,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         try:
             self.network.clear()
 
-            if None in version["weight_range"]:
-                version["weight_range"] = self.rs.tops()
-            self._startw, self._endw = version["weight_range"]
-            self.rs.setStart(self._startw)
-            self.rs.setEnd(self._endw)
-
             if not version["hap_sql"]:
                 version["hap_sql"] = "SELECT * FROM `haplotypes`"
             if not version["topology"]:
@@ -383,6 +357,11 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
 
             for edge in self.conn.iter_edges():
                 self.network.add_edge(edge)
+
+            if None in version["weight_range"]:
+                version["weight_range"] = self.rs.tops()
+            self.rs.setStart(version["weight_range"][0])
+            self.rs.setEnd(version["weight_range"][1])
 
             self.hapSQLeditor.setText(version["hap_sql"])
 
@@ -416,7 +395,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         """
         try:
             topology = self.network.topology()
-            weight_range = self._startw, self._endw
+            weight_range = self.rs.rangeSelected()
             sql = self.hapSQLeditor.text().strip()
             enviroments = []
             for ridx in range(self.enviromentsTableWidget.rowCount()):

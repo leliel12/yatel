@@ -34,11 +34,9 @@ class DoubleSlider(uis.UI("DoubleSlider.ui")):
     
     """
     
-    #: Signal emited when the slider representing the lower limit is changed.
-    endValueChanged = QtCore.pyqtSignal(int)
+    #: Signal emited when the slider change
+    rangeChanged = QtCore.pyqtSignal(int, int)
     
-    #: Signal emited when the slider representing the upper limit is changed.
-    startValueChanged = QtCore.pyqtSignal(int)
     
     def __init__(self, parent, text, min_value, max_value):
         """Create a new instance of ``DoubleSlider``
@@ -62,6 +60,14 @@ class DoubleSlider(uis.UI("DoubleSlider.ui")):
         self.maxSlider.setMaximum(max_value)
         self.maxSlider.setSliderPosition(max_value)
         self.maxValueLabel.setNum(max_value)
+    
+    def rangeSelected(self):
+        """Return the current range selected as ``(min, max)``
+        
+        """
+        minv = self.minSlider.sliderPosition()
+        maxv = self.maxSlider.sliderPosition()
+        return minv, maxv 
     
     def tops(self):
         """Return a tuple with minimun and maximum value of the slider.
@@ -90,31 +96,33 @@ class DoubleSlider(uis.UI("DoubleSlider.ui")):
         """
         self.maxSlider.setSliderPosition(end)
     
-    def on_minSlider_valueChanged(self, v):
+    def on_minSlider_valueChanged(self, minv):
         """Slot executed when slider representing the lower limit change.
         
         This method keeps ``minSlider <= maxSlider``.
         
         **Params**
-            :v: New value of the slider as ``int``.
+            :minv: New value of the slider as ``int``.
         
         """
-        if v > self.maxSlider.value():
-            self.maxSlider.setSliderPosition(v)
-        self.startValueChanged.emit(v)
+        if minv > self.maxSlider.value():
+            self.maxSlider.setSliderPosition(minv)
+        maxv = self.maxSlider.sliderPosition()
+        self.rangeChanged.emit(minv, maxv)
             
-    def on_maxSlider_valueChanged(self, v):
+    def on_maxSlider_valueChanged(self, maxv):
         """Slot executed when slider representing the uper limit change
         
         This method keeps ``minSlider <= maxSlider``.
         
         **Params**
-            :v: New value of the slider as ``int``.
+            :maxv: New value of the slider as ``int``.
         
         """
-        if v < self.minSlider.value():
-            self.minSlider.setSliderPosition(v)
-        self.endValueChanged.emit(v)
+        if maxv < self.minSlider.value():
+            self.minSlider.setSliderPosition(maxv)
+        minv = self.minSlider.sliderPosition()
+        self.rangeChanged.emit(minv, maxv)
         
 
 #===============================================================================

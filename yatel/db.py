@@ -19,9 +19,7 @@
 # IMPORTS
 #===============================================================================
 
-import sys
 import datetime
-import os
 import json
 import decimal
 
@@ -159,7 +157,7 @@ class YatelConnection(object):
         the version status.
 
         """
-        cls_name = property(lambda self: str(self.type[:-1].title()+"DBO"))
+        cls_name = property(lambda self: str(self.type[:-1].title() + "DBO"))
         self.YatelTableDBO = type(
             "_yatel_tables", (peewee.Model,), {
                 "type": peewee.CharField(unique=True,
@@ -208,7 +206,6 @@ class YatelConnection(object):
         nf.type = FIELD2NAME[type(field)]
         if isinstance(field, peewee.ForeignKeyField):
             reference_name = field.rel_model.__name__
-            table_reference = self.YatelTableDBO.get(name=reference_name)
             nf.reference_to = self.YatelTableDBO.get(name=reference_name)
         nf.is_pk = field.primary_key
         nf.save()
@@ -403,12 +400,8 @@ class YatelConnection(object):
             ``dom.Haplotype`` instance.
 
         """
-        hdbo = self.HaplotypeDBO.get(self.HaplotypeDBO.hap_id==hap_id)
-        data = dict(
-            (k, v)
-            for k, v in hdbo._data.items()
-            if v is not None
-        )
+        hdbo = self.HaplotypeDBO.get(self.HaplotypeDBO.hap_id == hap_id)
+        data = dict((k, v) for k, v in hdbo._data.items() if v is not None)
         return dom.Haplotype(**data)
 
     def enviroment(self, **kwargs):
@@ -488,19 +481,15 @@ class YatelConnection(object):
         query = query.order_by(self.EdgeDBO.weight.asc()).limit(1)
         for edbo in query:
             weight = edbo.weight
-            haps_id = [
-                v for k, v in edbo._data.items()
-                if k.startswith("haplotype_") and v is not None
-            ]
+            haps_id = [v for k, v in edbo._data.items()
+                       if k.startswith("haplotype_") and v is not None]
             minedge = dom.Edge(weight, *haps_id)
         query = self.EdgeDBO.select()
         query = query.order_by(self.EdgeDBO.weight.desc()).limit(1)
         for edbo in query:
             weight = edbo.weight
-            haps_id = [
-                v for k, v in edbo._data.items()
-                if k.startswith("haplotype_") and v is not None
-            ]
+            haps_id = [v for k, v in edbo._data.items()
+                       if k.startswith("haplotype_") and v is not None]
             maxedge = dom.Edge(weight, *haps_id)
         return minedge, maxedge
 
@@ -510,12 +499,10 @@ class YatelConnection(object):
 
         """
         for edbo in self.EdgeDBO.filter(self.EdgeDBO.weight >= minweight,
-                                          self.EdgeDBO.weight <=maxweight):
+                                        self.EdgeDBO.weight <= maxweight):
             weight = edbo.weight
-            haps_id = [
-                v for k, v in edbo._data.items()
-                if k.startswith("haplotype_") and v is not None
-            ]
+            haps_id = [v for k, v in edbo._data.items()
+                       if k.startswith("haplotype_") and v is not None]
             yield dom.Edge(weight, *haps_id)
 
     def hap_sql(self, query, *args):
@@ -639,12 +626,11 @@ class YatelConnection(object):
             query = query.order_by(self.YatelVersionDBO.datetime.desc())
             vdbo = tuple(query.limit(1))[0]
         elif isinstance(match, int):
-            vdbo = self.YatelVersionDBO.get(self.YatelVersionDBO.id==match)
-            data = vdbo.data
+            vdbo = self.YatelVersionDBO.get(self.YatelVersionDBO.id == match)
         elif isinstance(match, datetime.datetime):
-            vdbo = self.YatelVersionDBO.get(self.YatelVersionDBO.datetime==match)
+            vdbo = self.YatelVersionDBO.get(self.YatelVersionDBO.datetime == match)
         elif isinstance(match, basestring):
-            vdbo = self.YatelVersionDBO.get(self.YatelVersionDBO.tag==match)
+            vdbo = self.YatelVersionDBO.get(self.YatelVersionDBO.tag == match)
         else:
             msg = "Match must be None, int, str, unicode or datetime instance"
             raise TypeError(msg)
@@ -653,7 +639,7 @@ class YatelConnection(object):
 
         topology = {}
         for hap_id, xy in version["topology"].items():
-             topology[self.haplotype_by_id(hap_id)] = tuple(xy)
+            topology[self.haplotype_by_id(hap_id)] = tuple(xy)
 
         version["topology"] = topology
         version["tag"] = vdbo.tag
@@ -720,7 +706,7 @@ def field(objs, pk=False, **kwargs):
     elif isinstance(peek, datetime.date):
         peewee_field = peewee.DateField
     elif isinstance(peek, datetime.time):
-        peewee_field = peewee.DateTime
+        peewee_field = peewee.DateTimeField
     if pk:
         kwargs.pop("null", None)
         kwargs["primary_key"] = True
