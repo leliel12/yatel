@@ -11,17 +11,17 @@
 # DOCS
 #===============================================================================
 
-__doc__ = (u"Yatel allows the creation of user-profile-distance-based networks and "
- u"their multidimensional analysis through a process of exploration.\n"
- u"In the process of analyzing data from heterogeneous sources - like "
- u"data regarding biology, social studies, marketing, etc. -, it is "
- u"often possible to identify individuals or classes (groups of  "
- u"individuals that share some characteristic). This individuals or "
- u"groups are identified by attributes that were measured and stored in "
- u"the data data base. For instance, in a biological analysis, the "
- u"profile can be defined by some certain properties of the nucleic "
- u"acid, in a social  analysis by the data from people and in a sales "
- u"analysis by the data from sales point tickets.")
+(u"Yatel allows the creation of user-profile-distance-based networks and "
+u"their multidimensional analysis through a process of exploration.\n"
+u"In the process of analyzing data from heterogeneous sources - like "
+u"data regarding biology, social studies, marketing, etc. -, it is "
+u"often possible to identify individuals or classes (groups of  "
+u"individuals that share some characteristic). This individuals or "
+u"groups are identified by attributes that were measured and stored in "
+u"the data data base. For instance, in a biological analysis, the "
+u"profile can be defined by some certain properties of the nucleic "
+u"acid, in a social  analysis by the data from people and in a sales "
+u"analysis by the data from sales point tickets.")
 
 
 #===============================================================================
