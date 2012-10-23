@@ -8,8 +8,26 @@
 
 
 #===============================================================================
+# DOCS
+#===============================================================================
+
+__doc__ = (u"Yatel allows the creation of user-profile-distance-based networks and "
+ u"their multidimensional analysis through a process of exploration.\n"
+ u"In the process of analyzing data from heterogeneous sources - like "
+ u"data regarding biology, social studies, marketing, etc. -, it is "
+ u"often possible to identify individuals or classes (groups of  "
+ u"individuals that share some characteristic). This individuals or "
+ u"groups are identified by attributes that were measured and stored in "
+ u"the data data base. For instance, in a biological analysis, the "
+ u"profile can be defined by some certain properties of the nucleic "
+ u"acid, in a social  analysis by the data from people and in a sales "
+ u"analysis by the data from sales point tickets.")
+
+
+#===============================================================================
 # IMPORTS
 #===============================================================================
+
 import encodings
 import os
 import sys
@@ -30,18 +48,7 @@ STR_VERSION = ".".join(VERSION)
 __version__ = STR_VERSION
 
 #: For "what" is usefull yatel
-DOC = (u"Yatel allows the creation of user-profile-distance-based networks and "
-       u"their multidimensional analysis through a process of exploration.\n"
-       u"In the process of analyzing data from heterogeneous sources - like "
-       u"data regarding biology, social studies, marketing, etc. -, it is "
-       u"often possible to identify individuals or classes (groups of  "
-       u"individuals that share some characteristic). This individuals or "
-       u"groups are identified by attributes that were measured and stored in "
-       u"the data data base. For instance, in a biological analysis, the "
-       u"profile can be defined by some certain properties of the nucleic "
-       u"acid, in a social  analysis by the data from people and in a sales "
-       u"analysis by the data from sales point tickets.")
-__doc__ = DOC
+DOC = __doc__
 
 #: The short description for pypi
 SHORT_DESCRIPTION = DOC.splitlines()[0]
@@ -69,21 +76,14 @@ EMAIL = "utn_kdd@googlegroups.com"
 PRJ_PATH = os.path.dirname(os.path.abspath(__file__))
 
 #: The license name
-LICENSE = "GPL3"
+LICENSE = "WISKEY-WARE"
 
 #: The license of yatel
-FULL_LICENSE = u"""This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License as published by the
-Free Software Foundation; either version 3 of the License, or (at your option)
-any later version.
+FULL_LICENSE = u""""THE WISKEY-WARE LICENSE":
+<utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
+you can do whatever you want with this stuff. If we meet some day, and you
+think this stuff is worth it, you can buy us a WISKEY us return.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with
-this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
-Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """
 
 #: Keywords for search of pypi
