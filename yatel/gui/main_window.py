@@ -71,6 +71,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
         self.explorerFrame = None
+        self.reloadTitle()
 
         #~ example_db = "/home/juan/proyectos/yatel_hg/data/example.db"
         #~ conn = db.YatelConnection("sqlite", example_db)
