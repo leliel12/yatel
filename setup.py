@@ -60,7 +60,7 @@ for name, url in MANUAL_REQUIRE.items():
     try:
         __import__(name)
     except ImportError:
-        not_found.append("{} requires '{}' ({})".format(yatel.__prj__,
+        not_found.append("{} requires '{}' ({})".format(yatel.PRJ,
                                                         name, url))
 
 if not_found:
@@ -75,16 +75,16 @@ if not_found:
 #===============================================================================
 
 setup(
-    name=yatel.__prj__,
-    version=yatel.__str_version__,
-    description=yatel.__short_description__,
-    author=yatel.__author__,
-    author_email=yatel.__email__,
-    url=yatel.__url__,
-    download_url=yatel.__download_url__,
-    license=yatel.__license__,
-    keywords=yatel.__keywords__,
-    classifiers=yatel.__classifiers__,
+    name=yatel.PRJ.lower(),
+    version=yatel.STR_VERSION,
+    description=yatel.SHORT_DESCRIPTION,
+    author=yatel.AUTHOR,
+    author_email=yatel.EMAIL,
+    url=yatel.URL,
+    download_url=yatel.DOWNLOAD_URL,
+    license=yatel.LICENSE,
+    keywords=yatel.KEYWORDS,
+    classifiers=yatel.CLASSIFIERS,
     packages=[pkg for pkg in find_packages() if pkg.startswith("yatel")],
     include_package_data=True,
     package_data={'images': ['yatel/gui/resources/*'],
