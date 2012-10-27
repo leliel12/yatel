@@ -132,11 +132,11 @@ class Euclidean(AbstractWeight):
     """Calculate "ordinary" distance/weight between two haplotypesm given by the
     Pythagorean formula.
 
-    Every atribute value is converted to a number by a ``to_num`` function.
+    Every attribute value is converted to a number by a ``to_num`` function.
     The default behavior of ``to_num`` is a sumatory of base64 ord value of
     every attribute value or
 
-    ::
+    .. code-block:: python
 
         def to_num(attr):
             value = 0
@@ -155,7 +155,7 @@ class Euclidean(AbstractWeight):
                      The default behavior of ``to_num`` is a sumatory of
                      base64 ord value of every attribute value or
 
-                   ::
+                    .. code-block:: python
 
                         def to_num(attr):
                             value = 0
@@ -296,78 +296,12 @@ class DamerauLevenshtein(AbstractWeight):
             values.append(dameraulevenshtein(as0, as1))
         return sum(values)
 
-
-
-#===============================================================================
-# SOMME
-#===============================================================================
-
-class McCarthy(AbstractWeight):
-
-    def __init__(self, hamming_attrs, migrated_attrs,
-                 broken2_attrs, broken1_attrs, to_bool=bool):
-        assert hasattr(hamming_attrs, "__iter__")
-        assert hasattr(migrated_attrs, "__iter__")
-        assert hasattr(broken2_attrs, "__iter__")
-        assert hasattr(broken1_attrs, "__iter__")
-        assert callable(to_bool)
-        self._hams = tuple(hamming_attrs)
-        self._mig = tuple(migrated_attrs)
-        self._br2 = tuple(broken2_attrs)
-        self._br1 = tuple(broken1_attrs)
-        self._to_bool = to_bool
-
-    def booleanify(self, hap):
-        """Convert all attributes of a given haplotype to a
-        dict with all values converted in bool by to_bool
-        function
-
-            >>> from yatel import dom, weight
-            >>> hap = dom.Haplotype("hap", a=1, b=2, c=10)
-            >>> to_bool = lambda att: att > 5
-            >>> mc = wight.McArty([], [], [], [], to_bool)
-            >> mc.booleanify(hap)
-            {'a': False, 'b': False, 'c': True}
-
-        """
-        assert isinstance(hap, dom.Haplotype)
-        hab = {}
-        for k, v in hap.items_attrs():
-            hab[k] = bool(self._to_bool(v))
-        return hab
-
-    def weight(self, hap0, hap1):
-        """A ``float`` distance between 2 ``dom.Haplotype`` instances"""
-        h0attrs = self.booleanify(hap0)
-        h1attrs = self.booleanify(hap1)
-
-    @property
-    def hamming_attrs(self):
-        return self._hams
-
-    @property
-    def migrated_attrs(self):
-        return self._mig
-
-    @property
-    def broken2_attrs(self):
-        return self._br2
-
-    @property
-    def broken1_attrs(self):
-        return self._br1
-
-    @property
-    def to_bool(self):
-        return self._to_bool
-
-
 #===============================================================================
 # MAIN
 #===============================================================================
 
 if __name__ == "__main__":
-    print __doc__
+    print(__doc__)
 
 
 
