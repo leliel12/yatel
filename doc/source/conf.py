@@ -31,7 +31,7 @@ if os.environ.get('READTHEDOCS', None) == 'True':
     dest = os.path.join("_build", "html")
     shutil.rmtree(dest)
     os.makedirs(dest)
-    url = "https://bitbucket.org/leliel12/yatel"
+    url = "http://packages.python.org/yatel/"
     with open("redirect.html") as src_fp:
         src = string.Template(src_fp.read()).safe_substitute(url=url)
         with open(os.path.join(dest, "index.html"), "w") as dst_fp:
