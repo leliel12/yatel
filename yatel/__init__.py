@@ -41,7 +41,7 @@ import sys
 PRJ = "Yatel"
 
 #: The project version as tuple of strings
-VERSION = ("0", "2")
+VERSION = ("0", "1", "1")
 
 #: The project version as string
 STR_VERSION = ".".join(VERSION)
@@ -56,7 +56,7 @@ SHORT_DESCRIPTION = DOC.splitlines()[0]
 #: Clasifiers for optimize search in pypi
 CLASSIFIERS = (
     "Topic :: Utilities",
-    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "License :: OSI Approved :: BSD",
     "Programming Language :: Python :: 2",
 )
 

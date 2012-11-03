@@ -91,9 +91,9 @@ class Hamming(AbstractWeight):
         """A ``float`` distance between 2 ``dom.Haplotype`` instances"""
         w = 0
         for name in set(hap0.names_attrs() + hap1.names_attrs()):
-            if name not in h0.names_attrs() \
-               or name not in h1.names_attrs() \
-               or h0.get_attr(name) != h1.get_attr(name):
+            if name not in hap0.names_attrs() \
+               or name not in hap1.names_attrs() \
+               or hap0.get_attr(name) != hap1.get_attr(name):
                 w += 1
         return w
 
