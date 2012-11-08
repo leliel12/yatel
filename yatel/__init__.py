@@ -56,7 +56,7 @@ SHORT_DESCRIPTION = DOC.splitlines()[0]
 #: Clasifiers for optimize search in pypi
 CLASSIFIERS = (
     "Topic :: Utilities",
-    "License :: OSI Approved :: BSD",
+    "License :: OSI Approved :: BSD License",
     "Programming Language :: Python :: 2",
 )
 

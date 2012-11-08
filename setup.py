@@ -59,9 +59,9 @@ SUGESTED = {
 # WARNINGS FOR MANUAL REQUIRES AND SUGGESTED
 #===============================================================================
 
-def validate_modules(requires)
+def validate_modules(requires):
     not_found = []
-    for name, url in MANUAL_REQUIRE.items():
+    for name, url in requires.items():
         try:
             __import__(name)
         except ImportError:
