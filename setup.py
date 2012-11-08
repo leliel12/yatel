@@ -45,29 +45,45 @@ MANUAL_REQUIRE = {
     "PyQt4" : "http://www.riverbankcomputing.co.uk/software/pyqt",
     "PyQt4.Qsci" : "http://www.riverbankcomputing.co.uk/software/qscintilla",
     "PyQt4.phonon" : "http://www.riverbankcomputing.co.uk/software/pyqt",
-    "graph_tool" : "http://projects.skewed.de/graph-tool/",
-    "box2d": "https://code.google.com/p/pybox2d/",
+    "Box2D": "https://code.google.com/p/pybox2d/",
     "numpy": "http://numpy.scipy.org/",
 }
 
 
+SUGESTED = {
+    "graph_tool" : "http://projects.skewed.de/graph-tool/",
+}
+
+
 #===============================================================================
-# WARNINGS FOR MANUAL REQUIRES
+# WARNINGS FOR MANUAL REQUIRES AND SUGGESTED
 #===============================================================================
 
-not_found = []
-for name, url in MANUAL_REQUIRE.items():
-    try:
-        __import__(name)
-    except ImportError:
-        not_found.append("{} requires '{}' ({})".format(yatel.PRJ,
-                                                        name, url))
+def validate_modules(requires)
+    not_found = []
+    for name, url in MANUAL_REQUIRE.items():
+        try:
+            __import__(name)
+        except ImportError:
+            not_found.append("{} requires '{}' ({})".format(yatel.PRJ,
+                                                             name, url))
+    return not_found
 
-if not_found:
+def print_not_found(not_found, msg):
     limits = "=" * max(map(len, not_found))
-    print "\nWARNING\n{}\n{}\n{}\n".format(limits,
-                                            "\n".join(not_found),
-                                            limits)
+    print "\n{}\n{}\n{}\n{}\n".format(msg, limits,
+                                        "\n".join(not_found),
+                                        limits)
+
+not_found = validate_modules(MANUAL_REQUIRE)
+if not_found:
+    print_not_found(not_found, "ERROR")
+    sys.exit(1)
+
+
+not_found = validate_modules(MANUAL_REQUIRE)
+if not_found:
+    print_not_found(not_found, "WARNING")
 
 
 #===============================================================================
