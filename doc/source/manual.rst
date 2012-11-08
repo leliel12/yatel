@@ -1,2 +1,6 @@
 Manual
 ======
+
+Installation Guide
+------------------
+

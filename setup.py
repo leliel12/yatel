@@ -33,14 +33,12 @@ import yatel
 #===============================================================================
 
 PYPI_REQUIRE = [
-    "peewee",
+    "peewee>=2.0",
     "pycante",
     "csvcool",
     "pyzmq",
-    "ipython",
-    "Box2D",
-    "pilas",
-    "numpy"
+    "ipython>=0.13",
+    "pilas>=0.7",
 ]
 
 MANUAL_REQUIRE = {
@@ -48,6 +46,8 @@ MANUAL_REQUIRE = {
     "PyQt4.Qsci" : "http://www.riverbankcomputing.co.uk/software/qscintilla",
     "PyQt4.phonon" : "http://www.riverbankcomputing.co.uk/software/pyqt",
     "graph_tool" : "http://projects.skewed.de/graph-tool/",
+    "box2d": "https://code.google.com/p/pybox2d/",
+    "numpy": "http://numpy.scipy.org/",
 }
 
 

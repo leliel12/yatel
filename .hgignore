@@ -21,4 +21,5 @@ data/*.db
 dist/*
 Yatel.egg-info/*
 doc/build/*
+yatel.egg-info/*
 

@@ -13,8 +13,8 @@ Contents:
 
 .. toctree::
    :maxdepth: 4
-   
-   manual.rst
+
+   install.rst
    apidoc/modules.rst
 
 
