@@ -39,6 +39,7 @@ PYPI_REQUIRE = [
     "pyzmq",
     "ipython>=0.13",
     "pilas>=0.7",
+    "PyYAML",
 ]
 
 MANUAL_REQUIRE = {

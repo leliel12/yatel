@@ -1,0 +1,27 @@
+# this is an example of Yatel Yaml Format or YYF
+
+haplotypes:
+    - hap_id: hap0
+      a: 1
+      b: 2
+      c: 3
+    - hap_id: hap1
+      b: "hola"
+      c: "chau"
+
+facts:
+    - hap_id: hap0
+      x: 1
+      y: 2
+    - hap_id: hap1
+      z: 1
+
+edges:
+    - weight: 10
+      haps_id:
+          - hap0
+          - hap1
+    - weight: 30
+      haps_id:
+          - hap0
+          - hap 1

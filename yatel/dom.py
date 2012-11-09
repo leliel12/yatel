@@ -51,6 +51,11 @@ class Fact(object):
         self._hap_id = hap_id
         self._attrs = attrs
 
+    def __repr__(self):
+        """x.__repr__() <==> repr(x)"""
+        return "<{0} for '{1}' at {2}>".format(self.__class__.__name__,
+                                                 self._hap_id, hex(id(self)))
+
     def __eq__(self, obj):
         """x.__eq__(y) <==> x==y"""
         return obj is not None \
@@ -206,6 +211,13 @@ class Edge(object):
         """
         self._weight = float(weight)
         self._haps_id = haps_id
+
+    def __repr__(self):
+        """x.__repr__() <==> repr(x)"""
+        return "<{0} '{1} {2}' at {3}>".format(self.__class__.__name__,
+                                                 str(self._haps_id),
+                                                 self._weight,
+                                                 hex(id(self)))
 
     def __eq__(self, obj):
         """x.__eq__(y) <==> x==y"""
