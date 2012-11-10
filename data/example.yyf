@@ -1,4 +1,5 @@
 # this is an example of Yatel Yaml Format or YYF
+version: 0.1
 
 haplotypes:
     - hap_id: hap0

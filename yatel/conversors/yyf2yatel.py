@@ -26,6 +26,15 @@ from yatel import dom
 
 
 #===============================================================================
+# CONSTANTS
+#===============================================================================
+
+VERSIONS = ("0.1", )
+
+DEFAULT_VERSION = "0.1"
+
+
+#===============================================================================
 # IO FUNCTIONS
 #===============================================================================
 
@@ -48,7 +57,10 @@ def dump(haps, facts, edges, stream=None, **kwargs):
         ed = {"weight": edge.weight}
         ed["haps_id"] = list(edge.haps_id)
         edges_data.append(ed)
-    data = {"haplotypes": haps_data, "facts": facts_data, "edges": edges_data}
+    data = {"version": DEFAULT_VERSION,
+            "haplotypes": haps_data,
+            "facts": facts_data,
+            "edges": edges_data}
     return yaml.dump(data, stream, **kwargs)
 
 
