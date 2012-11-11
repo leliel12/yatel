@@ -20,7 +20,7 @@
 #===============================================================================
 
 import datetime
-import json
+import cPickle
 import decimal
 
 import peewee
@@ -580,7 +580,7 @@ class YatelConnection(object):
         vdbo.tag = tag
         vdbo.datetime = datetime.datetime.now()
         vdbo.comment = comment
-        vdbo.data = json.dumps(data).encode("base64")
+        vdbo.data = cPickle.dumps(data).encode("base64")
 
         query = self.YatelVersionDBO.select()
         if query.count():
@@ -635,7 +635,7 @@ class YatelConnection(object):
             msg = "Match must be None, int, str, unicode or datetime instance"
             raise TypeError(msg)
 
-        version = json.loads(vdbo.data.decode("base64"))
+        version = cPickle.loads(vdbo.data.decode("base64"))
 
         topology = {}
         for hap_id, xy in version["topology"].items():
