@@ -341,29 +341,29 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         """
         try:
             self.network.clear()
-
-            if not version["hap_sql"]:
-                version["hap_sql"] = "SELECT * FROM `haplotypes`"
-            if not version["topology"]:
+            vdata = version["data"]
+            if not vdata["hap_sql"]:
+                vdata["hap_sql"] = "SELECT * FROM `haplotypes`"
+            if not vdata["topology"]:
                 for hap in self.conn.iter_haplotypes():
-                    version["topology"][hap] = self.network.get_unused_coord()
-            for hap, xy in sorted(version["topology"].items(), key=lambda h: h[0].hap_id):
+                    vdata["topology"][hap] = self.network.get_unused_coord()
+            for hap, xy in sorted(vdata["topology"].items(), key=lambda h: h[0].hap_id):
                 self.network.add_node(hap, x=xy[0], y=xy[1])
                 self.hapsComboBox.addItem(unicode(hap.hap_id), hap)
 
             self.remove_all_filters()
-            for checked, enviroment in version["enviroments"]:
+            for checked, enviroment in vdata["enviroments"]:
                 self._add_filter(checked, enviroment)
 
             for edge in self.conn.iter_edges():
                 self.network.add_edge(edge)
 
-            if None in version["weight_range"]:
-                version["weight_range"] = self.rs.tops()
-            self.rs.setStart(version["weight_range"][0])
-            self.rs.setEnd(version["weight_range"][1])
+            if None in vdata["weight_range"]:
+                vdata["weight_range"] = self.rs.tops()
+            self.rs.setStart(vdata["weight_range"][0])
+            self.rs.setEnd(vdata["weight_range"][1])
 
-            self.hapSQLeditor.setText(version["hap_sql"])
+            self.hapSQLeditor.setText(vdata["hap_sql"])
 
             self._is_saved = True
             self._version = (version["id"], version["datetime"], version["tag"])

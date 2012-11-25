@@ -624,7 +624,7 @@ class YatelConnection(object):
         if match is None:
             query = self.YatelVersionDBO.select()
             query = query.order_by(self.YatelVersionDBO.datetime.desc())
-            vdbo = tuple(query.limit(1))[0]
+            vdbo = query.limit(1).get()
         elif isinstance(match, int):
             vdbo = self.YatelVersionDBO.get(self.YatelVersionDBO.id == match)
         elif isinstance(match, datetime.datetime):
@@ -635,18 +635,18 @@ class YatelConnection(object):
             msg = "Match must be None, int, str, unicode or datetime instance"
             raise TypeError(msg)
 
-        version = cPickle.loads(vdbo.data.decode("base64"))
+        data = cPickle.loads(vdbo.data.decode("base64"))
 
         topology = {}
-        for hap_id, xy in version["topology"].items():
+        for hap_id, xy in data["topology"].items():
             topology[self.haplotype_by_id(hap_id)] = tuple(xy)
+        data["topology"] = topology
 
-        version["topology"] = topology
-        version["tag"] = vdbo.tag
-        version["id"] = vdbo.id
-        version["datetime"] = vdbo.datetime
-        version["comment"] = vdbo.comment
-        return version
+        return {"tag": vdbo.tag,
+                 "id": vdbo.id,
+                 "datetime": vdbo.datetime,
+                 "comment": vdbo.comment,
+                 "data": data}
 
     @property
     def name(self):
