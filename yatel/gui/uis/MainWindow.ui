@@ -33,8 +33,14 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <widget class="QMenu" name="menu_Import">
+     <property name="title">
+      <string>&amp;Import</string>
+     </property>
+     <addaction name="actionImportCSV"/>
+    </widget>
     <addaction name="actionOpenYatelDB"/>
-    <addaction name="actionWizard"/>
+    <addaction name="menu_Import"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -61,11 +67,6 @@
   <action name="actionExit">
    <property name="text">
     <string>&amp;Exit</string>
-   </property>
-  </action>
-  <action name="actionWizard">
-   <property name="text">
-    <string>&amp;Wizard</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -108,6 +109,11 @@
    </property>
    <property name="text">
     <string>&amp;Load Version</string>
+   </property>
+  </action>
+  <action name="actionImportCSV">
+   <property name="text">
+    <string>CSV</string>
    </property>
   </action>
  </widget>
