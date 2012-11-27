@@ -5,9 +5,9 @@ haplotypes:
     - hap_id: hap0
       a: 1
       b: 2
-      c: 3
+      c: "3"
     - hap_id: hap1
-      b: "hola"
+      b: 56
       c: "chau"
 
 facts:
@@ -25,4 +25,4 @@ edges:
     - weight: 30
       haps_id:
           - hap0
-          - hap 1
+          - hap1

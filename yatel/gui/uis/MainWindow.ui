@@ -38,6 +38,7 @@
       <string>&amp;Import</string>
      </property>
      <addaction name="actionImportCSV"/>
+     <addaction name="actionImportYYF"/>
     </widget>
     <addaction name="actionOpenYatelDB"/>
     <addaction name="menu_Import"/>
@@ -114,6 +115,11 @@
   <action name="actionImportCSV">
    <property name="text">
     <string>CSV</string>
+   </property>
+  </action>
+  <action name="actionImportYYF">
+   <property name="text">
+    <string>YYF</string>
    </property>
   </action>
  </widget>

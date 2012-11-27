@@ -27,6 +27,7 @@ from PyQt4 import QtCore
 
 import yatel
 from yatel import db
+from yatel.conversors import yyf2yatel
 
 from yatel.gui import uis
 from yatel.gui import csv_wizard
@@ -257,6 +258,38 @@ class MainWindow(uis.UI("MainWindow.ui")):
             error_dialog.critical(self.tr("Error"), err)
         else:
             self.open_explorer(conn)
+        finally:
+            self.dialog.setParent(None)
+            self.dialog.destroy()
+            del self.dialog
+
+    @QtCore.pyqtSlot()
+    def on_actionImportYYF_triggered(self):
+        """Slot executed when ``actionImportYYF`` is triggered.
+
+        Show a file dialog for select a "Yatel Yaml Format" to be imported
+
+        """
+        if not self.close_explorer():
+            return
+        self.dialog = connection_setup.ConnectionSetupDialog(self, "create")
+        try:
+            title = self.tr("Open Yatel Yaml Format")
+            filetypes = self.tr("Yatel Yaml Format (*.yyf *.yaml *.yml)")
+            filename = QtGui.QFileDialog.getOpenFileName(self, title,
+                                                         yatel.HOME_PATH,
+                                                         filetypes)
+            if filename:
+                with open(filename) as fp:
+                    haps, facts, edges = yyf2yatel.load(fp)
+            if not self.dialog.exec_():
+                return
+            conn = db.YatelConnection(**self.dialog.params())
+            conn.init_with_values(haps, facts, edges)
+        except Exception as err:
+            error_dialog.critical(self.tr("Error"), err)
+        else:
+            self.open_explorer(conn, saved=False)
         finally:
             self.dialog.setParent(None)
             self.dialog.destroy()

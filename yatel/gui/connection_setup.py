@@ -77,17 +77,15 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
         """
         filename = None
         if self._action == self.CREATE:
-            filename = QtGui.QFileDialog.getSaveFileName(
-                self, self.tr("Save Database"),
-                yatel.HOME_PATH,
-                self.tr("sqlite (*.db)")
-            )
+            filename = QtGui.QFileDialog.getSaveFileName(self,
+                                                         self.tr("Save Database"),
+                                                         yatel.HOME_PATH,
+                                                         self.tr("sqlite (*.db)"))
         elif self._action == self.OPEN:
-            filename = QtGui.QFileDialog.getOpenFileName(
-                self, self.tr("Open Database File"),
-                yatel.HOME_PATH,
-                self.tr("sqlite (*.db)")
-            )
+            filename = QtGui.QFileDialog.getOpenFileName(self,
+                                                         self.tr("Open Database File"),
+                                                         yatel.HOME_PATH,
+                                                         self.tr("sqlite (*.db)"))
         if filename:
             self.nameLineEdit.setText(filename)
 

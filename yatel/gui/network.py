@@ -111,11 +111,8 @@ class _HaplotypeActor(actores.Actor):
         self.haplotype = hap
         self.x, self.y = x, y
         self.aprender(habilidades.Arrastrable)
-        self.aprender(habilidades.AumentarConRueda)
         self._texto.aprender(habilidades.Imitar, self)
-        self._texto.aprender(habilidades.AumentarConRueda)
         self._selected.aprender(habilidades.Imitar, self)
-        self._selected.aprender(habilidades.AumentarConRueda)
         # connect events
         eventos.click_de_mouse.conectar(self._on_mouse_clicked,
                                         id=hex(id(self)))
