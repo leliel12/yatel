@@ -108,6 +108,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.actionSave.setEnabled(not self.explorerFrame.is_saved())
         self.actionClose.setEnabled(True)
         self.actionLoad.setEnabled(True)
+        self.menuExport.setEnabled(True)
         self.reloadTitle()
 
     def close_explorer(self):
@@ -169,6 +170,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
                 self.actionSave.setEnabled(False)
                 self.actionClose.setEnabled(False)
                 self.actionLoad.setEnabled(False)
+                self.menuExport.setEnabled(False)
             self.reloadTitle()
             return closed
         return True

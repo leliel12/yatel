@@ -51,24 +51,16 @@ ALTO = 300
 pilas.iniciar(ANCHO, ALTO, "qtwidget")
 
 #: Instance of pilas image representing the clicked and not highlighted node.
-IMAGE_NODE_NORMAL = imagenes.cargar(
-    resources.get("node_normal.png")
-)
+IMAGE_NODE_NORMAL = imagenes.cargar(resources.get("node_normal.png"))
 
 #: Instance of pilas image representing highlighted node.
-IMAGE_NODE_HIGLIGHTED = imagenes.cargar(
-    resources.get("node_highlighted.png")
-)
+IMAGE_NODE_HIGLIGHTED = imagenes.cargar(resources.get("node_highlighted.png"))
 
 #: Instance of pilas image representing clicked node.
-IMAGE_NODE_SELECTED = imagenes.cargar(
-    resources.get("node_selected.png")
-)
+IMAGE_NODE_SELECTED = imagenes.cargar(resources.get("node_selected.png"))
 
 #: Instance of pilas image empty (for internal propouse)
-IMAGE_NODE_UNSELECTED = imagenes.cargar(
-    resources.get("node_unselected.png")
-)
+IMAGE_NODE_UNSELECTED = imagenes.cargar(resources.get("node_unselected.png"))
 
 #: Absolute value of maximun heigh of the pilas widget
 MAX_X = ANCHO / 2.0
