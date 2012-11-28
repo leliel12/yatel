@@ -18,6 +18,20 @@ network.
 
 
 #===============================================================================
+# TEST PROPUSES PATCH
+#===============================================================================
+
+if __name__ == "__main__":
+    import sip
+    sip.setapi('QString', 2)
+    sip.setapi('QVariant', 2)
+    import sys, os
+    path = os.path.abspath(os.path.dirname(__file__))
+    rel = os.path.join(path, "..", "..")
+    sys.path.insert(0, rel)
+
+
+#===============================================================================
 # IMPORTS
 #===============================================================================
 
@@ -48,19 +62,28 @@ ANCHO = 600
 #: Default width of pilas widget
 ALTO = 300
 
-pilas.iniciar(ANCHO, ALTO, "qtwidget")
+pilas.iniciar(ANCHO, ALTO,
+              usar_motor="qtgl" if __name__ == "__main__" else "qtwidget")
 
 #: Instance of pilas image representing the clicked and not highlighted node.
-IMAGE_NODE_NORMAL = imagenes.cargar(resources.get("node_normal.png"))
+IMAGE_NODE_NORMAL = imagenes.cargar(
+    resources.get("node_normal.png")
+)
 
 #: Instance of pilas image representing highlighted node.
-IMAGE_NODE_HIGLIGHTED = imagenes.cargar(resources.get("node_highlighted.png"))
+IMAGE_NODE_HIGLIGHTED = imagenes.cargar(
+    resources.get("node_highlighted.png")
+)
 
 #: Instance of pilas image representing clicked node.
-IMAGE_NODE_SELECTED = imagenes.cargar(resources.get("node_selected.png"))
+IMAGE_NODE_SELECTED = imagenes.cargar(
+    resources.get("node_selected.png")
+)
 
 #: Instance of pilas image empty (for internal propouse)
-IMAGE_NODE_UNSELECTED = imagenes.cargar(resources.get("node_unselected.png"))
+IMAGE_NODE_UNSELECTED = imagenes.cargar(
+    resources.get("node_unselected.png")
+)
 
 #: Absolute value of maximun heigh of the pilas widget
 MAX_X = ANCHO / 2.0
@@ -499,4 +522,35 @@ class NetworkProxy(object):
 #===============================================================================
 
 if __name__ == "__main__":
-    print(__doc__)
+    print "Test"
+
+    n = NetworkProxy()
+
+
+    def printer(evt):
+        n.show_haps_names(not n.haps_names_showed)
+        n.show_weights(not n.weights_showed)
+        pilas.avisar(str(evt))
+
+    def selector(evt):
+        n.select_node(evt["node"])
+
+    a0 = dom.Haplotype("hap0")
+    a1 = dom.Haplotype("hap1")
+    a2 = dom.Haplotype("hap2")
+    a3 = dom.Haplotype("hap3")
+    n.add_node(a0, 100, 200)
+    n.add_node(a1, -100)
+    n.add_node(a2, 200)
+    n.add_node(a3, 0, -100)
+    n.add_edge(dom.Edge(555, a0.hap_id, a1.hap_id))
+    n.add_edge(dom.Edge(666, a3.hap_id, a2.hap_id))
+    n.add_edge(dom.Edge(666, a2.hap_id, a0.hap_id))
+
+    f = dom.Fact(a1.hap_id, a=1)
+    n.highlight_nodes(a1, a2)
+    n.node_clicked.conectar(printer)
+    n.node_clicked.conectar(selector)
+
+    pilas.ejecutar()
+
