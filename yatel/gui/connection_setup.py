@@ -66,6 +66,9 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
             self.setWindowTitle(self.tr("Create Database"))
         self.on_engineComboBox_activated(self.engineComboBox.currentText())
 
+    def on_nameLineEdit_textChanged(self, txt):
+        self.okPushButton.setEnabled(bool(txt))
+
     def on_openFileButton_pressed(self):
         """Slot executed when a ``openFileButton`` is pressed for select an
         Sqlite file.
@@ -120,6 +123,7 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
                 lineEdit.setValidator(QtGui.QIntValidator())
             self.formLayout.insertRow(idx + 2, label, lineEdit)
             self._params[pn] = (label, lineEdit)
+        self.adjustSize()
 
     def params(self):
         """Returns a params of the conection as dictionary.
