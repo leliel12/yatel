@@ -61,7 +61,7 @@ def dump(haps, facts, edges, stream=None, **kwargs):
             "haplotypes": haps_data,
             "facts": facts_data,
             "edges": edges_data}
-    return yaml.dump(data, stream, **kwargs)
+    return yaml.safe_dump(data, stream, **kwargs)
 
 
 def load(stream, **kwargs):

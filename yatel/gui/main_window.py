@@ -73,7 +73,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
         self.explorerFrame = None
         self.reloadTitle()
-
+        #~
         #~ example_db = "/home/juan/proyectos/yatel_hg/data/example.db"
         #~ conn = db.YatelConnection("sqlite", example_db)
         #~ conn.init_yatel_database()
@@ -86,8 +86,8 @@ class MainWindow(uis.UI("MainWindow.ui")):
             prj = self.explorerFrame.conn.name
             saved = "" if self.explorerFrame.is_saved() else "*"
         title = "{} v.{} - {} {}".format(yatel.PRJ,
-                                         yatel.STR_VERSION,
-                                         prj, saved)
+                                          yatel.STR_VERSION,
+                                          prj, saved)
         super(self.__class__, self).setWindowTitle(title)
 
     def open_explorer(self, yatel_connection, saved=True):
@@ -266,6 +266,27 @@ class MainWindow(uis.UI("MainWindow.ui")):
             del self.dialog
 
     @QtCore.pyqtSlot()
+    def on_actionExportYYF_triggered(self):
+        try:
+            self.explorerFrame.setVisible(False)
+            title = self.tr("Export Yatel Yaml Format")
+            filetypes = self.tr("Yatel Yaml Format (*.yyf *.yaml *.yml)")
+            filename = QtGui.QFileDialog.getSaveFileName(self, title,
+                                                         yatel.HOME_PATH,
+                                                         filetypes)
+            if filename:
+                conn = self.explorerFrame.conn
+                haps = conn.iter_haplotypes()
+                facts = conn.iter_facts()
+                edges = conn.iter_edges()
+                with open(filename, "w") as fp:
+                    yyf2yatel.dump(haps, facts, edges, fp)
+        except Exception as err:
+            error_dialog.critical(self.tr("Error"), err)
+        finally:
+            self.explorerFrame.setVisible(True)
+
+    @QtCore.pyqtSlot()
     def on_actionImportYYF_triggered(self):
         """Slot executed when ``actionImportYYF`` is triggered.
 
@@ -276,7 +297,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
             return
         self.dialog = connection_setup.ConnectionSetupDialog(self, "create")
         try:
-            title = self.tr("Open Yatel Yaml Format")
+            title = self.tr("Import Yatel Yaml Format")
             filetypes = self.tr("Yatel Yaml Format (*.yyf *.yaml *.yml)")
             filename = QtGui.QFileDialog.getOpenFileName(self, title,
                                                          yatel.HOME_PATH,
