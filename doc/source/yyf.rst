@@ -3,7 +3,15 @@ Yatel Yaml Format
 =================
 
 The *Yatel Yaml Format* (or yyf) is a YAML_ based file format for export Yatel
-graphos.
+graphs.
+
+
+File Extension
+--------------
+
+We recommend to use **.yyf** as Yatel Yaml Format file extension.
+
+Yatel Gui also support *.yaml* and *.yml*.
 
 
 Declaration
