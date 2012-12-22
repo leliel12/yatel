@@ -1,28 +1,37 @@
 # this is an example of Yatel Yaml Format or YYF
-version: 0.1
+version: "0.1"
 
 haplotypes:
-    - hap_id: hap0
-      a: 1
-      b: 2
-      c: "3"
-    - hap_id: hap1
-      b: 56
-      c: "chau"
+    - hap_id: "hap0"
+      name: "the good"
+      has_color: false
+    - hap_id: "hap1"
+      name: "the bad"
+      has_color: true
+
 
 facts:
-    - hap_id: hap0
-      x: 1
-      y: 2
-    - hap_id: hap1
-      z: 1
+    - hap_id: "hap02"
+      place: "Rio IV"
+      weather: "Rain"
+      year: 2012
+    - hap_id: "hap0"
+      found_by: "Armando Estaban Quito"
+      place: "Rio III"
+      weather: "Cold"
+      year: 2011
+    - hap_id: "hap1"
+      found_by: "Nadia Luczywo"
+      place: "Cordoba Argentina"
+      weather: "Rain"
+      year: 1998
 
 edges:
     - weight: 10
       haps_id:
-          - hap0
-          - hap1
+          - "hap0"
+          - "hap1"
     - weight: 30
       haps_id:
-          - hap0
-          - hap1
+          - "hap0"
+          - "hap1"

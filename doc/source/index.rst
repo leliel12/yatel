@@ -15,6 +15,8 @@ Contents:
    :maxdepth: 4
 
    install.rst
+   manual.rst
+   yyf.rst
    apidoc/modules.rst
 
 
