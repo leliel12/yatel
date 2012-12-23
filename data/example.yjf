@@ -1,0 +1,53 @@
+{
+  "version": "0.1",
+  "haplotypes": [
+    {
+      "has_color": false,
+      "hap_id": "hap0",
+      "name": "the good"
+    },
+    {
+      "has_color": true,
+      "hap_id": "hap1",
+      "name": "the bad"
+    }
+  ],
+  "facts": [
+    {
+      "weather": "Rain",
+      "hap_id": "hap02",
+      "place": "Rio IV",
+      "year": 2012
+    },
+    {
+      "found_by": "Armando Estaban Quito",
+      "hap_id": "hap0",
+      "place": "Rio III",
+      "weather": "Cold",
+      "year": 2011
+    },
+    {
+      "found_by": "Nadia Luczywo",
+      "hap_id": "hap1",
+      "place": "Cordoba Argentina",
+      "weather": "Rain",
+      "year": 1998
+    }
+  ],
+  "edges": [
+    {
+      "haps_id": [
+        "hap0",
+        "hap1"
+      ],
+      "weight": 10.0
+    },
+    {
+      "haps_id": [
+        "hap0",
+        "hap1"
+      ],
+      "weight": 30.0
+    }
+  ]
+}

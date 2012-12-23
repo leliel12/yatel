@@ -16,7 +16,7 @@ Contents:
 
    install.rst
    manual.rst
-   yyf.rst
+   fileformats.rst
    apidoc/modules.rst
 
 
