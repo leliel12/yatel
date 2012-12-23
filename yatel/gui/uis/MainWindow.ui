@@ -62,6 +62,8 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
+    <addaction name="actionYatelHelp"/>
+    <addaction name="separator"/>
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
    </widget>
@@ -151,6 +153,14 @@
    </property>
    <property name="toolTip">
     <string>YJF</string>
+   </property>
+  </action>
+  <action name="actionYatelHelp">
+   <property name="text">
+    <string>&amp;Yatel Help</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+?</string>
    </property>
   </action>
  </widget>

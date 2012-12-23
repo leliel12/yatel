@@ -21,6 +21,7 @@
 #===============================================================================
 
 import string
+import webbrowser
 
 from PyQt4 import QtGui
 from PyQt4 import QtCore
@@ -422,6 +423,15 @@ class MainWindow(uis.UI("MainWindow.ui")):
             self.dialog.setParent(None)
             self.dialog.destroy()
             del self.dialog
+
+    @QtCore.pyqtSlot()
+    def on_actionYatelHelp_triggered(self):
+        """Slot executed when ``actionYatelHel`` is triggered.
+
+        Open a default web browser with the latest yatel doc
+
+        """
+        webbrowser.open(yatel.DOC_URL)
 
     @QtCore.pyqtSlot()
     def on_actionAboutQt_triggered(self):

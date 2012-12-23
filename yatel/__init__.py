@@ -64,7 +64,11 @@ CLASSIFIERS = (
 URL = "http://bitbucket.org/leliel12/yatel"
 
 #: Download for pypi
-DOWNLOAD_URL = "{}/downloads/{}-{}.tar.gz".format(URL, PRJ.lower(), STR_VERSION)
+DOWNLOAD_URL = "{}/downloads/{}-{}.tar.gz".format(URL, PRJ.lower(),
+                                                   STR_VERSION)
+
+#: Url of the official yatel doc
+DOC_URL = "http://yatel.readthedocs.org"
 
 #: Author of this yatel
 AUTHOR = "Yatel Team"

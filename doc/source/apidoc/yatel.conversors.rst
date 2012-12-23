@@ -25,3 +25,18 @@ conversors Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`yyf2yatel` Module
+------------------------------
+
+.. automodule:: yatel.conversors.yyf2yatel
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`yjf2yatel` Module
+------------------------------
+
+.. automodule:: yatel.conversors.yjf2yatel
+    :members:
+    :undoc-members:
+    :show-inheritance:
