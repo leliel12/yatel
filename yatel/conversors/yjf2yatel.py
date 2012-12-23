@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# "THE WISKEY-WARE LICENSE":
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
+# you can do whatever you want with this stuff. If we meet some day, and you
+# think this stuff is worth it, you can buy me a WISKEY us return.
+
+
+#===============================================================================
+# DOCS
+#===============================================================================
+
+"""This module is used for construct yatel.dom object using yatel json format
+files
+
+"""
+
+#===============================================================================
+# IMPORTS
+#===============================================================================
+
+import json
+
+from yatel import dom
+
+
+#===============================================================================
+# CONSTANTS
+#===============================================================================
+
+VERSIONS = ("0.1", )
+
+DEFAULT_VERSION = "0.1"
+
+
+#===============================================================================
+# IO FUNCTIONS
+#===============================================================================
+
+def dump(haps, facts, edges, stream=None, **kwargs):
+    """Convert dom objects into yjf stream
+
+    """
+    haps_data = []
+    for hap in haps:
+        hd = {"hap_id": hap.hap_id}
+        hd.update(hap.items_attrs())
+        haps_data.append(hd)
+    facts_data = []
+    for fact in facts:
+        hd = {"hap_id": fact.hap_id}
+        hd.update(fact.items_attrs())
+        facts_data.append(hd)
+    edges_data = []
+    for edge in edges:
+        ed = {"weight": edge.weight}
+        ed["haps_id"] = list(edge.haps_id)
+        edges_data.append(ed)
+    data = {"version": DEFAULT_VERSION,
+            "haplotypes": haps_data,
+            "facts": facts_data,
+            "edges": edges_data}
+    dumper = json.dump if stream else json.dumps
+    return dumper(data, stream, **kwargs)
+
+
+def load(stream, **kwargs):
+    """Convert YJF stream into dom objects
+
+    """
+    loader = json.loads if isinstance(stream, str) else json.load
+    data = loader(stream, **kwargs)
+    return (
+        tuple(dom.Haplotype(**kw) for kw in data["haplotypes"]),
+        tuple(dom.Fact(**kw) for kw in data["facts"]),
+        tuple(dom.Edge(kw["weight"], *kw["haps_id"]) for kw in data["edges"])
+    )
+
+
+#===============================================================================
+# MAIN
+#===============================================================================
+
+if __name__ == "__main__":
+    print(__doc__)
+

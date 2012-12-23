@@ -40,6 +40,7 @@ PYPI_REQUIRE = [
     "ipython>=0.13",
     "pilas>=0.7",
     "PyYAML",
+    "bottle"
 ]
 
 MANUAL_REQUIRE = {
