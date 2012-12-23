@@ -39,6 +39,7 @@
      </property>
      <addaction name="actionImportCSV"/>
      <addaction name="actionImportYYF"/>
+     <addaction name="actionImportYJF"/>
     </widget>
     <widget class="QMenu" name="menuExport">
      <property name="enabled">
@@ -48,6 +49,7 @@
       <string>Export</string>
      </property>
      <addaction name="actionExportYYF"/>
+     <addaction name="actionExportYJF"/>
     </widget>
     <addaction name="actionOpenYatelDB"/>
     <addaction name="separator"/>
@@ -92,9 +94,6 @@
    </property>
   </action>
   <action name="actionOpenYatelDB">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>&amp;Open Yatel DB...</string>
    </property>
@@ -136,6 +135,22 @@
   <action name="actionExportYYF">
    <property name="text">
     <string>YYF</string>
+   </property>
+  </action>
+  <action name="actionImportYJF">
+   <property name="text">
+    <string>YJF</string>
+   </property>
+   <property name="toolTip">
+    <string>YJF</string>
+   </property>
+  </action>
+  <action name="actionExportYJF">
+   <property name="text">
+    <string>YJF</string>
+   </property>
+   <property name="toolTip">
+    <string>YJF</string>
    </property>
   </action>
  </widget>

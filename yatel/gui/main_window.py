@@ -28,6 +28,7 @@ from PyQt4 import QtCore
 import yatel
 from yatel import db
 from yatel.conversors import yyf2yatel
+from yatel.conversors import yjf2yatel
 
 from yatel.gui import uis
 from yatel.gui import csv_wizard
@@ -267,6 +268,12 @@ class MainWindow(uis.UI("MainWindow.ui")):
 
     @QtCore.pyqtSlot()
     def on_actionExportYYF_triggered(self):
+        """Slot executed when ``actionExportYYF`` is triggered.
+
+        Show a file dialog for select a new name "Yatel Yaml Format" and dump
+        the actual network there.
+
+        """
         try:
             self.explorerFrame.setVisible(False)
             title = self.tr("Export Yatel Yaml Format")
@@ -305,6 +312,65 @@ class MainWindow(uis.UI("MainWindow.ui")):
             if filename:
                 with open(filename) as fp:
                     haps, facts, edges = yyf2yatel.load(fp)
+            if not self.dialog.exec_():
+                return
+            conn = db.YatelConnection(**self.dialog.params())
+            conn.init_with_values(haps, facts, edges)
+        except Exception as err:
+            error_dialog.critical(self.tr("Error"), err)
+        else:
+            self.open_explorer(conn, saved=False)
+        finally:
+            self.dialog.setParent(None)
+            self.dialog.destroy()
+            del self.dialog
+
+    @QtCore.pyqtSlot()
+    def on_actionExportYJF_triggered(self):
+        """Slot executed when ``actionExportYJF`` is triggered.
+
+        Show a file dialog for select a new name "Yatel JSON Format" and dump
+        the actual network there.
+
+        """
+        try:
+            self.explorerFrame.setVisible(False)
+            title = self.tr("Export Yatel Json Format")
+            filetypes = self.tr("Yatel Json Format (*.yjf *.json)")
+            filename = QtGui.QFileDialog.getSaveFileName(self, title,
+                                                         yatel.HOME_PATH,
+                                                         filetypes)
+            if filename:
+                conn = self.explorerFrame.conn
+                haps = conn.iter_haplotypes()
+                facts = conn.iter_facts()
+                edges = conn.iter_edges()
+                with open(filename, "w") as fp:
+                    yjf2yatel.dump(haps, facts, edges, fp)
+        except Exception as err:
+            error_dialog.critical(self.tr("Error"), err)
+        finally:
+            self.explorerFrame.setVisible(True)
+
+    @QtCore.pyqtSlot()
+    def on_actionImportYJF_triggered(self):
+        """Slot executed when ``actionImportYJF`` is triggered.
+
+        Show a file dialog for select a "Yatel Json Format" to be imported
+
+        """
+        if not self.close_explorer():
+            return
+        self.dialog = connection_setup.ConnectionSetupDialog(self, "create")
+        try:
+            title = self.tr("Import Yatel Json Format")
+            filetypes = self.tr("Yatel Json Format (*.yjf *.json)")
+            filename = QtGui.QFileDialog.getOpenFileName(self, title,
+                                                         yatel.HOME_PATH,
+                                                         filetypes)
+            if filename:
+                with open(filename) as fp:
+                    haps, facts, edges = yjf2yatel.load(fp)
             if not self.dialog.exec_():
                 return
             conn = db.YatelConnection(**self.dialog.params())

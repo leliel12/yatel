@@ -94,7 +94,7 @@ The version `0.1` of the format has four elements on the root of declaration.
   .. code-block:: yaml
 
         facts:
-            - hap_id: "hap02"
+            - hap_id: "hap0"
               place: "Rio IV"
               weather: "Rain"
               year: 2012
@@ -116,7 +116,7 @@ The version `0.1` of the format has four elements on the root of declaration.
         "facts": [
             {
               "weather": "Rain",
-              "hap_id": "hap02",
+              "hap_id": "hap0",
               "place": "Rio IV",
               "year": 2012
             },
@@ -197,7 +197,7 @@ Full example of YYF
 
 
     facts:
-        - hap_id: "hap02"
+        - hap_id: "hap0"
           place: "Rio IV"
           weather: "Rain"
           year: 2012
@@ -245,7 +245,7 @@ Full example of YJF
       "facts": [
         {
           "weather": "Rain",
-          "hap_id": "hap02",
+          "hap_id": "hap0",
           "place": "Rio IV",
           "year": 2012
         },
@@ -283,6 +283,15 @@ Full example of YJF
     }
 
 
+Screenshot
+----------
+
+The 2 examples generates a network like this one
+
+
+.. image:: _static/yff.png
+    :align: center
+    :scale: 75 %
 
 
 .. _YAML: http://yaml.org/

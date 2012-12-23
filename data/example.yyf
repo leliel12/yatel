@@ -11,7 +11,7 @@ haplotypes:
 
 
 facts:
-    - hap_id: "hap02"
+    - hap_id: "hap0"
       place: "Rio IV"
       weather: "Rain"
       year: 2012
