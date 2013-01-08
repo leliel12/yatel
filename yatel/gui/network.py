@@ -126,6 +126,7 @@ class _HaplotypeActor(actores.Actor):
         self.haplotype = hap
         self.x, self.y = x, y
         self.aprender(habilidades.Arrastrable)
+        self.aprender(pilas.habilidades.SeMantieneEnPantalla, False)
         self._texto.aprender(habilidades.Imitar, self)
         self._selected.aprender(habilidades.Imitar, self)
         # connect events
@@ -136,17 +137,6 @@ class _HaplotypeActor(actores.Actor):
         x, y = evt["x"], evt["y"]
         if self.collide(x, y):
                 self.clicked.emitir(sender=self)
-
-    def actualizar(self):
-        """The logic for keep the actor inside the widget"""
-        if self.derecha > MAX_X:
-            self.derecha = MAX_X
-        elif self.izquierda < -MAX_X:
-            self.izquierda = -MAX_X
-        if self.arriba > MAX_Y:
-            self.arriba = MAX_Y
-        elif self.abajo < -MAX_Y:
-            self.abajo = -MAX_Y
 
     def show_text(self, show):
         """Show the name of the haplotype over the node.

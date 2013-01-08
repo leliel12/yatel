@@ -38,7 +38,7 @@ from yatel.gui import main_window
 
 #: Before anything start a QAplication is created
 APP = QtGui.QApplication(sys.argv)
-APP.setApplicationName(yatel.PRJ);
+APP.setApplicationName(yatel.PRJ)
 
 
 #===============================================================================
