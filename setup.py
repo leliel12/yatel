@@ -45,7 +45,6 @@ PYPI_REQUIRE = [
 
 MANUAL_REQUIRE = {
     "PyQt4" : "http://www.riverbankcomputing.co.uk/software/pyqt",
-    "PyQt4.Qsci" : "http://www.riverbankcomputing.co.uk/software/qscintilla",
     "PyQt4.phonon" : "http://www.riverbankcomputing.co.uk/software/pyqt",
     "Box2D": "https://code.google.com/p/pybox2d/",
     "numpy": "http://numpy.scipy.org/",
