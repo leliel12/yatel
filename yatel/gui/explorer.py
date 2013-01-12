@@ -91,6 +91,12 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                                              minw, maxw)
         self.rs.rangeChanged.connect(self.on_weightRange_changed)
         self.sliderLayout.addWidget(self.rs)
+        self.hSplitter.setSizes(
+            [parent.parent().size().width() / 2] * self.hSplitter.count()
+        )
+        self.vSplitter.setSizes(
+            [parent.parent().size().height() / 2] * self.vSplitter.count()
+        )
 
         # load latest version
         self.load_version(version)

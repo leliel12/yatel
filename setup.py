@@ -11,7 +11,7 @@
 # DOCS
 #===============================================================================
 
-"""This file is for distribute yatel
+"""This file is for distribute yatel with distutils
 
 """
 
