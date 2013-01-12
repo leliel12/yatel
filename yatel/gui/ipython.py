@@ -39,12 +39,14 @@ from PyQt4 import QtCore
 
 _kernel_app = None
 _manager = None
-def _get_kernel_and_manager():
+
+def _kam():
 
     global _kernel_app
     global _manager
 
-    if _kernel_app is None:
+    if _kernel_app is None and _manager is None:
+
         def _event_loop(kernel):
             kernel.timer = QtCore.QTimer()
             kernel.timer.timeout.connect(kernel.do_one_iteration)
@@ -61,6 +63,7 @@ def _get_kernel_and_manager():
         _manager.start_channels()
         atexit.register(_manager.cleanup_connection_file)
         _kernel_app.start()
+
     return _kernel_app, _manager
 
 
@@ -82,17 +85,14 @@ class IPythonWidget(RichIPythonWidget):
         """Only 1 instance
 
         """
-        if not IPythonWidget._instance:
-            instance = super(IPythonWidget, cls).__new__(cls)
-            IPythonWidget._instance = instance
-        return IPythonWidget._instance
+        return super(IPythonWidget, cls).__new__(cls)
 
     def __init__(self, welcome_message):
         """Return the instance of ``IPythonWidget``.
 
         """
         super(IPythonWidget, self).__init__(gui_completion='droplist')
-        self._kernel_app, self.kernel_manager = _get_kernel_and_manager()
+        self._kernel_app, self.kernel_manager = _kam()
         self.write(welcome_message)
 
     def reset_ns(self, **kwargs):

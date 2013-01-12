@@ -75,11 +75,11 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
         self.explorerFrame = None
         self.reloadTitle()
-        #~
-        #~ example_db = "/home/juan/proyectos/yatel_hg/data/example.db"
-        #~ conn = db.YatelConnection("sqlite", example_db)
-        #~ conn.init_yatel_database()
-        #~ self.open_explorer(conn)
+        #~ #~
+        example_db = "/home/juan/proyectos/yatel_hg/data/example.db"
+        conn = db.YatelConnection("sqlite", example_db)
+        conn.init_yatel_database()
+        self.open_explorer(conn)
 
     def reloadTitle(self):
         """Reload the window title based on status of the actual project."""
@@ -130,7 +130,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
                                                    QtGui.QMessageBox.Cancel,
                                                    QtGui.QMessageBox.Discard)
                 if status == QtGui.QMessageBox.Ok:
-                    self.on_actionSave_triggered(True)
+                    self.on_actionSave_triggered()
                     self.centralLayout.removeWidget(self.explorerFrame)
                     self.explorerFrame.saveStatusChanged.disconnect(
                         self.on_explorerFrame_saveStatusChanged
@@ -465,6 +465,10 @@ class MainWindow(uis.UI("MainWindow.ui")):
                                         url=richtext(yatel.URL),
                                         license=richtext(yatel.LICENSE))
         QtGui.QMessageBox.about(self, title, abt)
+
+    @property
+    def explorer(self):
+        return self.explorerFrame
 
 
 #===============================================================================
