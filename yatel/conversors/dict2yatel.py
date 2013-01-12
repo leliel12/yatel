@@ -1,0 +1,115 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# "THE WISKEY-WARE LICENSE":
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
+# you can do whatever you want with this stuff. If we meet some day, and you
+# think this stuff is worth it, you can buy me a WISKEY us return.
+
+
+#===============================================================================
+# DOCS
+#===============================================================================
+
+"""This module is used for construct yatel.dom object using yatel yaml format
+files
+
+"""
+
+#===============================================================================
+# IMPORTS
+#===============================================================================
+
+from yatel import dom
+
+
+#===============================================================================
+# CONSTANTS
+#===============================================================================
+
+VERSIONS = ("0.1", )
+
+DEFAULT_VERSION = "0.1"
+
+
+#===============================================================================
+# IO FUNCTIONS
+#===============================================================================
+
+def hap2dict(hap):
+    """Convert a ``dom.Haplotype`` instance into a dict"""
+    hd = {"hap_id": hap.hap_id}
+    hd.update(hap.items_attrs())
+    return hd
+
+
+def dict2hap(hapd):
+    """Convert a ``dict`` with haplotype data into a ``dom.Haplotype``
+    instance
+
+    """
+    return dom.Haplotype(**hapd)
+
+
+def fact2dict(fact):
+    """Convert a ``dom.Fact`` instance into a dict"""
+    hd = {"hap_id": fact.hap_id}
+    hd.update(fact.items_attrs())
+    return hd
+
+
+def dict2fact(factd):
+    """Convert a ``dict`` with Fact data into a ``dom.Fact``
+    instance
+
+    """
+    return dom.Fact(**factd)
+
+
+def edge2dict(edge):
+    """Convert a ``dom.Edge`` instance into a dict"""
+    ed = {"weight": edge.weight}
+    ed["haps_id"] = list(edge.haps_id)
+    return ed
+
+
+def dict2edge(edged):
+    """Convert a ``dict`` with Edge data into a ``dom.Edge``
+    instance
+
+    """
+    return dom.Edge(edged["weight"], *edged["haps_id"])
+
+
+#===============================================================================
+# HELPERS
+#===============================================================================
+
+def dump(haps, facts, edges):
+    """Convert dom objects into a dict with keys ``haplotypes``, ``facts``,
+    ``edgest`` and ``version``
+
+    """
+    return {"version": DEFAULT_VERSION,
+             "haplotypes": [hap2dict(hap) for hap in haps],
+             "facts": [fact2dict(fact) for fact in facts],
+             "edges": [edge2dict(edge) for edge in edges]}
+
+
+def load(data):
+    """Convert dict with keys ``haplotypes``, ``facts`` and ``edges`` stream
+    into dom objects.
+
+    """
+    return (tuple(dict2hap(kw) for kw in data["haplotypes"]),
+             tuple(dict2fact(kw) for kw in data["facts"]),
+             tuple(dict2edge(kw) for kw in data["edges"]))
+
+
+#===============================================================================
+# MAIN
+#===============================================================================
+
+if __name__ == "__main__":
+    print(__doc__)
+

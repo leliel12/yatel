@@ -76,10 +76,10 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.explorerFrame = None
         self.reloadTitle()
         #~
-        example_db = "/home/juan/proyectos/yatel_hg/data/example.db"
-        conn = db.YatelConnection("sqlite", example_db)
-        conn.init_yatel_database()
-        self.open_explorer(conn)
+#        example_db = "/home/juan/proyectos/yatel_hg/data/example.db"
+#        conn = db.YatelConnection("sqlite", example_db)
+#        conn.init_yatel_database()
+#        self.open_explorer(conn)
 
     def reloadTitle(self):
         """Reload the window title based on status of the actual project."""

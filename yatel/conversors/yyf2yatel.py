@@ -23,15 +23,7 @@ files
 import yaml
 
 from yatel import dom
-
-
-#===============================================================================
-# CONSTANTS
-#===============================================================================
-
-VERSIONS = ("0.1", )
-
-DEFAULT_VERSION = "0.1"
+from yatel.conversors import dict2yatel
 
 
 #===============================================================================
@@ -42,25 +34,7 @@ def dump(haps, facts, edges, stream=None, **kwargs):
     """Convert dom objects into yyf stream
 
     """
-    haps_data = []
-    for hap in haps:
-        hd = {"hap_id": hap.hap_id}
-        hd.update(hap.items_attrs())
-        haps_data.append(hd)
-    facts_data = []
-    for fact in facts:
-        hd = {"hap_id": fact.hap_id}
-        hd.update(fact.items_attrs())
-        facts_data.append(hd)
-    edges_data = []
-    for edge in edges:
-        ed = {"weight": edge.weight}
-        ed["haps_id"] = list(edge.haps_id)
-        edges_data.append(ed)
-    data = {"version": DEFAULT_VERSION,
-            "haplotypes": haps_data,
-            "facts": facts_data,
-            "edges": edges_data}
+    data = dict2yatel.dump(haps, facts, edges)
     return yaml.safe_dump(data, stream, **kwargs)
 
 
@@ -69,11 +43,7 @@ def load(stream, **kwargs):
 
     """
     data = yaml.load(stream, **kwargs)
-    return (
-        tuple(dom.Haplotype(**kw) for kw in data["haplotypes"]),
-        tuple(dom.Fact(**kw) for kw in data["facts"]),
-        tuple(dom.Edge(kw["weight"], *kw["haps_id"]) for kw in data["edges"])
-    )
+    return dict2yatel.load(data)
 
 
 #===============================================================================

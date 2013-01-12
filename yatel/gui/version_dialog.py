@@ -21,7 +21,6 @@
 #===============================================================================
 
 from PyQt4 import QtGui
-from PyQt4 import QtCore
 
 import yatel
 from yatel.gui import uis
