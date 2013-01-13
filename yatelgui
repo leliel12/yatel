@@ -19,7 +19,85 @@
 # IMPORTS
 #===============================================================================
 
-from yatel import gui
+import sys
+import argparse
+
+import yatel
+from yatel import db
+
+
+#===============================================================================
+# CLI PARSER
+#===============================================================================
+
+def parse(args):
+
+    psr = argparse.ArgumentParser(prog=yatel.PRJ)
+
+    psr.add_argument('--version', action='version',
+                     version="%(prog)s {}".format(yatel.STR_VERSION))
+    psr.add_argument("--engine", action="store", choices=db.ENGINES,
+                     help="The engine to the database to open")
+
+    file_engines = " or ".join([ "'{}'".format(e)
+                                for e in db.FILE_ENGINES])
+    psr.add_argument(
+        "--dbname", action="store",
+        help=(
+            "The name of the database (or path if engine is {}"
+        ).format(file_engines)
+    )
+    psr.add_argument(
+        "--host", action="store", default="localhost",
+        help=(
+            "The host where the database is running."
+            "Not used in {} (default: 'localhost')"
+        ).format(file_engines)
+    )
+    psr.add_argument(
+        "--port", action="store", type=int,
+        help=(
+            "The port to listen the database the default value "
+            "depends on engine selected. Not used in {}"
+        ).format(file_engines)
+    )
+    psr.add_argument(
+        "--user", action="store",
+        help=(
+            "The user to access the database. Not used in {}"
+        ).format(file_engines)
+    )
+    psr.add_argument(
+        "--password", action="store",
+        help=(
+            "The password to access the database. Not used in {}"
+        ).format(file_engines)
+    )
+
+    flags = psr.parse_args(args[1:])
+
+    conn = None
+    if flags.engine:
+        if not flags.dbname:
+            sys.stderr.write("If you use '--engine', '--dbname' is required\n\n")
+            psr.parse_args(["--help"])
+        connkws = {}
+        if flags.engine not in db.FILE_ENGINES:
+            connkws["host"] = flags.host
+            connkws["port"] = flags.port \
+                              or db.ENGINES[flags.engine]["params"]["port"]
+            connkws["user"] = flags.user \
+                              or db.ENGINES[flags.engine]["params"]["user"]
+            if flags.engine is "mysql":
+                connkws["passwd"] = flags.password \
+                                    or db.ENGINES[flags.engine]["params"]["passwd"]
+            else:
+                connkws["password"] = flags.password \
+                                    or db.ENGINES[flags.engine]["params"]["password"]
+        conn = db.YatelConnection(flags.engine, flags.dbname, **connkws)
+        conn.init_yatel_database()
+
+    return conn
 
 
 #===============================================================================
@@ -30,7 +108,11 @@ def main():
     """Run a yatel qt app client
 
     """
-    gui.run_gui()
+    if "--help" in sys.argv:
+        parse(sys.argv)
+    else:
+        from yatel import gui
+        gui.run_gui(parse)
 
 
 #===============================================================================

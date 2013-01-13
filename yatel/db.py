@@ -64,6 +64,9 @@ ENGINES_CONF = {
 #: Names of engines supported by ``peewee``.
 ENGINES = ENGINES_CONF.keys()
 
+#: Names of engines that database is stored in file
+FILE_ENGINES = [e for e in ENGINES if ENGINES_CONF[e]["name_isfile"]]
+
 #: ``dict``  with ``peewee`` *field names* as *keys* and *fields* as values.
 NAME2FIELD = {
     "CharField": peewee.CharField,

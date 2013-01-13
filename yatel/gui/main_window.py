@@ -65,7 +65,7 @@ ABOUT_TEMPLATE = string.Template("""
 class MainWindow(uis.UI("MainWindow.ui")):
     """The main window class"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, conn=None, *args, **kwargs):
         """Creates a new instance of ``MainWindow``
 
         All params are pased to superclass
@@ -75,7 +75,10 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
         self.explorerFrame = None
         self.reloadTitle()
-        #~
+
+        if conn is not None:
+            self.open_explorer(conn)
+
 #        example_db = "/home/juan/proyectos/yatel_hg/data/example.db"
 #        conn = db.YatelConnection("sqlite", example_db)
 #        conn.init_yatel_database()
