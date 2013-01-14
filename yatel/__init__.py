@@ -114,7 +114,7 @@ DEFAULT_FILE_ENCODING = encodings.aliases.aliases.get(
 )
 
 #: Format to represent the datetime
-DATETIME_FORMAT = "%Y/%M/%d %H:%M:%S"
+DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 #: If the program is en debug mode
 DEBUG = __debug__

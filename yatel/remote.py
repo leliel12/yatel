@@ -46,6 +46,9 @@ class YatelRemoteError(BaseException):
         super(YatelRemoteError, self).__init__()
         self.data = data
 
+    def __str__(self):
+        return repr(self)
+
     def __repr__(self):
         msg = "<YatelRemoteError '{} - {}'>".format(self.remote_message,
                                                      self.remote_type)
@@ -140,6 +143,17 @@ class YatelServer(bottle.Bottle):
     def call_hap_sql(self, query):
         return map(dict2yatel.hap2dict, self._conn.hap_sql(query))
 
+    def call_versions(self):
+        return map(dict2yatel.version_descriptor2dict, self._conn.versions())
+
+    def call_get_version(self, match=None):
+        if match is not None:
+            try:
+                match = datetime.datetime.strptime(match, yatel.DATETIME_FORMAT)
+            except ValueError:
+                pass
+        return dict2yatel.version2dict(self._conn.get_version(match))
+
 
 #===============================================================================
 # CLIENT
@@ -210,15 +224,18 @@ class YatelClient(object):
         for e in self._call("hap_sql", id=id, query=query):
             yield dict2yatel.dict2hap(e)
 
+    def versions(self, id=None):
+        return tuple(dict2yatel.dict2version_descriptor(e)
+                       for e in self._call("versions", id=id))
+
+    def get_version(self, match=None, id=None):
+        return dict2yatel.dict2version(self._call("get_version",
+                                                  id=id, match=match))
+
 
 if __name__ == "__main__":
     conn = YatelClient("localhost", 8080)
-    print conn.facts_attributes_names()
-    print conn.fact_attribute_values("k")
-    print conn.minmax_edges()
-    print list(conn.filter_edges(1, 40))
-    print list(conn.hap_sql("select * from haplotypes where hap_id = 'haplotype_22'"))
-
+    print conn.get_version()
 
 #===============================================================================
 # MAIN

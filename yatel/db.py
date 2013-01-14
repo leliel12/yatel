@@ -471,7 +471,6 @@ class YatelConnection(object):
                 values.add(v)
         return tuple(values)
 
-
     def minmax_edges(self):
         """Return a ``tuple`` with ``len == 2`` containing the  edgest with
         minimum ane maximun *weight*

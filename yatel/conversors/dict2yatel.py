@@ -20,6 +20,9 @@ files
 # IMPORTS
 #===============================================================================
 
+import datetime
+
+import yatel
 from yatel import dom
 
 
@@ -80,6 +83,49 @@ def dict2edge(edged):
     """
     return dom.Edge(edged["weight"], *edged["haps_id"])
 
+
+def version_descriptor2dict(version_descriptor):
+    """Convert a ``db.YatelConnection().versions()` result entry into a
+    ``dict``"""
+    return {"id": version_descriptor[0],
+             "datetime": version_descriptor[1].strftime(yatel.DATETIME_FORMAT),
+             "tag": version_descriptor[2]}
+
+
+def dict2version_descriptor(version_descriptord):
+    """Convert a ``dict`` with version descriptor data
+    ``db.YatelConnection().versions()` result entry
+
+    """
+    print version_descriptord
+    return (version_descriptord["id"],
+             datetime.datetime.strptime(version_descriptord["datetime"],
+                                        yatel.DATETIME_FORMAT),
+             version_descriptord["tag"])
+
+
+def version2dict(version):
+    """Convert a ``db.YatelConnection().geT_version()` result entry into a
+    ``dict``"""
+    topology = []
+    for k, v in version["data"]["topology"].items():
+        topology.append((hap2dict(k), v))
+    version["data"]["topology"] = topology
+    version["datetime"]  = version["datetime"].strftime(yatel.DATETIME_FORMAT)
+    return dict(version)
+
+def dict2version(versiond):
+    """Convert a ``dict`` with version data
+    ``db.YatelConnection().get_version()` result entry
+
+    """
+    topology = {}
+    for k, v in versiond["data"]["topology"]:
+        topology[dict2hap(k)] = tuple(v)
+    versiond["data"]["topology"] = topology
+    versiond["datetime"]  = datetime.datetime.strptime(versiond["datetime"],
+                                                       yatel.DATETIME_FORMAT)
+    return dict(versiond)
 
 #===============================================================================
 # HELPERS
