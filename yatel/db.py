@@ -522,11 +522,9 @@ class YatelConnection(object):
             A ``tuple`` of ``dom.Haplotype`` instance.
 
         """
-        haps = []
         for hdbo in self.HaplotypeDBO.raw(query, *args):
             hap = dom.Haplotype(**hdbo._data)
-            haps.append(hap)
-        return tuple(haps)
+            yield hap
 
     def versions(self):
         """A ``tuple`` with all existing versions.
