@@ -24,6 +24,7 @@ import argparse
 
 import yatel
 from yatel import db
+from yatel import remote
 
 
 #===============================================================================
@@ -34,6 +35,8 @@ def parse(args):
 
     psr = argparse.ArgumentParser(prog=yatel.PRJ)
 
+    psr.add_argument("--no-gui", action="store_true",
+                     help="Prevents to use the Qt interface")
     psr.add_argument('--version', action='version',
                      version="%(prog)s {}".format(yatel.STR_VERSION))
     psr.add_argument("--engine", action="store", choices=db.ENGINES,
@@ -74,6 +77,10 @@ def parse(args):
         ).format(file_engines)
     )
 
+    group = psr.add_mutually_exclusive_group()
+    group.add_argument("--serve", action="store", nargs=2,
+                       help="Serve the given yatel connection via web server")
+
     flags = psr.parse_args(args[1:])
 
     conn = None
@@ -95,8 +102,14 @@ def parse(args):
                 connkws["password"] = flags.password \
                                     or db.ENGINES[flags.engine]["params"]["password"]
         conn = db.YatelConnection(flags.engine, flags.dbname, **connkws)
-        conn.init_yatel_database()
 
+    if flags.serve:
+        conn.init_yatel_database()
+        server = remote.YatelServer(conn)
+        server.run(*flags.serve)
+        sys.exit(0)
+    elif conn:
+        conn.init_yatel_database()
     return conn
 
 
@@ -108,7 +121,7 @@ def main():
     """Run a yatel qt app client
 
     """
-    if "--help" in sys.argv:
+    if "--no-gui" in sys.argv or "--help" in sys.argv:
         parse(sys.argv)
     else:
         from yatel import gui

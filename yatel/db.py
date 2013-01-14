@@ -460,7 +460,7 @@ class YatelConnection(object):
         return tuple(tfdbo.name for tfdbo in query)
 
     def fact_attribute_values(self, att_name):
-        """Return a ``frozenset`` of all posible values of given ``dom.Fact``
+        """Return a ``tuple`` of all posible values of given ``dom.Fact``
            atribute.
 
         """
@@ -527,6 +527,20 @@ class YatelConnection(object):
             hap = dom.Haplotype(**hdbo._data)
             haps.append(hap)
         return tuple(haps)
+
+    def versions(self):
+        """A ``tuple`` with all existing versions.
+
+        Each element contains 3 elements: the  version ``id``, the  version
+        ``datetime`` of creation, and the  version ``tag``
+
+        """
+        versions = []
+        query = self.YatelVersionDBO.select()
+        query = query.order_by(self.YatelVersionDBO.id.desc())
+        for vdbo in query:
+            versions.append((vdbo.id, vdbo.datetime, vdbo.tag))
+        return tuple(versions)
 
     def save_version(self, tag, comment="", hap_sql="",
                      topology={}, weight_range=(None, None), enviroments=()):
@@ -595,20 +609,6 @@ class YatelConnection(object):
                 raise ValueError(msg)
         vdbo.save()
         return vdbo.id, vdbo.datetime, vdbo.tag
-
-    def versions(self):
-        """A ``tuple`` with all existing versions.
-
-        Each element contains 3 elements: the  version ``id``, the  version
-        ``datetime`` of creation, and the  version ``tag``
-
-        """
-        versions = []
-        query = self.YatelVersionDBO.select()
-        query = query.order_by(self.YatelVersionDBO.id.desc())
-        for vdbo in query:
-            versions.append((vdbo.id, vdbo.datetime, vdbo.tag))
-        return tuple(versions)
 
     def get_version(self, match=None):
         """Return a version by the given filter.
