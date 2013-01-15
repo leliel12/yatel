@@ -41,22 +41,22 @@ class QFormatter(Formatter):
     def __init__(self):
 
         def hex2QColor(c):
-            r=int(c[0:2],16)
-            g=int(c[2:4],16)
-            b=int(c[4:6],16)
-            return QtGui.QColor(r,g,b)
+            r = int(c[0:2], 16)
+            g = int(c[2:4], 16)
+            b = int(c[4:6], 16)
+            return QtGui.QColor(r, g, b)
 
         super(QFormatter, self).__init__()
-        self.data=[]
+        self.data = []
 
         # Create a dictionary of text styles, indexed
         # by pygments token names, containing QTextCharFormat
         # instances according to pygments' description
         # of each style
 
-        self.styles={}
+        self.styles = {}
         for token, style in self.style:
-            qtf=QtGui.QTextCharFormat()
+            qtf = QtGui.QTextCharFormat()
 
             if style['color']:
                 qtf.setForeground(hex2QColor(style['color']))
@@ -68,21 +68,21 @@ class QFormatter(Formatter):
                 qtf.setFontItalic(True)
             if style['underline']:
                 qtf.setFontUnderline(True)
-            self.styles[str(token)]=qtf
+            self.styles[str(token)] = qtf
 
     def format(self, tokensource, outfile):
         global styles
         # We ignore outfile, keep output in a buffer
-        self.data=[]
+        self.data = []
 
         # Just store a list of styles, one for each character
         # in the input. Obviously a smarter thing with
         # offsets and lengths is a good idea!
 
         for ttype, value in tokensource:
-            l=len(value)
-            t=str(ttype)
-            self.data.extend([self.styles[t],]*l)
+            l = len(value)
+            t = str(ttype)
+            self.data.extend([self.styles[t], ] * l)
 
 
 #===============================================================================
@@ -93,12 +93,12 @@ class Highlighter(QtGui.QSyntaxHighlighter):
 
     def __init__(self, parent, mode):
         super(Highlighter, self).__init__(parent)
-        self.tstamp=time.time()
+        self.tstamp = time.time()
 
         # Keep the formatter and lexer, initializing them
         # may be costly.
-        self.formatter=QFormatter()
-        self.lexer=get_lexer_by_name(mode)
+        self.formatter = QFormatter()
+        self.lexer = get_lexer_by_name(mode)
 
     def highlightBlock(self, text):
         """Takes a block, applies format to the document.
@@ -114,25 +114,25 @@ class Highlighter(QtGui.QSyntaxHighlighter):
         # The \n is not really needed, but sometimes
         # you are in an empty last block, so your position is
         # **after** the end of the document.
-        text=unicode(self.document().toPlainText())+'\n'
+        text = unicode(self.document().toPlainText()) + '\n'
 
         # Yes, re-highlight the whole document.
         # There **must** be some optimizacion possibilities
         # but it seems fast enough.
-        highlight(text,self.lexer,self.formatter)
+        highlight(text, self.lexer, self.formatter)
 
         # Just apply the formatting to this block.
         # For titles, it may be necessary to backtrack
         # and format a couple of blocks **earlier**.
         for i in range(len(unicode(text))):
             try:
-                self.setFormat(i,1,self.formatter.data[p+i])
+                self.setFormat(i, 1, self.formatter.data[p + i])
             except IndexError:
                 pass
 
         # I may need to do something about this being called
         # too quickly.
-        self.tstamp=time.time()
+        self.tstamp = time.time()
 
 
 #===============================================================================
@@ -151,7 +151,7 @@ class HiglightedEditor(QtGui.QPlainTextEdit):
 
         """
         super(HiglightedEditor, self).__init__(parent)
-        self.highlighter = Highlighter(self.document(),syntax)
+        self.highlighter = Highlighter(self.document(), syntax)
 
     def text(self):
         return self.toPlainText()
@@ -170,7 +170,7 @@ if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     rst = QtGui.QPlainTextEdit()
     rst.setWindowTitle('SQL')
-    hl=Highlighter(rst.document(),"sql")
+    hl = Highlighter(rst.document(), "sql")
     rst.show()
     sys.exit(app.exec_())
 

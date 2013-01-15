@@ -30,7 +30,7 @@ from yatel import dom
 # CONSTANTS
 #===============================================================================
 
-VERSIONS = ("0.1", )
+VERSIONS = ("0.1",)
 
 DEFAULT_VERSION = "0.1"
 
@@ -111,7 +111,7 @@ def version2dict(version):
     for k, v in version["data"]["topology"].items():
         topology.append((hap2dict(k), v))
     version["data"]["topology"] = topology
-    version["datetime"]  = version["datetime"].strftime(yatel.DATETIME_FORMAT)
+    version["datetime"] = version["datetime"].strftime(yatel.DATETIME_FORMAT)
     return dict(version)
 
 def dict2version(versiond):
@@ -123,7 +123,7 @@ def dict2version(versiond):
     for k, v in versiond["data"]["topology"]:
         topology[dict2hap(k)] = tuple(v)
     versiond["data"]["topology"] = topology
-    versiond["datetime"]  = datetime.datetime.strptime(versiond["datetime"],
+    versiond["datetime"] = datetime.datetime.strptime(versiond["datetime"],
                                                        yatel.DATETIME_FORMAT)
     return dict(versiond)
 

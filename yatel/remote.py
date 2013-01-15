@@ -24,10 +24,10 @@
 #===============================================================================
 
 import hashlib
-import time
 import urllib
 import urllib2
 import json
+import datetime
 
 import bottle
 
@@ -80,9 +80,10 @@ class YatelServer(bottle.Bottle):
 
     """
 
-    def __init__(self, connection, *args, **kwargs):
+    def __init__(self, connection, read_only=False, *args, **kwargs):
         super(YatelServer, self).__init__(*args, **kwargs)
         self._conn = connection
+        self._read_only = read_only
         self.post("/call", callback=self._call)
 
     def _call(self):
@@ -127,11 +128,11 @@ class YatelServer(bottle.Bottle):
     def call_enviroment(self, **env):
         return map(dict2yatel.hap2dict, self._conn.enviroment(**env))
 
-    def call_facts_attributes_names(self):
-        return self._conn.facts_attributes_names()
+    def call_fact_attributes_names(self):
+        return list(self._conn.fact_attributes_names())
 
     def call_fact_attribute_values(self, att_name):
-        return self._conn.fact_attribute_values(att_name)
+        return list(self._conn.fact_attribute_values(att_name))
 
     def call_minmax_edges(self):
         return map(dict2yatel.edge2dict, self._conn.minmax_edges())
@@ -147,12 +148,19 @@ class YatelServer(bottle.Bottle):
         return map(dict2yatel.version_descriptor2dict, self._conn.versions())
 
     def call_get_version(self, match=None):
-        if match is not None:
+        if match is not None and not isinstance(match, int):
             try:
                 match = datetime.datetime.strptime(match, yatel.DATETIME_FORMAT)
             except ValueError:
                 pass
         return dict2yatel.version2dict(self._conn.get_version(match))
+
+    def call_save_version(tag, comment="", hap_sql="",
+                           topology={}, weight_range=(None, None),
+                           enviroments=()):
+        version_descriptor = self._conn(tag, comment, hap_sql, topology,
+                                        weight_range, enviroments)
+        return dict2yatel.version_descriptor2dict(version_descriptor)
 
 
 #===============================================================================
@@ -168,12 +176,14 @@ class YatelClient(object):
         self._host = host
         self._port = port
         self._protocol = protocol
-        self._url = "{protocol}://{host}:{port}/call".format(protocol=protocol,
-                                                              host=host,
-                                                              port=port)
+        self._url = "{protocol}://{host}:{port}/".format(protocol=protocol,
+                                                          host=host,
+                                                          port=port)
+        self._call_url = "{}call".format(self._url)
+
     def _call(self, method, id=None, **kwargs):
         body = json.dumps({"id": id, "method": method, "arguments": kwargs})
-        req = urllib2.Request(self._url, body,
+        req = urllib2.Request(self._call_url, body,
                               {'Content-Type': 'application/json'})
         data = json.load(urllib2.urlopen(req))
         if "error" in data:
@@ -204,11 +214,11 @@ class YatelClient(object):
         for e in self._call("enviroment", id=id, **env):
             yield dict2yatel.dict2hap(e)
 
-    def facts_attributes_names(self, id=None):
-        return tuple(self._call("facts_attributes_names", id=id))
+    def fact_attributes_names(self, id=None):
+        return iter(self._call("fact_attributes_names", id=id))
 
     def fact_attribute_values(self, att_name, id=None):
-        return tuple(self._call("fact_attribute_values",
+        return iter(self._call("fact_attribute_values",
                                   att_name=att_name, id=id))
 
     def minmax_edges(self, id=None):
@@ -225,17 +235,43 @@ class YatelClient(object):
             yield dict2yatel.dict2hap(e)
 
     def versions(self, id=None):
-        return tuple(dict2yatel.dict2version_descriptor(e)
-                       for e in self._call("versions", id=id))
+        return iter(dict2yatel.dict2version_descriptor(e)
+                      for e in self._call("versions", id=id))
 
     def get_version(self, match=None, id=None):
+        if isinstance(match, datetime.datetime):
+            match = match.strftime(yatel.DATETIME_FORMAT)
         return dict2yatel.dict2version(self._call("get_version",
-                                                  id=id, match=match))
+                                                   id=id, match=match))
+
+    @property
+    def name(self):
+        return self._url
+
+    @property
+    def inited(self):
+        return self.ping()
 
 
 if __name__ == "__main__":
     conn = YatelClient("localhost", 8080)
-    print conn.get_version()
+    conn.ping()
+    list(conn.iter_haplotypes())
+    list( conn.iter_facts())
+    list(conn.iter_edges())
+    conn.haplotype_by_id("haplotype_16")
+    list(conn.fact_attribute_values("k"))
+    list(conn.fact_attributes_names())
+    conn.minmax_edges()
+    conn.filter_edges(1, 30)
+    list(conn.hap_sql("select * from haplotypes"))
+    list(conn.versions())
+    match = conn.get_version()["datetime"]
+    print conn.get_version(match)
+    conn.get_version(1)
+    conn.get_version("init")
+    conn.inited
+    conn.name
 
 #===============================================================================
 # MAIN

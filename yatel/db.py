@@ -25,7 +25,8 @@ import decimal
 
 import peewee
 
-import dom
+import yatel
+from yatel import dom
 
 
 #===============================================================================
@@ -449,15 +450,16 @@ class YatelConnection(object):
         for fdbo in self.FactDBO.filter(*queries):
             hap_id = fdbo._data["haplotype"]
             if  hap_id not in haps:
-                haps[hap_id] = self.haplotype_by_id(hap_id)
-        return tuple(haps.values())
+                hap = self.haplotype_by_id(hap_id)
+                haps[hap_id] = hap
+                yield hap
 
-    def facts_attributes_names(self):
+    def fact_attributes_names(self):
         """Return a ``tuple`` of all existing ``dom.Fact`` atributes."""
         yt_dbo = self.YatelTableDBO.get(self.YatelTableDBO.type == FACTS_TABLE)
         query = self.YatelFieldDBO.filter(self.YatelFieldDBO.table == yt_dbo)
         query = query.filter(self.YatelFieldDBO.reference_to >> None)
-        return tuple(tfdbo.name for tfdbo in query)
+        return iter(tfdbo.name for tfdbo in query)
 
     def fact_attribute_values(self, att_name):
         """Return a ``tuple`` of all posible values of given ``dom.Fact``
@@ -467,9 +469,9 @@ class YatelConnection(object):
         values = set()
         for fdbo in self.FactDBO.select():
             v = getattr(fdbo, att_name)
-            if v is not None:
+            if v is not None and v not in values:
                 values.add(v)
-        return tuple(values)
+                yield v
 
     def minmax_edges(self):
         """Return a ``tuple`` with ``len == 2`` containing the  edgest with
@@ -536,8 +538,8 @@ class YatelConnection(object):
         query = self.YatelVersionDBO.select()
         query = query.order_by(self.YatelVersionDBO.id.desc())
         for vdbo in query:
-            versions.append((vdbo.id, vdbo.datetime, vdbo.tag))
-        return tuple(versions)
+            yield (vdbo.id, vdbo.datetime, vdbo.tag)
+
 
     def save_version(self, tag, comment="", hap_sql="",
                      topology={}, weight_range=(None, None), enviroments=()):
@@ -592,7 +594,7 @@ class YatelConnection(object):
 
         vdbo = self.YatelVersionDBO()
         vdbo.tag = tag
-        vdbo.datetime = datetime.datetime.now()
+        vdbo.datetime = format_date(datetime.datetime.now())
         vdbo.comment = comment
         vdbo.data = cPickle.dumps(data).encode("base64")
 
@@ -662,6 +664,15 @@ class YatelConnection(object):
 #===============================================================================
 # FUNCTIONS
 #===============================================================================
+
+def format_date(dt):
+    """This function prepare the  datetime instance to be stored in the
+    database removing all unused data
+
+    """
+    dtf = yatel.DATETIME_FORMAT
+    return datetime.datetime.strptime(dt.strftime(dtf), dtf)
+
 
 def field(objs, pk=False, **kwargs):
     """Create a peewee field type for a given iterable of objects
