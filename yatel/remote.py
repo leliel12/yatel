@@ -155,12 +155,12 @@ class YatelServer(bottle.Bottle):
                 pass
         return dict2yatel.version2dict(self._conn.get_version(match))
 
-    def call_save_version(tag, comment="", hap_sql="",
+    def call_save_version(self, tag, comment="", hap_sql="",
                            topology={}, weight_range=(None, None),
                            enviroments=()):
-        version_descriptor = self._conn(tag, comment, hap_sql, topology,
-                                        weight_range, enviroments)
-        return dict2yatel.version_descriptor2dict(version_descriptor)
+        ver_desc = self._conn.save_version(tag, comment, hap_sql, topology,
+                                           weight_range, enviroments)
+        return dict2yatel.version_descriptor2dict(ver_desc)
 
 
 #===============================================================================
@@ -252,26 +252,14 @@ class YatelClient(object):
     def inited(self):
         return self.ping()
 
+    def save_version(self, tag, comment="", hap_sql="", topology={},
+                     weight_range=(None, None), enviroments=(), id=None):
+        ver_desc = self._call("save_version", tag=tag, comment=comment,
+                             hap_sql=hap_sql, topology=topology,
+                             weight_range=weight_range, enviroments=enviroments,
+                             id=id)
+        print ver_desc
 
-if __name__ == "__main__":
-    conn = YatelClient("localhost", 8080)
-    conn.ping()
-    list(conn.iter_haplotypes())
-    list( conn.iter_facts())
-    list(conn.iter_edges())
-    conn.haplotype_by_id("haplotype_16")
-    list(conn.fact_attribute_values("k"))
-    list(conn.fact_attributes_names())
-    conn.minmax_edges()
-    conn.filter_edges(1, 30)
-    list(conn.hap_sql("select * from haplotypes"))
-    list(conn.versions())
-    match = conn.get_version()["datetime"]
-    print conn.get_version(match)
-    conn.get_version(1)
-    conn.get_version("init")
-    conn.inited
-    conn.name
 
 #===============================================================================
 # MAIN
