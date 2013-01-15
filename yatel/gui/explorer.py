@@ -228,7 +228,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
 
         """
         self.envDialog = EnviromentDialog(self,
-                                          self.conn.facts_attributes_names())
+                                          self.conn.fact_attributes_names())
         if self.envDialog.exec_():
             atts = self.envDialog.selected_attributes()
             enviroment = dict((att, None) for att in atts)
@@ -453,7 +453,7 @@ class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
 
         """
         super(EnviromentDialog, self).__init__(parent=parent)
-        self.factAttributesListWidget.addItems(facts_names)
+        self.factAttributesListWidget.addItems(list(facts_names))
         self.factAttributesListWidget.sortItems()
 
     def on_factAttributesListWidget_currentItemChanged(self, entered, exited):
