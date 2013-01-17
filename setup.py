@@ -108,7 +108,7 @@ setup(
     package_data={'images': ['yatel/gui/resources/*'],
                   'uis': ['yatel/gui/uis/*']},
     py_modules=["ez_setup"],
-    scripts=["yatelgui"],
+    scripts=["bin/yatel"],
     setup_requires=["sphinx-pypi-upload"],
     install_requires=PYPI_REQUIRE,
 )

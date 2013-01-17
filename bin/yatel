@@ -65,16 +65,20 @@ def cli_parser(args):
         host, port = p.split(":")
         return {"host": host, "port": port}
 
+    # General options
     psr.add_argument("--no-gui", action="store_true",
                      help="prevents to use the Qt interface")
     psr.add_argument('--version', action='version',
                      version="%(prog)s {}".format(yatel.STR_VERSION))
+
+    # Wich database will be open with yatel
     psr.add_argument("--database", action="store", type=connection_parser,
-                     help=("the engine to the database to open.\n"
+                     help=("database to open with yatel.\n"
                             "   SQLite -> sqlite://[DATABASE]\n"
                             "   MySql -> mysql://USER:PASSWORD@HOST:PORT/DATABASE\n"
                             "   PostgreSQL -> postgres://USER:PASSWORD@HOST:PORT/DATABASE"))
 
+    # Utilities
     group = psr.add_mutually_exclusive_group()
     group.add_argument("--serve", action="store", type=serve_parser,
                        help=("serve the given yatel connection via web server "
@@ -107,7 +111,7 @@ def main():
 
     """
     if "--no-gui" in sys.argv or "--help" in sys.argv:
-        parse(sys.argv)
+        cli_parser(sys.argv)
     else:
         from yatel import gui
         gui.run_gui(cli_parser)
