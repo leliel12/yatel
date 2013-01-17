@@ -34,7 +34,8 @@ from yatel import remote
 
 def parse(args):
 
-    psr = argparse.ArgumentParser(prog=yatel.PRJ)
+    psr = argparse.ArgumentParser(prog=yatel.PRJ,
+                                  formatter_class=argparse.RawTextHelpFormatter)
 
     def connection_parser(cs):
         parsed = urlparse.urlparse(cs)
@@ -62,18 +63,19 @@ def parse(args):
         return {"host": host, "port": port}
 
     psr.add_argument("--no-gui", action="store_true",
-                     help="Prevents to use the Qt interface")
+                     help="prevents to use the Qt interface")
     psr.add_argument('--version', action='version',
                      version="%(prog)s {}".format(yatel.STR_VERSION))
     psr.add_argument("--database", action="store", type=connection_parser,
-                     help=("The engine to the database to open.\n"
-                            "sqlite://[DATABASE]\n"))
-
-
+                     help=("the engine to the database to open.\n"
+                            "   SQLite -> sqlite://[DATABASE]\n"
+                            "   MySql -> mysql://USER:PASSWORD@HOST:PORT/DATABASE\n"
+                            "   PostgreSQL -> postgres://USER:PASSWORD@HOST:PORT/DATABASE"))
 
     group = psr.add_mutually_exclusive_group()
     group.add_argument("--serve", action="store", type=serve_parser,
-                       help="Serve the given yatel connection via web server")
+                       help=("serve the given yatel connection via web server "
+                              "JSON-RPC like protocol"))
 
     flags = psr.parse_args(args[1:])
 
