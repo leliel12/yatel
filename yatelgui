@@ -32,7 +32,10 @@ from yatel import remote
 # CLI PARSER
 #===============================================================================
 
-def parse(args):
+def cli_parser(args):
+    """This function parses and executes the coman line arguments
+
+    """
 
     psr = argparse.ArgumentParser(prog=yatel.PRJ,
                                   formatter_class=argparse.RawTextHelpFormatter)
@@ -107,7 +110,7 @@ def main():
         parse(sys.argv)
     else:
         from yatel import gui
-        gui.run_gui(parse)
+        gui.run_gui(cli_parser)
 
 
 #===============================================================================
