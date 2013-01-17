@@ -107,6 +107,7 @@ class YatelServer(bottle.Bottle):
                                "type": type(err).__name__}}
 
     def run(self, host, port, *args, **kwargs):
+        print host, port
         super(YatelServer, self).run(host=host, port=int(port),
                                       *args, **kwargs)
 

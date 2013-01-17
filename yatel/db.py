@@ -38,16 +38,20 @@ ENGINES_CONF = {
     "sqlite": {
         "class": peewee.SqliteDatabase,
         "name_isfile": True,
-        "params": {}
+        "params": {},
+        "rename_fields": {}
     },
     "mysql": {
         "class": peewee.MySQLDatabase,
         "name_isfile": False,
         "params": {
             "user": "root",
-            "passwd": "",
+            "password": "",
             "host": "localhost",
             "port": 3306
+        },
+        "rename_fields": {
+            "password": "passwd"
         }
     },
     "postgres": {
@@ -58,7 +62,8 @@ ENGINES_CONF = {
             "password": "",
             "host": "localhost",
             "port": 5432
-        }
+        },
+        "rename_fields": {}
     }
 }
 
@@ -132,7 +137,13 @@ class YatelConnection(object):
 
         """
         try:
-            self.database = ENGINES_CONF[engine]["class"](name, **kwargs)
+            engineconf = ENGINES_CONF[engine]
+            newkwd = {}
+            for k, v in kwargs.items():
+                if k in engineconf["rename_fields"]:
+                    k = engineconf["rename_fields"][k]
+                newkwd[k] = v
+            self.database = engineconf["class"](name, **newkwd)
             self.database.connect()
             self._name = "{}://{}/{}".format(engine, kwargs.get("host", "localhost"), name)
             self._inited = False
