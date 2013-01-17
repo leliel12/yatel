@@ -52,6 +52,7 @@
      <addaction name="actionExportYJF"/>
     </widget>
     <addaction name="actionOpenYatelDB"/>
+    <addaction name="actionConnectToRemoteYatel"/>
     <addaction name="separator"/>
     <addaction name="menu_Import"/>
     <addaction name="menuExport"/>
@@ -161,6 +162,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+?</string>
+   </property>
+  </action>
+  <action name="actionConnectToRemoteYatel">
+   <property name="text">
+    <string>Connect to Remote Yatel...</string>
    </property>
   </action>
  </widget>

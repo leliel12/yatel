@@ -28,6 +28,7 @@ from PyQt4 import QtCore
 
 import yatel
 from yatel import db
+from yatel import remote
 from yatel.conversors import yyf2yatel
 from yatel.conversors import yjf2yatel
 
@@ -36,6 +37,7 @@ from yatel.gui import csv_wizard
 from yatel.gui import resources
 from yatel.gui import explorer
 from yatel.gui import connection_setup
+from yatel.gui import remote_setup
 from yatel.gui import error_dialog
 from yatel.gui import version_dialog
 
@@ -244,6 +246,25 @@ class MainWindow(uis.UI("MainWindow.ui")):
             tag_comment = version_dialog.save_version(conn)
             if tag_comment :
                 self.explorerFrame.save_version(*tag_comment)
+
+    @QtCore.pyqtSlot()
+    def on_actionConnectToRemoteYatel_triggered(self):
+        if not self.close_explorer():
+            return
+        self.dialog = remote_setup.RemoteSetupDialog(self)
+        try:
+            if not self.dialog.exec_():
+                return
+            conn = remote.YatelRemoteClient(**self.dialog.params())
+            conn.ping()
+        except Exception as err:
+            error_dialog.critical(self.tr("Error"), err)
+        else:
+            self.open_explorer(conn)
+        finally:
+            self.dialog.setParent(None)
+            self.dialog.destroy()
+            del self.dialog
 
     @QtCore.pyqtSlot()
     def on_actionOpenYatelDB_triggered(self):

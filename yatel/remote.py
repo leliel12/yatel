@@ -167,7 +167,7 @@ class YatelServer(bottle.Bottle):
 # CLIENT
 #===============================================================================
 
-class YatelClient(object):
+class YatelRemoteClient(object):
     """This class is used for conect to a remote instance of yatel
 
     """
@@ -244,14 +244,6 @@ class YatelClient(object):
         return dict2yatel.dict2version(self._call("get_version",
                                                    id=id, match=match))
 
-    @property
-    def name(self):
-        return self._url
-
-    @property
-    def inited(self):
-        return self.ping()
-
     def save_version(self, tag, comment="", hap_sql="", topology={},
                      weight_range=(None, None), enviroments=(), id=None):
         ver_desc = self._call("save_version", tag=tag, comment=comment,
@@ -259,6 +251,14 @@ class YatelClient(object):
                              weight_range=weight_range, enviroments=enviroments,
                              id=id)
         print ver_desc
+
+    @property
+    def name(self):
+        return self._url
+
+    @property
+    def inited(self):
+        return self.ping()
 
 
 #===============================================================================

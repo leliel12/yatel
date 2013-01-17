@@ -40,3 +40,11 @@ conversors Package
     :members:
     :undoc-members:
     :show-inheritance:
+
+:mod:`dict2yatel` Module
+------------------------------
+
+.. automodule:: yatel.conversors.dict2yatel
+    :members:
+    :undoc-members:
+    :show-inheritance:

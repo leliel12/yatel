@@ -9,6 +9,14 @@ yatel Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`dom` Module
+-----------------
+
+.. automodule:: yatel.dom
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`db` Module
 ----------------
 
@@ -17,10 +25,10 @@ yatel Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`dom` Module
------------------
+:mod:`remote` Module
+--------------------
 
-.. automodule:: yatel.dom
+.. automodule:: yatel.remote
     :members:
     :undoc-members:
     :show-inheritance:
@@ -55,5 +63,4 @@ Subpackages
 .. toctree::
 
     yatel.conversors
-    yatel.gui
 
