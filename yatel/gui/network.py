@@ -137,7 +137,7 @@ class _HaplotypeActor(actores.Actor):
     def _on_mouse_clicked(self, evt):
         x, y = evt["x"], evt["y"]
         if self.collide(x, y):
-                self.clicked.emitir(sender=self)
+            self.clicked.emitir(sender=self)
 
     def show_text(self, show):
         """Show the name of the haplotype over the node.
@@ -178,9 +178,11 @@ class _HaplotypeActor(actores.Actor):
         if not self._selected and is_selected:
             self._selected = actores.Actor(imagen=IMAGE_NODE_SELECTED, x=self.x, y=self.y)
             self._selected.aprender(habilidades.Imitar, self)
+            self.escala = 1.3
         elif self._selected and not is_selected:
             self._selected.eliminar()
             self._selected = None
+            self.escala = 1
 
     def set_highlighted(self, is_highlighted):
         """If ``is_highlighted`` is ``True`` change the image of the node from
