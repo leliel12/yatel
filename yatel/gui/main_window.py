@@ -77,14 +77,9 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
         self.explorerFrame = None
         self.reloadTitle()
-
         if conn is not None:
             self.open_explorer(conn)
 
-#        example_db = "/home/juan/proyectos/yatel_hg/data/example.db"
-#        conn = db.YatelConnection("sqlite", example_db)
-#        conn.init_yatel_database()
-#        self.open_explorer(conn)
 
     def reloadTitle(self):
         """Reload the window title based on status of the actual project."""
@@ -97,17 +92,15 @@ class MainWindow(uis.UI("MainWindow.ui")):
                                           prj, saved)
         super(self.__class__, self).setWindowTitle(title)
 
-    def open_explorer(self, yatel_connection, saved=True):
-        """Creates a new explorer frame with a given ``yatel_connection`` and
-        set their save status.
+    def open_explorer(self, yatel_connection):
+        """Creates a new explorer frame with a given ``yatel_connection``.
 
         **Params**
             :yatel_connection: A ``yatel.db.YatelConnection`` instance.
-            :saved: ``bool``
 
         """
         self.explorerFrame = explorer.ExplorerFrame(self.centralWidget(),
-                                                    yatel_connection, saved)
+                                                    yatel_connection)
         self.explorerFrame.saveStatusChanged.connect(
             self.on_explorerFrame_saveStatusChanged
         )

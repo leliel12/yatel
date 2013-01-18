@@ -41,7 +41,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     #: Signal emited when the save status of the exploration is chaged.
     saveStatusChanged = QtCore.pyqtSignal(bool)
 
-    def __init__(self, parent, yatel_connection, saved=True):
+    def __init__(self, parent, yatel_connection):
         """Create a new instance of ``ExplorerFrame``, also load the latest
          version from a database (if the latest version hasn't topology info
          create a new one with a random topology).
@@ -52,16 +52,15 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             :saved: If the status of the connection is saved.
 
         """
-
         super(ExplorerFrame, self).__init__(parent=parent)
 
-        from yatel.gui import network
-
-        self._is_saved = saved
+        # internal propuses
         self._version = ()
+        self._is_saved = None
 
         self.conn = yatel_connection
 
+        # ipython
         self.ipythonWidget = ipython.IPythonWidget(self.tr(
             "\nUse:\n"
             "  'yatel' -> is the main window.\n"
@@ -72,25 +71,28 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.consoleLayout.addWidget(self.ipythonWidget)
         self.ipythonWidget.reset_ns(yatel=self.parent().parent())
 
+        # pilas
+        from yatel.gui import network
         self.network = network.NetworkProxy()
         self.network.widget.setParent(self)
         self.network.node_clicked.conectar(self.on_node_clicked)
         self.pilasLayout.addWidget(self.network.widget)
 
+        # sql
         self.hapSQLeditor = sheditor.HiglightedEditor("sql")
         self.hapSQLLayout.addWidget(self.hapSQLeditor)
         self.hapSQLeditor.textChanged.connect(self.on_hapSQLeditor_textChanged)
 
-        version = self.conn.get_version() # the latest
-
+        # range slider
         minw, maxw = [e.weight or 0 for e in self.conn.minmax_edges()]
         minw = int(minw) - (1 if minw > int(minw) else 0)
         maxw = int(maxw) + (1 if maxw > int(maxw) else 0)
-        self.rs = double_slider.DoubleSlider(self,
-                                             self.tr("Weights"),
+        self.rs = double_slider.DoubleSlider(self, self.tr("Weights"),
                                              minw, maxw)
         self.rs.rangeChanged.connect(self.on_weightRange_changed)
         self.sliderLayout.addWidget(self.rs)
+
+        # layout
         self.hSplitter.setSizes(
             [parent.parent().size().width() / 2] * self.hSplitter.count()
         )
@@ -99,13 +101,14 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         )
 
         # load latest version
+        self.tabWidget.setCurrentIndex(0)
+        version = self.conn.get_version() # the latest
         self.load_version(version)
         if version["id"] == 1:
             self.save_version("topology_added", "added topological info")
-        self.tabWidget.setCurrentIndex(0)
 
-    def _set_unsaved(self):
-        self._is_saved = False
+    def _set_save_status(self, status):
+        self._is_saved = status
         self.saveStatusChanged.emit(self._is_saved)
 
     def _add_filter(self, checked, enviroment):
@@ -181,7 +184,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         """
         text = self.hapSQLeditor.text().strip()
         self.executeHapSQLButton.setEnabled(bool(text))
-        self._set_unsaved()
+        self._set_save_status(False)
 
     @QtCore.pyqtSlot()
     def on_executeHapSQLButton_clicked(self):
@@ -215,7 +218,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         """
         edges = tuple(self.conn.filter_edges(start, end))
         self.network.filter_edges(*edges)
-        self._set_unsaved()
+        self._set_save_status(False)
 
     @QtCore.pyqtSlot()
     def on_addEnviromentPushButton_clicked(self):
@@ -233,7 +236,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             atts = self.envDialog.selected_attributes()
             enviroment = dict((att, None) for att in atts)
             self._add_filter(False, enviroment)
-            self._set_unsaved()
+            self._set_save_status(False)
         self.envDialog.setParent(None)
         self.envDialog.destroy()
         del self.envDialog
@@ -257,7 +260,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 self.enviromentsTableWidget.removeRow(ridx)
                 widget.removeRequested.disconnect(self.on_filter_removeRequested)
                 widget.filterChanged.disconnect(self.on_filter_changed)
-                self._set_unsaved()
+                self._set_save_status(False)
                 break
 
     def on_filter_changed(self):
@@ -279,7 +282,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self.network.highlight_nodes(*haps)
         else:
             self.network.unhighlightall()
-        self._set_unsaved()
+        self._set_save_status(False)
 
     @QtCore.pyqtSlot(int)
     def on_hapsComboBox_currentIndexChanged(self, idx):
@@ -317,7 +320,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
 
         """
         hap = evt["node"]
-        self._set_unsaved()
+        self._set_save_status(False)
         for idx in range(self.hapsComboBox.count()):
             actual_hap = self.hapsComboBox.itemData(idx)
             if hap == actual_hap:
@@ -338,7 +341,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             widget.removeRequested.disconnect(self.on_filter_removeRequested)
             widget.filterChanged.disconnect(self.on_filter_changed)
             self.enviromentsTableWidget.removeRow(0)
-        self._set_unsaved()
+        self._set_save_status(False)
 
     def load_version(self, version):
         """Load a version ``dict``.
@@ -373,16 +376,21 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
 
             self.hapSQLeditor.setText(vdata["hap_sql"])
 
-            self._is_saved = True
-            self._version = (version["id"], version["datetime"], version["tag"])
-            self.saveStatusChanged.emit(self._is_saved)
             self.on_tabWidget_currentChanged(self.tabWidget.currentIndex())
             self.on_weightsCheckBox_stateChanged(
                 self.weightsCheckBox.isChecked())
             self.on_haplotypesNamesCheckBox_stateChanged(
-                self.haplotypesNamesCheckBox.isChecked())
+                self.haplotypesNamesCheckBox.isChecked()
+            )
+            self.on_hapsComboBox_currentIndexChanged(
+                self.hapsComboBox.currentIndex()
+            )
+            self._version = (version["id"], 
+                             version["datetime"], version["tag"])
         except Exception as err:
             error_dialog.critical(self.tr("Load Error"), err)
+        else:
+            self._set_save_status(True)
 
     def is_saved(self):
         """Return a ``bool`` representing if the exploraton status of the
@@ -411,11 +419,10 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 enviroments.append((envwidget.is_active(), envwidget.filters()))
             self.conn.save_version(new_version, comment, sql, topology,
                                    weight_range, enviroments)
-            self._is_saved = True
-            self.saveStatusChanged.emit(self._is_saved)
         except Exception as err:
-            print err
             error_dialog.critical(self.tr("Save Error"), err)
+        else:
+            self._set_save_status(True)
 
     def destroy(self):
         """Destroy the explorer widget"""
