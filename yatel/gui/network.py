@@ -131,8 +131,8 @@ class _HaplotypeActor(actores.Actor):
         self.aprender(pilas.habilidades.SeMantieneEnPantalla, False)
         self._texto.aprender(habilidades.Imitar, self)
         # connect events
-        eventos.click_de_mouse.conectar(self._on_mouse_clicked,
-                                        id=hex(id(self)))
+        self.escena = pilas.escena_actual()
+        self.escena.click_de_mouse.conectar(self._on_mouse_clicked, id=hex(id(self)))
 
     def _on_mouse_clicked(self, evt):
         x, y = evt["x"], evt["y"]
@@ -167,7 +167,7 @@ class _HaplotypeActor(actores.Actor):
         self._selected.destruir()
         self._texto.destruir()
         self.clicked.respuestas.clear()
-        eventos.click_de_mouse.desconectar_por_id(hex(id(self)))
+        self.escena.click_de_mouse.desconectar_por_id(hex(id(self)))
         super(_HaplotypeActor, self).destruir()
 
     def set_selected(self, is_selected):
