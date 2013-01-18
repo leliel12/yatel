@@ -40,7 +40,7 @@ from yatel.conversors import dict2yatel
 # ERROR
 #===============================================================================
 
-class YatelRemoteError(BaseException):
+class YatelRemoteError(Exception):
 
     def __init__(self, data):
         super(YatelRemoteError, self).__init__()
@@ -51,8 +51,12 @@ class YatelRemoteError(BaseException):
 
     def __repr__(self):
         msg = "<YatelRemoteError '{} - {}'>".format(self.remote_message,
-                                                     self.remote_type)
+                                                    self.remote_type)
         return msg
+
+    @property
+    def message(self):
+        return self.data["error"]["message"]
 
     @property
     def method(self):
@@ -107,7 +111,6 @@ class YatelServer(bottle.Bottle):
                                "type": type(err).__name__}}
 
     def run(self, host, port, *args, **kwargs):
-        print host, port
         super(YatelServer, self).run(host=host, port=int(port),
                                       *args, **kwargs)
 
@@ -159,6 +162,8 @@ class YatelServer(bottle.Bottle):
     def call_save_version(self, tag, comment="", hap_sql="",
                            topology={}, weight_range=(None, None),
                            enviroments=()):
+        topology = dict((self._conn.haplotype_by_id(k), v)
+                         for k, v in topology.items())
         ver_desc = self._conn.save_version(tag, comment, hap_sql, topology,
                                            weight_range, enviroments)
         return dict2yatel.version_descriptor2dict(ver_desc)
@@ -247,15 +252,16 @@ class YatelRemoteClient(object):
 
     def save_version(self, tag, comment="", hap_sql="", topology={},
                      weight_range=(None, None), enviroments=(), id=None):
+        topology = dict((k.hap_id, v) for k, v in topology.items())
         ver_desc = self._call("save_version", tag=tag, comment=comment,
                              hap_sql=hap_sql, topology=topology,
                              weight_range=weight_range, enviroments=enviroments,
                              id=id)
-        print ver_desc
+        return ver_desc
 
     @property
     def name(self):
-        return self._url
+        return "REMOTE -> " + self._url
 
     @property
     def inited(self):

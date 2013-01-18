@@ -414,6 +414,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self._is_saved = True
             self.saveStatusChanged.emit(self._is_saved)
         except Exception as err:
+            print err
             error_dialog.critical(self.tr("Save Error"), err)
 
     def destroy(self):

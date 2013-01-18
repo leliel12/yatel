@@ -590,7 +590,7 @@ class YatelConnection(object):
         for active, enviroment in enviroments:
             active = bool(active)
             for varname, varvalue in enviroment.items():
-                if varname not in self.facts_attributes_names():
+                if varname not in self.fact_attributes_names():
                     msg = "Invalid fact attribute: '{}'".format(varname)
                     raise ValueError(msg)
                 if (varvalue is not None
