@@ -38,6 +38,7 @@ def cli_parser(args):
     """
 
     psr = argparse.ArgumentParser(prog=yatel.PRJ,
+                                  description=yatel.SHORT_DESCRIPTION,
                                   formatter_class=argparse.RawTextHelpFormatter)
 
     def connection_parser(cs):
@@ -63,7 +64,10 @@ def cli_parser(args):
 
     def serve_parser(p):
         host, port = p.split(":")
-        return {"host": host, "port": port}
+        port = int(port)
+        if not 0 <= port <= 65535:
+            raise ValueError("port must be 0-65535")
+        return {"host": host, "port": int(port)}
 
     # General options
     psr.add_argument("--no-gui", action="store_true",
@@ -73,16 +77,18 @@ def cli_parser(args):
 
     # Wich database will be open with yatel
     psr.add_argument("--database", action="store", type=connection_parser,
-                     help=("database to open with yatel.\n"
+                     metavar="CONECTION",
+                     help=("database to be open with yatel.\n"
                             "   SQLite -> sqlite://[DATABASE]\n"
                             "   MySql -> mysql://USER:PASSWORD@HOST:PORT/DATABASE\n"
-                            "   PostgreSQL -> postgres://USER:PASSWORD@HOST:PORT/DATABASE"))
+                            "   PostgreSQL -> postgres://USER:PASSWORD@HOST:PORT/DATABASE."))
 
     # Utilities
     group = psr.add_mutually_exclusive_group()
-    group.add_argument("--serve", action="store", type=serve_parser,
+    group.add_argument("--serve", action="store", type=serve_parser, metavar="HOST:PORT",
                        help=("serve the given yatel connection via web server "
-                              "JSON-RPC like protocol"))
+                              "JSON-RPC like protocol.\n"
+                              "port must be 0-65535."))
 
     flags = psr.parse_args(args[1:])
 
