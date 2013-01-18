@@ -260,7 +260,7 @@ class _EdgesDrawActor(actores.Pizarra):
                 x1, y1 = act1.x, act1.y
                 text_x = ((x0 + x1) / 2) + 10
                 text_y = ((y0 + y1) / 2) + 10
-                self.linea(x0, y0, x1, y1, grosor=1,
+                self.linea(x0, y0, x1, y1, grosor=1.5,
                            color=colores.negro)
             elif len(nodes) > 2:
                 xp = sum([act.x for act in nodes]) / len(nodes)
@@ -268,7 +268,7 @@ class _EdgesDrawActor(actores.Pizarra):
                 text_x, text_y = xp + 10, yp + 10
                 for act in nodes:
                     self.linea(xp, yp, act.x, act.y,
-                               grosor=1, color=colores.rojo_trasparente)
+                               grosor=1.5, color=colores.rojo_trasparente)
             if self._show_weights:
                 self.texto(unicode(weight), text_x, text_y,
                            color=colores.blanco)
