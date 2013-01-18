@@ -66,24 +66,21 @@ pilas.iniciar(ANCHO, ALTO,
               usar_motor="qtgl" if __name__ == "__main__" else "qtwidget")
 
 #: Instance of pilas image representing the clicked and not highlighted node.
-IMAGE_NODE_NORMAL = imagenes.cargar(
-    resources.get("node_normal.png")
-)
+IMAGES_NODE_NORMAL = [
+    imagenes.cargar(resources.get("node_normal_0.png")),
+    imagenes.cargar(resources.get("node_normal_1.png")),
+    imagenes.cargar(resources.get("node_normal_2.png"))
+]
 
 #: Instance of pilas image representing highlighted node.
-IMAGE_NODE_HIGLIGHTED = imagenes.cargar(
-    resources.get("node_highlighted.png")
-)
+IMAGES_NODE_HIGLIGHTED = [
+    imagenes.cargar(resources.get("node_highlighted_0.png")),
+    imagenes.cargar(resources.get("node_highlighted_1.png")),
+    imagenes.cargar(resources.get("node_highlighted_2.png"))
+]
 
 #: Instance of pilas image representing clicked node.
-IMAGE_NODE_SELECTED = imagenes.cargar(
-    resources.get("node_selected.png")
-)
-
-#: Instance of pilas image empty (for internal propouse)
-IMAGE_NODE_UNSELECTED = imagenes.cargar(
-    resources.get("node_unselected.png")
-)
+IMAGE_NODE_SELECTED = imagenes.cargar(resources.get("node_selected.png"))
 
 #: Absolute value of maximun heigh of the pilas widget
 MAX_X = ANCHO / 2.0
@@ -115,20 +112,24 @@ class _HaplotypeActor(actores.Actor):
                 the node will be drawed.
 
         """
-        super(_HaplotypeActor, self).__init__(imagen=IMAGE_NODE_NORMAL,
-                                              x=x, y=y)
+        super(_HaplotypeActor, self).__init__(x=x, y=y)
+
+
         # internal data
-        self._selected = actores.Actor(imagen=IMAGE_NODE_UNSELECTED)
+        self._normal_image = random.choice(IMAGES_NODE_NORMAL)
+        self._highlighted_image = random.choice(IMAGES_NODE_HIGLIGHTED)
+        self._selected = None
         self._texto = actores.Texto(magnitud=12)
         self._show_text = True
         self.clicked = pilas.evento.Evento("clicked")
+
         # conf
+        self.imagen = self._normal_image
         self.haplotype = hap
         self.x, self.y = x, y
         self.aprender(habilidades.Arrastrable)
         self.aprender(pilas.habilidades.SeMantieneEnPantalla, False)
         self._texto.aprender(habilidades.Imitar, self)
-        self._selected.aprender(habilidades.Imitar, self)
         # connect events
         eventos.click_de_mouse.conectar(self._on_mouse_clicked,
                                         id=hex(id(self)))
@@ -153,9 +154,13 @@ class _HaplotypeActor(actores.Actor):
 
     def collide(self, x, y):
         """Returns ``True`` if the ``x`` and ``y`` is inside the node."""
-        return self.colisiona_con_un_punto(x, y) \
-            or self._texto.colisiona_con_un_punto(x, y) \
-            or self._selected.colisiona_con_un_punto(x, y)
+        if self._selected:
+            return self.colisiona_con_un_punto(x, y) \
+                or self._texto.colisiona_con_un_punto(x, y) \
+                or self._selected.colisiona_con_un_punto(x, y)
+        else:
+            return self.colisiona_con_un_punto(x, y) \
+                or self._texto.colisiona_con_un_punto(x, y) \
 
     def destruir(self):
         """Detroy the instance of the actor."""
@@ -170,10 +175,12 @@ class _HaplotypeActor(actores.Actor):
         ``IMAGE_NODE_SELECTED``.
 
         """
-        if is_selected:
-            self._selected.imagen = IMAGE_NODE_SELECTED
-        else:
-            self._selected.imagen = IMAGE_NODE_UNSELECTED
+        if not self._selected and is_selected:
+            self._selected = actores.Actor(imagen=IMAGE_NODE_SELECTED, x=self.x, y=self.y)
+            self._selected.aprender(habilidades.Imitar, self)
+        elif self._selected and not is_selected:
+            self._selected.eliminar()
+            self._selected = None
 
     def set_highlighted(self, is_highlighted):
         """If ``is_highlighted`` is ``True`` change the image of the node from
@@ -181,9 +188,9 @@ class _HaplotypeActor(actores.Actor):
 
         """
         if is_highlighted:
-            self.imagen = IMAGE_NODE_HIGLIGHTED
+            self.imagen = self._highlighted_image
         else:
-            self.imagen = IMAGE_NODE_NORMAL
+            self.imagen = self._normal_image
 
     @property
     def haplotype(self):
@@ -251,14 +258,15 @@ class _EdgesDrawActor(actores.Pizarra):
                 x1, y1 = act1.x, act1.y
                 text_x = ((x0 + x1) / 2) + 10
                 text_y = ((y0 + y1) / 2) + 10
-                self.linea(x0, y0, x1, y1, grosor=2, color=colores.negro)
+                self.linea(x0, y0, x1, y1, grosor=1,
+                           color=colores.negro)
             elif len(nodes) > 2:
                 xp = sum([act.x for act in nodes]) / len(nodes)
                 yp = sum([act.y for act in nodes]) / len(nodes)
                 text_x, text_y = xp + 10, yp + 10
                 for act in nodes:
                     self.linea(xp, yp, act.x, act.y,
-                               grosor=2, color=colores.rojo)
+                               grosor=1, color=colores.rojo_trasparente)
             if self._show_weights:
                 self.texto(unicode(weight), text_x, text_y,
                            color=colores.blanco)
@@ -298,7 +306,7 @@ class NetworkProxy(object):
         self._highlighted = ()
         self._haps_names_showed = True
         self.node_clicked = pilas.evento.Evento("node_clicked")
-        fondos.Color(colores.grisoscuro)
+        fondos.Color(colores.Color(34,34,34))
 
     def __getattr__(self, name):
         """x.__getattr__('name') <==> x.widget.name"""
@@ -313,7 +321,7 @@ class NetworkProxy(object):
     def _on_node_clicked(self, evt):
         sender = evt["sender"]
         if getattr(self, "_dabc", False):
-            sender.aprender(habilidades.RebotarComoCaja)
+            sender.aprender(habilidades.RebotarComoPelota)
         self.node_clicked.emitir(node=sender.haplotype)
 
     def get_unused_coord(self):
