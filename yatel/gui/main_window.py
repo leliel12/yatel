@@ -67,7 +67,7 @@ ABOUT_TEMPLATE = string.Template("""
 class MainWindow(uis.UI("MainWindow.ui")):
     """The main window class"""
 
-    def __init__(self, conn=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """Creates a new instance of ``MainWindow``
 
         All params are pased to superclass
@@ -77,9 +77,6 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.setWindowIcon(QtGui.QIcon(resources.get("logo.svg")))
         self.explorerFrame = None
         self.reloadTitle()
-        if conn is not None:
-            self.open_explorer(conn)
-
 
     def reloadTitle(self):
         """Reload the window title based on status of the actual project."""

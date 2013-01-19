@@ -44,9 +44,16 @@ def cli_parser(args):
     def connection_parser(cs):
         parsed = urlparse.urlparse(cs)
         engine = parsed.scheme
-        if engine not in db.ENGINES:
+        if engine == "yatel":
+            host, port = [p
+                          for p in (parsed.netloc + parsed.path).split(":", 1)]
+            return {"engine": engine,
+                     "host": host,
+                     "port": int(port)}
+            import sys;sys.exit(0)
+        elif engine not in db.ENGINES:
             raise ValueError(db.ENGINES)
-        if engine in db.FILE_ENGINES:
+        elif engine in db.FILE_ENGINES:
             dbname = parsed.netloc + parsed.path
             return {"engine": engine,
                      "dbname": dbname}
@@ -59,7 +66,7 @@ def cli_parser(args):
                      "dbname": dbname,
                      "user": user,
                      "host": host,
-                     "port": int(port) if port else None,
+                     "port": int(port),
                      "password": password}
 
     def serve_parser(p):
@@ -79,9 +86,10 @@ def cli_parser(args):
     psr.add_argument("--database", action="store", type=connection_parser,
                      metavar="CONECTION",
                      help=("database to be open with yatel.\n"
-                            "   SQLite -> sqlite://[DATABASE]\n"
-                            "   MySql -> mysql://USER:PASSWORD@HOST:PORT/DATABASE\n"
-                            "   PostgreSQL -> postgres://USER:PASSWORD@HOST:PORT/DATABASE."))
+                            "    SQLite -> sqlite://[DATABASE]\n"
+                            "    MySql -> mysql://USER:PASSWORD@HOST:PORT/DATABASE\n"
+                            "    PostgreSQL -> postgres://USER:PASSWORD@HOST:PORT/DATABASE."
+                            "    Remote Yatel -> yatel://HOST@PORT"))
 
     # Utilities
     group = psr.add_mutually_exclusive_group()
@@ -93,17 +101,24 @@ def cli_parser(args):
     flags = psr.parse_args(args[1:])
 
     conn = None
+    engine = None
     if flags.database:
         engine = flags.database.pop("engine")
-        name = flags.database.pop("dbname")
-        conn = db.YatelConnection(engine, name, **flags.database)
+        if engine != "yatel":
+            name = flags.database.pop("dbname")
+            conn = db.YatelConnection(engine, name, **flags.database)
+        else:
+            conn = remote.YatelRemoteClient(host=flags.database["host"],
+                                            port=flags.database["port"])
 
     if flags.serve:
+        if engine == "yatel":
+            psr.error("you can't serve a yatel remote instance")
         conn.init_yatel_database()
         server = remote.YatelServer(conn)
         server.run(**flags.serve)
         sys.exit(0)
-    elif conn:
+    elif isinstance(conn, db.YatelConnection):
         conn.init_yatel_database()
     return conn
 
