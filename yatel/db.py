@@ -619,6 +619,16 @@ class YatelConnection(object):
         vdbo.save()
         return vdbo.id, vdbo.datetime, vdbo.tag
 
+    def iter_versions(self):
+        """This function iterater over all versions
+
+        WARNING: this is used only with dump propuses, use get_version for
+        retrieve a particular version
+
+        """
+        for id, datetime, tag in self.versions_infos():
+            yield self.get_version(id)
+
     def get_version(self, match=None):
         """Return a version by the given filter.
 

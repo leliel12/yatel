@@ -153,6 +153,9 @@ class YatelServer(bottle.Bottle):
         return map(dict2yatel.version_info2dict,
                      self._conn.versions_infos())
 
+    def call_iter_versions(self):
+        return map(dict2yatel.version2dict, self._conn.iter_versions())
+
     def call_get_version(self, match=None):
         if match is not None and not isinstance(match, int):
             try:
@@ -245,6 +248,10 @@ class YatelRemoteClient(object):
     def versions_infos(self, id=None):
         return iter(dict2yatel.dict2version_info(e)
                       for e in self._call("versions_infos", id=id))
+
+    def iter_versions(self, id=None):
+        return iter(dict2yatel.dict2version(e)
+                      for e in self._call("iter_versions", id=id))
 
     def get_version(self, match=None, id=None):
         if isinstance(match, datetime.datetime):
