@@ -116,8 +116,9 @@ class _HaplotypeActor(actores.Actor):
 
 
         # internal data
-        self._normal_image = random.choice(IMAGES_NODE_NORMAL)
-        self._highlighted_image = random.choice(IMAGES_NODE_HIGLIGHTED)
+        img_idx = random.randint(0, 2)
+        self._normal_image = IMAGES_NODE_NORMAL[img_idx]
+        self._highlighted_image = IMAGES_NODE_HIGLIGHTED[img_idx]
         self._selected = None
         self._texto = actores.Texto(magnitud=12)
         self._show_text = True
@@ -164,7 +165,8 @@ class _HaplotypeActor(actores.Actor):
 
     def destruir(self):
         """Detroy the instance of the actor."""
-        self._selected.destruir()
+        if self._selected:
+            self._selected.destruir()
         self._texto.destruir()
         self.clicked.respuestas.clear()
         self.escena.click_de_mouse.desconectar_por_id(hex(id(self)))

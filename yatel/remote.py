@@ -149,8 +149,9 @@ class YatelServer(bottle.Bottle):
     def call_hap_sql(self, query):
         return map(dict2yatel.hap2dict, self._conn.hap_sql(query))
 
-    def call_versions(self):
-        return map(dict2yatel.version_descriptor2dict, self._conn.versions())
+    def call_versions_infos(self):
+        return map(dict2yatel.version_info2dict,
+                     self._conn.versions_infos())
 
     def call_get_version(self, match=None):
         if match is not None and not isinstance(match, int):
@@ -241,9 +242,9 @@ class YatelRemoteClient(object):
         for e in self._call("hap_sql", id=id, query=query):
             yield dict2yatel.dict2hap(e)
 
-    def versions(self, id=None):
-        return iter(dict2yatel.dict2version_descriptor(e)
-                      for e in self._call("versions", id=id))
+    def versions_infos(self, id=None):
+        return iter(dict2yatel.dict2version_info(e)
+                      for e in self._call("versions_infos", id=id))
 
     def get_version(self, match=None, id=None):
         if isinstance(match, datetime.datetime):

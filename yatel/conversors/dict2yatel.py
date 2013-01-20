@@ -84,28 +84,27 @@ def dict2edge(edged):
     return dom.Edge(edged["weight"], *edged["haps_id"])
 
 
-def version_descriptor2dict(version_descriptor):
-    """Convert a ``db.YatelConnection().versions()` result entry into a
+def version_info2dict(version_info):
+    """Convert a ``db.YatelConnection().versions_infos()` result entry into a
     ``dict``"""
-    return {"id": version_descriptor[0],
-             "datetime": version_descriptor[1].strftime(yatel.DATETIME_FORMAT),
-             "tag": version_descriptor[2]}
+    return {"id": version_info[0],
+             "datetime": version_info[1].strftime(yatel.DATETIME_FORMAT),
+             "tag": version_info[2]}
 
 
-def dict2version_descriptor(version_descriptord):
-    """Convert a ``dict`` with version descriptor data
-    ``db.YatelConnection().versions()` result entry
+def dict2version_info(version_infod):
+    """Convert a ``dict`` with version info data
+    ``db.YatelConnection().versions_infos()` result entry
 
     """
-    print version_descriptord
-    return (version_descriptord["id"],
-             datetime.datetime.strptime(version_descriptord["datetime"],
+    return (version_infod["id"],
+             datetime.datetime.strptime(version_infod["datetime"],
                                         yatel.DATETIME_FORMAT),
-             version_descriptord["tag"])
+             version_infod["tag"])
 
 
 def version2dict(version):
-    """Convert a ``db.YatelConnection().geT_version()` result entry into a
+    """Convert a ``db.YatelConnection().get_version()` result entry into a
     ``dict``"""
     topology = []
     for k, v in version["data"]["topology"].items():
@@ -113,6 +112,7 @@ def version2dict(version):
     version["data"]["topology"] = topology
     version["datetime"] = version["datetime"].strftime(yatel.DATETIME_FORMAT)
     return dict(version)
+
 
 def dict2version(versiond):
     """Convert a ``dict`` with version data
@@ -131,7 +131,7 @@ def dict2version(versiond):
 # HELPERS
 #===============================================================================
 
-def dump(haps, facts, edges):
+def dump(haps, facts, edges, versions):
     """Convert dom objects into a dict with keys ``haplotypes``, ``facts``,
     ``edgest`` and ``version``
 
@@ -139,7 +139,8 @@ def dump(haps, facts, edges):
     return {"version": DEFAULT_VERSION,
              "haplotypes": [hap2dict(hap) for hap in haps],
              "facts": [fact2dict(fact) for fact in facts],
-             "edges": [edge2dict(edge) for edge in edges]}
+             "edges": [edge2dict(edge) for edge in edges],
+             "versions": [version2dict(version) for version in versions]}
 
 
 def load(data):
@@ -149,7 +150,8 @@ def load(data):
     """
     return (tuple(dict2hap(kw) for kw in data["haplotypes"]),
              tuple(dict2fact(kw) for kw in data["facts"]),
-             tuple(dict2edge(kw) for kw in data["edges"]))
+             tuple(dict2edge(kw) for kw in data["edges"]),
+             tuple(versions2dict(kw) for kw in data["versions"]))
 
 
 #===============================================================================

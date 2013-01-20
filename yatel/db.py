@@ -133,7 +133,7 @@ class YatelConnection(object):
             :engine: some value specified in ``db.Engines``.
             :name: A database name (or path if ``engine`` is *sqlite*.
             :kwargs: Configuration parameters for the engine (specified in
-                     ``db.ENGINES_CON[engine]``.
+                     ``db.ENGINES_CONF[engine]``.
 
         """
         try:
@@ -420,7 +420,7 @@ class YatelConnection(object):
         return dom.Haplotype(**data)
 
     def enviroment(self, **kwargs):
-        """Return a list of ``dom.Haplotype`` related to a ``dom.Fact`` with
+        """Return a iterator of ``dom.Haplotype`` related to a ``dom.Fact`` with
         attribute and value specified in ``kwargs``
 
         **Params**
@@ -428,7 +428,7 @@ class YatelConnection(object):
                      value of the given attribte.
 
         **Return**
-            ``tuple`` of ``dom.Haplotype``.
+            ``iterator`` of ``dom.Haplotype``.
 
         **Example**
 
@@ -466,15 +466,15 @@ class YatelConnection(object):
                 yield hap
 
     def fact_attributes_names(self):
-        """Return a ``tuple`` of all existing ``dom.Fact`` atributes."""
+        """Return a ``iterator`` of all existing ``dom.Fact`` atributes."""
         yt_dbo = self.YatelTableDBO.get(self.YatelTableDBO.type == FACTS_TABLE)
         query = self.YatelFieldDBO.filter(self.YatelFieldDBO.table == yt_dbo)
         query = query.filter(self.YatelFieldDBO.reference_to >> None)
         return iter(tfdbo.name for tfdbo in query)
 
     def fact_attribute_values(self, att_name):
-        """Return a ``tuple`` of all posible values of given ``dom.Fact``
-           atribute.
+        """Return a ``iterator`` of all posible values of given ``dom.Fact``
+        atribute.
 
         """
         values = set()
@@ -489,7 +489,6 @@ class YatelConnection(object):
         minimum ane maximun *weight*
 
         """
-
         minedge = None
         maxedge = None
         query = self.EdgeDBO.select()
@@ -521,7 +520,7 @@ class YatelConnection(object):
             yield dom.Edge(weight, *haps_id)
 
     def hap_sql(self, query, *args):
-        """Trye to execute an arbitrary *sql* and return the
+        """Trye to execute an arbitrary *sql* and return an iterable of
         ``dom.Haplotype`` instances selected by the query.
 
         NOTE: Init all queries with ``select * from <HAPLOTYPE_TABLE>``
@@ -531,15 +530,15 @@ class YatelConnection(object):
             :args: Argument to replace the ``?`` in the query.
 
         **Returns**
-            A ``tuple`` of ``dom.Haplotype`` instance.
+            A ``iterator`` of ``dom.Haplotype`` instance.
 
         """
         for hdbo in self.HaplotypeDBO.raw(query, *args):
             hap = dom.Haplotype(**hdbo._data)
             yield hap
 
-    def versions(self):
-        """A ``tuple`` with all existing versions.
+    def versions_infos(self):
+        """A ``iterator`` with all existing versions.
 
         Each element contains 3 elements: the  version ``id``, the  version
         ``datetime`` of creation, and the  version ``tag``

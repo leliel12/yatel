@@ -61,7 +61,7 @@ class VersionDialog(uis.UI("VersionDialog.ui")):
         else:
             raise ValueError("Invalid dialog_type")
         self.dialog_type = dialog_type
-        for idx, ver in enumerate(conn.versions()):
+        for idx, ver in enumerate(conn.versions_infos()):
             id, date, tag = ver
             self.versionsTableWidget.insertRow(idx)
             idItem = QtGui.QTableWidgetItem(str(id))
