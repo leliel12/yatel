@@ -107,6 +107,7 @@ def version2dict(version):
     """Convert a ``db.YatelConnection().get_version()` result entry into a
     ``dict``"""
     topology = []
+    print version
     for k, v in version["data"]["topology"].items():
         topology.append((hap2dict(k), v))
     version["data"]["topology"] = topology
@@ -126,6 +127,7 @@ def dict2version(versiond):
     versiond["datetime"] = datetime.datetime.strptime(versiond["datetime"],
                                                        yatel.DATETIME_FORMAT)
     return dict(versiond)
+
 
 #===============================================================================
 # HELPERS
@@ -151,7 +153,7 @@ def load(data):
     return (tuple(dict2hap(kw) for kw in data["haplotypes"]),
              tuple(dict2fact(kw) for kw in data["facts"]),
              tuple(dict2edge(kw) for kw in data["edges"]),
-             tuple(versions2dict(kw) for kw in data["versions"]))
+             tuple(version2dict(kw) for kw in data["versions"]))
 
 
 #===============================================================================
