@@ -263,9 +263,9 @@ class YatelRemoteClient(object):
                      weight_range=(None, None), enviroments=(), id=None):
         topology = dict((k.hap_id, v) for k, v in topology.items())
         ver_desc = self._call("save_version", tag=tag, comment=comment,
-                             hap_sql=hap_sql, topology=topology,
-                             weight_range=weight_range, enviroments=enviroments,
-                             id=id)
+                              hap_sql=hap_sql, topology=topology,
+                              weight_range=weight_range, enviroments=enviroments,
+                              id=id)
         return ver_desc
 
     @property

@@ -83,7 +83,7 @@ if not_found:
     sys.exit(1)
 
 
-not_found = validate_modules(MANUAL_REQUIRE)
+not_found = validate_modules(SUGESTED)
 if not_found:
     print_not_found(not_found, "WARNING")
 

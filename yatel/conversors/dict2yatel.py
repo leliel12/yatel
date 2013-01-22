@@ -106,10 +106,9 @@ def dict2version_info(version_infod):
 def version2dict(version):
     """Convert a ``db.YatelConnection().get_version()` result entry into a
     ``dict``"""
-    topology = []
-    print version
+    topology = {}
     for k, v in version["data"]["topology"].items():
-        topology.append((hap2dict(k), v))
+        topology[hap2dict(k)] = v
     version["data"]["topology"] = topology
     version["datetime"] = version["datetime"].strftime(yatel.DATETIME_FORMAT)
     return dict(version)
