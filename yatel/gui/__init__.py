@@ -45,7 +45,7 @@ APP.setApplicationName(yatel.PRJ)
 # FUNCTIONS
 #===============================================================================
 
-def run_gui(cli_parser=None):
+def run_gui(parser=None):
     """Launch yatel gui client
 
     :param cli_parser: A command line parser of yatel
@@ -57,9 +57,9 @@ def run_gui(cli_parser=None):
     QtCore.QThread.sleep(1)
     APP.processEvents()
     win = main_window.MainWindow()
-    conn = cli_parser(APP.arguments())
-    if conn:
-        win.open_explorer(conn)
+    _, returns = parser(APP.arguments()[1:])
+    if returns.database:
+        win.open_explorer(returns.database)
     win.show()
     splash.finish(win)
     sys.exit(APP.exec_())

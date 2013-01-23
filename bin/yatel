@@ -26,49 +26,66 @@ import argparse
 import yatel
 from yatel import db
 from yatel import remote
+from yatel.libs import caipyrinha
 
 
 #===============================================================================
-# CLI PARSER
+# CLI parser
 #===============================================================================
 
-def cli_parser(args):
-    """This function parses and executes the coman line arguments
+parser = caipyrinha.Caipyrinha(prog=yatel.PRJ,
+                               description=yatel.SHORT_DESCRIPTION,
+                               formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument("--version", action='version',
+                    version="%(prog)s {}".format(yatel.STR_VERSION))
+parser.add_argument("--no-gui", action="store_true")
 
-    """
 
-    psr = argparse.ArgumentParser(prog=yatel.PRJ,
-                                  description=yatel.SHORT_DESCRIPTION,
-                                  formatter_class=argparse.RawTextHelpFormatter)
+@parser.callback(metavar="CONNECTION")
+def database(flags, returns):
+        """database to be open with yatel
 
-    def connection_parser(cs):
-        parsed = urlparse.urlparse(cs)
+            SQLite -> sqlite://[DATABASE]
+            MySql -> mysql://USER:PASSWORD@HOST:PORT/DATABASE
+            PostgreSQL -> postgres://USER:PASSWORD@HOST:PORT/DATABASE.
+            Remote Yatel -> yatel://HOST@PORT
+
+        """
+        parsed = urlparse.urlparse(flags.database)
         engine = parsed.scheme
+        conf = {}
         if engine == "yatel":
-            host, port = [p
-                          for p in (parsed.netloc + parsed.path).split(":", 1)]
-            return {"engine": engine,
-                     "host": host,
-                     "port": int(port)}
-            import sys;sys.exit(0)
+            fullpath = parsed.netloc + parsed.path
+            host, port = [p for p in fullpath.split(":", 1)]
+            conf = {"engine": engine, "host": host, "port": int(port)}
         elif engine not in db.ENGINES:
             raise ValueError(db.ENGINES)
         elif engine in db.FILE_ENGINES:
             dbname = parsed.netloc + parsed.path
-            return {"engine": engine,
-                     "dbname": dbname}
+            conf = {"engine": engine, "dbname": dbname}
         else:
             dbname = parsed.path[1:]
             auth, loc = parsed.netloc.split("@", 1)
             user, password = [p for p in auth.split(":")]
             host, port = [p for p in loc.split(":")]
-            return {"engine": engine,
-                     "dbname": dbname,
-                     "user": user,
-                     "host": host,
-                     "port": int(port),
-                     "password": password}
+            conf = {"engine": engine, "dbname": dbname, "user": user,
+                     "host": host, "port": int(port), "password": password}
+        engine = conf.pop("engine")
+        if engine != "yatel":
+            name = conf.pop("dbname")
+            conn = db.YatelConnection(engine, name, **conf)
+            conn.init_yatel_database()
+            return conn
+        else:
+            return remote.YatelRemoteClient(host=conf["host"],
+                                             port=conf["port"])
 
+
+@parser.callback(group="serve", metavar="HOST:PORT", exit=0)
+def serve(flags, returns):
+    """serve the given yatel connection via web server via JSON-RPC
+
+    """
     def serve_parser(p):
         host, port = p.split(":")
         port = int(port)
@@ -76,51 +93,13 @@ def cli_parser(args):
             raise ValueError("port must be 0-65535")
         return {"host": host, "port": int(port)}
 
-    # General options
-    psr.add_argument("--no-gui", action="store_true",
-                     help="prevents to use the Qt interface")
-    psr.add_argument('--version', action='version',
-                     version="%(prog)s {}".format(yatel.STR_VERSION))
 
-    # Wich database will be open with yatel
-    psr.add_argument("--database", action="store", type=connection_parser,
-                     metavar="CONECTION",
-                     help=("database to be open with yatel.\n"
-                            "    SQLite -> sqlite://[DATABASE]\n"
-                            "    MySql -> mysql://USER:PASSWORD@HOST:PORT/DATABASE\n"
-                            "    PostgreSQL -> postgres://USER:PASSWORD@HOST:PORT/DATABASE."
-                            "    Remote Yatel -> yatel://HOST@PORT"))
-
-    # Utilities
-    group = psr.add_mutually_exclusive_group()
-    group.add_argument("--serve", action="store", type=serve_parser, metavar="HOST:PORT",
-                       help=("serve the given yatel connection via web server "
-                              "JSON-RPC like protocol.\n"
-                              "port must be 0-65535."))
-
-    flags = psr.parse_args(args[1:])
-
-    conn = None
-    engine = None
-    if flags.database:
-        engine = flags.database.pop("engine")
-        if engine != "yatel":
-            name = flags.database.pop("dbname")
-            conn = db.YatelConnection(engine, name, **flags.database)
-        else:
-            conn = remote.YatelRemoteClient(host=flags.database["host"],
-                                            port=flags.database["port"])
-
-    if flags.serve:
-        if engine == "yatel":
-            psr.error("you can't serve a yatel remote instance")
-        conn.init_yatel_database()
-        server = remote.YatelServer(conn)
-        server.run(**flags.serve)
-        sys.exit(0)
-    elif isinstance(conn, db.YatelConnection):
-        conn.init_yatel_database()
-    return conn
+    serve_args = serve_parser(flags.serve)
+    conn = returns.database
+    if isinstance(conn, remote.YatelRemoteClient):
+        parser.error("you can't serve a yatel remote instance")
+    server = remote.YatelServer(conn)
+    server.run(**serve_args)
 
 
 #===============================================================================
@@ -132,10 +111,10 @@ def main():
 
     """
     if "--no-gui" in sys.argv or "--help" in sys.argv:
-        cli_parser(sys.argv)
+        parser(sys.argv[1:])
     else:
         from yatel import gui
-        gui.run_gui(cli_parser)
+        gui.run_gui(parser)
 
 
 #===============================================================================

@@ -202,6 +202,13 @@ class YatelRemoteClient(object):
         else:
             return data["response"]
 
+    def init_yatel_database(self, *args, **kwargs):
+        self.ping()
+
+    def init_with_values(self, *args, **kwargs):
+        msg ="The method 'init_with_values' is not implementhed"
+        raise NotImplementedError(msg)
+
     def ping(self, id=None):
         return self._call(method="ping", id=id)
 
