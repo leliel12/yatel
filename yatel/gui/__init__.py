@@ -17,12 +17,23 @@ a gui of yatel
 """
 
 #===============================================================================
-# IMPORTS
+# API 2
 #===============================================================================
 
 import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
+
+API_NAMES = ["QDate", "QDateTime", "QString", "QTime",
+"QUrl", "QTextStream", "QVariant"]
+
+API_VERSION = 2
+
+for name in API_NAMES:
+    sip.setapi(name, API_VERSION)
+
+
+#===============================================================================
+# IMPORTS
+#===============================================================================
 
 import sys
 
