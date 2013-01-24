@@ -21,6 +21,7 @@ files
 #===============================================================================
 
 import datetime
+import copy
 
 import yatel
 from yatel import dom
@@ -106,12 +107,13 @@ def dict2version_info(version_infod):
 def version2dict(version):
     """Convert a ``db.YatelConnection().get_version()` result entry into a
     ``dict``"""
-    topology = {}
-    for k, v in version["data"]["topology"].items():
-        topology[hap2dict(k)] = v
-    version["data"]["topology"] = topology
+    version = copy.deepcopy(version)
+    version["data"]["topology"] = [
+        [hap2dict(k), v]
+        for k, v in version["data"]["topology"].items()
+    ]
     version["datetime"] = version["datetime"].strftime(yatel.DATETIME_FORMAT)
-    return dict(version)
+    return version
 
 
 def dict2version(versiond):
@@ -119,13 +121,14 @@ def dict2version(versiond):
     ``db.YatelConnection().get_version()` result entry
 
     """
-    topology = {}
-    for k, v in versiond["data"]["topology"]:
-        topology[dict2hap(k)] = tuple(v)
-    versiond["data"]["topology"] = topology
+    versiond = copy.deepcopy(versiond)
+    versiond["data"]["topology"] = dict(
+        (dict2hap(k), tuple(v))
+        for k, v in versiond["data"]["topology"]
+     )
     versiond["datetime"] = datetime.datetime.strptime(versiond["datetime"],
-                                                       yatel.DATETIME_FORMAT)
-    return dict(versiond)
+                                                      yatel.DATETIME_FORMAT)
+    return versiond
 
 
 #===============================================================================
