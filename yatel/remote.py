@@ -171,7 +171,7 @@ class YatelServer(bottle.Bottle):
                          for k, v in topology.items())
         ver_desc = self._conn.save_version(tag, comment, hap_sql, topology,
                                            weight_range, enviroments)
-        return dict2yatel.version_descriptor2dict(ver_desc)
+        return dict2yatel.version_info2dict(ver_desc)
 
 
 #===============================================================================

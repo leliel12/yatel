@@ -108,7 +108,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
         self.menuExport.setEnabled(True)
         self.reloadTitle()
 
-    def close_explorer(self):
+    def close_explorer(self, force=False):
         """If a project are open; ask to the user for close it.
 
         **Return**
@@ -117,7 +117,17 @@ class MainWindow(uis.UI("MainWindow.ui")):
         """
         if self.explorerFrame:
             closed = False
-            if not self.explorerFrame.is_saved():
+            if force:
+                self.centralLayout.removeWidget(self.explorerFrame)
+                self.explorerFrame.saveStatusChanged.disconnect(
+                    self.on_explorerFrame_saveStatusChanged
+                )
+                self.explorerFrame.setParent(None)
+                self.explorerFrame.destroy()
+                self.explorerFrame = None
+                self.actionSave.setEnabled(False)
+                closed = True
+            elif not self.explorerFrame.is_saved():
                 msg = self.tr("The project has been modified.\n"
                               "Do you want to save your changes before close?")
                 status = QtGui.QMessageBox.warning(self, yatel.PRJ, msg,

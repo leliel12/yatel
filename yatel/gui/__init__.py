@@ -30,6 +30,7 @@ from PyQt4 import QtCore, QtGui
 
 import yatel
 from yatel.gui import main_window
+from yatel.gui import error_dialog
 
 
 #===============================================================================
@@ -53,14 +54,20 @@ def run_gui(parser=None):
 
     """
     splash = main_window.SplashScreen()
-    splash.show()
+    if "--serve" not in APP.arguments():
+        splash.show()
     QtCore.QThread.sleep(1)
     APP.processEvents()
     win = main_window.MainWindow()
     if parser:
-        _, returns = parser(APP.arguments()[1:])
-        if returns.database:
-            win.open_explorer(returns.database)
+        try:
+            _, returns = parser(APP.arguments()[1:])
+            if returns.database:
+                win.open_explorer(returns.database)
+        except Exception as err:
+            error_dialog.critical(win.tr("Error"), err)
+            win.destroy()
+            win = main_window.MainWindow()
     win.show()
     splash.finish(win)
     sys.exit(APP.exec_())
