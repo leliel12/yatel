@@ -26,7 +26,7 @@ import argparse
 import yatel
 from yatel import db
 from yatel import remote
-from yatel.libs import caipyrinha
+import caipyrinha
 
 
 #===============================================================================
@@ -41,7 +41,7 @@ parser.add_argument("--version", action='version',
 parser.add_argument("--no-gui", action="store_true")
 
 
-@parser.callback(metavar="CONNECTION")
+@parser.callback(action="store", metavar="CONNECTION")
 def database(flags, returns):
         """database to be open with yatel
 
@@ -81,7 +81,7 @@ def database(flags, returns):
                                              port=conf["port"])
 
 
-@parser.callback(group="serve", metavar="HOST:PORT", exit=0)
+@parser.callback(exclusive="serve", action="store", metavar="HOST:PORT", exit=0)
 def serve(flags, returns):
     """serve the given yatel connection via web server via JSON-RPC
 

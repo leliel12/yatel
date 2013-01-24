@@ -42,6 +42,7 @@ PYPI_REQUIRE = [
     "PyYAML",
     "bottle",
     "Pygments",
+    "caipyrinha",
 ]
 
 MANUAL_REQUIRE = {

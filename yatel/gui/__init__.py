@@ -57,9 +57,10 @@ def run_gui(parser=None):
     QtCore.QThread.sleep(1)
     APP.processEvents()
     win = main_window.MainWindow()
-    _, returns = parser(APP.arguments()[1:])
-    if returns.database:
-        win.open_explorer(returns.database)
+    if parser:
+        _, returns = parser(APP.arguments()[1:])
+        if returns.database:
+            win.open_explorer(returns.database)
     win.show()
     splash.finish(win)
     sys.exit(APP.exec_())
