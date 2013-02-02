@@ -30,11 +30,11 @@ from yatel.conversors import dict2yatel
 # IO FUNCTIONS
 #===============================================================================
 
-def dump(haps, facts, edges, stream=None, **kwargs):
+def dump(haps, facts, edges, versions, stream=None, **kwargs):
     """Convert dom objects into yjf stream
 
     """
-    data = dict2yatel.dump(haps, facts, edges)
+    data = dict2yatel.dump(haps, facts, edges, versions)
     dumper = json.dump if stream else json.dumps
     return dumper(data, stream, **kwargs)
 

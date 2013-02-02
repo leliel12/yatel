@@ -26,6 +26,7 @@ import argparse
 import yatel
 from yatel import db
 from yatel import remote
+
 import caipyrinha
 
 
