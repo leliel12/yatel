@@ -73,8 +73,11 @@ def run_gui(parser=None):
     if parser:
         try:
             _, returns = parser(APP.arguments()[1:])
-            if returns.database:
-                win.open_explorer(returns.database)
+            conn = returns.dabase
+            if conn:
+                if not conn.inited:
+                    conn.init_yatel_database()
+                win.open_explorer(conn)
         except Exception as err:
             error_dialog.critical(win.tr("Error"), err)
             win.destroy()

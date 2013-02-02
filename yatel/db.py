@@ -227,7 +227,7 @@ class YatelConnection(object):
 
     #===========================================================================
     # INITS
-    def init_with_values(self, haps, facts, edges):
+    def init_with_values(self, haps, facts, edges, versions=[]):
         """Init the empety yatel database with the given objects.
 
         This method:
@@ -239,6 +239,7 @@ class YatelConnection(object):
             :haps: A ``list`` of ``dom.Haplotype`` instances.
             :facts: A ``list`` of ``dom.Fact`` instances.
             :edges: A ``list`` of ``dom.Edge`` instances.
+            :versions: A ``list`` of dicts with versions entries.
 
         """
 
@@ -341,6 +342,13 @@ class YatelConnection(object):
                 edbo.save(True)
 
             self.save_version(tag="init", comment="first save")
+            for v in sorted(versions, key=lambda v: v["id"]):
+                if v["id"] > 1:
+                    self.save_version(v["tag"], v["comment"],
+                                      v["data"]["hap_sql"],
+                                      v["data"]["topology"],
+                                      v["data"]["weight_range"],
+                                      v["data"]["enviroments"])
             self._inited = True
 
     def init_yatel_database(self):
@@ -544,7 +552,6 @@ class YatelConnection(object):
         ``datetime`` of creation, and the  version ``tag``
 
         """
-        versions = []
         query = self.YatelVersionDBO.select()
         query = query.order_by(self.YatelVersionDBO.id.desc())
         for vdbo in query:
@@ -626,8 +633,8 @@ class YatelConnection(object):
         retrieve a particular version
 
         """
-        for id, datetime, tag in self.versions_infos():
-            yield self.get_version(id)
+        for info in self.versions_infos():
+            yield self.get_version(info[0])
 
     def get_version(self, match=None):
         """Return a version by the given filter.

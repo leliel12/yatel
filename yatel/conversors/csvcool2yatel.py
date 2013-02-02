@@ -21,7 +21,6 @@ instances
 #===============================================================================
 
 import csv
-import cStringIO
 
 import csvcool
 
@@ -47,7 +46,8 @@ def construct_facts(cool, column_haplotype):
     Params:
 
         :cool:
-            csvcool.CSVCool instante that containing information on all known Facts.
+            csvcool.CSVCool instance that containing information on all known 
+            Facts.
         :column_haplotype:
             Name of the column containing the id of the instance of the
             yate.dom.Haplotype to which reference this Fact.
@@ -75,7 +75,7 @@ def construct_haplotypes(cool, column_id):
     Params:
 
         :cool:
-            csvcool.CSVCool instante that containing information on all known
+            csvcool.CSVCool instance that containing information on all known
             Haplotypes.
         :column_id:
             Name of the column containing the id of the instance of the

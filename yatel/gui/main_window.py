@@ -311,8 +311,11 @@ class MainWindow(uis.UI("MainWindow.ui")):
                 haps = conn.iter_haplotypes()
                 facts = conn.iter_facts()
                 edges = conn.iter_edges()
+                versions = conn.iter_versions()
                 with open(filename, "w") as fp:
-                    yyf2yatel.dump(haps, facts, edges, fp)
+                    yyf2yatel.dump(haps, facts, edges,
+                                   versions, stream=fp,
+                                   default_flow_style=False)
         except Exception as err:
             error_dialog.critical(self.tr("Error"), err)
         finally:
@@ -336,11 +339,11 @@ class MainWindow(uis.UI("MainWindow.ui")):
                                                          filetypes)
             if filename:
                 with open(filename) as fp:
-                    haps, facts, edges = yyf2yatel.load(fp)
+                    haps, facts, edges, versions = yyf2yatel.load(fp)
             if not self.dialog.exec_():
                 return
             conn = db.YatelConnection(**self.dialog.params())
-            conn.init_with_values(haps, facts, edges)
+            conn.init_with_values(haps, facts, edges, versions)
         except Exception as err:
             error_dialog.critical(self.tr("Error"), err)
         else:
@@ -370,8 +373,11 @@ class MainWindow(uis.UI("MainWindow.ui")):
                 haps = conn.iter_haplotypes()
                 facts = conn.iter_facts()
                 edges = conn.iter_edges()
+                versions = conn.iter_versions()
                 with open(filename, "w") as fp:
-                    yjf2yatel.dump(haps, facts, edges, fp)
+                    yjf2yatel.dump(haps, facts, edges,
+                                   versions, stream=fp,
+                                   indent=2, ensure_ascii=True)
         except Exception as err:
             error_dialog.critical(self.tr("Error"), err)
         finally:
@@ -395,11 +401,11 @@ class MainWindow(uis.UI("MainWindow.ui")):
                                                          filetypes)
             if filename:
                 with open(filename) as fp:
-                    haps, facts, edges = yjf2yatel.load(fp)
+                    haps, facts, edges, versions = yjf2yatel.load(fp)
             if not self.dialog.exec_():
                 return
             conn = db.YatelConnection(**self.dialog.params())
-            conn.init_with_values(haps, facts, edges)
+            conn.init_with_values(haps, facts, edges, versions)
         except Exception as err:
             error_dialog.critical(self.tr("Error"), err)
         else:

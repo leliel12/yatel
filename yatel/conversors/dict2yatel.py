@@ -125,7 +125,7 @@ def dict2version(versiond):
     versiond["data"]["topology"] = dict(
         (dict2hap(k), tuple(v))
         for k, v in versiond["data"]["topology"]
-     )
+    )
     versiond["datetime"] = datetime.datetime.strptime(versiond["datetime"],
                                                       yatel.DATETIME_FORMAT)
     return versiond
@@ -155,7 +155,7 @@ def load(data):
     return (tuple(dict2hap(kw) for kw in data["haplotypes"]),
              tuple(dict2fact(kw) for kw in data["facts"]),
              tuple(dict2edge(kw) for kw in data["edges"]),
-             tuple(version2dict(kw) for kw in data["versions"]))
+             tuple(dict2version(kw) for kw in data["versions"]))
 
 
 #===============================================================================
