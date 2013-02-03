@@ -146,9 +146,9 @@ def importdb(flags, returns):
     ext = os.path.splitext(flags.importdb)[-1].lower()
     importer = None
     if ext in (".yjf", ".json"):
-        importer = yyf2yatel.load
-    elif ext in (".yyf", ".yaml", ".yml"):
         importer = yjf2yatel.load
+    elif ext in (".yyf", ".yaml", ".yml"):
+        importer = yyf2yatel.load
     else:
       parser.error("Invalid extension '{}'".format(ext))
     with open(flags.importdb) as fp:
