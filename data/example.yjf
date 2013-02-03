@@ -1,54 +1,2100 @@
 {
-  "version": "0.1",
-  "haplotypes": [
-    {
-      "has_color": false,
-      "hap_id": "hap0",
-      "name": "the good"
-    },
-    {
-      "has_color": true,
-      "hap_id": "hap1",
-      "name": "the bad"
-    }
-  ],
   "facts": [
     {
-      "weather": "Rain",
-      "hap_id": "hap0",
-      "place": "Rio IV",
-      "year": 2012
-    },
+      "k": 2, 
+      "hap_id": "haplotype_28", 
+      "b": 1, 
+      "c": 2
+    }, 
     {
-      "found_by": "Armando Estaban Quito",
-      "hap_id": "hap0",
-      "place": "Rio III",
-      "weather": "Cold",
-      "year": 2011
-    },
+      "k": 2, 
+      "hap_id": "haplotype_3", 
+      "b": 1, 
+      "c": 2
+    }, 
     {
-      "found_by": "Nadia Luczywo",
-      "hap_id": "hap1",
-      "place": "Cordoba Argentina",
-      "weather": "Rain",
-      "year": 1998
+      "k": 2, 
+      "hap_id": "haplotype_35", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_5", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_1", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_34", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_20", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_14", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_12", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_14", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_32", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_28", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_1", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_30", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_30", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_0", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_1", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_15", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_12", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_20", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_9", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_13", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_3", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_7", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_29", 
+      "b": 1, 
+      "c": 2
+    }, 
+    {
+      "k": 2, 
+      "hap_id": "haplotype_31", 
+      "b": 1, 
+      "c": 2
     }
-  ],
+  ], 
+  "haplotypes": [
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 7, 
+      "hap_id": "haplotype_0", 
+      "attr_1": 7.888575924281359
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 71, 
+      "hap_id": "haplotype_1", 
+      "attr_1": 37.76414097912224
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 81, 
+      "hap_id": "haplotype_2", 
+      "attr_1": 11.275448261634347
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 48, 
+      "hap_id": "haplotype_3", 
+      "attr_1": 92.71066743642568
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 8, 
+      "hap_id": "haplotype_4", 
+      "attr_1": 8.776529800029401
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 78, 
+      "hap_id": "haplotype_5", 
+      "attr_1": 95.73167361260406
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 74, 
+      "hap_id": "haplotype_6", 
+      "attr_1": 93.25463386141878
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 97, 
+      "hap_id": "haplotype_7", 
+      "attr_1": 98.79880513089269
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 16, 
+      "hap_id": "haplotype_8", 
+      "attr_1": 80.1171683585518
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 78, 
+      "hap_id": "haplotype_9", 
+      "attr_1": 21.98654251019357
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 67, 
+      "hap_id": "haplotype_10", 
+      "attr_1": 62.741320518227624
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 7, 
+      "hap_id": "haplotype_11", 
+      "attr_1": 82.44895087306257
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 51, 
+      "hap_id": "haplotype_12", 
+      "attr_1": 61.52266227858362
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 87, 
+      "hap_id": "haplotype_13", 
+      "attr_1": 73.77481085075169
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 13, 
+      "hap_id": "haplotype_14", 
+      "attr_1": 79.66260775299222
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 72, 
+      "hap_id": "haplotype_15", 
+      "attr_1": 88.81861987846013
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 8, 
+      "hap_id": "haplotype_16", 
+      "attr_1": 57.12187522789076
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 94, 
+      "hap_id": "haplotype_17", 
+      "attr_1": 60.68713368849251
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 32, 
+      "hap_id": "haplotype_18", 
+      "attr_1": 67.0093188215848
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 43, 
+      "hap_id": "haplotype_19", 
+      "attr_1": 25.61421576311365
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 52, 
+      "hap_id": "haplotype_20", 
+      "attr_1": 34.87449217931925
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 34, 
+      "hap_id": "haplotype_21", 
+      "attr_1": 1.6425116902614025
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 55, 
+      "hap_id": "haplotype_22", 
+      "attr_1": 71.73852680481255
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 49, 
+      "hap_id": "haplotype_23", 
+      "attr_1": 31.297357102683772
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 84, 
+      "hap_id": "haplotype_24", 
+      "attr_1": 3.8353506616936603
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 41, 
+      "hap_id": "haplotype_25", 
+      "attr_1": 29.316417391173562
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 26, 
+      "hap_id": "haplotype_26", 
+      "attr_1": 90.0254445150038
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 4, 
+      "hap_id": "haplotype_27", 
+      "attr_1": 70.38631248646706
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 51, 
+      "hap_id": "haplotype_28", 
+      "attr_1": 72.94596313567702
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 15, 
+      "hap_id": "haplotype_29", 
+      "attr_1": 88.57738228326481
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 17, 
+      "hap_id": "haplotype_30", 
+      "attr_1": 25.402142651472737
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 69, 
+      "hap_id": "haplotype_31", 
+      "attr_1": 29.515485750247493
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 58, 
+      "hap_id": "haplotype_32", 
+      "attr_1": 37.89643598684505
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 36, 
+      "hap_id": "haplotype_33", 
+      "attr_1": 56.84058988265859
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 34, 
+      "hap_id": "haplotype_34", 
+      "attr_1": 3.7561999639349724
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": true, 
+      "attr_0": 19, 
+      "hap_id": "haplotype_35", 
+      "attr_1": 71.9323016378915
+    }, 
+    {
+      "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+      "attr_3": false, 
+      "attr_0": 1, 
+      "hap_id": "haplotype_36", 
+      "attr_1": 66.31896684680858
+    }
+  ], 
+  "version": "0.1", 
   "edges": [
     {
       "haps_id": [
-        "hap0",
-        "hap1"
-      ],
-      "weight": 10.0
-    },
+        "haplotype_20", 
+        "haplotype_34"
+      ], 
+      "weight": 12.27759262186653
+    }, 
     {
       "haps_id": [
-        "hap0",
-        "hap1"
-      ],
-      "weight": 30.0
+        "haplotype_17", 
+        "haplotype_7"
+      ], 
+      "weight": 70.79126182185351
+    }, 
+    {
+      "haps_id": [
+        "haplotype_4", 
+        "haplotype_35"
+      ], 
+      "weight": 92.65473828978429
+    }, 
+    {
+      "haps_id": [
+        "haplotype_9", 
+        "haplotype_26"
+      ], 
+      "weight": 78.6005274812846
+    }, 
+    {
+      "haps_id": [
+        "haplotype_20", 
+        "haplotype_21"
+      ], 
+      "weight": 59.16439856965
+    }, 
+    {
+      "haps_id": [
+        "haplotype_23", 
+        "haplotype_14"
+      ], 
+      "weight": 87.40492141227324
+    }, 
+    {
+      "haps_id": [
+        "haplotype_8", 
+        "haplotype_15"
+      ], 
+      "weight": 40.96298160467551
+    }, 
+    {
+      "haps_id": [
+        "haplotype_3", 
+        "haplotype_25"
+      ], 
+      "weight": 43.29281466717091
+    }, 
+    {
+      "haps_id": [
+        "haplotype_22", 
+        "haplotype_27"
+      ], 
+      "weight": 52.501078992514856
+    }, 
+    {
+      "haps_id": [
+        "haplotype_30", 
+        "haplotype_1"
+      ], 
+      "weight": 88.87760642512671
+    }, 
+    {
+      "haps_id": [
+        "haplotype_8", 
+        "haplotype_0"
+      ], 
+      "weight": 40.6604175129936
+    }, 
+    {
+      "haps_id": [
+        "haplotype_18", 
+        "haplotype_4"
+      ], 
+      "weight": 88.02671789255825
+    }, 
+    {
+      "haps_id": [
+        "haplotype_13", 
+        "haplotype_31"
+      ], 
+      "weight": 94.83846201980893
+    }, 
+    {
+      "haps_id": [
+        "haplotype_22", 
+        "haplotype_2"
+      ], 
+      "weight": 36.160842498801955
+    }, 
+    {
+      "haps_id": [
+        "haplotype_1", 
+        "haplotype_13"
+      ], 
+      "weight": 23.726150602452723
+    }, 
+    {
+      "haps_id": [
+        "haplotype_8", 
+        "haplotype_29"
+      ], 
+      "weight": 63.25641700869198
+    }, 
+    {
+      "haps_id": [
+        "haplotype_0", 
+        "haplotype_33"
+      ], 
+      "weight": 82.89718592064123
+    }, 
+    {
+      "haps_id": [
+        "haplotype_6", 
+        "haplotype_36"
+      ], 
+      "weight": 8.482695336874777
+    }, 
+    {
+      "haps_id": [
+        "haplotype_28", 
+        "haplotype_9"
+      ], 
+      "weight": 45.969884050346046
+    }, 
+    {
+      "haps_id": [
+        "haplotype_35", 
+        "haplotype_25"
+      ], 
+      "weight": 58.54729886659981
+    }, 
+    {
+      "haps_id": [
+        "haplotype_9", 
+        "haplotype_21"
+      ], 
+      "weight": 69.53134030823418
+    }, 
+    {
+      "haps_id": [
+        "haplotype_21", 
+        "haplotype_35"
+      ], 
+      "weight": 5.00919570030446
+    }, 
+    {
+      "haps_id": [
+        "haplotype_5", 
+        "haplotype_13"
+      ], 
+      "weight": 40.45137194305892
+    }, 
+    {
+      "haps_id": [
+        "haplotype_22", 
+        "haplotype_2"
+      ], 
+      "weight": 34.996797848731745
     }
-  ],
-  "versions": []
+  ], 
+  "versions": [
+    {
+      "comment": "ddd", 
+      "tag": "lelele", 
+      "data": {
+        "weight_range": [
+          4, 
+          95
+        ], 
+        "enviroments": [], 
+        "hap_sql": "SELECT * FROM `haplotypes`", 
+        "topology": [
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 1, 
+              "hap_id": "haplotype_36", 
+              "attr_1": 66.31896684680858
+            }, 
+            [
+              -221, 
+              -18
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 34, 
+              "hap_id": "haplotype_21", 
+              "attr_1": 1.6425116902614025
+            }, 
+            [
+              81, 
+              139
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 52, 
+              "hap_id": "haplotype_20", 
+              "attr_1": 34.87449217931925
+            }, 
+            [
+              -160, 
+              -96
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 49, 
+              "hap_id": "haplotype_23", 
+              "attr_1": 31.297357102683772
+            }, 
+            [
+              179, 
+              -97
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 55, 
+              "hap_id": "haplotype_22", 
+              "attr_1": 71.73852680481255
+            }, 
+            [
+              -206, 
+              -78
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 41, 
+              "hap_id": "haplotype_25", 
+              "attr_1": 29.316417391173562
+            }, 
+            [
+              -201, 
+              -44
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 84, 
+              "hap_id": "haplotype_24", 
+              "attr_1": 3.8353506616936603
+            }, 
+            [
+              116, 
+              -21
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 4, 
+              "hap_id": "haplotype_27", 
+              "attr_1": 70.38631248646706
+            }, 
+            [
+              -140.85498489425981, 
+              -46.83081570996981
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 26, 
+              "hap_id": "haplotype_26", 
+              "attr_1": 90.0254445150038
+            }, 
+            [
+              -88, 
+              -96
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 15, 
+              "hap_id": "haplotype_29", 
+              "attr_1": 88.57738228326481
+            }, 
+            [
+              100.27190332326285, 
+              -130.42386706948642
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 51, 
+              "hap_id": "haplotype_28", 
+              "attr_1": 72.94596313567702
+            }, 
+            [
+              -212, 
+              26
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 74, 
+              "hap_id": "haplotype_6", 
+              "attr_1": 93.25463386141878
+            }, 
+            [
+              107, 
+              9
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 97, 
+              "hap_id": "haplotype_7", 
+              "attr_1": 98.79880513089269
+            }, 
+            [
+              -289, 
+              -44
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 8, 
+              "hap_id": "haplotype_4", 
+              "attr_1": 8.776529800029401
+            }, 
+            [
+              272, 
+              131
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 78, 
+              "hap_id": "haplotype_5", 
+              "attr_1": 95.73167361260406
+            }, 
+            [
+              103, 
+              -74
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 81, 
+              "hap_id": "haplotype_2", 
+              "attr_1": 11.275448261634347
+            }, 
+            [
+              -289, 
+              -9
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 48, 
+              "hap_id": "haplotype_3", 
+              "attr_1": 92.71066743642568
+            }, 
+            [
+              -85.91238670694864, 
+              -27.38670694864048
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 7, 
+              "hap_id": "haplotype_0", 
+              "attr_1": 7.888575924281359
+            }, 
+            [
+              -123.08157099697885, 
+              -129.35045317220545
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 71, 
+              "hap_id": "haplotype_1", 
+              "attr_1": 37.76414097912224
+            }, 
+            [
+              234, 
+              73
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 16, 
+              "hap_id": "haplotype_8", 
+              "attr_1": 80.1171683585518
+            }, 
+            [
+              -93.20543806646523, 
+              -64.06948640483384
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 78, 
+              "hap_id": "haplotype_9", 
+              "attr_1": 21.98654251019357
+            }, 
+            [
+              222, 
+              -13
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 32, 
+              "hap_id": "haplotype_18", 
+              "attr_1": 67.0093188215848
+            }, 
+            [
+              260.4842900302114, 
+              -78.96978851963746
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 43, 
+              "hap_id": "haplotype_19", 
+              "attr_1": 25.61421576311365
+            }, 
+            [
+              -258, 
+              -98
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 34, 
+              "hap_id": "haplotype_34", 
+              "attr_1": 3.7561999639349724
+            }, 
+            [
+              -198, 
+              -69
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 19, 
+              "hap_id": "haplotype_35", 
+              "attr_1": 71.9323016378915
+            }, 
+            [
+              -88, 
+              112
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 58, 
+              "hap_id": "haplotype_32", 
+              "attr_1": 37.89643598684505
+            }, 
+            [
+              52, 
+              -138
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 36, 
+              "hap_id": "haplotype_33", 
+              "attr_1": 56.84058988265859
+            }, 
+            [
+              -197, 
+              -113
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 17, 
+              "hap_id": "haplotype_30", 
+              "attr_1": 25.402142651472737
+            }, 
+            [
+              -287, 
+              3
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 69, 
+              "hap_id": "haplotype_31", 
+              "attr_1": 29.515485750247493
+            }, 
+            [
+              -210.7246963562753, 
+              88.0
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 67, 
+              "hap_id": "haplotype_10", 
+              "attr_1": 62.741320518227624
+            }, 
+            [
+              -235, 
+              123
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 7, 
+              "hap_id": "haplotype_11", 
+              "attr_1": 82.44895087306257
+            }, 
+            [
+              19, 
+              44
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 51, 
+              "hap_id": "haplotype_12", 
+              "attr_1": 61.52266227858362
+            }, 
+            [
+              143, 
+              82
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 87, 
+              "hap_id": "haplotype_13", 
+              "attr_1": 73.77481085075169
+            }, 
+            [
+              -10.441295546558706, 
+              -113.37246963562754
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 13, 
+              "hap_id": "haplotype_14", 
+              "attr_1": 79.66260775299222
+            }, 
+            [
+              -123, 
+              139
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 72, 
+              "hap_id": "haplotype_15", 
+              "attr_1": 88.81861987846013
+            }, 
+            [
+              240, 
+              102
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 8, 
+              "hap_id": "haplotype_16", 
+              "attr_1": 57.12187522789076
+            }, 
+            [
+              78, 
+              -80
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 94, 
+              "hap_id": "haplotype_17", 
+              "attr_1": 60.68713368849251
+            }, 
+            [
+              106, 
+              139
+            ]
+          ]
+        ]
+      }, 
+      "id": 4, 
+      "datetime": "2013-01-24T00:37:10"
+    }, 
+    {
+      "comment": "", 
+      "tag": "una version", 
+      "data": {
+        "weight_range": [
+          4, 
+          95
+        ], 
+        "enviroments": [], 
+        "hap_sql": "SELECT * FROM `haplotypes`", 
+        "topology": [
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 1, 
+              "hap_id": "haplotype_36", 
+              "attr_1": 66.31896684680858
+            }, 
+            [
+              -221, 
+              -18
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 34, 
+              "hap_id": "haplotype_21", 
+              "attr_1": 1.6425116902614025
+            }, 
+            [
+              81, 
+              139
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 52, 
+              "hap_id": "haplotype_20", 
+              "attr_1": 34.87449217931925
+            }, 
+            [
+              -160, 
+              -96
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 49, 
+              "hap_id": "haplotype_23", 
+              "attr_1": 31.297357102683772
+            }, 
+            [
+              179, 
+              -97
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 55, 
+              "hap_id": "haplotype_22", 
+              "attr_1": 71.73852680481255
+            }, 
+            [
+              -206, 
+              -78
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 41, 
+              "hap_id": "haplotype_25", 
+              "attr_1": 29.316417391173562
+            }, 
+            [
+              -201, 
+              -44
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 84, 
+              "hap_id": "haplotype_24", 
+              "attr_1": 3.8353506616936603
+            }, 
+            [
+              116, 
+              -21
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 4, 
+              "hap_id": "haplotype_27", 
+              "attr_1": 70.38631248646706
+            }, 
+            [
+              -140.85498489425981, 
+              -46.83081570996981
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 26, 
+              "hap_id": "haplotype_26", 
+              "attr_1": 90.0254445150038
+            }, 
+            [
+              -88, 
+              -96
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 15, 
+              "hap_id": "haplotype_29", 
+              "attr_1": 88.57738228326481
+            }, 
+            [
+              100.27190332326285, 
+              -130.42386706948642
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 51, 
+              "hap_id": "haplotype_28", 
+              "attr_1": 72.94596313567702
+            }, 
+            [
+              -212, 
+              26
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 74, 
+              "hap_id": "haplotype_6", 
+              "attr_1": 93.25463386141878
+            }, 
+            [
+              107, 
+              9
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 97, 
+              "hap_id": "haplotype_7", 
+              "attr_1": 98.79880513089269
+            }, 
+            [
+              -289, 
+              -44
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 8, 
+              "hap_id": "haplotype_4", 
+              "attr_1": 8.776529800029401
+            }, 
+            [
+              272, 
+              131
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 78, 
+              "hap_id": "haplotype_5", 
+              "attr_1": 95.73167361260406
+            }, 
+            [
+              103, 
+              -74
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 81, 
+              "hap_id": "haplotype_2", 
+              "attr_1": 11.275448261634347
+            }, 
+            [
+              -289, 
+              -9
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 48, 
+              "hap_id": "haplotype_3", 
+              "attr_1": 92.71066743642568
+            }, 
+            [
+              -85.91238670694864, 
+              -27.38670694864048
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 7, 
+              "hap_id": "haplotype_0", 
+              "attr_1": 7.888575924281359
+            }, 
+            [
+              -123.08157099697885, 
+              -129.35045317220545
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 71, 
+              "hap_id": "haplotype_1", 
+              "attr_1": 37.76414097912224
+            }, 
+            [
+              234, 
+              73
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 16, 
+              "hap_id": "haplotype_8", 
+              "attr_1": 80.1171683585518
+            }, 
+            [
+              -93.20543806646523, 
+              -64.06948640483384
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 78, 
+              "hap_id": "haplotype_9", 
+              "attr_1": 21.98654251019357
+            }, 
+            [
+              222, 
+              -13
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 32, 
+              "hap_id": "haplotype_18", 
+              "attr_1": 67.0093188215848
+            }, 
+            [
+              260.4842900302114, 
+              -78.96978851963746
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 43, 
+              "hap_id": "haplotype_19", 
+              "attr_1": 25.61421576311365
+            }, 
+            [
+              -258, 
+              -98
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 34, 
+              "hap_id": "haplotype_34", 
+              "attr_1": 3.7561999639349724
+            }, 
+            [
+              -198, 
+              -69
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 19, 
+              "hap_id": "haplotype_35", 
+              "attr_1": 71.9323016378915
+            }, 
+            [
+              -88, 
+              112
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 58, 
+              "hap_id": "haplotype_32", 
+              "attr_1": 37.89643598684505
+            }, 
+            [
+              52, 
+              -138
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 36, 
+              "hap_id": "haplotype_33", 
+              "attr_1": 56.84058988265859
+            }, 
+            [
+              -197, 
+              -113
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 17, 
+              "hap_id": "haplotype_30", 
+              "attr_1": 25.402142651472737
+            }, 
+            [
+              -287, 
+              3
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 69, 
+              "hap_id": "haplotype_31", 
+              "attr_1": 29.515485750247493
+            }, 
+            [
+              -167, 
+              88
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 67, 
+              "hap_id": "haplotype_10", 
+              "attr_1": 62.741320518227624
+            }, 
+            [
+              -235, 
+              123
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 7, 
+              "hap_id": "haplotype_11", 
+              "attr_1": 82.44895087306257
+            }, 
+            [
+              19, 
+              44
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 51, 
+              "hap_id": "haplotype_12", 
+              "attr_1": 61.52266227858362
+            }, 
+            [
+              143, 
+              82
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 87, 
+              "hap_id": "haplotype_13", 
+              "attr_1": 73.77481085075169
+            }, 
+            [
+              -10.441295546558706, 
+              -113.37246963562754
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 13, 
+              "hap_id": "haplotype_14", 
+              "attr_1": 79.66260775299222
+            }, 
+            [
+              -123, 
+              139
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 72, 
+              "hap_id": "haplotype_15", 
+              "attr_1": 88.81861987846013
+            }, 
+            [
+              240, 
+              102
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 8, 
+              "hap_id": "haplotype_16", 
+              "attr_1": 57.12187522789076
+            }, 
+            [
+              78, 
+              -80
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 94, 
+              "hap_id": "haplotype_17", 
+              "attr_1": 60.68713368849251
+            }, 
+            [
+              106, 
+              139
+            ]
+          ]
+        ]
+      }, 
+      "id": 3, 
+      "datetime": "2013-01-24T00:12:52"
+    }, 
+    {
+      "comment": "added topological info", 
+      "tag": "topology_added", 
+      "data": {
+        "weight_range": [
+          4, 
+          95
+        ], 
+        "enviroments": [], 
+        "hap_sql": "SELECT * FROM `haplotypes`", 
+        "topology": [
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 1, 
+              "hap_id": "haplotype_36", 
+              "attr_1": 66.31896684680858
+            }, 
+            [
+              -221, 
+              -18
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 34, 
+              "hap_id": "haplotype_21", 
+              "attr_1": 1.6425116902614025
+            }, 
+            [
+              81, 
+              145
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 52, 
+              "hap_id": "haplotype_20", 
+              "attr_1": 34.87449217931925
+            }, 
+            [
+              -160, 
+              -96
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 49, 
+              "hap_id": "haplotype_23", 
+              "attr_1": 31.297357102683772
+            }, 
+            [
+              179, 
+              -97
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 55, 
+              "hap_id": "haplotype_22", 
+              "attr_1": 71.73852680481255
+            }, 
+            [
+              -206, 
+              -78
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 41, 
+              "hap_id": "haplotype_25", 
+              "attr_1": 29.316417391173562
+            }, 
+            [
+              -201, 
+              -44
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 84, 
+              "hap_id": "haplotype_24", 
+              "attr_1": 3.8353506616936603
+            }, 
+            [
+              116, 
+              -21
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 4, 
+              "hap_id": "haplotype_27", 
+              "attr_1": 70.38631248646706
+            }, 
+            [
+              -33, 
+              129
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 26, 
+              "hap_id": "haplotype_26", 
+              "attr_1": 90.0254445150038
+            }, 
+            [
+              -88, 
+              -96
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 15, 
+              "hap_id": "haplotype_29", 
+              "attr_1": 88.57738228326481
+            }, 
+            [
+              -110, 
+              -22
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 51, 
+              "hap_id": "haplotype_28", 
+              "attr_1": 72.94596313567702
+            }, 
+            [
+              -212, 
+              26
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 74, 
+              "hap_id": "haplotype_6", 
+              "attr_1": 93.25463386141878
+            }, 
+            [
+              107, 
+              9
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 97, 
+              "hap_id": "haplotype_7", 
+              "attr_1": 98.79880513089269
+            }, 
+            [
+              -297, 
+              -44
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 8, 
+              "hap_id": "haplotype_4", 
+              "attr_1": 8.776529800029401
+            }, 
+            [
+              272, 
+              131
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 78, 
+              "hap_id": "haplotype_5", 
+              "attr_1": 95.73167361260406
+            }, 
+            [
+              103, 
+              -74
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 81, 
+              "hap_id": "haplotype_2", 
+              "attr_1": 11.275448261634347
+            }, 
+            [
+              -300, 
+              -9
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 48, 
+              "hap_id": "haplotype_3", 
+              "attr_1": 92.71066743642568
+            }, 
+            [
+              -27, 
+              85
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 7, 
+              "hap_id": "haplotype_0", 
+              "attr_1": 7.888575924281359
+            }, 
+            [
+              -240, 
+              -65
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 71, 
+              "hap_id": "haplotype_1", 
+              "attr_1": 37.76414097912224
+            }, 
+            [
+              234, 
+              73
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 16, 
+              "hap_id": "haplotype_8", 
+              "attr_1": 80.1171683585518
+            }, 
+            [
+              79, 
+              3
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 78, 
+              "hap_id": "haplotype_9", 
+              "attr_1": 21.98654251019357
+            }, 
+            [
+              222, 
+              -13
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 32, 
+              "hap_id": "haplotype_18", 
+              "attr_1": 67.0093188215848
+            }, 
+            [
+              262, 
+              -69
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 43, 
+              "hap_id": "haplotype_19", 
+              "attr_1": 25.61421576311365
+            }, 
+            [
+              -258, 
+              -98
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 34, 
+              "hap_id": "haplotype_34", 
+              "attr_1": 3.7561999639349724
+            }, 
+            [
+              -198, 
+              -69
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 19, 
+              "hap_id": "haplotype_35", 
+              "attr_1": 71.9323016378915
+            }, 
+            [
+              -88, 
+              112
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 58, 
+              "hap_id": "haplotype_32", 
+              "attr_1": 37.89643598684505
+            }, 
+            [
+              52, 
+              -140
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 36, 
+              "hap_id": "haplotype_33", 
+              "attr_1": 56.84058988265859
+            }, 
+            [
+              -197, 
+              -113
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 17, 
+              "hap_id": "haplotype_30", 
+              "attr_1": 25.402142651472737
+            }, 
+            [
+              -287, 
+              3
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 69, 
+              "hap_id": "haplotype_31", 
+              "attr_1": 29.515485750247493
+            }, 
+            [
+              -167, 
+              88
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 67, 
+              "hap_id": "haplotype_10", 
+              "attr_1": 62.741320518227624
+            }, 
+            [
+              -235, 
+              123
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 7, 
+              "hap_id": "haplotype_11", 
+              "attr_1": 82.44895087306257
+            }, 
+            [
+              19, 
+              44
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 51, 
+              "hap_id": "haplotype_12", 
+              "attr_1": 61.52266227858362
+            }, 
+            [
+              143, 
+              82
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 87, 
+              "hap_id": "haplotype_13", 
+              "attr_1": 73.77481085075169
+            }, 
+            [
+              43, 
+              -49
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 13, 
+              "hap_id": "haplotype_14", 
+              "attr_1": 79.66260775299222
+            }, 
+            [
+              -123, 
+              150
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 72, 
+              "hap_id": "haplotype_15", 
+              "attr_1": 88.81861987846013
+            }, 
+            [
+              240, 
+              102
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": false, 
+              "attr_0": 8, 
+              "hap_id": "haplotype_16", 
+              "attr_1": 57.12187522789076
+            }, 
+            [
+              78, 
+              -80
+            ]
+          ], 
+          [
+            {
+              "attr_2": "f87af56213d389fa9e2b8c937ce0d5ee1aa2374e", 
+              "attr_3": true, 
+              "attr_0": 94, 
+              "hap_id": "haplotype_17", 
+              "attr_1": 60.68713368849251
+            }, 
+            [
+              106, 
+              145
+            ]
+          ]
+        ]
+      }, 
+      "id": 2, 
+      "datetime": "2013-01-23T02:10:14"
+    }, 
+    {
+      "comment": "first save", 
+      "tag": "init", 
+      "data": {
+        "weight_range": [
+          null, 
+          null
+        ], 
+        "enviroments": [], 
+        "hap_sql": "", 
+        "topology": []
+      }, 
+      "id": 1, 
+      "datetime": "2013-01-22T13:07:25"
+    }
+  ]
 }
