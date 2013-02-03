@@ -39,6 +39,21 @@ The version `0.1` of the format has four elements on the root of declaration.
 
         "version": "0.1",
 
+- ``versions``: A list of objects representing diferent states of the
+  exploration, if you write this file by hand simple add a empty list.
+
+
+  **YYF:**
+
+  .. code-block:: yaml
+
+        versions: []
+
+  **YJF:**
+
+  .. code-block:: javascript
+
+        "version": {},
 
 - ``haplotypes``: A list of objects representing ``yatel.dom.Haplotype``
   instances.
@@ -143,7 +158,7 @@ The version `0.1` of the format has four elements on the root of declaration.
   edge and ``haps_id`` containing a list of string of the haplotypes that this
   edge links.
 
-  example:
+  **YYF**
 
   .. code-block:: yaml
 
@@ -186,6 +201,8 @@ Full example of YYF
 
     # this is an example of Yatel Yaml Format or YYF
     version: "0.1"
+
+    versions: []
 
     haplotypes:
         - hap_id: "hap0"
@@ -230,6 +247,7 @@ Full example of YJF
 
     {
       "version": "0.1",
+      "versions": [],
       "haplotypes": [
         {
           "has_color": false,
@@ -291,7 +309,7 @@ The 2 examples generates a network like this one
 
 .. image:: _static/yff.png
     :align: center
-    :scale: 75 %
+    :scale: 60 %
 
 
 .. _YAML: http://yaml.org/
