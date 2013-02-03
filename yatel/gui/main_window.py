@@ -347,7 +347,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
         except Exception as err:
             error_dialog.critical(self.tr("Error"), err)
         else:
-            self.open_explorer(conn, saved=False)
+            self.open_explorer(conn)
         finally:
             self.dialog.setParent(None)
             self.dialog.destroy()
@@ -409,7 +409,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
         except Exception as err:
             error_dialog.critical(self.tr("Error"), err)
         else:
-            self.open_explorer(conn, saved=False)
+            self.open_explorer(conn)
         finally:
             self.dialog.setParent(None)
             self.dialog.destroy()
@@ -445,7 +445,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
         except Exception as err:
             error_dialog.critical(self.tr("Error"), err)
         else:
-            self.open_explorer(conn, saved=False)
+            self.open_explorer(conn)
         finally:
             self.wizard.setParent(None)
             self.wizard.destroy()

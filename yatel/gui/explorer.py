@@ -385,7 +385,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self.on_hapsComboBox_currentIndexChanged(
                 self.hapsComboBox.currentIndex()
             )
-            self._version = (version["id"], 
+            self._version = (version["id"],
                              version["datetime"], version["tag"])
         except Exception as err:
             error_dialog.critical(self.tr("Load Error"), err)

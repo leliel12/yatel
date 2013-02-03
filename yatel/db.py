@@ -652,7 +652,8 @@ class YatelConnection(object):
         vdbo = None
         if match is None:
             query = self.YatelVersionDBO.select()
-            query = query.order_by(self.YatelVersionDBO.datetime.desc())
+            query = query.order_by(self.YatelVersionDBO.datetime.desc(),
+                                   self.YatelVersionDBO.id.desc())
             vdbo = query.limit(1).get()
         elif isinstance(match, int):
             vdbo = self.YatelVersionDBO.get(self.YatelVersionDBO.id == match)

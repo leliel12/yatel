@@ -73,7 +73,7 @@ def run_gui(parser=None):
     if parser:
         try:
             _, returns = parser(APP.arguments()[1:])
-            conn = returns.dabase
+            conn = returns.database
             if conn:
                 if not conn.inited:
                     conn.init_yatel_database()
