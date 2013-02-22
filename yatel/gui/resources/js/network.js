@@ -6,21 +6,22 @@
  *
  */
 
+var sigInst = null;
+
 function init() {
     var sigRoot = document.getElementById('network');
-    var sigInst = sigma.init(sigRoot);
-    sigInst.addNode('hello', {
-      label: 'Hello',
-      x: Math.random(),
-      y: Math.random()
-    }).addNode('world', {
-      label: 'World!',
-      x: Math.random(),
-      y: Math.random()
-    });
+    sigInst = sigma.init(sigRoot);
+    addNode("puto", "puto", Math.random(), Math.random());
     sigInst.draw();
 }
 
+function addNode(id, label, x, y){
+    sigInst.addNode(id, {label: label, x: x, y: y});
+}
+
+function addEdge(idf, idt, label){
+    sigInst.addEdge(label, idf, idt);
+}
 
 if (document.addEventListener) {
     document.addEventListener("DOMContentLoaded", init, false);
