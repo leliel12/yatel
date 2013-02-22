@@ -23,7 +23,7 @@ a gui of yatel
 import sip
 
 API_NAMES = ["QDate", "QDateTime", "QString", "QTime",
-"QUrl", "QTextStream", "QVariant"]
+             "QUrl", "QTextStream", "QVariant"]
 
 API_VERSION = 2
 
@@ -64,6 +64,11 @@ def run_gui(parser=None):
     :type cli_parser: a callable.
 
     """
+    from yatel.gui import network
+    win = network.Network()
+    win.show()
+
+    """
     splash = main_window.SplashScreen()
     if "--serve" not in APP.arguments():
         splash.show()
@@ -84,6 +89,7 @@ def run_gui(parser=None):
             win = main_window.MainWindow()
     win.show()
     splash.finish(win)
+    """
     sys.exit(APP.exec_())
 
 
