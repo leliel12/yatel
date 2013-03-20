@@ -15,11 +15,96 @@
 
         <!-- includes -->
         <script src="js/sigma.min.js"></script>
-        <script src="js/network.js"></script>
+        <script>
+
+            var COLOR_FROM = {r: 32, g: 79, b: 25};
+            var COLOR_TO = {r: 180, g: 255, b: 158};
+
+            function choice(arr){
+                    var rand = Math.random();
+                    rand *= arr.length;
+                    rand = Math.floor(rand);
+                    return arr[rand];
+            }
+
+            function getRandomColor(){
+                var a = COLOR_FROM;
+                var b = COLOR_TO;
+                var r = Math.random();
+                    return 'rgb('+
+                    ((a.r+(b.r-a.r)*r)|0).toString() + ','+
+                    ((a.g+(b.g-a.g)*r)|0).toString() + ','+
+                    ((a.b+(b.b-a.b)*r)|0).toString() + ')';
+            }
+
+            function timestamp(){
+                var ts = new Date().getTime();
+                return String(ts);
+            }
+
+        </script>
+
+        <script>
+
+            // FUNCTIONS
+            function init() {
+                sigRoot = document.getElementById('network');
+                sigInst = sigma.init(sigRoot);
+
+                // style the canvas
+                sigRoot.style.marginLeft = "auto";
+                sigRoot.style.marginRight = "auto";
+                sigRoot.style.position = "relative";
+                sigRoot.style.borderRadius = "10px";
+                sigRoot.style.background = "#222";
+                sigRoot.style.width = "100%";
+                sigRoot.style.height = "100%";
+                sigRoot.style.top = 0;
+                sigRoot.style.left = 0;
+
+                // style the network
+                sigInst.drawingProperties({defaultLabelColor: '#ccc',
+                                           font: 'Arial',
+                                           edgeColor: 'source',
+                                           defaultEdgeType: 'curve'});
+                sigInst.graphProperties({maxNodeSize: 10});
+
+                //debugger;
+                emit("jsready");
+                sigInst.draw();
+            }
+
+            function emit(signal){
+                if(typeof python != "undefined")
+                    python.emit(signal);
+            }
+
+            function addNode(id, label, x, y){
+                var node = sigInst.addNode(id, {label: label,
+                                             color: getRandomColor(),
+                                             x: x, y: y});
+                sigInst.draw();
+            }
+
+            function addEdge(weight, idf, idt){
+                var id = idf + "_" + idt;
+                var params = {"weight": weight};
+                var edge = sigInst.addEdge(id, idf, idt, params);
+                sigInst.draw();
+            }
+
+            function filterEdges(edges_id){
+                sigInst.iterEdges(function(e) {
+                    e.hidden = !(edges_id.indexOf(e.id) >= 0);
+                });
+                sigInst.draw();
+            }
+
+        </script>
 
     </head>
 
-    <body onLoad="init('network');">
+    <body onLoad="init();">
         <div id="network"/>
     </body>
 

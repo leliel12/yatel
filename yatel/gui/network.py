@@ -16,6 +16,12 @@ network.
 
 """
 
+if __name__ == "__main__":
+    import sys, os
+    sys.path.insert(1, os.path.join("..", ".."))
+    import yatel.gui
+
+
 #===============================================================================
 # IMPORTS
 #===============================================================================
@@ -35,6 +41,15 @@ from yatel.gui import resources
 # NETWORK WIDGET
 #===============================================================================
 
+class JavascriptInterface(QtCore.QObject):
+
+    jsready = QtCore.pyqtSignal()
+
+    @QtCore.pyqtSlot(str)
+    def emit(self, signal):
+        getattr(self, signal).emit()
+
+
 class Network(QtWebKit.QWebView):
     """Singleton instance for use Pilas widget as QtWidget ofr draw networks
 
@@ -44,13 +59,59 @@ class Network(QtWebKit.QWebView):
     def __init__(self):
         """Init the instance of ``NetworkProxy`` singleton."""
         super(Network, self).__init__()
+        self.load_finished = False
+        self.jsinterface = JavascriptInterface()
+        self.jsinterface.jsready.connect(self.ready)
+        self.page().mainFrame().addToJavaScriptWindowObject("python",
+                                                            self.jsinterface)
         self.load(QtCore.QUrl.fromLocalFile(resources.get("network.html")))
+        QtCore.QThread.sleep(1)
 
-    def _mro_(self, *v):
-        """``None``"""
-        if v:
-            v = v[0]
-            self._dabc = (v.strip().encode("base64") == __key__)
+        self._js_queue = []
+        self._frame = self.page().currentFrame()
+
+    def ready(self):
+        self.load_finished = True
+        while self._js_queue:
+            self._frame.evaluateJavaScript(self._js_queue.pop(0))
+
+    def py2js(self, obj):
+        if isinstance(obj, (list, tuple)):
+            return u"[{}]".format(", ".join(map(self.py2js, obj)))
+        elif isinstance(obj, dict):
+            parsed = []
+            for k, v in obj.items():
+                parsed.append(u"{}: {}".format(self.py2js(k), self.py2js(v)))
+            return u"{{{}}}".format(", ".join(parsed))
+        elif obj is None:
+            return u"null"
+        elif not isinstance(obj, (int, float)):
+            return u"'{}'".format(obj)
+        return unicode(obj)
+
+    def js_function(self, func, *args):
+        """This method call the subjacent javascript widget.
+
+        Example:
+
+        .. code-block:: python
+
+            n = Network()
+            n.js_function("add_node", 1, 2, 3, 4)
+
+        is equivalent in javascript to
+
+        .. code-block:: javascript
+
+            add_node(1, 2, 3, 4);
+
+        """
+        prepared_args = map(self.py2js, args)
+        jsfunc = "{}({})".format(func, ", ".join(prepared_args))
+        if self.load_finished:
+            self._frame.evaluateJavaScript(jsfunc)
+        else:
+            self._js_queue.append(jsfunc)
 
     def get_unused_coord(self):
         """Return a probably *free of node* coordinate"""
@@ -102,7 +163,7 @@ class Network(QtWebKit.QWebView):
                 the node will be drawed.
 
         """
-        pass
+        self.js_function("addNode", hap.hap_id, hap.hap_id, x, y)
 
     def del_node(self, hap):
         """Delete the node asociated to the given ``yatel.dom.Haplotype`` *hap*.
@@ -115,18 +176,21 @@ class Network(QtWebKit.QWebView):
         the ``yatel.dom.Edge`` instance.
 
         """
-        pass
+        self.js_function("addEdge", edge.weight, *edge.haps_id)
 
     def add_edges(self, *edges):
         """Add a multiple new edge between the nodes asociated to the
         *haplotypes* of the tuple ``yatel.dom.Edge`` instances.
 
         """
-        pass
+        map(self.add_edge, edges)
 
     def filter_edges(self, *edges):
         """Show only the listed ``*edges``"""
-        pass
+        eids = []
+        for e in edges:
+            eids.append("_".join(e.haps_id))
+        self.js_function("filterEdges", eids)
 
     def del_edge(self, edge):
         """Delete the given edge"""
@@ -183,31 +247,37 @@ class Network(QtWebKit.QWebView):
 if __name__ == "__main__":
     print(__doc__)
 
-#~
-    #~ def printer(evt):
-        #~ n.show_haps_names(not n.haps_names_showed)
-        #~ n.show_weights(not n.weights_showed)
-        #~ pilas.avisar(str(evt))
-#~
-    #~ def selector(evt):
-        #~ n.select_node(evt["node"])
-#~
-    #~ a0 = dom.Haplotype("hap0")
-    #~ a1 = dom.Haplotype("hap1")
-    #~ a2 = dom.Haplotype("hap2")
-    #~ a3 = dom.Haplotype("hap3")
-    #~ n.add_node(a0, 100, 200)
-    #~ n.add_node(a1, -100)
-    #~ n.add_node(a2, 200)
-    #~ n.add_node(a3, 0, -100)
-    #~ n.add_edge(dom.Edge(555, a0.hap_id, a1.hap_id))
-    #~ n.add_edge(dom.Edge(666, a3.hap_id, a2.hap_id))
-    #~ n.add_edge(dom.Edge(666, a2.hap_id, a0.hap_id))
+    import sys, os
+    sys.path.insert(1, os.path.join("..", ".."))
+
+    settings = QtWebKit.QWebSettings.globalSettings()
+    settings.setAttribute(QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
+
+    n = Network()
+
+    a0 = dom.Haplotype("hap0")
+    a1 = dom.Haplotype("hap1")
+    a2 = dom.Haplotype("hap2")
+    a3 = dom.Haplotype("hap3")
+    n.add_node(a0, 0, 0)
+    n.add_node(a1, -100, 100)
+    n.add_node(a2, 200, 200)
+    n.add_node(a3, 0, -100)
+
+    n.show()
+
+    edges = [dom.Edge(555, a0.hap_id, a1.hap_id),
+             dom.Edge(666, a3.hap_id, a2.hap_id),
+             dom.Edge(666, a2.hap_id, a0.hap_id)]
+    n.add_edges(*edges)
+
+    n.filter_edges(edges[0], edges[1])
 #~
     #~ f = dom.Fact(a1.hap_id, a=1)
     #~ n.highlight_nodes(a1, a2)
     #~ n.node_clicked.conectar(printer)
     #~ n.node_clicked.conectar(selector)
 #~
+    sys.exit(yatel.gui.APP.exec_())
     #~ pilas.ejecutar()
 #~

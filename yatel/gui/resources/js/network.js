@@ -19,6 +19,8 @@ var COLOR_TO = {r: 180, g: 255, b: 158};
  UTILS
 ==============================================================================*/
 
+/* var python <<< this is changed from python with only one method emit */
+
 var utils = {
     choice: function(arr){
         var rand = Math.random();
@@ -42,50 +44,7 @@ var utils = {
  MAIN  CLASS
 ==============================================================================*/
 
-var YatelNetwork = function(rootid){
 
-    this.sigRoot = document.getElementById(rootid);
-    this.sigInst = sigma.init(this.sigRoot);;
-    this._nodes = {};
-    this._edges = {};
-
-
-    // style the canvas
-    this.sigRoot.style.marginLeft = "auto";
-    this.sigRoot.style.marginRight = "auto";
-    this.sigRoot.style.position = "relative";
-    this.sigRoot.style.borderRadius = "10px";
-    this.sigRoot.style.background = "#222";
-    this.sigRoot.style.width = "100%";
-    this.sigRoot.style.height = "100%";
-    this.sigRoot.style.top = 0;
-    this.sigRoot.style.left = 0;
-
-    // style the network
-    this.sigInst.drawingProperties({defaultLabelColor: '#ccc',
-                               font: 'Arial',
-                               edgeColor: 'source',
-                               defaultEdgeType: 'curve'});
-    this.sigInst.graphProperties({minNodeSize: 1, maxNodeSize: 10});
-    this.sigInst.draw();
-
-}
-
-
-/*========
- FUNCTIONS
-========*/
-
-YatelNetwork.prototype.addNode = function(id, label, x, y){
-    var node = this.sigInst.addNode(id, {label: label,
-                                    color: utils.getRandomColor(),
-                                    x: x, y: y});
-    this._nodes[id] = node;
-}
-
-YatelNetwork.prototype.addEdge = function(idf, idt, label){
-    var edge = this.sigInst.addEdge(label, idf, idt);
-}
 
 
 /*==============================================================================
@@ -93,5 +52,6 @@ YatelNetwork.prototype.addEdge = function(idf, idt, label){
 ==============================================================================*/
 
 function init(rootid){
-    network = new YatelNetwork(rootid);
+    ;
+    //network.addNode('hap0', 'hap0', 0, 20);
 }

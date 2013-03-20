@@ -38,7 +38,6 @@ PYPI_REQUIRE = [
     "csvcool",
     "pyzmq",
     "ipython>=0.13",
-    "pilas>=0.7",
     "PyYAML",
     "bottle",
     "Pygments",
@@ -47,8 +46,6 @@ PYPI_REQUIRE = [
 
 MANUAL_REQUIRE = {
     "PyQt4" : "http://www.riverbankcomputing.co.uk/software/pyqt",
-    "PyQt4.phonon" : "http://www.riverbankcomputing.co.uk/software/pyqt",
-    "Box2D": "https://code.google.com/p/pybox2d/",
     "numpy": "http://numpy.scipy.org/",
 }
 
