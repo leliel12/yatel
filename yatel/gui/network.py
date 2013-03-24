@@ -27,6 +27,7 @@ if __name__ == "__main__":
 #===============================================================================
 
 import random
+import json
 
 from PyQt4 import QtCore
 from PyQt4 import QtGui
@@ -59,30 +60,26 @@ class Network(QtWebKit.QWebView):
     def __init__(self):
         """Init the instance of ``NetworkProxy`` singleton."""
         super(Network, self).__init__()
-        self.load_finished = False
+        self.loop = QtCore.QEventLoop()
         self.jsinterface = JavascriptInterface()
-        self.jsinterface.jsready.connect(self.ready)
+        self.loadFinished.connect(self.ready)
         self.page().mainFrame().addToJavaScriptWindowObject("python",
                                                             self.jsinterface)
-        self.load(QtCore.QUrl.fromLocalFile(resources.get("network.html")))
-        QtCore.QThread.sleep(1)
-
-        self._js_queue = []
+        self._haps = {}
         self._frame = self.page().currentFrame()
 
+        self.load(QtCore.QUrl.fromLocalFile(resources.get("network.html")))
+        self.loop.exec_()
+
     def ready(self):
-        self.load_finished = True
-        while self._js_queue:
-            self._frame.evaluateJavaScript(self._js_queue.pop(0))
+        self.loop.exit()
+        self.loadFinished.disconnect(self.ready)
 
     def py2js(self, obj):
-        if isinstance(obj, (list, tuple)):
-            return u"[{}]".format(", ".join(map(self.py2js, obj)))
-        elif isinstance(obj, dict):
-            parsed = []
-            for k, v in obj.items():
-                parsed.append(u"{}: {}".format(self.py2js(k), self.py2js(v)))
-            return u"{{{}}}".format(", ".join(parsed))
+        if isinstance(obj, (list, tuple, dict)):
+            if isinstance(obj, tuple):
+                obj = list(obj)
+            return json.dumps(obj)
         elif obj is None:
             return u"null"
         elif not isinstance(obj, (int, float)):
@@ -108,18 +105,14 @@ class Network(QtWebKit.QWebView):
         """
         prepared_args = map(self.py2js, args)
         jsfunc = "{}({})".format(func, ", ".join(prepared_args))
-        if self.load_finished:
-            self._frame.evaluateJavaScript(jsfunc)
-        else:
-            self._js_queue.append(jsfunc)
+        return self._frame.evaluateJavaScript(jsfunc)
 
-    def get_unused_coord(self):
+    def get_unused_coord(self, max_iteration=100):
         """Return a probably *free of node* coordinate"""
-        pass
 
-    def clear(self):
-        """Clear all widget from *nodes* and *edges*."""
-        pass
+        xy = self.js_function("getUnusedCoord",
+                              self.height(), self.width(), max_iteration)
+        return map(int, xy)
 
     def select_node(self, hap):
         """Select a node asociated to the given ``yatel.dom.Haplotype``"""
@@ -145,11 +138,12 @@ class Network(QtWebKit.QWebView):
 
     def highlight_nodes(self, *haps):
         """Highlight all the nodes given in a tuple ``*haps``."""
-        pass
+        ids = [hap.hap_id for hap in haps]
+        self.js_function("highlightNodes", ids)
 
     def unhighlightall(self):
         """Unhighlight all the nodes."""
-        pass
+        self.js_function("unhighlightall")
 
     def add_node(self, hap, x=0, y=0):
         """Add a new node.
@@ -163,13 +157,16 @@ class Network(QtWebKit.QWebView):
                 the node will be drawed.
 
         """
-        self.js_function("addNode", hap.hap_id, hap.hap_id, x, y)
+        if hap.hap_id not in self._haps:
+            self._haps[hap.hap_id] = hap
+            self.js_function("addNode", hap.hap_id, hap.hap_id, x, y)
 
     def del_node(self, hap):
         """Delete the node asociated to the given ``yatel.dom.Haplotype`` *hap*.
 
         """
-        pass
+        self._haps.pop(hap.hap_id)
+        self.js_function("delNode", hap.hap_id)
 
     def add_edge(self, edge):
         """Add a new edge between the nodes asociated to the *haplotypes* of
@@ -194,25 +191,28 @@ class Network(QtWebKit.QWebView):
 
     def del_edge(self, edge):
         """Delete the given edge"""
-        pass
+        self.js_function("delEdge", *edge.haps_id)
 
     def del_edges_with_node(self, hap):
         """Deletes all edges containing the node asociated with haplotype
         ``hap``.
 
         """
-        pass
+        self.js_function("delEdgesWithNode", hap.hap_id)
 
     def topology(self):
         """Gets a ``dict`` qith keys as ``yatel.dom.Haplotype`` and value a
         ``tuple`` with the position of the asociated node.
 
         """
-        return {}
+        top = {}
+        for k, v in self.js_function("topology").items():
+            top[self._haps[k]] = tuple(v)
+        return top
 
     def move_node(self, hap, x, y):
         """Move node asociated to the given *haplotype* to ``x, y``"""
-        pass
+        self.js_function("moveNode", hap.hap_id, x, y)
 
     @property
     def haps_names_showed(self):
@@ -271,7 +271,16 @@ if __name__ == "__main__":
              dom.Edge(666, a2.hap_id, a0.hap_id)]
     n.add_edges(*edges)
 
-    n.filter_edges(edges[0], edges[1])
+    n.move_node(a3, 0, 50)
+    n.get_unused_coord()
+    n.highlight_nodes(a2, a3)
+    n.unhighlightall()
+    n.topology()
+
+    #n.del_edges_with_node(a2)
+    #~ n.filter_edges(edges[0], edges[1])
+    #~ n.del_node(a0)
+    #~ n.del_edge(edges[1])
 #~
     #~ f = dom.Fact(a1.hap_id, a=1)
     #~ n.highlight_nodes(a1, a2)
