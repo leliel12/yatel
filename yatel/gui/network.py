@@ -110,6 +110,14 @@ class Network(QtWebKit.QWebView):
         jsfunc = "{}({})".format(func, ", ".join(prepared_args))
         return self._frame.evaluateJavaScript(jsfunc)
 
+    def clear(self):
+        """Remove all nodes and edges of the graph"""
+        self._haps = {}
+        self._highlighted = ()
+        self._selected = None
+        self._haps_names_showed = True
+        self.js_function("clear")
+
     def get_unused_coord(self, max_iteration=100):
         """Return a probably *free of node* coordinate"""
 

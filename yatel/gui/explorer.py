@@ -27,6 +27,7 @@ from yatel.gui import double_slider
 from yatel.gui import error_dialog
 from yatel.gui import sheditor
 from yatel.gui import ipython
+from yatel.gui import network
 
 
 #===============================================================================
@@ -71,12 +72,10 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.consoleLayout.addWidget(self.ipythonWidget)
         self.ipythonWidget.reset_ns(yatel=self.parent().parent())
 
-        # pilas
-        from yatel.gui import network
-        self.network = network.NetworkProxy()
-        self.network.widget.setParent(self)
-        self.network.node_clicked.conectar(self.on_node_clicked)
-        self.pilasLayout.addWidget(self.network.widget)
+        self.network = network.Network()
+        self.network.setParent(self)
+        #self.network.node_clicked.conectar(self.on_node_clicked)
+        self.pilasLayout.addWidget(self.network)
 
         # sql
         self.hapSQLeditor = sheditor.HiglightedEditor("sql")
@@ -197,7 +196,6 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         try:
             query = self.hapSQLeditor.text().strip()
             if not query.lower().startswith("select"):
-                self.network._mro_(query)
                 msg = "The query must be start with the 'select' command"
                 raise ValueError(msg)
             haps = self.conn.hap_sql(query)

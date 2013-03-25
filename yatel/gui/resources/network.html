@@ -124,6 +124,11 @@
                     node.color = color.toGrayString();
             }
 
+            function clear(){
+                sigInst.empty();
+                sigInst.draw();
+            }
+
             function getUnusedCoord(height, width, maxIterations){
                 var all_xys = []
                 sigInst.iterNodes(function(n){
