@@ -66,6 +66,9 @@ class Network(QtWebKit.QWebView):
         self.page().mainFrame().addToJavaScriptWindowObject("python",
                                                             self.jsinterface)
         self._haps = {}
+        self._highlighted = ()
+        self._selected = None
+        self._haps_names_showed = True
         self._frame = self.page().currentFrame()
 
         self.load(QtCore.QUrl.fromLocalFile(resources.get("network.html")))
@@ -116,7 +119,8 @@ class Network(QtWebKit.QWebView):
 
     def select_node(self, hap):
         """Select a node asociated to the given ``yatel.dom.Haplotype``"""
-        pass
+        self._selected = hap
+        self.js_function("selectNode", hap.hap_id)
 
     def show_haps_names(self, show):
         """Show the name of the haplotype over all the nodes.
@@ -125,7 +129,8 @@ class Network(QtWebKit.QWebView):
             :show: ``bool`` flag to show or hide the haplotype name
 
         """
-        pass
+        self.js_function("showHapsNames", show)
+        self._haps_names_showed = show
 
     def show_weights(self, show):
         """Show the weights over all the edges.
@@ -140,10 +145,12 @@ class Network(QtWebKit.QWebView):
         """Highlight all the nodes given in a tuple ``*haps``."""
         ids = [hap.hap_id for hap in haps]
         self.js_function("highlightNodes", ids)
+        self._highlighted = haps
 
     def unhighlightall(self):
         """Unhighlight all the nodes."""
         self.js_function("unhighlightall")
+        self._highlighted = ()
 
     def add_node(self, hap, x=0, y=0):
         """Add a new node.
@@ -217,7 +224,7 @@ class Network(QtWebKit.QWebView):
     @property
     def haps_names_showed(self):
         """Return if the haplotypes names are actually showed."""
-        pass
+        return self._haps_names_showed;
 
     @property
     def weights_showed(self):
@@ -227,17 +234,17 @@ class Network(QtWebKit.QWebView):
     @property
     def bounds(self):
         """The size os the drawable area."""
-        pass
+        return self.width(), self.height()
 
     @property
     def selected_node(self):
         """The selected node."""
-        pass
+        return self._selected
 
     @property
     def highlighted_nodes(self):
         """The list of higlighted nodes."""
-        pass
+        return self._highlighted
 
 
 #===============================================================================
@@ -264,17 +271,21 @@ if __name__ == "__main__":
     n.add_node(a2, 200, 200)
     n.add_node(a3, 0, -100)
 
+    n.select_node(a3)
     n.show()
 
     edges = [dom.Edge(555, a0.hap_id, a1.hap_id),
              dom.Edge(666, a3.hap_id, a2.hap_id),
              dom.Edge(666, a2.hap_id, a0.hap_id)]
     n.add_edges(*edges)
-
+    n.haps_names_showed
     n.move_node(a3, 0, 50)
     n.get_unused_coord()
+
     n.highlight_nodes(a2, a3)
-    n.unhighlightall()
+
+    #n.unhighlightall()
+
     n.topology()
 
     #n.del_edges_with_node(a2)

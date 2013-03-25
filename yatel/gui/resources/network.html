@@ -41,6 +41,9 @@
                 var ls = this.lum.toString();
                 return 'rgb(' + ls + "," + ls + "," + ls + ")";
             }
+            NodeColor.prototype.toSelectedString = function() {
+                return "rgb(255, 0, 0)";
+            }
 
 
         </script>
@@ -82,7 +85,6 @@
             function init() {
                 sigRoot = document.getElementById('network');
                 sigInst = sigma.init(sigRoot);
-                nodeColors = {};
 
                 // style the canvas
                 sigRoot.style.marginLeft = "auto";
@@ -112,6 +114,16 @@
                     python.emit(signal);
             }
 
+            function setColorBasedOnStatus(node){
+                var color = node.attr.nodeColor;
+                if(node.attr.selected)
+                    node.color = color.toSelectedString();
+                else if(node.attr.highlighted)
+                    node.color = color.toColorString();
+                else
+                    node.color = color.toGrayString();
+            }
+
             function getUnusedCoord(height, width, maxIterations){
                 var all_xys = []
                 sigInst.iterNodes(function(n){
@@ -136,38 +148,69 @@
                 return [x, y];
             }
 
+            function selectNode(hap_id){
+                sigInst.iterNodes(function(n){
+                    if(n.id == hap_id)
+                        n.attr.selected = true;
+                    else
+                        n.attr.selected = false;
+                    setColorBasedOnStatus(n);
+                });
+                sigInst.draw();
+            }
+
+            function showHapsNames(show){
+                if(show){
+                    sigInst.iterNodes(function(n){
+                        n.label = n.id;
+                    });
+                } else {
+                    sigInst.iterNodes(function(n){
+                        n.label = "";
+                    });
+                }
+                sigInst.draw();
+            }
+
             function highlightNodes(ids){
                 sigInst.iterNodes(function(n){
-                    n.color = nodeColors[n.id].toColorString();
-                }, ids);
+                    if(ids.indexOf(n.id) >= 0)
+                        n.attr.highlighted = true;
+                    else
+                        n.attr.highlighted = false;
+                    setColorBasedOnStatus(n);
+                });
                 sigInst.draw();
             }
 
             function unhighlightall(){
                 sigInst.iterNodes(function(n){
-                    n.color = nodeColors[n.id].toGrayString();
+                    n.attr.highlighted = false;
+                    setColorBasedOnStatus(n);
                 });
                 sigInst.draw();
             }
 
             function addNode(id, label, x, y){
                 var nodeColor = getRandomNodeColor();
-                var node = sigInst.addNode(id, {label: label,
-                                             color:nodeColor.toGrayString(),
-                                             x: x, y: y});
-                nodeColors[id] = nodeColor;
+                var params = {x: x, y: y,
+                               label: label, forceLabel: true,
+                               color: nodeColor.toGrayString(),
+                               nodeColor: nodeColor,
+                               highlighted: false,
+                               selected: false};
+                var node = sigInst.addNode(id, params);
                 sigInst.draw();
             }
 
             function delNode(id){
-                delete nodeColors[id];
                 sigInst.dropNode(id);
                 sigInst.draw();
             }
 
             function addEdge(weight, idf, idt){
                 var id = idf + "_" + idt;
-                var params = {"weight": weight};
+                var params = {weight: weight};
                 var edge = sigInst.addEdge(id, idf, idt, params);
                 sigInst.draw();
             }
