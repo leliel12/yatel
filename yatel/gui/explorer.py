@@ -72,9 +72,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.consoleLayout.addWidget(self.ipythonWidget)
         self.ipythonWidget.reset_ns(yatel=self.parent().parent())
 
-        self.network = network.Network()
-        self.network.setParent(self)
-        #self.network.node_clicked.conectar(self.on_node_clicked)
+        self.network = network.Network(self)
+        self.network.node_clicked.connect(self.on_node_clicked)
         self.pilasLayout.addWidget(self.network)
 
         # sql

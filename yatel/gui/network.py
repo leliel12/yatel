@@ -55,11 +55,11 @@ class Network(QtWebKit.QWebView):
     """Singleton instance for use Pilas widget as QtWidget ofr draw networks
 
     """
-    node_clicked = "signal"
+    node_clicked = QtCore.pyqtSignal(dom.Haplotype)
 
-    def __init__(self):
+    def __init__(self, parent):
         """Init the instance of ``NetworkProxy`` singleton."""
-        super(Network, self).__init__()
+        super(Network, self).__init__(parent=parent)
         self.loop = QtCore.QEventLoop()
         self.jsinterface = JavascriptInterface()
         self.loadFinished.connect(self.ready)
