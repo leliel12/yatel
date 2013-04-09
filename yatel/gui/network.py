@@ -57,7 +57,7 @@ class Network(QtWebKit.QWebView):
     """
     node_clicked = QtCore.pyqtSignal(dom.Haplotype)
 
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         """Init the instance of ``NetworkProxy`` singleton."""
         super(Network, self).__init__(parent=parent)
         self.loop = QtCore.QEventLoop()
@@ -69,6 +69,7 @@ class Network(QtWebKit.QWebView):
         self._highlighted = ()
         self._selected = None
         self._haps_names_showed = True
+        self._weights_showed = True
         self._frame = self.page().currentFrame()
 
         self.load(QtCore.QUrl.fromLocalFile(resources.get("network.html")))
@@ -147,7 +148,8 @@ class Network(QtWebKit.QWebView):
             :show: ``bool`` flag to show or hide the edge's weight.
 
         """
-        pass
+        self.js_function("showWeights", show)
+        self._weights_showed = show
 
     def highlight_nodes(self, *haps):
         """Highlight all the nodes given in a tuple ``*haps``."""
@@ -229,6 +231,9 @@ class Network(QtWebKit.QWebView):
         """Move node asociated to the given *haplotype* to ``x, y``"""
         self.js_function("moveNode", hap.hap_id, x, y)
 
+    def center(self):
+        self.js_function("center")
+
     @property
     def haps_names_showed(self):
         """Return if the haplotypes names are actually showed."""
@@ -283,7 +288,7 @@ if __name__ == "__main__":
     n.show()
 
     edges = [dom.Edge(555, a0.hap_id, a1.hap_id),
-             dom.Edge(666, a3.hap_id, a2.hap_id),
+             dom.Edge(777, a3.hap_id, a2.hap_id),
              dom.Edge(666, a2.hap_id, a0.hap_id)]
     n.add_edges(*edges)
     n.haps_names_showed
@@ -295,6 +300,7 @@ if __name__ == "__main__":
     #n.unhighlightall()
 
     n.topology()
+    n.center()
 
     #n.del_edges_with_node(a2)
     #~ n.filter_edges(edges[0], edges[1])

@@ -14,7 +14,7 @@
         <meta name="generator" content="Geany 1.22" />
 
         <!-- includes -->
-        <script src="js/sigma.min.js"></script>
+        <script src="sigma.concat.js"></script>
         <script>
             // CONSTANTS
 
@@ -50,7 +50,7 @@
 
 
         <script>
-            // FUNCTIONS
+            // UTILS
 
             function choice(arr){
                 var rand = Math.random();
@@ -98,15 +98,35 @@
                 sigRoot.style.left = 0;
 
                 // style the network
-                sigInst.drawingProperties({defaultLabelColor: '#ccc',
-                                           font: 'Arial',
-                                           edgeColor: 'source',
-                                           defaultEdgeType: 'curve'});
-                sigInst.graphProperties({maxNodeSize: 10});
-
+                sigInst = sigma.init(sigRoot)
+                sigInst.configProperties({drawHoverEdges: true});
+                sigInst.drawingProperties({defaultEdgeType: 'curve',
+                                             edgeColor: 'source',
+                                             edgeHoverColor: 'default',
+                                             defaultEdgeHoverColor: '#fff',
+                                             edgeLabelSize: 'fixed',
+                                             defaultEdgeLabelSize: 15,
+                                             edgeLabelSizeRatio: 2,
+                                             defaultEdgeLabelColor: '#fff',
+                                             edgeLabelThreshold: 0,
+                                             defaultLabelColor: '#fff',
+                                             defaultEdgeLabelHoverBGColor: '#333',
+                                             edgeHoverSizeRatio: 1,
+                                             hoverSourceOnEdgeHover: false,
+                                             hoverTargetOnEdgeHover: false});
+                sigInst.graphProperties({maxNodeSize: 30,
+                                           edgesPowRatio: 1,
+                                           safe: false});
+                sigInst.mouseProperties({zoomDelta: 0.1,
+                                           dragDelta: 0.2,
+                                           zoomMultiply: 1.382});
                 //debugger;
-                sigInst.draw();
+                refresh();
                 emit("jsready");
+            }
+
+            function refresh(){
+                sigInst.draw();
             }
 
             function emit(signal){
@@ -126,7 +146,20 @@
 
             function clear(){
                 sigInst.empty();
-                sigInst.draw();
+                refresh();
+            }
+
+            function center(){
+                var x = 0;
+                var y = 0;
+                sigInst.iterNodes(function(n){
+                    x = x + n.x;
+                    y = y + n.y;
+                });
+                x = Math.floor(x / sigInst.getNodesCount());
+                y = Math.floor(y / sigInst.getNodesCount());
+                sigInst.position(x, y, 1.5);
+                refresh();
             }
 
             function getUnusedCoord(height, width, maxIterations){
@@ -161,7 +194,7 @@
                         n.attr.selected = false;
                     setColorBasedOnStatus(n);
                 });
-                sigInst.draw();
+                refresh();
             }
 
             function showHapsNames(show){
@@ -174,7 +207,20 @@
                         n.label = "";
                     });
                 }
-                sigInst.draw();
+                refresh();
+            }
+
+            function showWeights(show){
+                if(show){
+                    sigInst.iterEdges(function(e){
+                        e.label = e.weight;
+                    });
+                } else {
+                    sigInst.iterEdges(function(e){
+                        e.label = "";
+                    });
+                }
+                refresh();
             }
 
             function highlightNodes(ids){
@@ -185,7 +231,7 @@
                         n.attr.highlighted = false;
                     setColorBasedOnStatus(n);
                 });
-                sigInst.draw();
+                refresh();
             }
 
             function unhighlightall(){
@@ -193,7 +239,7 @@
                     n.attr.highlighted = false;
                     setColorBasedOnStatus(n);
                 });
-                sigInst.draw();
+                refresh();
             }
 
             function addNode(id, label, x, y){
@@ -204,33 +250,35 @@
                                nodeColor: nodeColor,
                                highlighted: false,
                                selected: false};
-                var node = sigInst.addNode(id, params);
-                sigInst.draw();
+                sigInst.addNode(id, params);
+                refresh();
             }
 
             function delNode(id){
                 sigInst.dropNode(id);
-                sigInst.draw();
+                refresh();
             }
 
             function addEdge(weight, idf, idt){
                 var id = idf + "_" + idt;
-                var params = {weight: weight};
-                var edge = sigInst.addEdge(id, idf, idt, params);
-                sigInst.draw();
+                var params = {weight: weight,
+                               label: weight.toString(),
+                               size: 1};
+                sigInst.addEdge(id, idf, idt, params).draw();
+                refresh();
             }
 
             function filterEdges(edges_id){
                 sigInst.iterEdges(function(e) {
                     e.hidden = !(edges_id.indexOf(e.id) >= 0);
                 });
-                sigInst.draw();
+                refresh();
             }
 
             function delEdge(idf, idt){
                 var id = idf + "_" + idt;
                 sigInst.dropEdge(id);
-                sigInst.draw();
+                refresh();
             }
 
             function delEdgesWithNode(id){
@@ -239,7 +287,7 @@
                         sigInst.dropEdge(e.id);
                     }
                 });
-                sigInst.draw();
+                refresh();
             }
 
             function topology(){
@@ -255,7 +303,7 @@
                     n.x = x;
                     n.y = y;
                 }, [id]);
-                sigInst.draw();
+                refresh();
             }
 
         </script>

@@ -74,7 +74,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
 
         self.network = network.Network(self)
         self.network.node_clicked.connect(self.on_node_clicked)
-        self.pilasLayout.addWidget(self.network)
+        self.networkLayout.addWidget(self.network)
 
         # sql
         self.hapSQLeditor = sheditor.HiglightedEditor("sql")
@@ -425,7 +425,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         """Destroy the explorer widget"""
         self.network.clear()
         self.network.setParent(None)
-        self.pilasLayout.removeWidget(self.network.widget)
+        self.networkLayout.removeWidget(self.network)
         self.ipythonWidget.clear()
         self.ipythonWidget.setParent(None)
         self.consoleLayout.removeWidget(self.ipythonWidget)
