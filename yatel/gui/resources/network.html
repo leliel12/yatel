@@ -101,7 +101,7 @@
                 sigInst = sigma.init(sigRoot)
                 sigInst.configProperties({drawHoverEdges: true});
                 sigInst.drawingProperties({defaultEdgeType: 'curve',
-                                             edgeColor: 'source',
+                                             edgeColor: 'default',
                                              edgeHoverColor: 'default',
                                              defaultEdgeHoverColor: '#fff',
                                              edgeLabelSize: 'fixed',
@@ -120,18 +120,22 @@
                 sigInst.mouseProperties({zoomDelta: 0.1,
                                            dragDelta: 0.2,
                                            zoomMultiply: 1.382});
+
+                sigInst.bind("downnodes", nodeClicked);
+
                 //debugger;
                 refresh();
-                emit("jsready");
             }
 
             function refresh(){
                 sigInst.draw();
             }
 
-            function emit(signal){
+            function nodeClicked(e){
+                var hap_id = e.content[0];
+                selectNode(hap_id);
                 if(typeof python != "undefined")
-                    python.emit(signal);
+                    python.on_nodeclicked(hap_id);
             }
 
             function setColorBasedOnStatus(node){
@@ -213,7 +217,7 @@
             function showWeights(show){
                 if(show){
                     sigInst.iterEdges(function(e){
-                        e.label = e.weight;
+                        e.label = e.weight.toString();
                     });
                 } else {
                     sigInst.iterEdges(function(e){

@@ -42,15 +42,6 @@ from yatel.gui import resources
 # NETWORK WIDGET
 #===============================================================================
 
-class JavascriptInterface(QtCore.QObject):
-
-    jsready = QtCore.pyqtSignal()
-
-    @QtCore.pyqtSlot(str)
-    def emit(self, signal):
-        getattr(self, signal).emit()
-
-
 class Network(QtWebKit.QWebView):
     """Singleton instance for use Pilas widget as QtWidget ofr draw networks
 
@@ -61,10 +52,8 @@ class Network(QtWebKit.QWebView):
         """Init the instance of ``NetworkProxy`` singleton."""
         super(Network, self).__init__(parent=parent)
         self.loop = QtCore.QEventLoop()
-        self.jsinterface = JavascriptInterface()
-        self.loadFinished.connect(self.ready)
-        self.page().mainFrame().addToJavaScriptWindowObject("python",
-                                                            self.jsinterface)
+        self.page().mainFrame().addToJavaScriptWindowObject("python", self)
+
         self._haps = {}
         self._highlighted = ()
         self._selected = None
@@ -72,12 +61,21 @@ class Network(QtWebKit.QWebView):
         self._weights_showed = True
         self._frame = self.page().currentFrame()
 
+        self.loadFinished.connect(self.on_ready)
+
         self.load(QtCore.QUrl.fromLocalFile(resources.get("network.html")))
         self.loop.exec_()
 
-    def ready(self):
+    @QtCore.pyqtSlot(str)
+    def on_nodeclicked(self, hap_id):
+        hap = self._haps[hap_id]
+        self.node_clicked.emit(hap)
+
+    @QtCore.pyqtSlot()
+    def on_ready(self):
+        """Called when the html is ready"""
         self.loop.exit()
-        self.loadFinished.disconnect(self.ready)
+        self.loadFinished.disconnect(self.on_ready)
 
     def py2js(self, obj):
         if isinstance(obj, (list, tuple, dict)):

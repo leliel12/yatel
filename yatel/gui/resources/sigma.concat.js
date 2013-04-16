@@ -1418,7 +1418,7 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, edgelabelsCtx, hoverCtx, edgehov
 
       this.beginPath();
       this.moveTo(0,0);
-      this.lineTo(0,1*sizey);    
+      this.lineTo(0,1*sizey);
       this.lineTo(1*sizex,1*hy);
       this.closePath();
       this.fill();
@@ -1448,11 +1448,11 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, edgelabelsCtx, hoverCtx, edgehov
           var L = Math.sqrt(Math.pow(x2 - xi, 2) + Math.pow(y2 - yi, 2));
           var dx = Math.round((x2 - xi) * r / L);
           var dy = Math.round((y2 - yi) * r / L);
-          
+
           x2 = x2 - dx;
           y2 = y2 - dy;
         }
-        
+
         ctx.moveTo(x1, y1);
         ctx.quadraticCurveTo(xi,
                              yi,
@@ -1482,7 +1482,7 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, edgelabelsCtx, hoverCtx, edgehov
           y2 = y2 - dy;
         }
 
-        ctx.moveTo(x1, y1); 
+        ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
         ctx.stroke();
         if(graph.oriented){
@@ -1560,7 +1560,7 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, edgelabelsCtx, hoverCtx, edgehov
           var xi = (x1 + x2) / 2 + (y2 - y1) / 4, //control point
               yi = (y1 + y2) / 2 + (x1 - x2) / 4, //control point
               t = 0.5;  //length of the curve
-          
+
           var labelCoord = sigma.tools.pointOnQuadraticCurve(t, x1, y1, x2, y2, xi, yi);
           labelX = labelCoord.x;
           labelY = labelCoord.y;
@@ -1629,7 +1629,7 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, edgelabelsCtx, hoverCtx, edgehov
           var xi = (x1 + x2) / 2 + (y2 - y1) / 4, //control point
               yi = (y1 + y2) / 2 + (x1 - x2) / 4, //control point
               t = 0.5;  //length of the curve
-          
+
           var labelCoord = sigma.tools.pointOnQuadraticCurve(t, x1, y1, x2, y2, xi, yi);
           labelX = labelCoord.x;
           labelY = labelCoord.y;
@@ -1805,7 +1805,7 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, edgelabelsCtx, hoverCtx, edgehov
 
       this.beginPath();
       this.moveTo(0,0);
-      this.lineTo(0,1*sizey);    
+      this.lineTo(0,1*sizey);
       this.lineTo(1*sizex,1*hy);
       this.closePath();
       this.fill();
@@ -1835,11 +1835,11 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, edgelabelsCtx, hoverCtx, edgehov
           var L = Math.sqrt(Math.pow(x2 - xi, 2) + Math.pow(y2 - yi, 2));
           var dx = Math.round((x2 - xi) * r / L);
           var dy = Math.round((y2 - yi) * r / L);
-          
+
           x2 = x2 - dx;
           y2 = y2 - dy;
         }
-        
+
         ctx.moveTo(x1, y1);
         ctx.quadraticCurveTo(xi,
                              yi,
@@ -1869,7 +1869,7 @@ function Plotter(nodesCtx, edgesCtx, labelsCtx, edgelabelsCtx, hoverCtx, edgehov
           y2 = y2 - dy;
         }
 
-        ctx.moveTo(x1, y1); 
+        ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
         ctx.stroke();
         if(graph.oriented){
@@ -2164,7 +2164,7 @@ function MouseCaptor(dom) {
 
     // self.isMouseDown && drag(event);
     self.dispatch('move', {
-      'dX': dX, 
+      'dX': dX,
       'dY': dY,
       'stageX': self.stageX,
       'stageY': self.stageY,
@@ -2198,7 +2198,7 @@ function MouseCaptor(dom) {
   };
 
   /**
-   * The handler listening to the 'down' mouse event. 
+   * The handler listening to the 'down' mouse event.
    * If there is a double click event, dispatch a 'dblclick' event.
    * If the Ctrl or Meta key is pressed, dispatch a 'ctrlclick' event.
    * If the center or the right mouse button is used, dispatch a
@@ -2222,6 +2222,7 @@ function MouseCaptor(dom) {
     if(event.ctrlKey || event.metaKey){
       self.dispatch('ctrlclick');
     } else {
+        debugger;
       switch (event.which) {
         case 1:
           //console.log('Left mouse button pressed');
@@ -2251,7 +2252,7 @@ function MouseCaptor(dom) {
           startDrag();
       }
     }
-  
+
     if (event.preventDefault) {
       event.preventDefault();
     } else {
@@ -2711,7 +2712,7 @@ function Graph() {
           }
       }
     }
-    
+
     self.nodes.push(n);
     self.nodesIndex[id.toString()] = n;
 
@@ -2818,7 +2819,7 @@ function Graph() {
     });
 
     /**
-     * Removed this from the above foreach so it doesn't have to loop over all 
+     * Removed this from the above foreach so it doesn't have to loop over all
      * edges every iteration. Large performance boost on very large graphs
      */
     self.edges = self.edges.filter(function(e) {
@@ -2834,7 +2835,7 @@ function Graph() {
         return false;
       }
       return true;
-    }); 
+    });
     return self;
   };
 
@@ -3778,7 +3779,7 @@ sigma.tools.toHex = function(n) {
 */
 sigma.tools.isOnSegment = function(x ,y, x1, y1, x2, y2, w, epsilon) {
   // see http://stackoverflow.com/questions/328107/how-can-you-determine-a-point-is-between-two-other-points-on-a-line-segment
-  if (Math.min(x1, x2) < x && x < Math.max(x1, x2) && 
+  if (Math.min(x1, x2) < x && x < Math.max(x1, x2) &&
       Math.min(y1, y2) < y && y < Math.max(y1, y2)) {  //bounding box
     return Math.abs((y - y1) * (x2 - x1) - (x - x1) * (y2 - y1)) < w * epsilon; //crossproduct < edge thickness
   }
@@ -3788,7 +3789,7 @@ sigma.tools.isOnSegment = function(x ,y, x1, y1, x2, y2, w, epsilon) {
 /**
   * Compute the coordinates of the point positioned
   * at length t in the quadratic bezier curve.
-  * @param  {number} t  In [0,1] the step percentage to reach 
+  * @param  {number} t  In [0,1] the step percentage to reach
   *                     the point in the curve from the context point.
   * @param  {number} x1 The X coordinate of the context point.
   * @param  {number} y1 The Y coordinate of the context point.
@@ -3801,7 +3802,7 @@ sigma.tools.isOnSegment = function(x ,y, x1, y1, x2, y2, w, epsilon) {
 sigma.tools.pointOnQuadraticCurve = function(t, x1, y1, x2, y2, xi, yi) {
   // see http://stackoverflow.com/questions/5634460/quadratic-bezier-curve-calculate-point
   // see http://www.html5canvastutorials.com/tutorials/html5-canvas-quadratic-curves/
-  return {'x': Math.pow(1-t, 2) * x1 + 2 * (1-t) * t * xi + Math.pow(t, 2) * x2, 
+  return {'x': Math.pow(1-t, 2) * x1 + 2 * (1-t) * t * xi + Math.pow(t, 2) * x2,
           'y': Math.pow(1-t, 2) * y1 + 2 * (1-t) * t * yi + Math.pow(t, 2) * y2};
 };
 
@@ -3834,8 +3835,8 @@ sigma.tools.isOnQuadraticCurve = function(x ,y, x1, y1, x2, y2, xi, yi, w, epsil
       pt = sigma.tools.pointOnQuadraticCurve(t, x1, y1, x2, y2, xi, yi), // get x(t), y(t)
       dt = Math.sqrt(Math.pow(x - pt.x, 2) + Math.pow(y - pt.y, 2)); // distance between the point and pt
  // console.log('---------------');
-  while (t >= 0 && t <= 1 && 
-    (dt > dThreshold) && 
+  while (t >= 0 && t <= 1 &&
+    (dt > dThreshold) &&
     (r > rThreshold || r < -rThreshold)) {
     // console.log(t);
     _dt = dt;
