@@ -46,7 +46,7 @@ from yatel.gui import version_dialog
 # CONSTANTS
 #===============================================================================
 
-#: Template for create the *About Yatel..* pop-up
+# : Template for create the *About Yatel..* pop-up
 ABOUT_TEMPLATE = string.Template("""
 <p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-weight:600;">$title</span></p>
 <p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-weight:600;"></p>
@@ -154,7 +154,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
                     self.explorerFrame = None
                     self.actionSave.setEnabled(False)
                     closed = True
-                else: # status == QtGui.QMessageBox.Cancel:
+                else:  # status == QtGui.QMessageBox.Cancel:
                     closed = False
             else:
                 msg = self.tr("Do you want to close the actual project?")
@@ -171,7 +171,7 @@ class MainWindow(uis.UI("MainWindow.ui")):
                     self.explorerFrame = None
                     self.actionSave.setEnabled(False)
                     closed = True
-                else: # status == QtGui.QMessageBox.Cancel:
+                else:  # status == QtGui.QMessageBox.Cancel:
                     closed = False
             if closed:
                 self.actionSave.setEnabled(False)

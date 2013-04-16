@@ -115,7 +115,7 @@ def use_setuptools(
     except pkg_resources.DistributionNotFound:
         pass
 
-    del pkg_resources, sys.modules['pkg_resources']    # reload ok
+    del pkg_resources, sys.modules['pkg_resources']  # reload ok
     return do_download()
 
 def download_setuptools(
@@ -210,7 +210,7 @@ def main(argv, version=DEFAULT_VERSION):
             egg = download_setuptools(version, delay=0)
             sys.path.insert(0, egg)
             from setuptools.command.easy_install import main
-            return main(list(argv) + [egg])   # we're done here
+            return main(list(argv) + [egg])  # we're done here
         finally:
             if egg and os.path.exists(egg):
                 os.unlink(egg)
@@ -232,7 +232,7 @@ def main(argv, version=DEFAULT_VERSION):
         except ImportError:
             from easy_install import main
         main(list(argv) + [download_setuptools(delay=0)])
-        sys.exit(0) # try to force an exit
+        sys.exit(0)  # try to force an exit
     else:
         if argv:
             from setuptools.command.easy_install import main

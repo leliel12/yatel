@@ -33,7 +33,7 @@ from yatel import dom
 # CONSTANTS
 #===============================================================================
 
-#: Default configuration values for various rdbms supported by ``peewee``.
+# : Default configuration values for various rdbms supported by ``peewee``.
 ENGINES_CONF = {
     "sqlite": {
         "class": peewee.SqliteDatabase,
@@ -67,13 +67,13 @@ ENGINES_CONF = {
     }
 }
 
-#: Names of engines supported by ``peewee``.
+# : Names of engines supported by ``peewee``.
 ENGINES = ENGINES_CONF.keys()
 
-#: Names of engines that database is stored in file
+# : Names of engines that database is stored in file
 FILE_ENGINES = [e for e in ENGINES if ENGINES_CONF[e]["name_isfile"]]
 
-#: ``dict``  with ``peewee`` *field names* as *keys* and *fields* as values.
+# : ``dict``  with ``peewee`` *field names* as *keys* and *fields* as values.
 NAME2FIELD = {
     "CharField": peewee.CharField,
     "TextField": peewee.TextField,
@@ -90,19 +90,19 @@ NAME2FIELD = {
     "TimeField": peewee.TimeField,
 }
 
-#: ``dict``  with ``peewee`` *field* as *keys* and *fields names* as values.
+# : ``dict``  with ``peewee`` *field* as *keys* and *fields names* as values.
 FIELD2NAME = dict((v, k) for k, v in NAME2FIELD.items())
 
-#: The name of *haplotype* table type.
+# : The name of *haplotype* table type.
 HAPLOTYPES_TABLE = "haplotypes"
 
-#: The name of *fact* table type.
+# : The name of *fact* table type.
 FACTS_TABLE = "facts"
 
-#: The name of *edges* table type.
+# : The name of *edges* table type.
 EDGES_TABLE = "edges"
 
-#: The name of all table types.
+# : The name of all table types.
 TABLES = (HAPLOTYPES_TABLE, FACTS_TABLE, EDGES_TABLE)
 
 

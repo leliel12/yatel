@@ -28,10 +28,10 @@ import pycante
 # CONSTANTS
 #===============================================================================
 
-#: Path of the uis folder
+# : Path of the uis folder
 PATH = os.path.abspath(os.path.dirname(__file__))
 
-#: Function to construct a class hierarchy from a *QtDesigner* ``ui`` files.
+# : Function to construct a class hierarchy from a *QtDesigner* ``ui`` files.
 UI = pycante.EDir(PATH)
 
 

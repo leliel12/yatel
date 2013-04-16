@@ -34,7 +34,7 @@ class DoubleSlider(uis.UI("DoubleSlider.ui")):
     
     """
     
-    #: Signal emited when the slider change
+    # : Signal emited when the slider change
     rangeChanged = QtCore.pyqtSignal(int, int)
     
     

@@ -32,7 +32,7 @@ from yatel import util
 # CONSTANTS
 #===============================================================================
 
-#: this is the default dialect of csv readed by yatel
+# : this is the default dialect of csv readed by yatel
 EXCEL_DIALECT = csv.get_dialect("excel")
 
 

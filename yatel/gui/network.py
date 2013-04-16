@@ -78,10 +78,13 @@ class Network(QtWebKit.QWebView):
         self.loadFinished.disconnect(self.on_ready)
 
     def py2js(self, obj):
+        """Convert the python object to javascript object"""
         if isinstance(obj, (list, tuple, dict)):
             if isinstance(obj, tuple):
                 obj = list(obj)
             return json.dumps(obj)
+        elif isinstance(obj, bool):
+            return unicode(obj).lower()
         elif obj is None:
             return u"null"
         elif not isinstance(obj, (int, float)):
@@ -295,21 +298,21 @@ if __name__ == "__main__":
 
     n.highlight_nodes(a2, a3)
 
-    #n.unhighlightall()
+    # n.unhighlightall()
 
     n.topology()
     n.center()
 
-    #n.del_edges_with_node(a2)
-    #~ n.filter_edges(edges[0], edges[1])
-    #~ n.del_node(a0)
-    #~ n.del_edge(edges[1])
-#~
-    #~ f = dom.Fact(a1.hap_id, a=1)
-    #~ n.highlight_nodes(a1, a2)
-    #~ n.node_clicked.conectar(printer)
-    #~ n.node_clicked.conectar(selector)
-#~
+    # n.del_edges_with_node(a2)
+    # ~ n.filter_edges(edges[0], edges[1])
+    # ~ n.del_node(a0)
+    # ~ n.del_edge(edges[1])
+# ~
+    # ~ f = dom.Fact(a1.hap_id, a=1)
+    # ~ n.highlight_nodes(a1, a2)
+    # ~ n.node_clicked.conectar(printer)
+    # ~ n.node_clicked.conectar(selector)
+# ~
     sys.exit(yatel.gui.APP.exec_())
-    #~ pilas.ejecutar()
-#~
+    # ~ pilas.ejecutar()
+# ~

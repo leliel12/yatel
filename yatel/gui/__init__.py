@@ -48,7 +48,7 @@ from yatel.gui import error_dialog
 # GLOBALS
 #===============================================================================
 
-#: Before anything start a QAplication is created
+# : Before anything start a QAplication is created
 APP = QtGui.QApplication(sys.argv)
 APP.setApplicationName(yatel.PRJ)
 

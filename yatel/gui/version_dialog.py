@@ -35,10 +35,10 @@ class VersionDialog(uis.UI("VersionDialog.ui")):
 
     """
 
-    #: "Create a new version" mode for the dialog.
+    # : "Create a new version" mode for the dialog.
     SAVE = "save"
 
-    #: "Load a version" mode for the dialog.
+    # : "Load a version" mode for the dialog.
     OPEN = "open"
 
     def __init__(self, parent, dialog_type, conn):

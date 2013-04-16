@@ -78,7 +78,7 @@ class IPythonWidget(RichIPythonWidget):
 
     """
 
-    _instance = None # the singleton instance
+    _instance = None  # the singleton instance
 
     @staticmethod
     def __new__(cls, *args, **kwargs):

@@ -38,10 +38,10 @@ class ConnectionSetupDialog(uis.UI("ConnectionSetupDialog.ui")):
     """Dialog for setup a connection to databases
 
     """
-    #: Constant for open a dialog as open conection mode.
+    # : Constant for open a dialog as open conection mode.
     OPEN = "open"
 
-    #: Constant for open a dialog as create coneccion mode.
+    # : Constant for open a dialog as create coneccion mode.
     CREATE = "create"
 
     def __init__(self, parent, action, *args, **kwargs):

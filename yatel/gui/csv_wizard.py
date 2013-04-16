@@ -42,16 +42,16 @@ class CSVChargeFrame(uis.UI("CSVChargeFrame.ui")):
 
     """
 
-    #: Constant for open create a wizard page for creation of haplotypes.
+    # : Constant for open create a wizard page for creation of haplotypes.
     CONTENT_HAPLOTYPES = "haplotypes"
 
-    #: Constant for open create a wizard page for creation of facts.
+    # : Constant for open create a wizard page for creation of facts.
     CONTENT_FACTS = "facts"
 
-    #: Constant for open create a wizard page for creation of edges.
+    # : Constant for open create a wizard page for creation of edges.
     CONTENT_EDGES = "edges"
 
-    #: Constant for identify a id of diferete a diferent types of objects.
+    # : Constant for identify a id of diferete a diferent types of objects.
     CONTENT_IDS = {
         CONTENT_HAPLOTYPES: "ID",
         CONTENT_FACTS: "Hap ID",

@@ -206,7 +206,7 @@ class YatelRemoteClient(object):
         self.ping()
 
     def init_with_values(self, *args, **kwargs):
-        msg ="The method 'init_with_values' is not implementhed"
+        msg = "The method 'init_with_values' is not implementhed"
         raise NotImplementedError(msg)
 
     def ping(self, id=None):

@@ -39,7 +39,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
 
     """
 
-    #: Signal emited when the save status of the exploration is chaged.
+    # : Signal emited when the save status of the exploration is chaged.
     saveStatusChanged = QtCore.pyqtSignal(bool)
 
     def __init__(self, parent, yatel_connection):
@@ -100,7 +100,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
 
         # load latest version
         self.tabWidget.setCurrentIndex(0)
-        version = self.conn.get_version() # the latest
+        version = self.conn.get_version()  # the latest
         self.load_version(version)
         if version["id"] == 1:
             self.save_version("topology_added", "added topological info")
@@ -303,20 +303,16 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self.attTableWidget.setItem(idx, 0, nameitem)
             self.attTableWidget.setItem(idx, 1, valueitem)
 
-    def on_node_clicked(self, evt):
+    def on_node_clicked(self, hap):
         """Slot executed when a *node* is clicked in the network.
-
-        NOTE: this is a **Pilas** slot.
 
         This method select the index of the haplotype in ``hapsComboBox`` and
         execute the ``on_hapsComboBox_currentIndexChanged`` slot.
 
         **Params**
-            :evt: A ``dict`` with the key ``node`` with value is the haplotype
-                  clicked.
+            :hap: an haplotype
 
         """
-        hap = evt["node"]
         self._set_save_status(False)
         for idx in range(self.hapsComboBox.count()):
             actual_hap = self.hapsComboBox.itemData(idx)
@@ -537,10 +533,10 @@ class EnviromentDialog(uis.UI("EnviromentDialog.ui")):
 
 class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
 
-    #: Signal emited when the filter change his status
+    # : Signal emited when the filter change his status
     filterChanged = QtCore.pyqtSignal()
 
-    #: Signal emited when the filter request his removal
+    # : Signal emited when the filter request his removal
     removeRequested = QtCore.pyqtSignal('QWidget')
 
     def __init__(self, env):

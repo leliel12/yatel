@@ -28,7 +28,7 @@ import os
 # CONSTANTS
 #===============================================================================
 
-#: Path of the resource folder
+# : Path of the resource folder
 PATH = os.path.dirname(os.path.abspath(__file__))
 
 
