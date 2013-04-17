@@ -34,6 +34,16 @@ from yatel.gui import network
 #
 #===============================================================================
 
+class FakeWidget(QtGui.QWidget):
+    def __init__(self, *args, **kwargs):
+        super(FakeWidget, self).__init__()
+        pass
+    def __call__(self, *args, **kwargs):
+        return FakeWidget()
+    def __getattribute__(self, *args, **kwargs):
+        return FakeWidget()
+
+
 class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     """This is the frame make all explorations
 
@@ -72,7 +82,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.consoleLayout.addWidget(self.ipythonWidget)
         self.ipythonWidget.reset_ns(yatel=self.parent().parent())
 
-        self.network = network.Network(self)
+        self.network = FakeWidget(self)
+        #self.network = network.Network(self)
         self.network.node_clicked.connect(self.on_node_clicked)
         self.networkLayout.addWidget(self.network)
 
