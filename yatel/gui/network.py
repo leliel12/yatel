@@ -51,6 +51,7 @@ class Network(QtWebKit.QWebView):
     def __init__(self, parent=None):
         """Init the instance of ``NetworkProxy`` singleton."""
         super(Network, self).__init__(parent=parent)
+        self.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
         self.loop = QtCore.QEventLoop()
         self.page().mainFrame().addToJavaScriptWindowObject("python", self)
 
@@ -275,6 +276,7 @@ if __name__ == "__main__":
     settings.setAttribute(QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
 
     n = Network()
+    n.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
 
     a0 = dom.Haplotype("hap0")
     a1 = dom.Haplotype("hap1")
