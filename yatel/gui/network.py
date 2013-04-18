@@ -293,7 +293,6 @@ if __name__ == "__main__":
              dom.Edge(666, a2.hap_id, a0.hap_id)]
     n.add_edges(*edges)
     n.haps_names_showed
-    n.move_node(a3, 0, 50)
     n.get_unused_coord()
 
     n.highlight_nodes(a2, a3)

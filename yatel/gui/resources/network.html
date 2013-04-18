@@ -123,7 +123,6 @@
 
                 sigInst.bind("downnodes", nodeClicked);
 
-                //debugger;
                 refresh();
             }
 
@@ -154,17 +153,25 @@
             }
 
             function center(){
-                var x = 0;
-                var y = 0;
+                var pts = [];
                 sigInst.iterNodes(function(n){
-                    x = x + n.x;
-                    y = y + n.y;
+                    pts.push({x: n.x, y: n.y});
                 });
-                x = Math.floor(x / sigInst.getNodesCount());
-                y = Math.floor(y / sigInst.getNodesCount());
-                sigInst.position(x, y, 1.5);
-                refresh();
+                var sumA = 0;
+                var sumCx = 0;
+                var sumCy = 0;
+                for(var i=0; i<pts.length-1;i++){
+                    var com = pts[i].x * pts[i+1].y - pts[i+1].x * pts[i].y;
+                    sumA += com;
+                    sumCx += (pts[i].x + pts[i+1].x) * com;
+                    sumCy += (pts[i].y + pts[i+1].y) * com;
+                }
+                var A = (1/2) * sumA;
+                var Cx = (1/(6*A)) * sumCx;
+                var Cy = (1/(6*A)) * sumCy;
+                sigInst.goTo(Cx, Cy);
             }
+
 
             function getUnusedCoord(height, width, maxIterations){
                 var all_xys = []
