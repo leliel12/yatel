@@ -53,7 +53,7 @@ The version `0.1` of the format has four elements on the root of declaration.
 
   .. code-block:: javascript
 
-        "version": {},
+        "version": []
 
 - ``haplotypes``: A list of objects representing ``yatel.dom.Haplotype``
   instances.
