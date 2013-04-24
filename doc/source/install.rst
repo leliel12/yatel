@@ -10,7 +10,7 @@ Ubuntu/Debian/Mint
     .. code-block:: bash
 
             $ sudo apt-get install python-setuptools python-pip python-qt4
-              swig subversion python-numpy python-sip
+              python-numpy python-sip
 
 2. **Optional** GraphTool
 
