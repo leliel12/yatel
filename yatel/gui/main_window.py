@@ -300,7 +300,6 @@ class MainWindow(uis.UI("MainWindow.ui")):
 
         """
         try:
-            self.explorerFrame.setVisible(False)
             title = self.tr("Export Yatel Yaml Format")
             filetypes = self.tr("Yatel Yaml Format (*.yyf *.yaml *.yml)")
             filename = QtGui.QFileDialog.getSaveFileName(self, title,
@@ -318,8 +317,6 @@ class MainWindow(uis.UI("MainWindow.ui")):
                                    default_flow_style=False)
         except Exception as err:
             error_dialog.critical(self.tr("Error"), err)
-        finally:
-            self.explorerFrame.setVisible(True)
 
     @QtCore.pyqtSlot()
     def on_actionImportYYF_triggered(self):
@@ -362,7 +359,6 @@ class MainWindow(uis.UI("MainWindow.ui")):
 
         """
         try:
-            self.explorerFrame.setVisible(False)
             title = self.tr("Export Yatel Json Format")
             filetypes = self.tr("Yatel Json Format (*.yjf *.json)")
             filename = QtGui.QFileDialog.getSaveFileName(self, title,
@@ -380,8 +376,6 @@ class MainWindow(uis.UI("MainWindow.ui")):
                                    indent=2, ensure_ascii=True)
         except Exception as err:
             error_dialog.critical(self.tr("Error"), err)
-        finally:
-            self.explorerFrame.setVisible(True)
 
     @QtCore.pyqtSlot()
     def on_actionImportYJF_triggered(self):
