@@ -416,7 +416,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         """
         try:
             topology = self.network.topology()
-            weight_range = self.rs.rangeSelected()
+            weight_range = self.rs.getRange()
             sql = self.hapSQLeditor.text().strip()
             enviroments = []
             for ridx in range(self.enviromentsTableWidget.rowCount()):
