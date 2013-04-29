@@ -36,6 +36,7 @@ for name in API_NAMES:
 #===============================================================================
 
 import sys
+import os
 
 from PyQt4 import QtCore, QtGui
 
@@ -66,13 +67,16 @@ def run_gui(parser=None):
     """
     splash = main_window.SplashScreen()
     if "--serve" not in APP.arguments():
-        pass#splash.show()
+        splash.show()
     QtCore.QThread.sleep(1)
     APP.processEvents()
     win = main_window.MainWindow()
     if parser:
         try:
-            _, returns = parser(APP.arguments()[1:])
+            farg = os.path.basename(APP.arguments()[0])
+            farg = os.path.splitext(farg)[0].lower()
+            pidx = 2 if farg == "python" else 1
+            _, returns = parser(APP.arguments()[pidx:])
             conn = returns.database
             if conn:
                 if not conn.inited:

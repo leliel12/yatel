@@ -43,7 +43,8 @@ Finally open a console and execute
 
     .. code-block:: bat
 
-        > easy_install yatel
+        > easy_install pip
+        > pip install yatel
 
 
 From repo
