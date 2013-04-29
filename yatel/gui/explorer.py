@@ -23,7 +23,7 @@
 from PyQt4 import QtGui, QtCore
 
 from yatel.gui import uis
-from yatel.gui import double_slider
+from yatel.gui import qrangeslider
 from yatel.gui import error_dialog
 from yatel.gui import sheditor
 from yatel.gui import ipython
@@ -96,10 +96,11 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         minw, maxw = [e.weight or 0 for e in self.conn.minmax_edges()]
         minw = int(minw) - (1 if minw > int(minw) else 0)
         maxw = int(maxw) + (1 if maxw > int(maxw) else 0)
-        self.rs = double_slider.DoubleSlider(self, self.tr("Weights"),
-                                             minw, maxw)
+
+        self.rs = qrangeslider.QRangeSlider(minw, maxw, parent=self)
         self.rs.rangeChanged.connect(self.on_weightRange_changed)
         self.sliderLayout.addWidget(self.rs)
+
 
         # layout
         self.hSplitter.setSizes(

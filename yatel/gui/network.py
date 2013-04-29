@@ -11,7 +11,7 @@
 # DOC
 #===============================================================================
 
-"""Wrapper for use actors and pilas widget inside a qt app as a interactive
+"""Wrapper for use actors and pilas sigmajs inside a qt app as a interactive
 network.
 
 """
@@ -277,6 +277,9 @@ if __name__ == "__main__":
 
     n = Network()
     n.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
+    win = QtGui.QMainWindow()
+    win.setCentralWidget(n)
+    win.show()
 
     a0 = dom.Haplotype("hap0")
     a1 = dom.Haplotype("hap1")
@@ -288,7 +291,6 @@ if __name__ == "__main__":
     n.add_node(a3, 0, -100)
 
     n.select_node(a3)
-    n.show()
 
     edges = [dom.Edge(555, a0.hap_id, a1.hap_id),
              dom.Edge(777, a3.hap_id, a2.hap_id),

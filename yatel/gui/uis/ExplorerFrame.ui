@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>458</width>
+    <width>672</width>
     <height>356</height>
    </rect>
   </property>
@@ -36,10 +36,16 @@
        <enum>Qt::Horizontal</enum>
       </property>
       <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="networkLayout">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
         <property name="sizeConstraint">
-         <enum>QLayout::SetMinimumSize</enum>
+         <enum>QLayout::SetDefaultConstraint</enum>
         </property>
+        <item>
+         <layout class="QVBoxLayout" name="networkLayout"/>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="sliderLayout"/>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="verticalLayoutWidget">
@@ -124,9 +130,6 @@
      <widget class="QWidget" name="layoutWidget">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <layout class="QVBoxLayout" name="sliderLayout"/>
-       </item>
-       <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
@@ -142,6 +145,24 @@
            <string>Enviroments</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QTableWidget" name="enviromentsTableWidget">
+             <property name="showGrid">
+              <bool>false</bool>
+             </property>
+             <attribute name="horizontalHeaderMinimumSectionSize">
+              <number>30</number>
+             </attribute>
+             <attribute name="horizontalHeaderStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <column>
+              <property name="text">
+               <string>Filter</string>
+              </property>
+             </column>
+            </widget>
+           </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
@@ -165,24 +186,6 @@
               </widget>
              </item>
             </layout>
-           </item>
-           <item>
-            <widget class="QTableWidget" name="enviromentsTableWidget">
-             <property name="showGrid">
-              <bool>false</bool>
-             </property>
-             <attribute name="horizontalHeaderMinimumSectionSize">
-              <number>30</number>
-             </attribute>
-             <attribute name="horizontalHeaderStretchLastSection">
-              <bool>true</bool>
-             </attribute>
-             <column>
-              <property name="text">
-               <string>Filter</string>
-              </property>
-             </column>
-            </widget>
            </item>
           </layout>
          </widget>
