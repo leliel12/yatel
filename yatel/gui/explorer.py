@@ -74,13 +74,13 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         # ipython
         self.ipythonWidget = ipython.IPythonWidget(self.tr(
             "\nUse:\n"
-            "  'yatel' -> is the main window.\n"
-            "  'yatel.explorer' -> the frame of the actual project.\n"
-            "  'yatel.explorer.conn' -> context connection\n"
-            "  'yatel.explorer.network' ->  the network graph\n"
+            "  'win' -> is the main window.\n"
+            "  'win.explorer' -> the frame of the actual project.\n"
+            "  'win.explorer.conn' -> context connection\n"
+            "  'win.explorer.network' ->  the network graph\n"
         ))
         self.consoleLayout.addWidget(self.ipythonWidget)
-        self.ipythonWidget.reset_ns(yatel=self.parent().parent())
+        self.ipythonWidget.reset_ns(win=self.parent().parent())
 
         #self.network = FakeWidget(self)
         self.network = network.Network(self)
