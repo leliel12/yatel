@@ -61,19 +61,15 @@ class VersionDialog(uis.UI("VersionDialog.ui")):
         else:
             raise ValueError("Invalid dialog_type")
         self.dialog_type = dialog_type
-        for idx, ver in enumerate(conn.versions_infos()):
-            id, date, tag = ver
-            self.versionsTableWidget.insertRow(idx)
-            idItem = QtGui.QTableWidgetItem(str(id))
-            dateItem = QtGui.QTableWidgetItem(date.strftime(yatel.DATETIME_FORMAT))
-            tagItem = QtGui.QTableWidgetItem(tag)
-            self.versionsTableWidget.setItem(idx, 0, idItem)
-            self.versionsTableWidget.setItem(idx, 1, tagItem)
-            self.versionsTableWidget.setItem(idx, 2, dateItem)
+        for ver in conn.versions_infos():
+            vid, date, tag = ver
+            item = QtGui.QTreeWidgetItem([unicode(vid), tag,
+                                          date.strftime(yatel.DATETIME_FORMAT)])
+            self.versionsTreeWidget.addTopLevelItem(item)
             if dialog_type == self.SAVE:
                 self._existing.append(tag)
 
-    def on_versionsTableWidget_itemSelectionChanged(self):
+    def on_versionsTreeWidget_itemSelectionChanged(self):
         """Slot executed when a version change in the list.
 
         This method enabled the ``acceptPushButton``and set the comment of
@@ -83,15 +79,14 @@ class VersionDialog(uis.UI("VersionDialog.ui")):
 
 
         """
-        row = self.versionsTableWidget.currentRow()
-        id = int(self.versionsTableWidget.item(row, 0).text())
-        tag = self.versionsTableWidget.item(row, 1).text()
-        comment = self.conn.get_version(id)["comment"]
+        item = self.versionsTreeWidget.currentItem()
+        vid = int(item.text(0))
+        tag = item.text(1)
+        comment = self.conn.get_version(vid)["comment"]
         if self.dialog_type == self.OPEN:
             self.acceptPushButton.setEnabled(True)
             self.commentBrowser.setText(comment)
         elif self.dialog_type == self.SAVE:
-            item = self.versionsList.currentItem()
             self.versionLineEdit.setText(tag)
             self.saveCommentTextEdit.setText(comment)
 
@@ -116,8 +111,8 @@ class VersionDialog(uis.UI("VersionDialog.ui")):
         Only usefull in ``VersionDialog.OPEN``.
 
         """
-        row = self.versionsTableWidget.currentRow()
-        return int(self.versionsTableWidget.item(row, 0).text())
+        item = self.versionsTreeWidget.currentItem()
+        return int(item.text(0))
 
     def new_version(self):
         """Return the tag and comment of the new version.

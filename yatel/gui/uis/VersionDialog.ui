@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>463</width>
+    <width>415</width>
     <height>402</height>
    </rect>
   </property>
@@ -47,16 +47,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QTableWidget" name="versionsTableWidget">
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
-     <attribute name="horizontalHeaderStretchLastSection">
-      <bool>true</bool>
-     </attribute>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
+    <widget class="QTreeWidget" name="versionsTreeWidget">
      <column>
       <property name="text">
        <string>ID</string>
@@ -69,7 +60,7 @@
      </column>
      <column>
       <property name="text">
-       <string>Datetime</string>
+       <string>Date &amp; Time</string>
       </property>
      </column>
     </widget>
@@ -117,7 +108,6 @@
   <tabstop>acceptPushButton</tabstop>
   <tabstop>versionLineEdit</tabstop>
   <tabstop>saveCommentTextEdit</tabstop>
-  <tabstop>versionsTableWidget</tabstop>
   <tabstop>cancelPushButton</tabstop>
  </tabstops>
  <resources/>
