@@ -44,6 +44,9 @@
             NodeColor.prototype.toSelectedString = function() {
                 return "rgb(255, 0, 0)";
             }
+            NodeColor.prototype.toSelAndHighString = function() {
+                return "rgb(0, 0, 255)";
+            }
 
 
         </script>
@@ -139,7 +142,9 @@
 
             function setColorBasedOnStatus(node){
                 var color = node.attr.nodeColor;
-                if(node.attr.selected)
+                if(node.attr.selected && node.attr.highlighted)
+                    node.color = color.toSelAndHighString();
+                else if(node.attr.selected)
                     node.color = color.toSelectedString();
                 else if(node.attr.highlighted)
                     node.color = color.toColorString();
