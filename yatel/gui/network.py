@@ -155,7 +155,7 @@ class Network(QtWebKit.QWebView):
 
     def highlight_nodes(self, *haps):
         """Highlight all the nodes given in a tuple ``*haps``."""
-        ids = [hap.hap_id for hap in haps]
+        ids = [unicode(hap.hap_id) for hap in haps]
         self.js_function("highlightNodes", ids)
         self._highlighted = haps
 
@@ -177,22 +177,24 @@ class Network(QtWebKit.QWebView):
 
         """
         if hap.hap_id not in self._haps:
-            self._haps[hap.hap_id] = hap
+            self._haps[unicode(hap.hap_id)] = hap
             self.js_function("addNode", hap.hap_id, hap.hap_id, x, y)
 
     def del_node(self, hap):
         """Delete the node asociated to the given ``yatel.dom.Haplotype`` *hap*.
 
         """
-        self._haps.pop(hap.hap_id)
-        self.js_function("delNode", hap.hap_id)
+        hap_id = unicode(hap.hap_id)
+        self._haps.pop(hap_id)
+        self.js_function("delNode", hap_id)
 
     def add_edge(self, edge):
         """Add a new edge between the nodes asociated to the *haplotypes* of
         the ``yatel.dom.Edge`` instance.
 
         """
-        self.js_function("addEdge", edge.weight, *edge.haps_id)
+        haps_id = map(unicode, edge.haps_id)
+        self.js_function("addEdge", edge.weight, *haps_id)
 
     def add_edges(self, *edges):
         """Add a multiple new edge between the nodes asociated to the
@@ -205,11 +207,13 @@ class Network(QtWebKit.QWebView):
         """Show only the listed ``*edges``"""
         eids = []
         for e in edges:
-            eids.append("_".join(e.haps_id))
+            haps_id = map(unicode, e.haps_id)
+            eids.append("_".join(haps_id))
         self.js_function("filterEdges", eids)
 
     def del_edge(self, edge):
         """Delete the given edge"""
+        haps_id = map(unicode, edge.haps_id)
         self.js_function("delEdge", *edge.haps_id)
 
     def del_edges_with_node(self, hap):
@@ -217,7 +221,7 @@ class Network(QtWebKit.QWebView):
         ``hap``.
 
         """
-        self.js_function("delEdgesWithNode", hap.hap_id)
+        self.js_function("delEdgesWithNode", unicode(hap.hap_id))
 
     def topology(self):
         """Gets a ``dict`` qith keys as ``yatel.dom.Haplotype`` and value a
