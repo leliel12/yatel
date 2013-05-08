@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # "THE WISKEY-WARE LICENSE":
-# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
 # you can do whatever you want with this stuff. If we meet some day, and you
 # think this stuff is worth it, you can buy me a WISKEY us return.
 
@@ -46,7 +46,7 @@ def construct_facts(cool, column_haplotype):
     Params:
 
         :cool:
-            csvcool.CSVCool instance that containing information on all known 
+            csvcool.CSVCool instance that containing information on all known
             Facts.
         :column_haplotype:
             Name of the column containing the id of the instance of the
@@ -64,7 +64,7 @@ def construct_facts(cool, column_haplotype):
             else:
                 cname = cname if cname != "hap_id" else cname + "_"
                 atts[cname] = cvalue
-        
+
         facts.append(dom.Fact(hap_id, **atts))
     return tuple(facts)
 
@@ -127,9 +127,9 @@ def construct_edges(cool, column_weight):
 
 def dump(haps, facts, edges):
     """Convert dom objects into CSVCool instances
-    
+
     """
-    
+
     keys = set(["hap_id"])
     for h in haps:
         assert isinstance(h, dom.Haplotype)
@@ -142,7 +142,7 @@ def dump(haps, facts, edges):
             row.append(getattr(h, k, None))
         rows.append(row)
     cool_haps = csvcool.CSVCool(keys, rows)
-    
+
     keys = set(["hap_id"])
     for f in facts:
         assert isinstance(f, dom.Fact)
@@ -155,7 +155,7 @@ def dump(haps, facts, edges):
             row.append(getattr(f, k, None))
         rows.append(row)
     cool_facts = csvcool.CSVCool(keys, rows)
-        
+
     nodes = 0
     for e in edges:
         assert isinstance(e, dom.Edge)
@@ -171,22 +171,22 @@ def dump(haps, facts, edges):
                 row.append(None)
         rows.append(row)
     cool_edges = csvcool.CSVCool(keys, rows)
-        
+
     return col_haps, cool_facts, cool_edges
-    
+
 
 
 def load(cool_haps, cool_facts, cool_edges):
     """Convert CSVCool instances into dom objects
-    
-    """
-    return (
-        construct_haplotypes(cool_haps),
-        construct_facts(cool_facts),
-        construct_edges(cool_edges)
-    )
 
-    
+    """
+    haps = construct_haplotypes(cool_haps)
+    facts = construct_facts(cool_facts)
+    edges = construct_edges(cool_edges)
+    dom.validate(haps, facts, edges)
+    return haps, facts, edges
+
+
 #===============================================================================
 # MAIN
 #===============================================================================

@@ -265,25 +265,52 @@ def validate(haplotypes, facts, edges):
 
     """
     haps_id = set()
+    haps_attrs = {}
     for hap in haplotypes:
         if hap.hap_id in haps_id:
             msg = "Duplicated hap_id '{id}'".format(id=hap.hap_id)
             raise ValidationError(msg)
         haps_id.add(hap.hap_id)
+        for an, av in [("hap_id", hap.hap_id)] +  hap.items_attrs():
+            if an not in haps_attrs:
+                haps_attrs[an] = type(av)
+            elif not isinstance(av, haps_attrs[an]):
+                msg = ("Inconsistence of attribute type '{an}' of Haplotype '{hap}'. ",
+                       "Types found: '{types}'")
+                msg = msg.format(an=an, hap=repr(hap),
+                                 types=", ".join([str(facts_attrs[an]),
+                                                  str(type(av))]))
+                raise ValidationError(msg)
 
+    facts_attrs = {}
     for fact in facts:
         if fact.hap_id not in haps_id:
             msg = "Haplotype id '{id}' of Fact '{fact}' not found on given haplotypes"
-            raise ValidationError(msg.format(id=fact.hap_id,
-                                               fact=repr(fact)))
+            msg = msg.format(id=fact.hap_id,fact=repr(fact))
+            raise ValidationError(msg)
+        for an, av in [("hap_id", fact.hap_id)] +  fact.items_attrs():
+            if an not in facts_attrs:
+                facts_attrs[an] = type(av)
+            elif not isinstance(av, facts_attrs[an]):
+                msg = ("Inconsistence of attribute type '{an}' of Fact '{fact}'. "
+                       "Types found: '{types}'")
+                msg = msg.format(an=an, fact=repr(fact),
+                                 types=", ".join([str(facts_attrs[an]),
+                                                  str(type(av))]))
+                raise ValidationError(msg)
 
     for edge in edges:
         for hap_id in edge.haps_id:
             if hap_id not in haps_id:
                 msg = "Haplotype id '{id}' of edge '{edge}' not found on given haplotypes"
-                raise ValidationError(msg.format(id=edge.hap_id,
-                                                   edge=repr(edge)))
-
+                mag = msg.format(id=edge.hap_id, edge=repr(edge))
+                raise ValidationError(msg)
+            if not isinstance(edge.weight, (int, float)):
+                msg = ("Weight of Edge '{edge}' is not int or float: "
+                       "Found '{w}' or type '{t}'")
+                msg = msg.format(edge=repr(edge), w=edge.weight,
+                                 t=type(edge.weight))
+                raise ValidationError(msg)
     return True
 
 

@@ -152,10 +152,12 @@ def load(data):
     into dom objects.
 
     """
-    return (tuple(dict2hap(kw) for kw in data["haplotypes"]),
-             tuple(dict2fact(kw) for kw in data["facts"]),
-             tuple(dict2edge(kw) for kw in data["edges"]),
-             tuple(dict2version(kw) for kw in data["versions"]))
+    haps = tuple(dict2hap(kw) for kw in data["haplotypes"])
+    facts = tuple(dict2fact(kw) for kw in data["facts"])
+    edges = tuple(dict2edge(kw) for kw in data["edges"])
+    dom.validate(haps, facts, edges)
+    versions = tuple(dict2version(kw) for kw in data["versions"])
+    return haps, facts, edges, versions
 
 
 #===============================================================================
