@@ -273,14 +273,14 @@ def validate(haplotypes, facts, edges):
 
     for fact in facts:
         if fact.hap_id not in haps_id:
-            msg = "Haplotype id '{id}' of Fact '{fact}'not found on given haplotypes"
+            msg = "Haplotype id '{id}' of Fact '{fact}' not found on given haplotypes"
             raise ValidationError(msg.format(id=fact.hap_id,
                                                fact=repr(fact)))
 
     for edge in edges:
         for hap_id in edge.haps_id:
             if hap_id not in haps_id:
-                msg = "Haplotype id '{id}' of edge '{edge}'not found on given haplotypes"
+                msg = "Haplotype id '{id}' of edge '{edge}' not found on given haplotypes"
                 raise ValidationError(msg.format(id=edge.hap_id,
                                                    edge=repr(edge)))
 
