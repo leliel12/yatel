@@ -20,7 +20,7 @@
 # ERROR
 #===============================================================================
 
-class ValidationError(BaseException):
+class ValidationError(Exception):
     """Used in function ``dom.validate`` function.
 
     """

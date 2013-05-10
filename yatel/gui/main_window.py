@@ -328,15 +328,17 @@ class MainWindow(uis.UI("MainWindow.ui")):
         if not self.close_explorer():
             return
         self.dialog = connection_setup.ConnectionSetupDialog(self, "create")
+        conn = None
         try:
             title = self.tr("Import Yatel Yaml Format")
             filetypes = self.tr("Yatel Yaml Format (*.yyf *.yaml *.yml)")
             filename = QtGui.QFileDialog.getOpenFileName(self, title,
                                                          yatel.HOME_PATH,
                                                          filetypes)
-            if filename:
-                with open(filename) as fp:
-                    haps, facts, edges, versions = yyf2yatel.load(fp)
+            if not filename:
+                return
+            with open(filename) as fp:
+                haps, facts, edges, versions = yyf2yatel.load(fp)
             if not self.dialog.exec_():
                 return
             conn = db.YatelConnection(**self.dialog.params())
@@ -387,15 +389,17 @@ class MainWindow(uis.UI("MainWindow.ui")):
         if not self.close_explorer():
             return
         self.dialog = connection_setup.ConnectionSetupDialog(self, "create")
+        conn = None
         try:
             title = self.tr("Import Yatel Json Format")
             filetypes = self.tr("Yatel Json Format (*.yjf *.json)")
             filename = QtGui.QFileDialog.getOpenFileName(self, title,
                                                          yatel.HOME_PATH,
                                                          filetypes)
-            if filename:
-                with open(filename) as fp:
-                    haps, facts, edges, versions = yjf2yatel.load(fp)
+            if not filename:
+                return
+            with open(filename) as fp:
+                haps, facts, edges, versions = yjf2yatel.load(fp)
             if not self.dialog.exec_():
                 return
             conn = db.YatelConnection(**self.dialog.params())
