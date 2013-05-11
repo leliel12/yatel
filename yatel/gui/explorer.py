@@ -28,21 +28,12 @@ from yatel.gui import error_dialog
 from yatel.gui import sheditor
 from yatel.gui import ipython
 from yatel.gui import network
+from yatel.gui import facts_dialog
 
 
 #===============================================================================
 #
 #===============================================================================
-
-class FakeWidget(QtGui.QWidget):
-    def __init__(self, *args, **kwargs):
-        super(FakeWidget, self).__init__()
-        pass
-    def __call__(self, *args, **kwargs):
-        return FakeWidget()
-    def __getattribute__(self, *args, **kwargs):
-        return FakeWidget()
-
 
 class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     """This is the frame make all explorations
@@ -143,6 +134,16 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     #===========================================================================
     # SLOTS
     #===========================================================================
+
+    @QtCore.pyqtSlot()
+    def on_factsPushButton_clicked(self):
+        idx = self.hapsComboBox.currentIndex()
+        hap = self.hapsComboBox.itemData(idx)
+        dialog = facts_dialog.FactsDialog(self, hap,
+                                          self.conn.fact_attributes_names(),
+                                          self.conn.facts_by_haplotype(hap))
+        dialog.exec_()
+
 
     def on_haplotypesNamesCheckBox_stateChanged(self, state):
         """Slot executed when ``haplotypesNamesCheckBox`` state changed.

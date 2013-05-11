@@ -492,6 +492,18 @@ class YatelConnection(object):
                 values.add(v)
                 yield v
 
+    def facts_by_haplotype(self, hap):
+        """Return a ``iterator`` of all facts of a given ``dom.Haplotype``"""
+        query = self.FactDBO.select().join(self.HaplotypeDBO)
+        for fdbo in query.where(self.HaplotypeDBO.hap_id == hap.hap_id):
+            data = {}
+            for k, v in fdbo._data.items():
+                if k == "haplotype":
+                    data["hap_id"] = v
+                elif k != "id" and v is not None:
+                    data[k] = v
+            yield dom.Fact(**data)
+
     def minmax_edges(self):
         """Return a ``tuple`` with ``len == 2`` containing the  edgest with
         minimum ane maximun *weight*
