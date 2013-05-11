@@ -50,7 +50,7 @@ def database(flags, returns):
         The conn string is like: 'sqlite://[DATABASE]' or
         'mysql://USER:PASSWORD@HOST:PORT/DATABASE' or
         'postgres://USER:PASSWORD@HOST:PORT/DATABASE'. If you want to connect
-        to a remote yatel use 'yatel://HOST@PORT'
+        to a remote yatel use 'yatel://HOST:PORT'
 
         """
         parsed = urlparse.urlparse(flags.database)

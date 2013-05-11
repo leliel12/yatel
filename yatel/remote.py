@@ -139,6 +139,10 @@ class YatelServer(bottle.Bottle):
     def call_fact_attribute_values(self, att_name):
         return list(self._conn.fact_attribute_values(att_name))
 
+    def call_facts_by_haplotype(self, hap_id):
+        hap = self._conn.haplotype_by_id(hap_id)
+        return map(dict2yatel.fact2dict, self._conn.facts_by_haplotype(hap))
+
     def call_minmax_edges(self):
         return map(dict2yatel.edge2dict, self._conn.minmax_edges())
 
@@ -237,11 +241,16 @@ class YatelRemoteClient(object):
 
     def fact_attribute_values(self, att_name, id=None):
         return iter(self._call("fact_attribute_values",
-                                  att_name=att_name, id=id))
+                                att_name=att_name, id=id))
+
+    def facts_by_haplotype(self, hap, id=None):
+        return iter(dict2yatel.dict2fact(f)
+                     for f in self._call("facts_by_haplotype",
+                                          hap_id=hap.hap_id))
 
     def minmax_edges(self, id=None):
         return tuple(dict2yatel.dict2edge(e)
-                       for e in self._call("minmax_edges", id=id))
+                      for e in self._call("minmax_edges", id=id))
 
     def filter_edges(self, minweight, maxweight, id=None):
         for e in self._call("filter_edges", id=id,
