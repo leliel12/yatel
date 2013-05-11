@@ -1,6 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# "THE WISKEY-WARE LICENSE":
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
+# you can do whatever you want with this stuff. If we meet some day, and you
+# think this stuff is worth it, you can buy us a WISKEY us return.
+
+
+#===============================================================================
+# DOCS
+#===============================================================================
+
+"""Module for topsort yatel network
+
+"""
+
 #===============================================================================
 # IMPORTS
 #===============================================================================
@@ -9,12 +23,6 @@ import random
 
 import dom
 
-#===============================================================================
-# GLOBALS
-#===============================================================================
-
-_sorts = {}
-
 
 #===============================================================================
 # TOPOLOGICAL SORT
@@ -22,16 +30,16 @@ _sorts = {}
 
 def to_dict_graph(edges):
     """Convert an iterable of edges in a dict with ``keys`` equals
-    ``edge.haps_id[0]``, and ``value`` equals ``edge.haps_id[1:].
+    ``edge.haps_id[0]``, and ``value`` equals ``edge.haps_id[1:]``.
     The nodes without childs has values with empty list.
 
     **Example**
 
     ::
         >>> from yatel.dom import Edge
-        >>> edges = (
-            Edge(1, "id0", "id1"), Edge(1, "id2", "id3"), Edge(1, "id4", "id1")
-        )
+        >>> edges = (Edge(1, "id0", "id1"),
+                     Edge(1, "id2", "id3"),
+                     Edge(1, "id4", "id1"))
         >>> to_dict_graph(edges)
         {
             'id4': ['id1'], 'id2': ['id3'],
@@ -153,13 +161,16 @@ def xymap_topsort(edges, bounds=(-100, 100, 100, -100), step=(20, 20)):
         :edges:
             An iterable of edges.
         :bounds:
-            x0, y0, x1, y1
-            
-            x0, y0
-                +---------------+
-                |               |
-                +---------------+ x1, y1
-                
+
+            (x0, y0, x1, y1)
+
+            ::
+
+                x0, y0
+                    +---------------+
+                    |               |
+                    +---------------+ x1, y1
+
         :step:
             Separation between nodes center in axis.
 
@@ -167,7 +178,7 @@ def xymap_topsort(edges, bounds=(-100, 100, 100, -100), step=(20, 20)):
 
     xymap = {}
     xstep, ystep = step
-    xtop, ytop = bounds[2], bounds[3] 
+    xtop, ytop = bounds[2], bounds[3]
 
     y = bounds[1]
     for row in topsort(edges):
@@ -181,86 +192,6 @@ def xymap_topsort(edges, bounds=(-100, 100, 100, -100), step=(20, 20)):
         if y - ystep > ytop:
             y -= ystep
     return xymap
-
-
-#===============================================================================
-# RANDOMSORT
-#===============================================================================
-
-def xymap_randomsort(edges, bounds=(-100, 100, 100, -100)):
-    """Topological sort of iterable of edges
-
-    **Parameters**
-        :edges:
-            An iterable of edges.
-        :bounds:
-            x0, y0, x1, y1
-            
-            x0, y0  +---------------+
-                    |               |
-                    +---------------+ x1, y1
-        
-    """
-
-    ids = []
-    for edge in edges:
-        ids.extend(edge.haps_id)
-    xymap = {}
-    for hid in ids:
-        x = random.randint(bounds[0], bounds[2])
-        y = random.randint(bounds[3], bounds[1])
-        xymap[hid] = (x, y)
-    return xymap
-
-#===============================================================================
-# PUBLIC
-#===============================================================================
-
-def xy(edges, algorithm, bounds=(-100, 100, 100, -100), *args, **kwargs):
-    """Sort of iterable of edges bya given algorithm
-
-    **Parameters**
-        :edges:
-            An iterable of edges.
-        :algorithm:
-            "randomsort" or "topsort"
-        :bounds:
-            x0, y0, x1, y1
-            
-            x0, y0  +---------------+
-                    |               |
-                    +---------------+ x1, y1
-        :*args:
-            Positional arguments of the algorithm
-        :**kwargs:
-            Keyword arguments of the algorithm
-        
-    """
-    global _sorts
-    func = _sorts[algorithm]
-    xymap = func(edges, bounds, *args, **kwargs)
-    for hapid in sorted(xymap.keys()):
-        x, y = xymap[hapid]
-        yield x, y, hapid
-
-
-#===============================================================================
-# REGISTRATIONS
-#===============================================================================
-
-def register_sort(name, function):
-    assert hasattr(function, "__call__")
-    global _sorts
-    _sorts[name] = function
-    
-    
-def sorts():
-    global _sorts
-    return _sorts.keys()
-
-# Autho register    
-register_sort("randomsort", xymap_randomsort)
-register_sort("topsort", xymap_topsort)
 
 
 #===============================================================================
