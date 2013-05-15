@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # "THE WISKEY-WARE LICENSE":
-# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice 
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
 # you can do whatever you want with this stuff. If we meet some day, and you
 # think this stuff is worth it, you can buy me a WISKEY us return.
 
@@ -11,8 +11,11 @@
 # DOCS
 #===============================================================================
 
-"""This module is used for bidirectional conversions between 
+"""This module is used for bidirectional conversions between
 yatel.dom objects and graph-tool Graph's instances
+
+If you don't graph-tool please install from:
+    have http://packages.python.org/yatel/
 
 """
 
@@ -21,7 +24,13 @@ yatel.dom objects and graph-tool Graph's instances
 # IMPORTS
 #===============================================================================
 
-from graph_tool import Graph
+try:
+    from graph_tool import Graph
+except ImportError:
+    import warnings
+    msg = ("'graph_tool' is not installed. Please install from: "
+           "http://projects.skewed.de/graph-tool/")
+    warnings.warn(msg)
 
 from yatel import dom
 
@@ -33,18 +42,18 @@ from yatel import dom
 def dump(haps, facts, edges):
     """Create graph-tool Graph object from a list of haplotypes, facts and
     edges.
-    
+
     The original objects are stores in internal properties:
-    
+
         - ``haps`` -> ``graph.vertex_properties["haplotypes"]``
         - ``facts`` -> ``graph.vertex_properties["facts"]``
         - ``edges`` -> ``graph.edge_properties["edges"]``
-        
+
     """
-    
+
     nodebuff = {}
     ug = Graph(directed=False)
-    
+
     hap_prop = ug.new_vertex_property("object")
     for hap in haps:
         assert isinstance(hap, dom.Haplotype)
@@ -52,7 +61,7 @@ def dump(haps, facts, edges):
         hap_prop[vertex] = hap
         nodebuff[hap.hap_id] = vertex
     ug.vertex_properties["haplotypes"] = hap_prop
-    
+
     fact_prop = ug.new_vertex_property("object")
     for fact in facts:
         assert isinstance(fact, dom.Fact)
@@ -62,7 +71,7 @@ def dump(haps, facts, edges):
             fact_prop[nodebuff[fact.hap_id]] = prop
         prop.append(fact)
     ug.vertex_properties["facts"] = fact_prop
-    
+
     edge_prop = ug.new_edge_property("object")
     for edge in edges:
         assert isinstance(edge, dom.Edge)
@@ -74,19 +83,19 @@ def dump(haps, facts, edges):
         ug_edge = ug.add_edge(nodefrom, nodeto)
         edge_prop[ug_edge] = edge
     ug.edge_properties["edges"] = edge_prop
-    
+
     return ug
-        
+
 
 def load(graph):
     """Create yatel DOM objects from a graph-tool Graph.
-    
+
     The original objects are stores in internal properties:
-    
+
         - ``haps`` <- ``graph.vertex_properties["haplotypes"]``
         - ``facts`` <- ``graph.vertex_properties["facts"]``
         - ``edges`` <- ``graph.edge_properties["edges"]``
-        
+
     """
     haps = []
     facts = []
@@ -103,17 +112,17 @@ def load(graph):
             graph.edge_properties["edges"][e]
         )
     return tuple(haps), tuple(facts), tuple(edges)
-        
-    
+
+
 #===============================================================================
 # MAIN
 #===============================================================================
 
 if __name__ == "__main__":
     print(__doc__)
-    
-    
-    
-    
-    
+
+
+
+
+
 
