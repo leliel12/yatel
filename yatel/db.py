@@ -697,10 +697,23 @@ class YatelConnection(object):
 
     def links(self, hap):
         """Returns all the haplotypes conected"""
+        # this will store our query
+        qfilter = None
+
+        # first we take the haplotype dbo of this haplotype
         hdbo = self.HaplotypeDBO.get(self.HaplotypeDBO.hap_id == hap.hap_id)
-        for an in dir(hdbo):
-            if an.startswith(EDGES_TABLE):
-                pass
+
+        # next we need all the references names in the edges
+        tdbo = self.YatelTableDBO.get(self.YatelTableDBO.type==EDGES_TABLE)
+        for fdbo in self.YatelFieldDBO.select().where(self.YatelFieldDBO.table==tdbo):
+            fname = fdbo.name
+            if fname != "weight":
+                expr = getattr(self.EdgeDBO, fname) == hdbo
+                qfilter = expr if qfilter is None else (qfilter | expr)
+
+        for edbo in self.EdgeDBO.select().where(expr):
+            print edbo
+
 
     @property
     def name(self):
