@@ -84,7 +84,7 @@ NAME2FIELD = {
     "DoubleField": peewee.DoubleField,
     "BigIntegerField": peewee.BigIntegerField,
     "DecimalField": peewee.DecimalField,
-    "PrimaryKeyField": peewee.PrimaryKeyField,
+    #"PrimaryKeyField": peewee.PrimaryKeyField,
     "ForeignKeyField": peewee.ForeignKeyField,
     "DateField": peewee.DateField,
     "TimeField": peewee.TimeField,
@@ -195,7 +195,7 @@ class YatelConnection(object):
         )
         self.YatelVersionDBO = type(
             "_yatel_versions", (peewee.Model,), {
-                "datetime": peewee.DateTimeField(uniqe=True),
+                "datetime": peewee.DateTimeField(unique=True),
                 "tag": peewee.CharField(unique=True),
                 "data": peewee.TextField(),
                 "comment": peewee.TextField(default=""),
@@ -299,16 +299,16 @@ class YatelConnection(object):
                 weight_column.append(edge.weight)
                 if len(edge.haps_id) > max_number_of_haps:
                     max_number_of_haps = len(edge.haps_id)
-            edgesdbo_dict = {
-                "Meta": self.model_meta,
-                "weight": field(weight_column)
-            }
+            edgesdbo_dict = {"Meta": self.model_meta,
+                             "weight": field(weight_column)}
             self._add_field_metadata("weight", metatable_edges,
                                      edgesdbo_dict["weight"])
             for idx in range(max_number_of_haps):
                 key = "haplotype_{}".format(idx)
+                rt = "edges{}".format(idx)
                 edgesdbo_dict[key] = peewee.ForeignKeyField(self.HaplotypeDBO,
-                                                            null=True)
+                                                            null=True,
+                                                            related_name=rt)
                 self._add_field_metadata(key, metatable_edges,
                                          edgesdbo_dict[key])
             self.EdgeDBO = type(EDGES_TABLE, (peewee.Model,), edgesdbo_dict)
@@ -369,7 +369,12 @@ class YatelConnection(object):
                     field = None
                     if field_cls == peewee.ForeignKeyField:
                         ref = getattr(self, fdbo.reference_to.cls_name)
-                        field = field_cls(ref)
+                        if table_type == EDGES_TABLE and \
+                           fdbo.name.rsplit("_", 1)[-1].isdigit():
+                            rn = "edges{}".format(fdbo.name.rsplit("_", 1)[-1])
+                            field = field_cls(ref, related_name=rn)
+                        else:
+                            field = field_cls(ref)
                     elif fdbo.is_pk:
                         field = field_cls(primary_key=True)
                     else:
@@ -690,6 +695,13 @@ class YatelConnection(object):
                  "comment": vdbo.comment,
                  "data": data}
 
+    def links(self, hap):
+        """Returns all the haplotypes conected"""
+        hdbo = self.HaplotypeDBO.get(self.HaplotypeDBO.hap_id == hap.hap_id)
+        for an in dir(hdbo):
+            if an.startswith(EDGES_TABLE):
+                pass
+
     @property
     def name(self):
         """The name of the connection."""
@@ -707,7 +719,7 @@ class YatelConnection(object):
 
 def format_date(dt):
     """This function prepare the  datetime instance to be stored in the
-    database removing all unused data
+    database by removing all unused data
 
     """
     dtf = yatel.DATETIME_FORMAT
