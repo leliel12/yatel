@@ -696,23 +696,38 @@ class YatelConnection(object):
                  "data": data}
 
     def links(self, hap):
-        """Returns all the haplotypes conected"""
+        """iterates over all ``hap`` conected *haplotypes*
+
+        **Return**
+            An iterable with 2 components: A distance as ``float`` and a
+            ``list`` with the conected haplotypes.
+
+        """
         # this will store our query
         qfilter = None
 
         # first we take the haplotype dbo of this haplotype
         hdbo = self.HaplotypeDBO.get(self.HaplotypeDBO.hap_id == hap.hap_id)
 
-        # next we need all the references names in the edges
+        # next we need a query the references names in the edges
         tdbo = self.YatelTableDBO.get(self.YatelTableDBO.type==EDGES_TABLE)
         for fdbo in self.YatelFieldDBO.select().where(self.YatelFieldDBO.table==tdbo):
             fname = fdbo.name
             if fname != "weight":
-                expr = getattr(self.EdgeDBO, fname) == hdbo
-                qfilter = expr if qfilter is None else (qfilter | expr)
 
-        for edbo in self.EdgeDBO.select().where(expr):
-            print edbo
+                # if the name of the attribute is correct add to filter
+                expr = getattr(self.EdgeDBO, fname) == hdbo
+                qfilter = (qfilter | expr) if qfilter else expr
+
+        for edbo in self.EdgeDBO.select().where(qfilter):
+            weight = edbo.weight
+            haps = [self.haplotype_by_id(v) for k, v in edbo._data.items()
+                    if k.startswith("haplotype_")
+                    and v is not None
+                    and v != hap.hap_id]
+            if not haps:
+                haps = [hap]
+            yield weight, haps
 
 
     @property
