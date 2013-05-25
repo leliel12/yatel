@@ -574,7 +574,6 @@ class YatelConnection(object):
         for vdbo in query:
             yield (vdbo.id, vdbo.datetime, vdbo.tag)
 
-
     def save_version(self, tag, comment="", hap_sql="",
                      topology={}, weight_range=(None, None), enviroments=()):
         """Store a new exploration status version in the database.
@@ -698,6 +697,8 @@ class YatelConnection(object):
     def links(self, hap):
         """iterates over all ``hap`` conected *haplotypes*
 
+        **Params**
+          :hap: ``dom.Haplotype`` instance
         **Return**
             An iterable with 2 components: A distance as ``float`` and a
             ``list`` with the conected haplotypes.
@@ -725,10 +726,10 @@ class YatelConnection(object):
                     if k.startswith("haplotype_")
                     and v is not None
                     and v != hap.hap_id]
+
             if not haps:
                 haps = [hap]
             yield weight, haps
-
 
     @property
     def name(self):

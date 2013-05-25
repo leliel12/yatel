@@ -292,6 +292,26 @@ class MainWindow(uis.UI("MainWindow.ui")):
             del self.dialog
 
     @QtCore.pyqtSlot()
+    def on_actionExportImage_triggered(self):
+        """Slot executed when ``actionExportImage`` is triggered.
+
+        Show a file dialog for select a new name "Image" and dump
+        the actual network there.
+
+        """
+        try:
+            title = self.tr("Export Image")
+            filetypes = self.tr("Image (*.png, *.jpg, *.jpeg)")
+            filename = QtGui.QFileDialog.getSaveFileName(self, title,
+                                                         yatel.HOME_PATH,
+                                                         filetypes)
+            if filename:
+                nw = self.explorerFrame.network
+                nw.doCapture(filename)
+        except Exception as err:
+            error_dialog.critical(self.tr("Error"), err)
+
+    @QtCore.pyqtSlot()
     def on_actionExportYYF_triggered(self):
         """Slot executed when ``actionExportYYF`` is triggered.
 

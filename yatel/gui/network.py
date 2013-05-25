@@ -67,6 +67,20 @@ class Network(QtWebKit.QWebView):
         self.load(QtCore.QUrl.fromLocalFile(resources.get("network.html")))
         self.loop.exec_()
 
+    def doCapture(self, filename):
+        """Save the view of the network as image
+
+        Based on: https://github.com/ralsina/nikola/blob/master/scripts/capty
+
+        """
+        wb = self.page()
+        wb.setViewportSize(wb.mainFrame().contentsSize())
+        img = QtGui.QImage(wb.viewportSize(), QtGui.QImage.Format_ARGB32)
+        painter = QtGui.QPainter(img)
+        wb.mainFrame().render(painter)
+        painter.end()
+        img.save(filename)
+
     @QtCore.pyqtSlot(str)
     def on_nodeclicked(self, hap_id):
         hap = self._haps[hap_id]
@@ -310,6 +324,7 @@ if __name__ == "__main__":
     n.topology()
     n.center()
 
+    # n.doCapture("tito.png")
     # n.del_edges_with_node(a2)
     # ~ n.filter_edges(edges[0], edges[1])
     # ~ n.del_node(a0)

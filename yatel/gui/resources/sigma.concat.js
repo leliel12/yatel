@@ -2222,7 +2222,6 @@ function MouseCaptor(dom) {
     if(event.ctrlKey || event.metaKey){
       self.dispatch('ctrlclick');
     } else {
-        debugger;
       switch (event.which) {
         case 1:
           //console.log('Left mouse button pressed');

@@ -50,6 +50,7 @@
      </property>
      <addaction name="actionExportYYF"/>
      <addaction name="actionExportYJF"/>
+     <addaction name="actionExportImage"/>
     </widget>
     <addaction name="actionOpenYatelDB"/>
     <addaction name="actionConnectToRemoteYatel"/>
@@ -167,6 +168,11 @@
   <action name="actionConnectToRemoteYatel">
    <property name="text">
     <string>Connect to Remote Yatel...</string>
+   </property>
+  </action>
+  <action name="actionExportImage">
+   <property name="text">
+    <string>Image</string>
    </property>
   </action>
  </widget>
