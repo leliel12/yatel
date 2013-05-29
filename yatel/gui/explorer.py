@@ -316,16 +316,17 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             self.attTableWidget.setItem(idx, 0, nameitem)
             self.attTableWidget.setItem(idx, 1, valueitem)
 
-    def on_node_clicked(self, hap):
+    def on_node_clicked(self, hap_id):
         """Slot executed when a *node* is clicked in the network.
 
         This method select the index of the haplotype in ``hapsComboBox`` and
         execute the ``on_hapsComboBox_currentIndexChanged`` slot.
 
         **Params**
-            :hap: an haplotype
+            :hap_id: an haplotype id
 
         """
+        hap = self.conn.haplotype_by_id(hap_id)
         self._set_save_status(False)
         for idx in range(self.hapsComboBox.count()):
             actual_hap = self.hapsComboBox.itemData(idx)
@@ -363,8 +364,9 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 vdata["hap_sql"] = "SELECT * FROM `haplotypes`"
             if not vdata["topology"]:
                 for hap in self.conn.iter_haplotypes():
-                    vdata["topology"][hap] = self.network.get_unused_coord()
-            for hap, xy in sorted(vdata["topology"].items(), key=lambda h: h[0].hap_id):
+                    vdata["topology"][hap.hap_id] = self.network.get_unused_coord()
+            for hap_id, xy in sorted(vdata["topology"].items()):
+                hap = self.conn.haplotype_by_id(hap_id)
                 self.network.add_node(hap, x=xy[0], y=xy[1])
                 self.hapsComboBox.addItem(unicode(hap.hap_id), hap)
 

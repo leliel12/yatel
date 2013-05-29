@@ -46,7 +46,7 @@ class Network(QtWebKit.QWebView):
     """Singleton instance for use Pilas widget as QtWidget ofr draw networks
 
     """
-    node_clicked = QtCore.pyqtSignal(dom.Haplotype)
+    node_clicked = QtCore.pyqtSignal(object)
 
     def __init__(self, parent=None):
         """Init the instance of ``NetworkProxy`` singleton."""
@@ -83,8 +83,8 @@ class Network(QtWebKit.QWebView):
 
     @QtCore.pyqtSlot(str)
     def on_nodeclicked(self, hap_id):
-        hap = self._haps[hap_id]
-        self.node_clicked.emit(hap)
+        real_hap_id = self._haps[hap_id]
+        self.node_clicked.emit(real_hap_id)
 
     @QtCore.pyqtSlot()
     def on_ready(self):
@@ -144,8 +144,8 @@ class Network(QtWebKit.QWebView):
 
     def select_node(self, hap):
         """Select a node asociated to the given ``yatel.dom.Haplotype``"""
-        self._selected = hap
-        self.js_function("selectNode", hap.hap_id)
+        self._selected = self._haps[unicode(hap.hap_id)]
+        self.js_function("selectNode", self._selected)
 
     def show_haps_names(self, show):
         """Show the name of the haplotype over all the nodes.
@@ -171,7 +171,7 @@ class Network(QtWebKit.QWebView):
         """Highlight all the nodes given in a tuple ``*haps``."""
         ids = [unicode(hap.hap_id) for hap in haps]
         self.js_function("highlightNodes", ids)
-        self._highlighted = haps
+        self._highlighted = tuple(hap.hap_id for hap in haps)
 
     def unhighlightall(self):
         """Unhighlight all the nodes."""
@@ -190,8 +190,8 @@ class Network(QtWebKit.QWebView):
                 the node will be drawed.
 
         """
-        if hap.hap_id not in self._haps:
-            self._haps[unicode(hap.hap_id)] = hap
+        if unicode(hap.hap_id) not in self._haps:
+            self._haps[unicode(hap.hap_id)] = hap.hap_id
             self.js_function("addNode", hap.hap_id, hap.hap_id, x, y)
 
     def del_node(self, hap):

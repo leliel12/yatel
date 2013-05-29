@@ -41,12 +41,6 @@
                 var ls = this.lum.toString();
                 return 'rgb(' + ls + "," + ls + "," + ls + ")";
             }
-            NodeColor.prototype.toSelectedString = function() {
-                return "rgb(255, 0, 0)";
-            }
-            NodeColor.prototype.toSelAndHighString = function() {
-                return "rgb(0, 0, 255)";
-            }
 
 
         </script>
@@ -140,18 +134,6 @@
                     python.on_nodeclicked(hap_id);
             }
 
-            function setColorBasedOnStatus(node){
-                var color = node.attr.nodeColor;
-                if(node.attr.selected && node.attr.highlighted)
-                    node.color = color.toSelAndHighString();
-                else if(node.attr.selected)
-                    node.color = color.toSelectedString();
-                else if(node.attr.highlighted)
-                    node.color = color.toColorString();
-                else
-                    node.color = color.toGrayString();
-            }
-
             function clear(){
                 sigInst.emptyGraph();
                 refresh();
@@ -205,10 +187,9 @@
             function selectNode(hap_id){
                 sigInst.iterNodes(function(n){
                     if(n.id == hap_id)
-                        n.attr.selected = true;
+                        n.active = true;
                     else
-                        n.attr.selected = false;
-                    setColorBasedOnStatus(n);
+                        n.active = false;
                 });
                 refresh();
             }
@@ -240,20 +221,25 @@
             }
 
             function highlightNodes(ids){
-                sigInst.iterNodes(function(n){
-                    if(ids.indexOf(n.id) >= 0)
-                        n.attr.highlighted = true;
-                    else
-                        n.attr.highlighted = false;
-                    setColorBasedOnStatus(n);
+                sigInst.iterNodes(function(node){
+                    var color = node.attr.nodeColor;
+                    if(ids.indexOf(node.id) >= 0){
+                        node.attr.highlighted = true;
+                        node.color = color.toColorString();
+                    }
+                    else{
+                        node.attr.highlighted = false;
+                        node.color = color.toGrayString();
+                    }
                 });
                 refresh();
             }
 
             function unhighlightall(){
-                sigInst.iterNodes(function(n){
-                    n.attr.highlighted = false;
-                    setColorBasedOnStatus(n);
+                sigInst.iterNodes(function(node){
+                    var color = node.attr.nodeColor;
+                    node.attr.highlighted = false;
+                    node.color = color.toGrayString();
                 });
                 refresh();
             }

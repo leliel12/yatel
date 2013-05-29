@@ -582,7 +582,7 @@ class YatelConnection(object):
             :tag: The tag of the new version (unique).
             :comment: A comment about the new version.
             :hap_sql: For execute in ``YatelConnection.hap_sql``.
-            :topology: A dictionary with ``dom.Haplotype`` instances as keys
+            :topology: A dictionary with ``dom.Haplotype`` hap_ids as keys
                        and a *iterable* with (x, y) position as value.
             :weight_tange: A *iterable* with two ``int`` or ``float``
                            representing the relevante ``dom.Edge`` instance.
@@ -597,11 +597,11 @@ class YatelConnection(object):
 
         """
         td = {}
-        for hap, xy in topology.items():
+        for hap_id, xy in topology.items():
 
             # validate if this hap is in this nejbc.develop@gmail.comtwork
-            self.HaplotypeDBO.get(hap_id=hap.hap_id)
-            td[hap.hap_id] = list(xy)
+            self.HaplotypeDBO.get(hap_id=hap_id)
+            td[hap_id] = list(xy)
 
         minw, maxw = weight_range
         if minw > maxw:
@@ -682,11 +682,6 @@ class YatelConnection(object):
             raise TypeError(msg)
 
         data = cPickle.loads(vdbo.data.decode("base64"))
-
-        topology = {}
-        for hap_id, xy in data["topology"].items():
-            topology[self.haplotype_by_id(hap_id)] = tuple(xy)
-        data["topology"] = topology
 
         return {"tag": vdbo.tag,
                  "id": vdbo.id,

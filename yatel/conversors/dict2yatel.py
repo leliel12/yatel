@@ -109,8 +109,7 @@ def version2dict(version):
     ``dict``"""
     version = copy.deepcopy(version)
     version["data"]["topology"] = [
-        [hap2dict(k), v]
-        for k, v in version["data"]["topology"].items()
+        [k, v] for k, v in version["data"]["topology"].items()
     ]
     version["datetime"] = version["datetime"].strftime(yatel.DATETIME_FORMAT)
     return version
@@ -123,8 +122,7 @@ def dict2version(versiond):
     """
     versiond = copy.deepcopy(versiond)
     versiond["data"]["topology"] = dict(
-        (dict2hap(k), tuple(v))
-        for k, v in versiond["data"]["topology"]
+        (k, tuple(v)) for k, v in versiond["data"]["topology"]
     )
     versiond["datetime"] = datetime.datetime.strptime(versiond["datetime"],
                                                       yatel.DATETIME_FORMAT)
