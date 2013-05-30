@@ -262,7 +262,7 @@ class Network(QtWebKit.QWebView):
     @property
     def weights_showed(self):
         """Return if the weight edges are actually showed."""
-        pass
+        return self._weights_showed
 
     @property
     def bounds(self):

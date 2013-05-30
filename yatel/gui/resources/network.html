@@ -15,63 +15,43 @@
 
         <!-- includes -->
         <script src="sigma.concat.js"></script>
-        <script>
-            // CONSTANTS
-
-            var COLOR_FROM = {r: 32, g: 79, b: 25};
-            var COLOR_TO = {r: 180, g: 255, b: 158};
-
-        </script>
 
         <script>
-            // CLASSES
+        <!-- CLASSES -->
+        var Color = function(r, g, b) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
 
-            var NodeColor = function(r, g, b){
-                this.r = r;
-                this.g = g;
-                this.b = b;
-                this.lum = Math.floor(0.21 * r + 0.71 * g + 0.07 * b);
-            }
-            NodeColor.prototype.toColorString = function(){
+            this.toRGBString = function(colorObj){
                 return 'rgb(' + this.r.toString() + ","
                                + this.g.toString() + ","
                                + this.b.toString() + ")";
             }
-            NodeColor.prototype.toGrayString = function() {
-                var ls = this.lum.toString();
-                return 'rgb(' + ls + "," + ls + "," + ls + ")";
-            }
 
+        }
+        </script>
+
+        <script>
+            // CONSTANTS
+
+            var CL_BACKGROUND = new Color(255, 255, 255);
+
+            var CL_NODE = new Color(133, 133, 133);
+            var CL_HIGLIGHTED_NODE = new Color(22, 22, 22);
+
+            var CL_UNSELECTED_LABEL = new Color(0, 0, 0);
+            var CL_SELECTED_LABEL = new Color(255, 255,  255);
+            var CL_SELECTED_LABEL_BG = new Color(0, 0,  0);
+
+            var CL_EDGE = new Color(133,  133,  133);
 
         </script>
 
-
         <script>
-            // UTILS
-
-            function choice(arr){
-                var rand = Math.random();
-                rand *= arr.length;
-                rand = Math.floor(rand);
-                return arr[rand];
-            }
-
-            function getRandomInt(min, max) {
+            // PATCH!
+            Math.randomInt = function(min, max) {
                 return Math.floor(Math.random() * (max - min + 1)) + min;
-            }
-
-            function getRandomNodeColor(){
-                var a = COLOR_FROM;
-                var b = COLOR_TO;
-                var r = Math.random();
-                return new NodeColor(((a.r+(b.r-a.r)*r)|0),
-                                      ((a.g+(b.g-a.g)*r)|0),
-                                      ((a.b+(b.b-a.b)*r)|0));
-            }
-
-            function timestamp(){
-                var ts = new Date().getTime();
-                return String(ts);
             }
 
         </script>
@@ -88,7 +68,7 @@
                 sigRoot.style.marginRight = "auto";
                 sigRoot.style.position = "relative";
                 sigRoot.style.borderRadius = "10px";
-                sigRoot.style.background = "#222";
+                sigRoot.style.background = CL_BACKGROUND.toRGBString();
                 sigRoot.style.width = "100%";
                 sigRoot.style.height = "100%";
                 sigRoot.style.top = 0;
@@ -100,17 +80,17 @@
                 sigInst.drawingProperties({defaultEdgeType: 'curve',
                                              edgeColor: 'default',
                                              edgeHoverColor: 'default',
-                                             defaultEdgeHoverColor: '#fff',
+                                             defaultEdgeHoverColor: CL_EDGE.toRGBString(),
                                              edgeLabelSize: 'fixed',
                                              defaultEdgeLabelSize: 15,
                                              edgeLabelSizeRatio: 2,
-                                             defaultEdgeLabelColor: '#fff',
+                                             defaultEdgeLabelColor: CL_UNSELECTED_LABEL.toRGBString(),
                                              edgeLabelThreshold: 0,
-                                             defaultLabelColor: '#fff',
-                                             defaultEdgeLabelHoverBGColor: '#333',
+                                             defaultLabelColor: CL_UNSELECTED_LABEL.toRGBString(),
+                                             defaultEdgeLabelHoverBGColor: CL_UNSELECTED_LABEL.toRGBString(),
                                              edgeHoverSizeRatio: 1,
-                                             defaultActiveLabelBGColor: '#ff0000',
-                                             defaultLabelActiveColor: '#fff',
+                                             defaultActiveLabelBGColor: CL_SELECTED_LABEL_BG.toRGBString(),
+                                             defaultLabelActiveColor: CL_SELECTED_LABEL.toRGBString(),
                                              hoverSourceOnEdgeHover: false,
                                              hoverTargetOnEdgeHover: false});
                 sigInst.graphProperties({maxNodeSize: 30,
@@ -167,16 +147,16 @@
                 sigInst.iterNodes(function(n){
                     all_xys.push({"x": n.x, "y": n.y});
                 });
-                var x = getRandomInt(0, width);
-                var y = getRandomInt(0, height);
+                var x = Math.randomInt(0, width);
+                var y = Math.randomInt(0, height);
                 for(var idx=0; idx < maxIterations; idx++){
                     var empty = true;
                     for(var jdx=0; jdx < all_xys.length; jdx++){
                         var xy = all_xys[jdx];
                         if(xy.x == x && xy.y == y){
                             empty = false;
-                            x = getRandomInt(0, width);
-                            y = getRandomInt(0, height);
+                            x = Math.randomInt(0, width);
+                            y = Math.randomInt(0, height);
                             break;
                         }
                     }
@@ -224,14 +204,13 @@
 
             function highlightNodes(ids){
                 sigInst.iterNodes(function(node){
-                    var color = node.attr.nodeColor;
                     if(ids.indexOf(node.id) >= 0){
                         node.attr.highlighted = true;
-                        node.color = color.toColorString();
+                        node.color = CL_HIGLIGHTED_NODE.toRGBString();
                     }
                     else{
                         node.attr.highlighted = false;
-                        node.color = color.toGrayString();
+                        node.color = CL_NODE.toRGBString();
                     }
                 });
                 refresh();
@@ -239,19 +218,16 @@
 
             function unhighlightall(){
                 sigInst.iterNodes(function(node){
-                    var color = node.attr.nodeColor;
                     node.attr.highlighted = false;
-                    node.color = color.toGrayString();
+                    node.color = CL_NODE.toRGBString();
                 });
                 refresh();
             }
 
             function addNode(id, label, x, y){
-                var nodeColor = getRandomNodeColor();
                 var params = {x: x, y: y,
                                label: label, forceLabel: true,
-                               color: nodeColor.toGrayString(),
-                               nodeColor: nodeColor,
+                               color: CL_NODE.toRGBString(),
                                highlighted: false,
                                selected: false};
                 sigInst.addNode(id, params);
@@ -266,8 +242,7 @@
             function addEdge(weight, idf, idt){
                 var id = idf + "_" + idt;
                 var params = {weight: weight,
-                               label: weight.toString(),
-                               size: 1};
+                               label: weight.toString()};
                 sigInst.addEdge(id, idf, idt, params).draw();
                 refresh();
             }
