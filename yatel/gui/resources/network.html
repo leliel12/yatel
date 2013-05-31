@@ -14,6 +14,7 @@
         <meta name="generator" content="Geany 1.22" />
 
         <!-- includes -->
+        <script src="jquery-2.0.0.min.js"></script>
         <script src="sigma.concat.js"></script>
 
         <script>
@@ -68,6 +69,7 @@
                 sigRoot.style.marginRight = "auto";
                 sigRoot.style.position = "relative";
                 sigRoot.style.borderRadius = "10px";
+                sigRoot.style.borderStyle = "dotted";
                 sigRoot.style.background = CL_BACKGROUND.toRGBString();
                 sigRoot.style.width = "100%";
                 sigRoot.style.height = "100%";
@@ -138,7 +140,8 @@
                 var A = (1/2) * sumA;
                 var Cx = (1/(6*A)) * sumCx;
                 var Cy = (1/(6*A)) * sumCy;
-                sigInst.goTo(Cx, Cy);
+                sigInst.goTo(Cx + $(sigRoot).width() / 2.5,
+                              Cy + $(sigRoot).height() / 2.5);
             }
 
 

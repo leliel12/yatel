@@ -108,6 +108,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         if version["id"] == 1:
             self.save_version("topology_added", "added topological info")
 
+        self.network.center()
+
     def _set_save_status(self, status):
         self._is_saved = status
         self.saveStatusChanged.emit(self._is_saved)
@@ -368,6 +370,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             for hap_id, xy in sorted(vdata["topology"].items()):
                 hap = self.conn.haplotype_by_id(hap_id)
                 self.network.add_node(hap, x=xy[0], y=xy[1])
+                import warnings
+                warnings.warn("ARREGLA ESTO DE GUARDAR EL HAPLOTIPO PEDAZO DE GIL!")
                 self.hapsComboBox.addItem(unicode(hap.hap_id), hap)
 
             self.remove_all_filters()
