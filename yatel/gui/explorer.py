@@ -306,7 +306,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             :idx: The new index of the ``hapsComboBox``.
 
         """
-        hap = self.hapsComboBox.itemData(idx)
+        hap_id = self.hapsComboBox.itemData(idx)
+        hap = self.conn.haplotype_by_id(hap_id)
         atts = hap.items_attrs()
         atts.sort()
         self.network.select_node(hap)
@@ -328,11 +329,10 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             :hap_id: an haplotype id
 
         """
-        hap = self.conn.haplotype_by_id(hap_id)
         self._set_save_status(False)
         for idx in range(self.hapsComboBox.count()):
-            actual_hap = self.hapsComboBox.itemData(idx)
-            if hap == actual_hap:
+            idx_hap_id = self.hapsComboBox.itemData(idx)
+            if hap_id == idx_hap_id:
                 self.hapsComboBox.setCurrentIndex(idx)
 
     #===========================================================================
@@ -370,9 +370,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             for hap_id, xy in sorted(vdata["topology"].items()):
                 hap = self.conn.haplotype_by_id(hap_id)
                 self.network.add_node(hap, x=xy[0], y=xy[1])
-                import warnings
-                warnings.warn("ARREGLA ESTO DE GUARDAR EL HAPLOTIPO PEDAZO DE GIL!")
-                self.hapsComboBox.addItem(unicode(hap.hap_id), hap)
+                self.hapsComboBox.addItem(unicode(hap.hap_id), hap_id)
 
             self.remove_all_filters()
             for checked, enviroment in vdata["enviroments"]:
