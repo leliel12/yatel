@@ -140,7 +140,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     @QtCore.pyqtSlot()
     def on_factsPushButton_clicked(self):
         idx = self.hapsComboBox.currentIndex()
-        hap = self.hapsComboBox.itemData(idx)
+        hap = self.conn.haplotype_by_id(self.hapsComboBox.itemData(idx))
         dialog = facts_dialog.FactsDialog(self, hap,
                                           self.conn.fact_attributes_names(),
                                           self.conn.facts_by_haplotype(hap))

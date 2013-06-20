@@ -31,9 +31,9 @@ from yatel.gui import uis
 
 class FactsDialog(uis.UI("FactsDialog.ui")):
 
-    def __init__(self, parent, hap, attrs, facts):
+    def __init__(self, parent, hap_id, attrs, facts):
         super(FactsDialog, self).__init__(parent)
-        title = self.tr("Haplotype '{}' Facts").format(hap.hap_id)
+        title = self.tr("Haplotype '{}' Facts").format(hap_id)
         self.setWindowTitle(title)
         self.titleLabel.setText(title)
 
