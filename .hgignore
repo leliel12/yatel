@@ -23,4 +23,5 @@ Yatel.egg-info/*
 doc/build/*
 yatel.egg-info/*
 Sphinx_PyPI_upload*/*
+paper/*.pdf
 
