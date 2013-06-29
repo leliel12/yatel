@@ -544,6 +544,29 @@ class YatelConnection(object):
                        if k.startswith("haplotype_") and v is not None]
             yield dom.Edge(weight, *haps_id)
 
+    def edges_by_haplotype(self, hap):
+        """Iterates over all the edges of a given dom.Haplotype's"""
+                # this will store our query
+        qfilter = None
+
+        # first we take the haplotype dbo of this haplotype
+        hdbo = self.HaplotypeDBO.get(self.HaplotypeDBO.hap_id == hap.hap_id)
+
+        # next we need a query the references names in the edges
+        tdbo = self.YatelTableDBO.get(self.YatelTableDBO.type==EDGES_TABLE)
+        for fdbo in self.YatelFieldDBO.select().where(self.YatelFieldDBO.table==tdbo):
+            fname = fdbo.name
+            if fname != "weight":
+
+                # if the name of the attribute is correct add to filter
+                expr = getattr(self.EdgeDBO, fname) == hdbo
+                qfilter = (qfilter | expr) if qfilter else expr
+        for edbo in self.EdgeDBO.select().where(qfilter):
+            weight = edbo.weight
+            haps_id = [v for k, v in edbo._data.items()
+                       if k.startswith("haplotype_") and v is not None]
+            yield dom.Edge(weight, *haps_id)
+
     def hap_sql(self, query, *args):
         """Trye to execute an arbitrary *sql* and return an iterable of
         ``dom.Haplotype`` instances selected by the query.
