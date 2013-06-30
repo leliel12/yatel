@@ -461,7 +461,7 @@ class YatelConnection(object):
                 (<Haplotype 'hap2' at 0x2463390>, )
 
         """
-        haps = {}
+        cache = set()
         queries = []
         for k, v in kwargs.items():
             field = getattr(self.FactDBO, k)
@@ -473,9 +473,9 @@ class YatelConnection(object):
             queries.append(query)
         for fdbo in self.FactDBO.filter(*queries):
             hap_id = fdbo._data["haplotype"]
-            if  hap_id not in haps:
+            if  hap_id not in cache:
                 hap = self.haplotype_by_id(hap_id)
-                haps[hap_id] = hap
+                cache.add(hap_id)
                 yield hap
 
     def fact_attributes_names(self):
@@ -545,8 +545,11 @@ class YatelConnection(object):
             yield dom.Edge(weight, *haps_id)
 
     def edges_by_haplotype(self, hap):
-        """Iterates over all the edges of a given dom.Haplotype's"""
-                # this will store our query
+        """Iterates over all the edges of a given dom.Haplotype.
+
+        """
+
+        # this will store our query
         qfilter = None
 
         # first we take the haplotype dbo of this haplotype
