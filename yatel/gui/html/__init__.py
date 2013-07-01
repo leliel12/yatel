@@ -11,9 +11,7 @@
 # DOCS
 #===============================================================================
 
-"""This package contains all the resources (icons, images and sounds) of the
-project. Also has a function to simplify the access to this files bye his
-filename
+"""This package contains all the html for render inside yatel.
 
 """
 
@@ -41,7 +39,7 @@ def get(filename):
 
     Example:
 
-        >>> resources.get("filename.ext")
+        >>> html.get("filename.ext")
         "path/to/resources/filename.ext"
 
     """

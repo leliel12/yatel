@@ -11,7 +11,7 @@
 # DOCS
 #===============================================================================
 
-"""Statistic functions for enviroments of yatel
+"""Statistic functions for calculate weight statustics over yatel enviroments
 
 """
 
@@ -24,6 +24,7 @@ import numpy as np
 from scipy import stats
 
 from yatel.libs import cead
+
 
 #===============================================================================
 # BASIC POSITION STATS
@@ -180,13 +181,13 @@ def K1_kurtosis(conn, **env):
 # SUPPORT
 #===============================================================================
 
-def weights2array(edges, **env):
+def weights2array(edges):
     """Create a *numpy.array* with all the weights of ``dom.Edges``"""
     return np.array([e.weight for e in edges])
 
 
 def edges_enviroment(conn, **kwargs):
-    """Return all ``dom.Edge`` instances of a given enviroment"""
+    """Iterates over all ``dom.Edge`` instances of a given enviroment"""
     cache = set()
     for hap in conn.enviroment(**kwargs):
         for edge in conn.edges_by_haplotype(hap):

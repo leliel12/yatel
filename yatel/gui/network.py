@@ -35,7 +35,7 @@ from PyQt4 import QtWebKit
 
 from yatel import dom
 
-from yatel.gui import resources
+from yatel.gui import html
 
 
 #===============================================================================
@@ -64,7 +64,7 @@ class Network(QtWebKit.QWebView):
 
         self.loadFinished.connect(self.on_ready)
 
-        self.load(QtCore.QUrl.fromLocalFile(resources.get("network.html")))
+        self.load(QtCore.QUrl.fromLocalFile(html.get("network.html")))
         self.loop.exec_()
 
     def doCapture(self, filename):
