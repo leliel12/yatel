@@ -1,6 +1,11 @@
 recursive-include yatel/gui/resources *
 recursive-exclude yatel/gui/resources *.pyo
+recursive-exclude yatel/gui/resources *.pyc
 recursive-include yatel/gui/uis *
 recursive-exclude yatel/gui/uis *.pyo
+recursive-exclude yatel/gui/uis *.pyc
+recursive-include yatel/gui/html *
+recursive-exclude yatel/gui/html *.pyo
+recursive-exclude yatel/gui/html *.pyc
 include LICENSE
 include setup.cfg
