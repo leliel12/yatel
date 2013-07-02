@@ -35,7 +35,7 @@ from yatel.gui import facts_dialog
 #
 #===============================================================================
 
-class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
+class ExplorerFrame(uis.UI("Explorer2.ui")):
     """This is the frame make all explorations
 
     """
@@ -94,15 +94,15 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
 
 
         # layout
-        self.hSplitter.setSizes(
-            [parent.parent().size().width() / 2] * self.hSplitter.count()
-        )
-        self.vSplitter.setSizes(
-            [parent.parent().size().height() / 2] * self.vSplitter.count()
-        )
+        #~ self.hSplitter.setSizes(
+            #~ [parent.parent().size().width() / 2] * self.hSplitter.count()
+        #~ )
+        #~ self.vSplitter.setSizes(
+            #~ [parent.parent().size().height() / 2] * self.vSplitter.count()
+        #~ )
 
         # load latest version
-        self.tabWidget.setCurrentIndex(0)
+        self.filterTabWidget.setCurrentIndex(0)
         version = self.conn.get_version()  # the latest
         self.load_version(version)
         if version["id"] == 1:
@@ -170,8 +170,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.network.show_weights(bool(state))
 
     @QtCore.pyqtSlot(int)
-    def on_tabWidget_currentChanged(self, idx):
-        """Slot executed when ``tabWidget`` tab change.
+    def on_filterTabWidget_currentChanged(self, idx):
+        """Slot executed when ``filterTabWidget`` tab change.
 
         If the ``idx`` is *0* the execute the slot ``on_filter_changed``
         otherwise ``NetworkProxy.unhighlightall``.
@@ -386,7 +386,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
 
             self.hapSQLeditor.setText(vdata["hap_sql"])
 
-            self.on_tabWidget_currentChanged(self.tabWidget.currentIndex())
+            self.on_filterTabWidget_currentChanged(self.filterTabWidget.currentIndex())
             self.on_weightsCheckBox_stateChanged(
                 self.weightsCheckBox.isChecked())
             self.on_haplotypesNamesCheckBox_stateChanged(

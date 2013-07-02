@@ -1,0 +1,88 @@
+<!--
+
+ "THE WISKEY-WARE LICENSE":
+ <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
+ you can do whatever you want with this stuff. If we meet some day, and you
+ think this stuff is worth it, you can buy me a WISKEY us return.
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="generator" content="Geany 1.22" />
+
+        <!-- includes -->
+        <script src="res/jquery-2.0.0.min.js"></script>
+        <script type="text/javascript" src="res/jqplot/jquery.jqplot.js"></script>
+        <script type="text/javascript" src="res/jqplot/plugins/jqplot.barRenderer.min.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="res/jqplot/jquery.jqplot.css" />
+
+        <script>
+        <!-- CLASSES -->
+        var Color = function(r, g, b) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+
+            this.toRGBString = function(colorObj){
+                return 'rgb(' + this.r.toString() + ","
+                               + this.g.toString() + ","
+                               + this.b.toString() + ")";
+            }
+
+        }
+        </script>
+
+        <script>
+            // CONSTANTS
+        </script>
+
+        <script>
+            // PATCH!
+        </script>
+
+        <script>
+
+            plot = null;
+
+            // FUNCTIONS
+            function drawSerie(serie) {
+                clear();
+
+                plot = $.jqplot('plot', [serie], {
+                    stackSeries: true,
+                    captureRightClick: true,
+                    seriesDefaults:{
+                        renderer:$.jqplot.BarRenderer,
+                        rendererOptions: {
+                            highlightMouseDown: true
+                        },
+                        pointLabels: {show: true}
+                    },
+                });
+
+                /*$('#plot').bind('jqplotDataRightClick',
+                    function (ev, seriesIndex, pointIndex, data) {
+                        $('#info3').html('series: ' + seriesIndex + ', point: ' + pointIndex + ', data: ' + data);
+                    }
+                );*/
+            }
+
+            function clear(){
+                if(plot != null && plot.hasOwnProperty("destroy"))
+                    plot.destroy();
+            }
+
+        </script>
+
+    </head>
+
+    <body>
+        <div id="info3"></div>
+        <div id="plot"/>
+    </body>
+
+</html>

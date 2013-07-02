@@ -11,8 +11,7 @@
 # DOC
 #===============================================================================
 
-"""Wrapper for use actors and pilas sigmajs inside a qt app as a interactive
-network.
+"""Wrapper for use isigmajs inside a qt app as interactive network.
 
 """
 
@@ -43,13 +42,13 @@ from yatel.gui import html
 #===============================================================================
 
 class Network(QtWebKit.QWebView):
-    """Singleton instance for use Pilas widget as QtWidget ofr draw networks
+    """iSigma.js as QtWidget ofr draw networks
 
     """
     node_clicked = QtCore.pyqtSignal(object)
 
     def __init__(self, parent=None):
-        """Init the instance of ``NetworkProxy`` singleton."""
+        """Init the instance."""
         super(Network, self).__init__(parent=parent)
         self.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
         self.loop = QtCore.QEventLoop()
