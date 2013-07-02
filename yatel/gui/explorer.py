@@ -35,7 +35,7 @@ from yatel.gui import facts_dialog
 #
 #===============================================================================
 
-class ExplorerFrame(uis.UI("Explorer2.ui")):
+class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
     """This is the frame make all explorations
 
     """
@@ -94,12 +94,12 @@ class ExplorerFrame(uis.UI("Explorer2.ui")):
 
 
         # layout
-        #~ self.hSplitter.setSizes(
-            #~ [parent.parent().size().width() / 2] * self.hSplitter.count()
-        #~ )
-        #~ self.vSplitter.setSizes(
-            #~ [parent.parent().size().height() / 2] * self.vSplitter.count()
-        #~ )
+        self.hSplitter.setSizes(
+            [parent.parent().size().width() / 2] * self.hSplitter.count()
+        )
+        self.vSplitter.setSizes(
+            [parent.parent().size().height() / 2] * self.vSplitter.count()
+        )
 
         # load latest version
         self.filterTabWidget.setCurrentIndex(0)
