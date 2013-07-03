@@ -65,6 +65,11 @@ def amax(conn, **env):
     return np.amax(arr)
 
 
+def sum(conn, **env):
+    arr = env2weightarray(conn, **env)
+    return np.sum(arr)
+
+
 def mode(conn, **env):
     arr = env2weightarray(conn, **env)
     return cead.mode(arr)
@@ -139,7 +144,6 @@ def MAD(conn, **env):
     return cead.MAD(arr)
 
 
-
 #===============================================================================
 # SYMETRY
 #===============================================================================
@@ -186,17 +190,6 @@ def weights2array(edges):
     return np.array([e.weight for e in edges])
 
 
-def edges_enviroment(conn, **kwargs):
-    """Iterates over all ``dom.Edge`` instances of a given enviroment"""
-    cache = set()
-    for hap in conn.enviroment(**kwargs):
-        for edge in conn.edges_by_haplotype(hap):
-            ehash = hash(edge)
-            if ehash not in cache:
-                cache.add(ehash)
-                yield edge
-
-
 def env2weightarray(conn, **kwargs):
     """Create a *numpy.array* with all the weights of ``dom.Edges`` of
     a given enviroment
@@ -206,7 +199,7 @@ def env2weightarray(conn, **kwargs):
     """
     if not kwargs:
         return weights2array(conn.iter_edges())
-    return weights2array(edges_enviroment(conn, **kwargs))
+    return weights2array(conn.edges_enviroment(**kwargs))
 
 
 #===============================================================================

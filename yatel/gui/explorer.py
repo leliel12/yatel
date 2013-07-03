@@ -29,10 +29,11 @@ from yatel.gui import sheditor
 from yatel.gui import ipython
 from yatel.gui import network
 from yatel.gui import facts_dialog
+from yatel.gui import stats_frame
 
 
 #===============================================================================
-#
+# CLASS
 #===============================================================================
 
 class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
@@ -73,7 +74,11 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.consoleLayout.addWidget(self.ipythonWidget)
         self.ipythonWidget.reset_ns(win=self.parent().parent())
 
-        #self.network = FakeWidget(self)
+        # plot
+        self.stats_frame = stats_frame.StatsFrame(self)
+        self.statsLayout.addWidget(self.stats_frame)
+
+        # sigma
         self.network = network.Network(self)
         self.network.node_clicked.connect(self.on_node_clicked)
         self.networkLayout.addWidget(self.network)

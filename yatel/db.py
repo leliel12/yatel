@@ -461,22 +461,30 @@ class YatelConnection(object):
                 (<Haplotype 'hap2' at 0x2463390>, )
 
         """
-        cache = set()
-        queries = []
+        qfilter = []
         for k, v in kwargs.items():
             field = getattr(self.FactDBO, k)
-            query = None
+            fltr = None
             if v is None:
-                query = (field >> None)
+                fltr = (field >> None)
             else:
-                query = (field == v)
-            queries.append(query)
-        for fdbo in self.FactDBO.filter(*queries):
-            hap_id = fdbo._data["haplotype"]
-            if  hap_id not in cache:
-                hap = self.haplotype_by_id(hap_id)
-                cache.add(hap_id)
-                yield hap
+                fltr = (field == v)
+            qfilter.append(fltr)
+        query = self.HaplotypeDBO.select().join(self.FactDBO).where(*qfilter)
+        for hdbo in query.distinct():
+            data = dict((k, v) for k, v in hdbo._data.items()
+                         if v is not None)
+            yield dom.Haplotype(**data)
+
+    def edges_enviroment(self, **kwargs):
+        """Iterates over all ``dom.Edge`` instances of a given enviroment"""
+        cache = set()
+        for hap in self.enviroment(**kwargs):
+            for edge in self.edges_by_haplotype(hap):
+                ehash = hash(edge)
+                if ehash not in cache:
+                    cache.add(ehash)
+                    yield edge
 
     def fact_attributes_names(self):
         """Return a ``iterator`` of all existing ``dom.Fact`` atributes."""
@@ -564,7 +572,7 @@ class YatelConnection(object):
                 # if the name of the attribute is correct add to filter
                 expr = getattr(self.EdgeDBO, fname) == hdbo
                 qfilter = (qfilter | expr) if qfilter else expr
-        for edbo in self.EdgeDBO.select().where(qfilter):
+        for edbo in self.EdgeDBO.select().where(qfilter).distinct():
             weight = edbo.weight
             haps_id = [v for k, v in edbo._data.items()
                        if k.startswith("haplotype_") and v is not None]
