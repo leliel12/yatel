@@ -317,7 +317,7 @@ class QRangeSlider(QtGui.QWidget, Ui_Form):
         self.setupUi(self)
         self.setMouseTracking(False)
 
-        #self._splitter.setChildrenCollapsible(False)
+        # self._splitter.setChildrenCollapsible(False)
         self._splitter.splitterMoved.connect(self._handleMoveSplitter)
 
         # head layout
@@ -432,11 +432,11 @@ class QRangeSlider(QtGui.QWidget, Ui_Form):
         """overrides key press event to move range left and right"""
         key = event.key()
         if key == QtCore.Qt.Key_Left:
-            s = self.start()-1
-            e = self.end()-1
+            s = self.start() - 1
+            e = self.end() - 1
         elif key == QtCore.Qt.Key_Right:
-            s = self.start()+1
-            e = self.end()+1
+            s = self.start() + 1
+            e = self.end() + 1
         else:
             event.ignore()
             return

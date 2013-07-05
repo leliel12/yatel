@@ -63,6 +63,8 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
 
         self.conn = yatel_connection
 
+        self.filter_radio_group = QtGui.QButtonGroup(self)
+        
         # ipython
         self.ipythonWidget = ipython.IPythonWidget(self.tr(
             "\nUse:\n"
@@ -129,6 +131,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
             envWidget = EnviromentListItem(env=facts_and_values)
             envWidget.filterChanged.connect(self.on_filter_changed)
             envWidget.removeRequested.connect(self.on_filter_removeRequested)
+            self.filter_radio_group.addButton(envWidget.radioButton)
             self.enviromentsTableWidget.setCellWidget(row, 0, envWidget)
             envWidget.set_active(checked)
             for att, value in enviroment.items():
@@ -218,9 +221,12 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 msg = "The query must be start with the 'select' command"
                 raise ValueError(msg)
             haps = self.conn.hap_sql(query)
-            edges = self.conn.edges_by_haplotypes(*haps)
             self.network.highlight_nodes(haps)
-            self.stats_frame.refresh(edges)
+            if self.network.highlighted_nodes:
+                edges = self.conn.edges_by_haplotypes(self.conn.hap_sql(query))
+                self.stats_frame.refresh(edges)
+            else:
+                self.stats_frame.refresh(self.conn.iter_edges())
         except Exception as err:
             error_dialog.critical(self.tr("Error on Haplotype SQL"), err)
 
@@ -276,8 +282,10 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 self.enviromentsTableWidget.removeRow(ridx)
                 widget.removeRequested.disconnect(self.on_filter_removeRequested)
                 widget.filterChanged.disconnect(self.on_filter_changed)
+                self.filter_radio_group.removeButton(widget.radioButton)
                 self._set_save_status(False)
                 break
+        widget.destroy()
 
     def on_filter_changed(self):
         """Slot executed when a combo box of a filter or a checkbox status
@@ -288,14 +296,23 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         Save status is setted  to ``False``.
 
         """
-        haps = ()
+        filters = None
         for ridx in range(self.enviromentsTableWidget.rowCount()):
             envwidget = self.enviromentsTableWidget.cellWidget(ridx, 0)
             if envwidget.is_active():
-                haps = self.conn.enviroment(**envwidget.filters())
+                filters = envwidget.filters()
                 break
-        edges = self.conn.edges_by_haplotypes(*haps)
-        self.network.highlight_nodes(haps)
+        if filters:
+            haps = self.conn.enviroment(**filters)
+            self.network.highlight_nodes(haps)
+            if self.network.highlighted_nodes:
+                edges = self.conn.edges_enviroment(**filters)
+                self.stats_frame.refresh(edges)
+            else:
+                self.stats_frame.refresh(self.conn.iter_edges())
+        else:
+            self.network.unhighlightall()
+            self.stats_frame.refresh(self.conn.iter_edges())
         self._set_save_status(False)
 
     @QtCore.pyqtSlot(int)
@@ -579,8 +596,8 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
             combo.currentIndexChanged.connect(self.on_combo_currentIndexChanged)
             self._filters[k] = combo
         self.setVisible(True)
-
-    def on_checkBox_clicked(self):
+        
+    def on_radioButton_clicked(self):
         """Slot executed when ``checkBox`` status change.
 
         This method emit the signal ``filterChanged``.
@@ -598,7 +615,7 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
             :idx: The new index of the combo.
 
         """
-        if self.checkBox.isChecked():
+        if self.radioButton.isChecked():
             self.filterChanged.emit()
 
     @QtCore.pyqtSlot()
@@ -613,7 +630,7 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
 
     def is_active(self):
         """Returns if the filter is active or not"""
-        return self.checkBox.isChecked()
+        return self.radioButton.isChecked()
 
     def set_active(self, status):
         """Activates or deactivate this filter
@@ -621,9 +638,9 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
         **Params**
             :status: ``bolean``
         """
-        if self.checkBox.isChecked() != status:
+        if self.radioButton.isChecked() != status:
             self.filterChanged.emit()
-        self.checkBox.setChecked(status)
+        self.radioButton.setChecked(status)
 
     def select_attribute_value(self, name, value):
         """Change the value of a given combo by name (if the value not exists

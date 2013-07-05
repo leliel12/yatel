@@ -74,7 +74,7 @@ def run_gui(parser=None):
     """
     splash = main_window.SplashScreen()
     if "--serve" not in APP.arguments():
-        splash.show()
+        "splash.show()"
     QtCore.QThread.sleep(1)
     APP.processEvents()
     win = main_window.MainWindow()

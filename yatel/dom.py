@@ -271,7 +271,7 @@ def validate(haplotypes, facts, edges):
             msg = "Duplicated hap_id '{id}'".format(id=hap.hap_id)
             raise ValidationError(msg)
         haps_id.add(hap.hap_id)
-        for an, av in [("hap_id", hap.hap_id)] +  hap.items_attrs():
+        for an, av in [("hap_id", hap.hap_id)] + hap.items_attrs():
             if an not in haps_attrs:
                 haps_attrs[an] = type(av)
             elif not isinstance(av, haps_attrs[an]):
@@ -286,9 +286,9 @@ def validate(haplotypes, facts, edges):
     for fact in facts:
         if fact.hap_id not in haps_id:
             msg = "Haplotype id '{id}' of Fact '{fact}' not found on given haplotypes"
-            msg = msg.format(id=fact.hap_id,fact=repr(fact))
+            msg = msg.format(id=fact.hap_id, fact=repr(fact))
             raise ValidationError(msg)
-        for an, av in [("hap_id", fact.hap_id)] +  fact.items_attrs():
+        for an, av in [("hap_id", fact.hap_id)] + fact.items_attrs():
             if an not in facts_attrs:
                 facts_attrs[an] = type(av)
             elif not isinstance(av, facts_attrs[an]):

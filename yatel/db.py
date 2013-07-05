@@ -84,7 +84,7 @@ NAME2FIELD = {
     "DoubleField": peewee.DoubleField,
     "BigIntegerField": peewee.BigIntegerField,
     "DecimalField": peewee.DecimalField,
-    #"PrimaryKeyField": peewee.PrimaryKeyField,
+    # "PrimaryKeyField": peewee.PrimaryKeyField,
     "ForeignKeyField": peewee.ForeignKeyField,
     "DateField": peewee.DateField,
     "TimeField": peewee.TimeField,
@@ -480,7 +480,7 @@ class YatelConnection(object):
 
     def edges_enviroment(self, **kwargs):
         """Iterates over all ``dom.Edge`` instances of a given enviroment"""
-        return self.edges_by_haplotypes(*self.enviroment(**kwargs))
+        return self.edges_by_haplotypes(self.enviroment(**kwargs))
 
     def fact_attributes_names(self):
         """Return a ``iterator`` of all existing ``dom.Fact`` atributes."""
@@ -548,7 +548,7 @@ class YatelConnection(object):
                        if k.startswith("haplotype_") and v is not None]
             yield dom.Edge(weight, *haps_id)
 
-    def edges_by_haplotypes(self, *haps):
+    def edges_by_haplotypes(self, haps):
         """Iterates over all nodes of a given list of haplotypes without
            repetitions
 
@@ -574,8 +574,8 @@ class YatelConnection(object):
         hdbo = self.HaplotypeDBO.get(self.HaplotypeDBO.hap_id == hap.hap_id)
 
         # next we need a query the references names in the edges
-        tdbo = self.YatelTableDBO.get(self.YatelTableDBO.type==EDGES_TABLE)
-        for fdbo in self.YatelFieldDBO.select().where(self.YatelFieldDBO.table==tdbo):
+        tdbo = self.YatelTableDBO.get(self.YatelTableDBO.type == EDGES_TABLE)
+        for fdbo in self.YatelFieldDBO.select().where(self.YatelFieldDBO.table == tdbo):
             fname = fdbo.name
             if fname != "weight":
 
@@ -750,8 +750,8 @@ class YatelConnection(object):
         hdbo = self.HaplotypeDBO.get(self.HaplotypeDBO.hap_id == hap.hap_id)
 
         # next we need a query the references names in the edges
-        tdbo = self.YatelTableDBO.get(self.YatelTableDBO.type==EDGES_TABLE)
-        for fdbo in self.YatelFieldDBO.select().where(self.YatelFieldDBO.table==tdbo):
+        tdbo = self.YatelTableDBO.get(self.YatelTableDBO.type == EDGES_TABLE)
+        for fdbo in self.YatelFieldDBO.select().where(self.YatelFieldDBO.table == tdbo):
             fname = fdbo.name
             if fname != "weight":
 

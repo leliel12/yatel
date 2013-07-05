@@ -15,14 +15,6 @@
 
 """
 
-if __name__ == "__main__":
-    import matplotlib as mpl
-    mpl.use('Agg')
-    import sys, os
-    sys.path.insert(1, os.path.join("..", ".."))
-    import yatel.gui
-
-
 #===============================================================================
 # IMPORTS
 #===============================================================================
@@ -47,10 +39,42 @@ from yatel.gui import uis
 #===============================================================================
 
 _STATS = [
-
-    ("Average weight", stats.average),
-
+    ("Position stats", (
+        ("Average weight", stats.average),
+        ("Sum", stats.sum),
+        ("Min weight", stats.amin),
+        ("Q25", lambda arr: stats.percentile(arr, (25))),
+        ("Median weight", stats.median),
+        ("Q75", lambda arr: stats.percentile(arr, (75))),
+        ("Max weight", stats.amax),
+        ("Mode", lambda arr: ", ".join(map(unicode, stats.mode(arr))))
+    )),
+    ("Robust Position stats", (
+        ("Quatile average", stats.Q),
+        ("Trimedian", stats.TRI),
+        ("Inter quartile average", stats.MID)
+    )),
+    ("Dispertion stats", (
+        ("Variance", stats.var),
+        ("Std. Deviation", stats.std),
+        ("Range", stats.range),
+        ("C. of variation", stats.variation),
+        ("Average deviation", stats.MD),
+        ("Median deviation", stats.MeD),
+        ("Quartile variation", stats.varQ),
+        ("Me. of abs. deviations", stats.MAD)           
+    )),
+    ("Simetry", (
+        ("Pearson", stats.Sp_pearson),
+        ("Yule", stats.H1_yule),
+        ("Kelly", stats.H3_kelly),
+    )),
+    ("Kurtosis", (
+        ("Kurtosis", stats.kurtosis),
+        ("Robust Kurtosis", stats.K1_kurtosis),
+    ))                    
 ]
+
 
 #===============================================================================
 # CLASS
@@ -61,7 +85,8 @@ class StatsFrame(uis.UI("StatsFrame.ui")):
     def __init__(self, conn, parent=None):
         super(StatsFrame, self).__init__(parent)
         self._data = []
-                # a figure instance to plot on
+        self._collapsed = set() 
+        self._first_adjust = True
         self.figure = plt.figure()
         self.canvas = FigureCanvas(self.figure)
         self.canvas.setParent(self)
@@ -69,47 +94,52 @@ class StatsFrame(uis.UI("StatsFrame.ui")):
 
         self.plotLayout.addWidget(self.toolbar)
         self.plotLayout.addWidget(self.canvas)
-        #self.plotLayout.addWidget(self.button)
+        # self.plotLayout.addWidget(self.button)
 
     def _reload_stats(self):
         self.statsTreeWidget.clear()
-        for sname, sfunc in _STATS:
-            sval = sfunc(self._data)
-            item = QtGui.QTreeWidgetItem([sname, unicode(sval)])
-            self.statsTreeWidget.addTopLevelItem(item)
-#~
+        for group, stats in _STATS:
+            group = self.tr(group)
+            group_item = QtGui.QTreeWidgetItem([group])
+            for sname, sfunc in stats:
+                sname = self.tr(sname)
+                sval = unicode(sfunc(self._data))
+                group_item.addChild(QtGui.QTreeWidgetItem([sname, sval]))
+            self.statsTreeWidget.addTopLevelItem(group_item)
+            if group not in self._collapsed:
+                group_item.setExpanded(True)
+            if self._first_adjust:
+                self.statsTreeWidget.resizeColumnToContents(0)
+                self._first_adjust = False
+                
     def _reload_plot(self):
         # create an axis
-        ax = self.figure.add_subplot(111)
-        # discards the old graph
-        ax.hold(False)
-        # plot data
-        ax.hist(self._data)
-        # refresh canvas
+        ax0 = self.figure.add_subplot(121)
+        ax0.hold(False)
+        ax0.hist(self._data)
+        ax1 = self.figure.add_subplot(122)
+        ax1.hold(False)
+        ax1.boxplot(self._data)
+        
         self.canvas.draw()
 
     def refresh(self, edges):
         self._data = stats.weights2array(edges)
         self._reload_stats()
         self._reload_plot()
-
+        
+    def on_statsTreeWidget_itemCollapsed(self, item):
+        self._collapsed.add(item.text(0))
+        
+    def on_statsTreeWidget_itemExpanded(self, item):
+        text = item.text(0)
+        if text in self._collapsed:
+            self._collapsed.remove(text)
+        
 
 #===============================================================================
 # MAIN
 #===============================================================================
 
-if __name__ == '__main__':
-    import sys
-    from PyQt4 import QtGui
-    app = yatel.gui.APP
-
-    main = QtGui.QDialog()
-    stats = StatsFrame(main)
-    layout = QtGui.QVBoxLayout()
-    layout.addWidget(stats)
-
-    main.setLayout(layout)
-    main.show()
-
-    stats.refresh([1,2,3])
-    sys.exit(app.exec_())
+if __name__ == "__main__":
+    print(__doc__)

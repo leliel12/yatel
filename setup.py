@@ -110,7 +110,7 @@ setup(
                   'html': ['yatel/gui/html/*'],
                   'res': ['yatel/gui/html/res/*']},
     py_modules=["ez_setup"],
-    entry_points = {'console_scripts': ['yatel = yatel.cli:main']},
+    entry_points={'console_scripts': ['yatel = yatel.cli:main']},
     setup_requires=["sphinx-pypi-upload"],
     install_requires=PYPI_REQUIRE,
 )
