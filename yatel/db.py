@@ -471,20 +471,16 @@ class YatelConnection(object):
                 fltr = (field == v)
             qfilter.append(fltr)
         query = self.HaplotypeDBO.select().join(self.FactDBO).where(*qfilter)
-        for hdbo in query.distinct():
+        query = query.distinct()
+
+        for hdbo in query:
             data = dict((k, v) for k, v in hdbo._data.items()
                          if v is not None)
             yield dom.Haplotype(**data)
 
     def edges_enviroment(self, **kwargs):
         """Iterates over all ``dom.Edge`` instances of a given enviroment"""
-        cache = set()
-        for hap in self.enviroment(**kwargs):
-            for edge in self.edges_by_haplotype(hap):
-                ehash = hash(edge)
-                if ehash not in cache:
-                    cache.add(ehash)
-                    yield edge
+        return self.edges_by_haplotypes(*self.enviroment(**kwargs))
 
     def fact_attributes_names(self):
         """Return a ``iterator`` of all existing ``dom.Fact`` atributes."""
@@ -551,6 +547,20 @@ class YatelConnection(object):
             haps_id = [v for k, v in edbo._data.items()
                        if k.startswith("haplotype_") and v is not None]
             yield dom.Edge(weight, *haps_id)
+
+    def edges_by_haplotypes(self, *haps):
+        """Iterates over all nodes of a given list of haplotypes without
+           repetitions
+
+        """
+        cache = set()
+        for hap in haps:
+            for edge in self.edges_by_haplotype(hap):
+                ehash = hash(edge)
+                if ehash not in cache:
+                    cache.add(ehash)
+                    yield edge
+
 
     def edges_by_haplotype(self, hap):
         """Iterates over all the edges of a given dom.Haplotype.

@@ -166,11 +166,11 @@ class Network(QtWebKit.QWebView):
         self.js_function("showWeights", show)
         self._weights_showed = show
 
-    def highlight_nodes(self, *haps):
-        """Highlight all the nodes given in a tuple ``*haps``."""
+    def highlight_nodes(self, haps):
+        """Highlight all the nodes given in a iterable ``haps``."""
         ids = [unicode(hap.hap_id) for hap in haps]
         self.js_function("highlightNodes", ids)
-        self._highlighted = tuple(hap.hap_id for hap in haps)
+        self._highlighted = tuple(ids)
 
     def unhighlightall(self):
         """Unhighlight all the nodes."""

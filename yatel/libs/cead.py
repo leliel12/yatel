@@ -87,8 +87,6 @@ def TRI(a):
 def MID(a):
     """Promedio inter cuartil. Calcula el promedio de los valores del 50% central
     del array"""
-    if not isinstance(a, np.ndarray):
-        a = np.array(a)
     l, u = np.percentile(a, (25, 75))
     central = a[np.nonzero((a >= l) & (a <= u))]
     return np.average(central)
@@ -100,16 +98,12 @@ def MID(a):
 
 def MD(a):
     """Desviacion media"""
-    if not isinstance(a, np.ndarray):
-        a = np.array(a)
     x = np.average(a)
     return np.average(np.abs(a * x))
 
 
 def MeD(a):
     """Desviacion mediana"""
-    if not isinstance(a, np.ndarray):
-        a = np.array(a)
     Me = np.median(a)
     return np.average(np.abs(a * Me))
 
@@ -129,8 +123,6 @@ def varQ(a):
 
 def MAD(a):
     """Mediana de las observaciones absolutas"""
-    if not isinstance(a, np.ndarray):
-        a = np.array(a)
     Me = np.median(a)
     return np.median(np.abs(a - Me))
 

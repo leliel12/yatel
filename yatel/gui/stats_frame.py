@@ -43,12 +43,22 @@ from yatel.gui import uis
 
 
 #===============================================================================
+# CONSTANS
+#===============================================================================
+
+_STATS = [
+
+    ("Average weight", stats.average),
+
+]
+
+#===============================================================================
 # CLASS
 #===============================================================================
 
 class StatsFrame(uis.UI("StatsFrame.ui")):
 
-    def __init__(self, parent=None):
+    def __init__(self, conn, parent=None):
         super(StatsFrame, self).__init__(parent)
         self._data = []
                 # a figure instance to plot on
@@ -62,6 +72,7 @@ class StatsFrame(uis.UI("StatsFrame.ui")):
         #self.plotLayout.addWidget(self.button)
 
     def _reload_stats(self):
+        self.statsTreeWidget.clear()
         for sname, sfunc in _STATS:
             sval = sfunc(self._data)
             item = QtGui.QTreeWidgetItem([sname, unicode(sval)])
@@ -73,12 +84,12 @@ class StatsFrame(uis.UI("StatsFrame.ui")):
         # discards the old graph
         ax.hold(False)
         # plot data
-        ax.plot(self._data, '*-')
+        ax.hist(self._data)
         # refresh canvas
         self.canvas.draw()
 
-    def refresh(self, **env):
-        self._data = arr
+    def refresh(self, edges):
+        self._data = stats.weights2array(edges)
         self._reload_stats()
         self._reload_plot()
 

@@ -218,10 +218,9 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
                 msg = "The query must be start with the 'select' command"
                 raise ValueError(msg)
             haps = self.conn.hap_sql(query)
-            if haps:
-                self.network.highlight_nodes(*haps)
-            else:
-                self.network.unhighlightall()
+            edges = self.conn.edges_by_haplotypes(*haps)
+            self.network.highlight_nodes(haps)
+            self.stats_frame.refresh(edges)
         except Exception as err:
             error_dialog.critical(self.tr("Error on Haplotype SQL"), err)
 
@@ -289,16 +288,14 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         Save status is setted  to ``False``.
 
         """
-        haps = []
+        haps = ()
         for ridx in range(self.enviromentsTableWidget.rowCount()):
             envwidget = self.enviromentsTableWidget.cellWidget(ridx, 0)
             if envwidget.is_active():
-                for hap in self.conn.enviroment(**envwidget.filters()):
-                    haps.append(hap)
-        if haps:
-            self.network.highlight_nodes(*haps)
-        else:
-            self.network.unhighlightall()
+                haps = self.conn.enviroment(**envwidget.filters())
+                break
+        edges = self.conn.edges_by_haplotypes(*haps)
+        self.network.highlight_nodes(haps)
         self._set_save_status(False)
 
     @QtCore.pyqtSlot(int)

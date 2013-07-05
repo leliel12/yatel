@@ -23,6 +23,7 @@ import numpy as np
 
 from scipy import stats
 
+from yatel import db
 from yatel.libs import cead
 
 
@@ -186,20 +187,30 @@ def K1_kurtosis(conn, **env):
 #===============================================================================
 
 def weights2array(edges):
-    """Create a *numpy.array* with all the weights of ``dom.Edges``"""
+    """Create a *numpy.ndarray* with all the weights of ``dom.Edges``"""
     return np.array([e.weight for e in edges])
 
 
 def env2weightarray(conn, **kwargs):
-    """Create a *numpy.array* with all the weights of ``dom.Edges`` of
-    a given enviroment
+    """This function always return a *numpy.ndarray* with this conditions:
 
-    It no enviroment is given... return all edges.
+    - If ``conn`` is instance of ``numpy.ndarray`` the same array is returned.
+    - If ``conn`` is instance of ``db.YatelConnection`` and come enviroment is
+      given return all the edges in this enviroment.
+    - If ``conn`` is instance of ``db.YatelConnection`` and no enviroment is
+      given  then return all edges.
+    - In the last case the function try to convert conn to ``numpy.ndarray``
+      instance.
 
     """
-    if not kwargs:
-        return weights2array(conn.iter_edges())
-    return weights2array(conn.edges_enviroment(**kwargs))
+    if isinstance(conn, np.ndarray):
+        return conn
+    elif isinstance(conn, db.YatelConnection):
+        if not kwargs:
+            return weights2array(conn.iter_edges())
+        return weights2array(conn.edges_enviroment(**kwargs))
+    else:
+        return np.array(conn)
 
 
 #===============================================================================
