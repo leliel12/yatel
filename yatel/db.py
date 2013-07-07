@@ -480,7 +480,10 @@ class YatelConnection(object):
 
     def edges_enviroment(self, **kwargs):
         """Iterates over all ``dom.Edge`` instances of a given enviroment"""
-        return self.edges_by_haplotypes(self.enviroment(**kwargs))
+        haps = [hap.hap_id for hap in self.enviroment(**kwargs)]
+        for edge in self.edges_by_haplotypes(self.enviroment(**kwargs)):
+            if all(map(lambda hid: hid in haps, edge.haps_id)):
+                yield edge
 
     def fact_attributes_names(self):
         """Return a ``iterator`` of all existing ``dom.Fact`` atributes."""

@@ -111,6 +111,21 @@ class StatsFrame(uis.UI("StatsFrame.ui")):
                 self.statsTreeWidget.resizeColumnToContents(0)
                 self._first_adjust = False
 
+    def _clear_stats(self):
+        self.statsTreeWidget.clear()
+        for group, stats in _STATS:
+            group = self.tr(group)
+            group_item = QtGui.QTreeWidgetItem([group])
+            for sname, sfunc in stats:
+                sname = self.tr(sname)
+                group_item.addChild(QtGui.QTreeWidgetItem([sname, "-"]))
+            self.statsTreeWidget.addTopLevelItem(group_item)
+            if group not in self._collapsed:
+                group_item.setExpanded(True)
+            if self._first_adjust:
+                self.statsTreeWidget.resizeColumnToContents(0)
+                self._first_adjust = False
+
     def _reload_plot(self):
         # create an axis
         ax0 = self.figure.add_subplot(121)
@@ -119,13 +134,20 @@ class StatsFrame(uis.UI("StatsFrame.ui")):
         ax1 = self.figure.add_subplot(122)
         ax1.hold(False)
         ax1.boxplot(self._data)
+        self.canvas.draw()
 
+    def _clear_plot(self):
+        self.figure.clear()
         self.canvas.draw()
 
     def refresh(self, edges):
         self._data = stats.weights2array(edges)
-        self._reload_stats()
-        self._reload_plot()
+        if len(self._data):
+            self._reload_stats()
+            self._reload_plot()
+        else:
+            self._clear_stats()
+            self._clear_plot()
 
     def on_statsTreeWidget_itemCollapsed(self, item):
         self._collapsed.add(item.text(0))

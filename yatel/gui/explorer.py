@@ -64,7 +64,7 @@ class ExplorerFrame(uis.UI("ExplorerFrame.ui")):
         self.conn = yatel_connection
 
         self.filter_radio_group = OneOrNothingButtonGroup(self)
-        
+
         # ipython
         self.ipythonWidget = ipython.IPythonWidget(self.tr(
             "\nUse:\n"
@@ -596,7 +596,7 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
             combo.currentIndexChanged.connect(self.on_combo_currentIndexChanged)
             self._filters[k] = combo
         self.setVisible(True)
-        
+
     def on_radioButton_toggled(self, status):
         """Slot executed when ``checkBox`` status change.
 
@@ -669,28 +669,28 @@ class EnviromentListItem(uis.UI("EnviromentListItem.ui")):
 
 
 #===============================================================================
-# Patched button group 
+# Patched button group
 #===============================================================================
 
 class OneOrNothingButtonGroup(QtGui.QButtonGroup):
     """This class is a hack around the button group for not
     select none button
-    
+
     """
-    
+
     def __init__(self, *args, **kwargs):
         super(OneOrNothingButtonGroup, self).__init__(*args, **kwargs)
         self.setExclusive(True)
-        self.buttonClicked.connect(self._onclick) 
+        self.buttonClicked.connect(self._onclick)
         self._selected = None
-        
+
     def _onclick(self, btn):
-        if btn.isChecked() and self._selected == btn: 
+        if btn.isChecked() and self._selected == btn:
             self.setExclusive(False)
             btn.setChecked(False)
             self.setExclusive(True)
             self._selected = None
-        else:    
+        else:
             self._selected = btn
 
 
