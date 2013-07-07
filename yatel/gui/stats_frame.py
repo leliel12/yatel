@@ -62,7 +62,7 @@ _STATS = [
         ("Average deviation", stats.MD),
         ("Median deviation", stats.MeD),
         ("Quartile variation", stats.varQ),
-        ("Me. of abs. deviations", stats.MAD)           
+        ("Me. of abs. deviations", stats.MAD)
     )),
     ("Simetry", (
         ("Pearson", stats.Sp_pearson),
@@ -72,7 +72,7 @@ _STATS = [
     ("Kurtosis", (
         ("Kurtosis", stats.kurtosis),
         ("Robust Kurtosis", stats.K1_kurtosis),
-    ))                    
+    ))
 ]
 
 
@@ -85,7 +85,7 @@ class StatsFrame(uis.UI("StatsFrame.ui")):
     def __init__(self, conn, parent=None):
         super(StatsFrame, self).__init__(parent)
         self._data = []
-        self._collapsed = set() 
+        self._collapsed = set()
         self._first_adjust = True
         self.figure = plt.figure()
         self.canvas = FigureCanvas(self.figure)
@@ -94,7 +94,6 @@ class StatsFrame(uis.UI("StatsFrame.ui")):
 
         self.plotLayout.addWidget(self.toolbar)
         self.plotLayout.addWidget(self.canvas)
-        # self.plotLayout.addWidget(self.button)
 
     def _reload_stats(self):
         self.statsTreeWidget.clear()
@@ -111,7 +110,7 @@ class StatsFrame(uis.UI("StatsFrame.ui")):
             if self._first_adjust:
                 self.statsTreeWidget.resizeColumnToContents(0)
                 self._first_adjust = False
-                
+
     def _reload_plot(self):
         # create an axis
         ax0 = self.figure.add_subplot(121)
@@ -120,22 +119,22 @@ class StatsFrame(uis.UI("StatsFrame.ui")):
         ax1 = self.figure.add_subplot(122)
         ax1.hold(False)
         ax1.boxplot(self._data)
-        
+
         self.canvas.draw()
 
     def refresh(self, edges):
         self._data = stats.weights2array(edges)
         self._reload_stats()
         self._reload_plot()
-        
+
     def on_statsTreeWidget_itemCollapsed(self, item):
         self._collapsed.add(item.text(0))
-        
+
     def on_statsTreeWidget_itemExpanded(self, item):
         text = item.text(0)
         if text in self._collapsed:
             self._collapsed.remove(text)
-        
+
 
 #===============================================================================
 # MAIN
