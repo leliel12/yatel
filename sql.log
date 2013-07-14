@@ -1,0 +1,8 @@
+timestamp: 2013-07-14T03:57:00.515030
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    unique CHAR(1) NOT NULL,
+    reference_to CHAR(512)
+);
