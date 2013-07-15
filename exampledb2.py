@@ -87,7 +87,7 @@ def connect(create=False):
             hap_0 = random.choice(haps_id)
             hap_1 = random.choice(haps_id)
             while hap_1 == hap_0:
-                hap_1 = random.choice(haps).hap_id
+                hap_1 = random.choice(haps_id)
             conn.add_element(dom.Edge(weight, hap_0, hap_1))
 
         conn.init()

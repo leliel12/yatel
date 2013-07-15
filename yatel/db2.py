@@ -236,6 +236,7 @@ class YatelNetwork(object):
                     self._dal.haplotypes,
                     redefine=True, *new_attrs
                 )
+                self._register_fields("haplotypes", new_attrs)
             attrs = dict(elem.items_attrs())
             attrs.update(hap_id=elem.hap_id)
             self._dal.haplotypes.insert(**attrs)
@@ -255,6 +256,7 @@ class YatelNetwork(object):
                     self._dal.facts,
                     redefine=True, *new_attrs
                 )
+                self._register_fields("edges", facts)
             attrs = dict(elem.items_attrs())
             attrs.update(hap_id=elem.hap_id)
             self._dal.facts.insert(**attrs)
@@ -274,6 +276,7 @@ class YatelNetwork(object):
                     'edges',
                     self._dal.edges,
                     redefine=True, *new_attrs)
+                self._register_fields("edges", new_attrs)
             attrs = {}
             for idx, hap_id in enumerate(elem.haps_id):
                 attrs["hap_{}".format(idx)] = hap_id
