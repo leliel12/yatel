@@ -175,13 +175,17 @@ class YatelNetwork(object):
         return set(attnames).difference(table.fields)
 
     def _base_tables(self):
-        self._dal.define_table(
-            'yatel_fields',
-            dal.Field("name", "string", required=True, notnull=True),
-            dal.Field("type", "string", required=True, notnull=True),
-            dal.Field("unique", "boolean", notnull=True),
-            dal.Field("reference_to", "string")
-        )
+
+        try:
+            self._dal.define_table(
+                'yatel_fields',
+                dal.Field("name", "string", notnull=True),
+                dal.Field("type", "string", notnull=True),
+                dal.Field("is_unique", "boolean", notnull=True),
+                dal.Field("reference_to", "string", notnull=False)
+            )
+        except:
+            print self._dal._lastsql
 
         self._dal.define_table(
             'yatel_versions',
@@ -230,7 +234,8 @@ class YatelNetwork(object):
                 self._dal.define_table(
                     'haplotypes',
                     self._dal.haplotypes,
-                    redefine=True, *new_attrs)
+                    redefine=True, *new_attrs
+                )
             attrs = dict(elem.items_attrs())
             attrs.update(hap_id=elem.hap_id)
             self._dal.haplotypes.insert(**attrs)
@@ -248,7 +253,8 @@ class YatelNetwork(object):
                 self._dal.define_table(
                     'facts',
                     self._dal.facts,
-                    redefine=True, *new_attrs)
+                    redefine=True, *new_attrs
+                )
             attrs = dict(elem.items_attrs())
             attrs.update(hap_id=elem.hap_id)
             self._dal.facts.insert(**attrs)

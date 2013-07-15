@@ -6,3 +6,135 @@ CREATE TABLE yatel_fields(
     unique CHAR(1) NOT NULL,
     reference_to CHAR(512)
 );
+timestamp: 2013-07-14T10:15:49.091831
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    unique CHAR(1) NOT NULL,
+    reference_to CHAR(512)
+);
+timestamp: 2013-07-14T10:21:13.293527
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    unique CHAR(1) NOT NULL,
+    referenceto CHAR(512)
+);
+timestamp: 2013-07-14T10:22:29.622231
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    unique CHAR(1) NOT NULL,
+    referenceto CHAR(512)
+);
+timestamp: 2013-07-14T10:22:58.694160
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    unique CHAR(1) NOT NULL,
+    referenceto CHAR(512)
+);
+timestamp: 2013-07-14T10:23:17.916640
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    unique CHAR(1) NOT NULL,
+    referenceto CHAR(512)
+);
+timestamp: 2013-07-14T10:23:32.702496
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    unique CHAR(1) NOT NULL,
+    referenceto CHAR(512)
+);
+timestamp: 2013-07-14T10:30:46.438817
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    unique CHAR(1) NOT NULL,
+    referenceto CHAR(512)
+);
+timestamp: 2013-07-14T10:31:02.210076
+CREATE TABLE yatel_versions(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tag CHAR(512) NOT NULL,
+    datetime TIMESTAMP NOT NULL,
+    comment TEXT NOT NULL,
+    data TEXT NOT NULL
+);
+success!
+timestamp: 2013-07-14T10:31:02.343962
+CREATE TABLE haplotypes(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(512) NOT NULL UNIQUE
+);
+success!
+timestamp: 2013-07-14T10:31:02.480264
+CREATE TABLE edges(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    weight DOUBLE NOT NULL
+);
+success!
+timestamp: 2013-07-14T10:31:02.592406
+CREATE TABLE facts(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    haplotype INTEGER REFERENCES haplotypes (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2013-07-14T10:31:02.209346
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    unique CHAR(1) NOT NULL,
+    referenceto CHAR(512)
+);
+timestamp: 2013-07-14T10:31:02.705305
+ALTER TABLE haplotypes ADD attr_2 CHAR(512);
+timestamp: 2013-07-14T10:31:02.815208
+ALTER TABLE haplotypes ADD attr_3 CHAR(1);
+timestamp: 2013-07-14T10:31:02.927220
+ALTER TABLE haplotypes ADD attr_0 INTEGER;
+timestamp: 2013-07-14T10:31:03.038908
+ALTER TABLE haplotypes ADD attr_1 DOUBLE;
+timestamp: 2013-07-14T10:43:41.960923
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    unique CHAR(1) NOT NULL,
+    referenceto CHAR(512)
+);
+timestamp: 2013-07-14T10:44:10.157705
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    unique CHAR(1) NOT NULL,
+    referenceto CHAR(512)
+);
+timestamp: 2013-07-14T12:48:09.161785
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    unique CHAR(1) NOT NULL,
+    referenceto CHAR(512)
+);
+timestamp: 2013-07-14T22:59:12.978124
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    is_unique CHAR(1) NOT NULL,
+    reference_to CHAR(512)
+);
+success!
