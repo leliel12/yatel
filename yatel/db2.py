@@ -178,6 +178,7 @@ class YatelNetwork(object):
 
         self._dal.define_table(
             'yatel_fields',
+            dal.Field("tname", "string", notnull=True),
             dal.Field("name", "string", notnull=True),
             dal.Field("type", "string", notnull=True),
             dal.Field("is_unique", "boolean", notnull=True),
@@ -210,15 +211,26 @@ class YatelNetwork(object):
 
         self._dal.define_table(
             'facts',
-            dal.Field("hap_id", "string", self._dal.haplotypes.hap_id),
+            dal.Field("hap", self._dal.haplotypes),
         )
 
-    def _register_fields(self, table, new_attrs):
+    def _register_fields(self, new_attrs):
         regs = []
         for att in new_attrs:
-            regs.append({"name": att.name, "type": att.type,
-                         "is_unique": att.unique, "reference_to": table})
+            atype, rfto = None, ""
+            splited =  att.type.split(" ", 1)
+            atype = splited[0]
+            if len(splited) == 2:
+                rfto = splited[1]
+            regs.append({"tname": att.tablename, "name": att.name,
+                         "type": atype, "is_unique": att.unique,
+                         "reference_to": rfto})
         self._dal.yatel_fields.bulk_insert(regs)
+
+    def _hapid2dbid(self, hap_id):
+        query = self._dal.haplotypes.hap_id == hap_id
+        row = self._dal(query).select(self._dal.haplotypes.id).first()
+        return row["id"]
 
     #===========================================================================
     # INIT FUNCTIONS
@@ -246,12 +258,12 @@ class YatelNetwork(object):
                     self._dal.haplotypes,
                     redefine=True, *new_attrs
                 )
-                self._register_fields("haplotypes", new_attrs)
+                self._register_fields(new_attrs)
             attrs = dict(elem.items_attrs())
             attrs.update(hap_id=elem.hap_id)
             self._dal.haplotypes.insert(**attrs)
 
-        # is is a fact
+        # if is a fact
         elif isinstance(elem, dom.Fact):
             new_attrs_names = self._new_attrs(elem.names_attrs(),
                                               self._dal.facts)
@@ -266,30 +278,29 @@ class YatelNetwork(object):
                     self._dal.facts,
                     redefine=True, *new_attrs
                 )
-                self._register_fields("edges", new_attrs)
+                self._register_fields(new_attrs)
             attrs = dict(elem.items_attrs())
-            attrs.update(hap_id=elem.hap_id)
+            attrs.update(hap=self._hapid2dbid(elem.hap_id))
             self._dal.facts.insert(**attrs)
 
-        # if is a edge
+        # if is an edge
         elif isinstance(elem, dom.Edge):
             actual_haps_number = len(self._dal.edges.fields) - 2
             need_haps_number = len(elem.haps_id)
             new_attrs = []
             while need_haps_number > actual_haps_number + len(new_attrs):
                 aname = "hap_{}".format(actual_haps_number + len(new_attrs))
-                field = dal.Field(aname, "string",
-                                  self._dal.haplotypes.hap_id, notnull=False)
+                field = dal.Field(aname, self._dal.haplotypes, notnull=False)
                 new_attrs.append(field)
             if new_attrs:
                 self._dal.define_table(
                     'edges',
                     self._dal.edges,
                     redefine=True, *new_attrs)
-                self._register_fields("edges", new_attrs)
+                self._register_fields(new_attrs)
             attrs = {}
             for idx, hap_id in enumerate(elem.haps_id):
-                attrs["hap_{}".format(idx)] = hap_id
+                attrs["hap_{}".format(idx)] = self._hapid2dbid(hap_id)
             attrs.update(weight=elem.weight)
             self._dal.edges.insert(**attrs)
 
