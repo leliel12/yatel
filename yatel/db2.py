@@ -207,7 +207,7 @@ class YatelNetwork(object):
 
         self._dal.define_table(
             'facts',
-            dal.Field("haplotype", self._dal.haplotypes),
+            dal.Field("hap_id", "string", self._dal.haplotypes.hap_id),
         )
 
     #===========================================================================
@@ -261,12 +261,13 @@ class YatelNetwork(object):
 
         # if is a edge
         elif isinstance(elem, dom.Edge):
-            actual_haps_number = len(self._dal.edges.elements) - 2
+            actual_haps_number = len(self._dal.edges.fields) - 2
             need_haps_number = len(elem.haps_id)
             new_attrs = []
             while need_haps_number > actual_haps_number + len(new_attrs):
                 aname = "hap_{}".format(actual_haps_number + len(new_attrs))
-                field = dal.Field(aname, db.haplotypes, notnull=False)
+                field = dal.Field(aname, "string",
+                                  self._dal.haplotypes.hap_id, notnull=False)
                 new_attrs.append(field)
             if new_attrs:
                 self._dal.define_table(
@@ -319,3 +320,9 @@ def allin(l1, l2):
     return True
 
 
+#===============================================================================
+# MAIN
+#===============================================================================
+
+if __name__ == "__main__":
+    print(__doc__)

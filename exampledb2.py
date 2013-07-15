@@ -65,30 +65,32 @@ def connect(create=False):
         conn = db.YatelNetwork("sqlite", dbname=DB_PATH)
         conn.prepare()
 
+        haps_id = []
         for idx in range(random.randint(10, 50)):
             name = "haplotype_" + str(idx)
             attrs = {}
             for jdx, func in enumerate(sorted(choices.values())):
                 attrs["attr_" + str(jdx)] = func()
             hap = dom.Haplotype(name, **attrs)
+            haps_id.append(name)
             conn.add_element(hap)
 #~
-        #~ for _ in range(random.randint(10, 50)):
-            #~ hap_id = random.choice(haps).hap_id
-            #~ attrs = {}
-            #~ for jdx, func in enumerate(sorted(choices.values())):
-                #~ attrs["attr_" + str(jdx)] = func()
-            #~ facts.append(dom.Fact(hap_id, b=1, c=2, k=2))
+        for _ in range(random.randint(10, 50)):
+            hap_id = random.choice(haps_id)
+            attrs = {}
+            for jdx, func in enumerate(sorted(choices.values())):
+                attrs["attr_" + str(jdx)] = func()
+            conn.add_element(dom.Fact(hap_id, b=1, c=2, k=2))
 #~
-        #~ for _ in range(random.randint(10, 50)):
-            #~ weight = choices[float]()
-            #~ hap_0 = random.choice(haps).hap_id
-            #~ hap_1 = random.choice(haps).hap_id
-            #~ while hap_1 == hap_0:
-                #~ hap_1 = random.choice(haps).hap_id
-            #~ edges.append(dom.Edge(weight, hap_0, hap_1))
+        for _ in range(random.randint(10, 50)):
+            weight = choices[float]()
+            hap_0 = random.choice(haps_id)
+            hap_1 = random.choice(haps_id)
+            while hap_1 == hap_0:
+                hap_1 = random.choice(haps).hap_id
+            conn.add_element(dom.Edge(weight, hap_0, hap_1))
 
-        conn.init(haps, facts, edges)
+        conn.init()
     else:
         conn = db.YatelNetwork("sqlite", dbname=DB_PATH)
         conn.init()
