@@ -945,3 +945,385 @@ timestamp: 2013-07-15T00:18:34.808861
 ALTER TABLE edges ADD hap_1 CHAR(32768);
 timestamp: 2013-07-15T00:18:35.352527
 ALTER TABLE edges ADD hap_0 CHAR(32768);
+timestamp: 2013-07-15T08:17:26.356316
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    is_unique CHAR(1) NOT NULL,
+    reference_to CHAR(512)
+);
+success!
+timestamp: 2013-07-15T08:17:26.485582
+CREATE TABLE yatel_versions(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tag CHAR(512) NOT NULL,
+    datetime TIMESTAMP NOT NULL,
+    comment TEXT NOT NULL,
+    data TEXT NOT NULL
+);
+success!
+timestamp: 2013-07-15T08:17:26.598316
+CREATE TABLE haplotypes(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(512) NOT NULL UNIQUE
+);
+success!
+timestamp: 2013-07-15T08:17:26.711768
+CREATE TABLE edges(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    weight DOUBLE NOT NULL
+);
+success!
+timestamp: 2013-07-15T08:17:26.835086
+CREATE TABLE facts(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(32768)
+);
+success!
+timestamp: 2013-07-15T08:17:26.970875
+ALTER TABLE haplotypes ADD attr_2 CHAR(512);
+timestamp: 2013-07-15T08:17:27.091658
+ALTER TABLE haplotypes ADD attr_3 CHAR(1);
+timestamp: 2013-07-15T08:17:27.203497
+ALTER TABLE haplotypes ADD attr_0 INTEGER;
+timestamp: 2013-07-15T08:17:27.315424
+ALTER TABLE haplotypes ADD attr_1 DOUBLE;
+timestamp: 2013-07-15T09:27:12.755337
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    is_unique CHAR(1) NOT NULL,
+    reference_to CHAR(512)
+);
+success!
+timestamp: 2013-07-15T09:27:12.893688
+CREATE TABLE yatel_versions(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tag CHAR(512) NOT NULL,
+    datetime TIMESTAMP NOT NULL,
+    comment TEXT NOT NULL,
+    data TEXT NOT NULL
+);
+success!
+timestamp: 2013-07-15T09:27:13.017384
+CREATE TABLE haplotypes(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(512) NOT NULL UNIQUE
+);
+success!
+timestamp: 2013-07-15T09:27:13.140538
+CREATE TABLE edges(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    weight DOUBLE NOT NULL
+);
+success!
+timestamp: 2013-07-15T09:27:13.252655
+CREATE TABLE facts(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(32768)
+);
+success!
+timestamp: 2013-07-15T09:27:13.387708
+ALTER TABLE haplotypes ADD attr_2 CHAR(512);
+timestamp: 2013-07-15T09:27:13.520010
+ALTER TABLE haplotypes ADD attr_3 CHAR(1);
+timestamp: 2013-07-15T09:27:13.643000
+ALTER TABLE haplotypes ADD attr_0 INTEGER;
+timestamp: 2013-07-15T09:27:13.765989
+ALTER TABLE haplotypes ADD attr_1 DOUBLE;
+timestamp: 2013-07-15T09:27:13.895988
+ALTER TABLE facts ADD c INTEGER;
+timestamp: 2013-07-15T09:27:14.137108
+ALTER TABLE facts ADD b INTEGER;
+timestamp: 2013-07-15T09:27:14.248401
+ALTER TABLE facts ADD k INTEGER;
+timestamp: 2013-07-15T09:27:55.363490
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    is_unique CHAR(1) NOT NULL,
+    reference_to CHAR(512)
+);
+success!
+timestamp: 2013-07-15T09:27:55.501734
+CREATE TABLE yatel_versions(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tag CHAR(512) NOT NULL,
+    datetime TIMESTAMP NOT NULL,
+    comment TEXT NOT NULL,
+    data TEXT NOT NULL
+);
+success!
+timestamp: 2013-07-15T09:27:55.613440
+CREATE TABLE haplotypes(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(512) NOT NULL UNIQUE
+);
+success!
+timestamp: 2013-07-15T09:27:55.725477
+CREATE TABLE edges(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    weight DOUBLE NOT NULL
+);
+success!
+timestamp: 2013-07-15T09:27:55.837268
+CREATE TABLE facts(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(32768)
+);
+success!
+timestamp: 2013-07-15T09:27:55.950329
+ALTER TABLE haplotypes ADD attr_2 CHAR(512);
+timestamp: 2013-07-15T09:27:56.060517
+ALTER TABLE haplotypes ADD attr_3 CHAR(1);
+timestamp: 2013-07-15T09:27:56.172382
+ALTER TABLE haplotypes ADD attr_0 INTEGER;
+timestamp: 2013-07-15T09:27:56.285916
+ALTER TABLE haplotypes ADD attr_1 DOUBLE;
+timestamp: 2013-07-15T09:27:56.407317
+ALTER TABLE facts ADD c INTEGER;
+timestamp: 2013-07-15T09:27:56.644158
+ALTER TABLE facts ADD b INTEGER;
+timestamp: 2013-07-15T09:27:56.755764
+ALTER TABLE facts ADD k INTEGER;
+timestamp: 2013-07-15T09:27:56.875305
+ALTER TABLE edges ADD hap_1 CHAR(32768);
+timestamp: 2013-07-15T09:27:57.091465
+ALTER TABLE edges ADD hap_0 CHAR(32768);
+timestamp: 2013-07-15T09:30:32.905206
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    is_unique CHAR(1) NOT NULL,
+    reference_to CHAR(512)
+);
+success!
+timestamp: 2013-07-15T09:30:33.041304
+CREATE TABLE yatel_versions(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tag CHAR(512) NOT NULL,
+    datetime TIMESTAMP NOT NULL,
+    comment TEXT NOT NULL,
+    data TEXT NOT NULL
+);
+success!
+timestamp: 2013-07-15T09:30:33.153176
+CREATE TABLE yatel_vars(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    value CHAR(512) NOT NULL
+);
+success!
+timestamp: 2013-07-15T09:30:33.275854
+CREATE TABLE haplotypes(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(512) NOT NULL UNIQUE
+);
+success!
+timestamp: 2013-07-15T09:30:33.388344
+CREATE TABLE edges(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    weight DOUBLE NOT NULL
+);
+success!
+timestamp: 2013-07-15T09:30:33.500375
+CREATE TABLE facts(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(32768)
+);
+success!
+timestamp: 2013-07-15T09:30:33.623621
+ALTER TABLE haplotypes ADD attr_2 CHAR(512);
+timestamp: 2013-07-15T09:30:33.745439
+ALTER TABLE haplotypes ADD attr_3 CHAR(1);
+timestamp: 2013-07-15T09:30:33.857322
+ALTER TABLE haplotypes ADD attr_0 INTEGER;
+timestamp: 2013-07-15T09:30:33.969052
+ALTER TABLE haplotypes ADD attr_1 DOUBLE;
+timestamp: 2013-07-15T09:30:34.094892
+ALTER TABLE facts ADD c INTEGER;
+timestamp: 2013-07-15T09:30:34.328907
+ALTER TABLE facts ADD b INTEGER;
+timestamp: 2013-07-15T09:30:34.440692
+ALTER TABLE facts ADD k INTEGER;
+timestamp: 2013-07-15T09:30:34.563484
+ALTER TABLE edges ADD hap_1 CHAR(32768);
+timestamp: 2013-07-15T09:30:34.798966
+ALTER TABLE edges ADD hap_0 CHAR(32768);
+timestamp: 2013-07-15T10:08:56.007362
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    is_unique CHAR(1) NOT NULL,
+    reference_to CHAR(512)
+);
+success!
+timestamp: 2013-07-15T10:08:56.141772
+CREATE TABLE yatel_versions(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tag CHAR(512) NOT NULL,
+    datetime TIMESTAMP NOT NULL,
+    comment TEXT NOT NULL,
+    data TEXT NOT NULL
+);
+success!
+timestamp: 2013-07-15T10:08:56.386754
+CREATE TABLE yatel_vars(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    value CHAR(512) NOT NULL
+);
+success!
+timestamp: 2013-07-15T10:08:56.510039
+CREATE TABLE haplotypes(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(512) NOT NULL UNIQUE
+);
+success!
+timestamp: 2013-07-15T10:08:56.633332
+CREATE TABLE edges(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    weight DOUBLE NOT NULL
+);
+success!
+timestamp: 2013-07-15T10:08:56.756919
+CREATE TABLE facts(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(32768)
+);
+success!
+timestamp: 2013-07-15T10:08:56.869348
+ALTER TABLE haplotypes ADD attr_2 CHAR(512);
+timestamp: 2013-07-15T10:08:57.004263
+ALTER TABLE haplotypes ADD attr_3 CHAR(1);
+timestamp: 2013-07-15T10:08:57.127184
+ALTER TABLE haplotypes ADD attr_0 INTEGER;
+timestamp: 2013-07-15T10:08:57.250159
+ALTER TABLE haplotypes ADD attr_1 DOUBLE;
+timestamp: 2013-07-15T10:08:57.381381
+ALTER TABLE facts ADD c INTEGER;
+timestamp: 2013-07-15T10:08:57.630720
+ALTER TABLE facts ADD b INTEGER;
+timestamp: 2013-07-15T10:08:57.742457
+ALTER TABLE facts ADD k INTEGER;
+timestamp: 2013-07-15T10:08:57.863065
+ALTER TABLE edges ADD hap_1 CHAR(32768);
+timestamp: 2013-07-15T10:08:58.111806
+ALTER TABLE edges ADD hap_0 CHAR(32768);
+timestamp: 2013-07-15T10:09:19.277288
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    is_unique CHAR(1) NOT NULL,
+    reference_to CHAR(512)
+);
+success!
+timestamp: 2013-07-15T10:09:19.412387
+CREATE TABLE yatel_versions(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tag CHAR(512) NOT NULL,
+    datetime TIMESTAMP NOT NULL,
+    comment TEXT NOT NULL,
+    data TEXT NOT NULL
+);
+success!
+timestamp: 2013-07-15T10:09:19.524490
+CREATE TABLE yatel_vars(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    value CHAR(512) NOT NULL
+);
+success!
+timestamp: 2013-07-15T10:09:19.636771
+CREATE TABLE haplotypes(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(512) NOT NULL UNIQUE
+);
+success!
+timestamp: 2013-07-15T10:09:19.759555
+CREATE TABLE edges(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    weight DOUBLE NOT NULL
+);
+success!
+timestamp: 2013-07-15T10:09:19.871529
+CREATE TABLE facts(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(32768)
+);
+success!
+timestamp: 2013-07-15T10:09:19.995315
+ALTER TABLE haplotypes ADD attr_2 CHAR(512);
+timestamp: 2013-07-15T10:09:20.117187
+ALTER TABLE haplotypes ADD attr_3 CHAR(1);
+timestamp: 2013-07-15T10:09:20.230848
+ALTER TABLE haplotypes ADD attr_0 INTEGER;
+timestamp: 2013-07-15T10:09:20.342707
+ALTER TABLE haplotypes ADD attr_1 DOUBLE;
+timestamp: 2013-07-15T10:09:58.717476
+CREATE TABLE yatel_fields(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    type CHAR(512) NOT NULL,
+    is_unique CHAR(1) NOT NULL,
+    reference_to CHAR(512)
+);
+success!
+timestamp: 2013-07-15T10:09:58.840030
+CREATE TABLE yatel_versions(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tag CHAR(512) NOT NULL,
+    datetime TIMESTAMP NOT NULL,
+    comment TEXT NOT NULL,
+    data TEXT NOT NULL
+);
+success!
+timestamp: 2013-07-15T10:09:58.963031
+CREATE TABLE yatel_vars(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512) NOT NULL,
+    value CHAR(512) NOT NULL
+);
+success!
+timestamp: 2013-07-15T10:09:59.086252
+CREATE TABLE haplotypes(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(512) NOT NULL UNIQUE
+);
+success!
+timestamp: 2013-07-15T10:09:59.209696
+CREATE TABLE edges(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    weight DOUBLE NOT NULL
+);
+success!
+timestamp: 2013-07-15T10:09:59.321852
+CREATE TABLE facts(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hap_id CHAR(32768)
+);
+success!
+timestamp: 2013-07-15T10:09:59.435825
+ALTER TABLE haplotypes ADD attr_2 CHAR(512);
+timestamp: 2013-07-15T10:09:59.546773
+ALTER TABLE haplotypes ADD attr_3 CHAR(1);
+timestamp: 2013-07-15T10:09:59.658659
+ALTER TABLE haplotypes ADD attr_0 INTEGER;
+timestamp: 2013-07-15T10:09:59.770463
+ALTER TABLE haplotypes ADD attr_1 DOUBLE;
+timestamp: 2013-07-15T10:09:59.888034
+ALTER TABLE facts ADD c INTEGER;
+timestamp: 2013-07-15T10:10:00.117819
+ALTER TABLE facts ADD b INTEGER;
+timestamp: 2013-07-15T10:10:00.229399
+ALTER TABLE facts ADD k INTEGER;
+timestamp: 2013-07-15T10:10:00.348200
+ALTER TABLE edges ADD hap_1 CHAR(32768);
+timestamp: 2013-07-15T10:10:00.565324
+ALTER TABLE edges ADD hap_0 CHAR(32768);

@@ -129,7 +129,7 @@ DAL_TYPES = {
     unicode:
         lambda x: "string" if len(x) < 512 else "text",
     decimal.Decimal:
-        lambda x: "decimal(10,10"
+        lambda x: "decimal(10,10)"
 }
 
 
@@ -176,16 +176,13 @@ class YatelNetwork(object):
 
     def _base_tables(self):
 
-        try:
-            self._dal.define_table(
-                'yatel_fields',
-                dal.Field("name", "string", notnull=True),
-                dal.Field("type", "string", notnull=True),
-                dal.Field("is_unique", "boolean", notnull=True),
-                dal.Field("reference_to", "string", notnull=False)
-            )
-        except:
-            print self._dal._lastsql
+        self._dal.define_table(
+            'yatel_fields',
+            dal.Field("name", "string", notnull=True),
+            dal.Field("type", "string", notnull=True),
+            dal.Field("is_unique", "boolean", notnull=True),
+            dal.Field("reference_to", "string", notnull=False)
+        )
 
         self._dal.define_table(
             'yatel_versions',
@@ -193,6 +190,12 @@ class YatelNetwork(object):
             dal.Field("datetime", "datetime", notnull=True),
             dal.Field("comment", "text", notnull=True),
             dal.Field("data", "text", notnull=True)
+        )
+
+        self._dal.define_table(
+            'yatel_vars',
+            dal.Field("name", "string", notnull=True),
+            dal.Field("value", "string", notnull=True)
         )
 
         self._dal.define_table(
@@ -209,6 +212,13 @@ class YatelNetwork(object):
             'facts',
             dal.Field("hap_id", "string", self._dal.haplotypes.hap_id),
         )
+
+    def _register_fields(self, table, new_attrs):
+        regs = []
+        for att in new_attrs:
+            regs.append({"name": att.name, "type": att.type,
+                         "is_unique": att.unique, "reference_to": table})
+        self._dal.yatel_fields.bulk_insert(regs)
 
     #===========================================================================
     # INIT FUNCTIONS
@@ -256,7 +266,7 @@ class YatelNetwork(object):
                     self._dal.facts,
                     redefine=True, *new_attrs
                 )
-                self._register_fields("edges", facts)
+                self._register_fields("edges", new_attrs)
             attrs = dict(elem.items_attrs())
             attrs.update(hap_id=elem.hap_id)
             self._dal.facts.insert(**attrs)
@@ -282,6 +292,8 @@ class YatelNetwork(object):
                 attrs["hap_{}".format(idx)] = hap_id
             attrs.update(weight=elem.weight)
             self._dal.edges.insert(**attrs)
+
+        # if is trash
         else:
             msg = "Object '{}' is not yatel.dom type".format(str(elem))
             raise YatelNetworkError(msg)
