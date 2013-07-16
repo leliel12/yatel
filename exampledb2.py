@@ -62,8 +62,7 @@ def connect(create=False):
         if os.path.exists(DB_PATH):
             os.remove(DB_PATH)
 
-        conn = db.YatelNetwork("sqlite", dbname=DB_PATH)
-        conn.prepare()
+        conn = db.YatelNetwork("sqlite", dbname=DB_PATH, create=True)
 
         haps_id = []
         for idx in range(random.randint(10, 50)):
@@ -89,11 +88,8 @@ def connect(create=False):
             while hap_1 == hap_0:
                 hap_1 = random.choice(haps_id)
             conn.add_element(dom.Edge(weight, hap_0, hap_1))
-
-        conn.init()
     else:
         conn = db.YatelNetwork("sqlite", dbname=DB_PATH)
-        conn.init()
     return conn
 
 
@@ -102,7 +98,7 @@ def connect(create=False):
 #===============================================================================
 
 if __name__ == "__main__":
-    create = False
+    create = True
     if "--create" in sys.argv:
         create = True
     elif "--load" in sys.argv:

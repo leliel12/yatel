@@ -150,26 +150,19 @@ class YatelNetworkError(Exception):
 
 class YatelNetwork(object):
 
-    STATUS_CONECTED = "conected"
-    STATUS_PREPARED = "prepared"
-    STATUS_INITED = "inited"
-
-    ALL_STATUS = (STATUS_CONECTED, STATUS_PREPARED, STATUS_INITED)
-
-    def __init__(self, schema, **kwargs):
+    def __init__(self, schema, create=False, **kwargs):
         tpl = string.Template(SCHEMA_URIS[schema])
         uri = tpl.substitute(kwargs)
-        self._dal = dal.DAL(uri)
-        self._status = self.STATUS_CONECTED
+        print create
+        self._dal = dal.DAL(uri, migrate_enabled=True)
+        self._create = create
         self._base_tables()
+        if not create:
+            self._init()
 
-    def _validate_status(self, *statuses):
-        if self._status not in statuses:
-            statuses = map(lambda s: "'{}'".format(s), statuses)
-            valid_status = " or ".join(statuses)
-            msg = "Network status invalid. Need {}, found '{}'"
-            msg = msg.format(statuses, self._status)
-            raise YatelNetworkError(msg)
+    def _init(self):
+        for fld in self._dal(self._dal.yatel_fields).select():
+            print fld
 
     def _new_attrs(self, attnames, table):
         return set(attnames).difference(table.fields)
@@ -183,6 +176,7 @@ class YatelNetwork(object):
             dal.Field("type", "string", notnull=True),
             dal.Field("is_unique", "boolean", notnull=True),
             dal.Field("reference_to", "string", notnull=False)
+            ,migrate=self._create
         )
 
         self._dal.define_table(
@@ -211,7 +205,7 @@ class YatelNetwork(object):
 
         self._dal.define_table(
             'facts',
-            dal.Field("hap", self._dal.haplotypes),
+            dal.Field("hap", self._dal.haplotypes)
         )
 
     def _register_fields(self, new_attrs):
@@ -236,12 +230,12 @@ class YatelNetwork(object):
     # INIT FUNCTIONS
     #===========================================================================
 
-    def prepare(self):
-        self._validate_status(self.STATUS_CONECTED)
-        self._status = self.STATUS_PREPARED
 
     def add_element(self, elem):
-        self._validate_status(self.STATUS_PREPARED)
+        if self.created:
+            raise YatelNetworkError("Network already created")
+        if not len(self._dal.tables):
+            self._base_tables()
 
         # if is an haplotypes
         if isinstance(elem, dom.Haplotype):
@@ -309,11 +303,11 @@ class YatelNetwork(object):
             msg = "Object '{}' is not yatel.dom type".format(str(elem))
             raise YatelNetworkError(msg)
 
-    def init(self):
-        self._validate_status(self.STATUS_PREPARED, self.STATUS_CONECTED)
-        if self.status == self.STATUS_PREPARED:
-            self._dal.commit()
-        self._status = self.STATUS_INITED
+    def end_creation(self):
+        if self.created:
+            raise YatelNetworkError("Network already created")
+        self._dal.commit()
+        self._create = False
 
 
     #===========================================================================
@@ -325,12 +319,13 @@ class YatelNetwork(object):
     #===========================================================================
 
     @property
-    def status(self):
-        return self._status
+    def created(self):
+        return not self._create
 
     @property
     def dal(self):
-        self._validate_status(self.STATUS_INITED)
+        if not self.created:
+            raise YatelNetworkError("Network still not created")
         return self._dal
 
 
