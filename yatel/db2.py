@@ -132,6 +132,17 @@ DAL_TYPES = {
         lambda x: "decimal(10,10)"
 }
 
+FK = "FK"
+
+#===============================================================================
+# PATCH DAL
+#===============================================================================
+
+for schema in SCHEMAS:
+    adp_base = dal.ADAPTERS[schema]
+    adp_name = "InDB_{}".format(adp_base.__name__)
+    indb_adp = type(adp_name, (dal.UseDatabaseStoredFile, adp_base), {})
+    dal.ADAPTERS[schema] = indb_adp
 
 
 #===============================================================================
@@ -153,30 +164,24 @@ class YatelNetwork(object):
     def __init__(self, schema, create=False, **kwargs):
         tpl = string.Template(SCHEMA_URIS[schema])
         uri = tpl.substitute(kwargs)
-        print create
-        self._dal = dal.DAL(uri, migrate_enabled=True)
-        self._create = create
-        self._base_tables()
-        if not create:
-            self._init()
+        self._dal = dal.DAL(uri)
+        self._create_mode = create
+        self._create_network_base_tables()
 
-    def _init(self):
-        for fld in self._dal(self._dal.yatel_fields).select():
-            print fld
+    #===========================================================================
+    # HELPERS FOR CREATE
+    #===========================================================================
 
-    def _new_attrs(self, attnames, table):
-        return set(attnames).difference(table.fields)
+    def _create_network_base_tables(self):
 
-    def _base_tables(self):
-
+        # first add the static tables
         self._dal.define_table(
             'yatel_fields',
             dal.Field("tname", "string", notnull=True),
-            dal.Field("name", "string", notnull=True),
-            dal.Field("type", "string", notnull=True),
+            dal.Field("fname", "string", notnull=True),
+            dal.Field("ftype", "string", notnull=True),
             dal.Field("is_unique", "boolean", notnull=True),
             dal.Field("reference_to", "string", notnull=False)
-            ,migrate=self._create
         )
 
         self._dal.define_table(
@@ -187,72 +192,84 @@ class YatelNetwork(object):
             dal.Field("data", "text", notnull=True)
         )
 
-        self._dal.define_table(
-            'yatel_vars',
-            dal.Field("name", "string", notnull=True),
-            dal.Field("value", "string", notnull=True)
-        )
-
+        # base struct
         self._dal.define_table(
             'haplotypes',
             dal.Field("hap_id", "string", unique=True, notnull=True)
         )
-
+        self._dal.define_table(
+            'facts',
+            dal.Field("hap", self._dal.haplotypes)
+        )
         self._dal.define_table(
             'edges',
             dal.Field("weight", "double", notnull=True)
         )
 
-        self._dal.define_table(
-            'facts',
-            dal.Field("hap", self._dal.haplotypes)
-        )
+        flds = {"haplotypes": [], "facts": [], "edges": []}
+        for row in self._dal(self._dal.yatel_fields).select():
+            field = None
+            tname = row["tname"]
+            fname = row["fname"]
+            ftype = row["ftype"]
+            if ftype == FK:
+                ref = row["reference_to"]
+                field = dal.Field(fname, ref, notnull=False)
+            else:
+                unique = row["is_unique"]
+                field = dal.Field(fname, ftype, unique=unique, notnull=False)
+            flds[tname].append(field)
 
-    def _register_fields(self, new_attrs):
-        regs = []
-        for att in new_attrs:
-            atype, rfto = None, ""
-            splited =  att.type.split(" ", 1)
-            atype = splited[0]
-            if len(splited) == 2:
-                rfto = splited[1]
-            regs.append({"tname": att.tablename, "name": att.name,
-                         "type": atype, "is_unique": att.unique,
-                         "reference_to": rfto})
-        self._dal.yatel_fields.bulk_insert(regs)
+        self._dal.define_table(
+            'haplotypes', self._dal.haplotypes,
+            redefine=True, *flds["haplotypes"]
+        )
+        self._dal.define_table(
+            'facts', self._dal.facts,
+            redefine=True, *flds["facts"]
+        )
+        self._dal.define_table(
+            'edges', self._dal.edges,
+            redefine=True, *flds["edges"]
+        )
 
     def _hapid2dbid(self, hap_id):
         query = self._dal.haplotypes.hap_id == hap_id
         row = self._dal(query).select(self._dal.haplotypes.id).first()
         return row["id"]
 
-    #===========================================================================
-    # INIT FUNCTIONS
-    #===========================================================================
+    def _new_attrs(self, attnames, table):
+        return set(attnames).difference(table.fields)
 
+    #===========================================================================
+    # CREATE METHODS
+    #===========================================================================
 
     def add_element(self, elem):
         if self.created:
             raise YatelNetworkError("Network already created")
-        if not len(self._dal.tables):
-            self._base_tables()
 
         # if is an haplotypes
         if isinstance(elem, dom.Haplotype):
             new_attrs_names = self._new_attrs(elem.names_attrs(),
                                               self._dal.haplotypes)
             new_attrs = []
-            for aname in new_attrs_names:
-                ftype =  DAL_TYPES[type(elem[aname])](elem[aname])
-                field = dal.Field(aname, ftype, notnull=False)
+            attrs_descs = []
+            for fname in new_attrs_names:
+                ftype =  DAL_TYPES[type(elem[fname])](elem[fname])
+                field = dal.Field(fname, ftype, notnull=False)
+                desc = {"tname": 'haplotypes', "fname": fname, "ftype": ftype,
+                        "is_unique": False, "reference_to": None}
                 new_attrs.append(field)
+                attrs_descs.append(desc)
             if new_attrs:
                 self._dal.define_table(
                     'haplotypes',
                     self._dal.haplotypes,
                     redefine=True, *new_attrs
                 )
-                self._register_fields(new_attrs)
+                self._dal.yatel_fields.bulk_insert(attrs_descs)
+
             attrs = dict(elem.items_attrs())
             attrs.update(hap_id=elem.hap_id)
             self._dal.haplotypes.insert(**attrs)
@@ -262,17 +279,22 @@ class YatelNetwork(object):
             new_attrs_names = self._new_attrs(elem.names_attrs(),
                                               self._dal.facts)
             new_attrs = []
-            for aname in new_attrs_names:
-                ftype =  DAL_TYPES[type(elem[aname])](elem[aname])
-                field = dal.Field(aname, ftype, notnull=False)
+            attrs_descs = []
+            for fname in new_attrs_names:
+                ftype =  DAL_TYPES[type(elem[fname])](elem[fname])
+                field = dal.Field(fname, ftype, notnull=False)
+                desc = {"tname": 'facts', "fname": fname, "ftype": ftype,
+                        "is_unique": False, "reference_to": None}
                 new_attrs.append(field)
+                attrs_descs.append(desc)
             if new_attrs:
                 self._dal.define_table(
                     'facts',
                     self._dal.facts,
                     redefine=True, *new_attrs
                 )
-                self._register_fields(new_attrs)
+                self._dal.yatel_fields.bulk_insert(attrs_descs)
+
             attrs = dict(elem.items_attrs())
             attrs.update(hap=self._hapid2dbid(elem.hap_id))
             self._dal.facts.insert(**attrs)
@@ -281,17 +303,23 @@ class YatelNetwork(object):
         elif isinstance(elem, dom.Edge):
             actual_haps_number = len(self._dal.edges.fields) - 2
             need_haps_number = len(elem.haps_id)
+
             new_attrs = []
+            attrs_descs = []
             while need_haps_number > actual_haps_number + len(new_attrs):
-                aname = "hap_{}".format(actual_haps_number + len(new_attrs))
-                field = dal.Field(aname, self._dal.haplotypes, notnull=False)
+                fname = "hap_{}".format(actual_haps_number + len(new_attrs))
+                field = dal.Field(fname, self._dal.haplotypes, notnull=False)
+                desc = {"tname": 'edges', "fname": fname, "ftype": FK,
+                        "is_unique": False, "reference_to": 'haplotypes'}
                 new_attrs.append(field)
+                attrs_descs.append(desc)
             if new_attrs:
                 self._dal.define_table(
                     'edges',
                     self._dal.edges,
                     redefine=True, *new_attrs)
-                self._register_fields(new_attrs)
+                self._dal.yatel_fields.bulk_insert(attrs_descs)
+
             attrs = {}
             for idx, hap_id in enumerate(elem.haps_id):
                 attrs["hap_{}".format(idx)] = self._hapid2dbid(hap_id)
@@ -307,7 +335,7 @@ class YatelNetwork(object):
         if self.created:
             raise YatelNetworkError("Network already created")
         self._dal.commit()
-        self._create = False
+        self._create_mode = False
 
 
     #===========================================================================
@@ -320,7 +348,7 @@ class YatelNetwork(object):
 
     @property
     def created(self):
-        return not self._create
+        return not self._create_mode
 
     @property
     def dal(self):
@@ -344,6 +372,8 @@ def allin(l1, l2):
 #===============================================================================
 # MAIN
 #===============================================================================
+
+
 
 if __name__ == "__main__":
     print(__doc__)

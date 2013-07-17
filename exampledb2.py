@@ -69,7 +69,7 @@ def connect(create=False):
             name = "haplotype_" + str(idx)
             attrs = {}
             for jdx, func in enumerate(sorted(choices.values())):
-                attrs["attr_" + str(jdx)] = func()
+                attrs["ha_" + str(jdx)] = func()
             hap = dom.Haplotype(name, **attrs)
             haps_id.append(name)
             conn.add_element(hap)
@@ -78,8 +78,8 @@ def connect(create=False):
             hap_id = random.choice(haps_id)
             attrs = {}
             for jdx, func in enumerate(sorted(choices.values())):
-                attrs["attr_" + str(jdx)] = func()
-            conn.add_element(dom.Fact(hap_id, b=1, c=2, k=2))
+                attrs["fa_" + str(jdx)] = func()
+            conn.add_element(dom.Fact(hap_id, **attrs))
 #~
         for _ in range(random.randint(10, 50)):
             weight = choices[float]()
