@@ -214,7 +214,7 @@ class YatelNetwork(object):
             ftype = row["ftype"]
             if ftype == FK:
                 ref = row["reference_to"]
-                field = dal.Field(fname, ref, notnull=False)
+                field = dal.Field(fname, self._dal[ref], notnull=False)
             else:
                 unique = row["is_unique"]
                 field = dal.Field(fname, ftype, unique=unique, notnull=False)

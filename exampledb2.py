@@ -88,6 +88,8 @@ def connect(create=False):
             while hap_1 == hap_0:
                 hap_1 = random.choice(haps_id)
             conn.add_element(dom.Edge(weight, hap_0, hap_1))
+
+        conn.end_creation()
     else:
         conn = db.YatelNetwork("sqlite", dbname=DB_PATH)
     return conn
