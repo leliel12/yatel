@@ -167,9 +167,11 @@ class YatelNetwork(object):
         self._dal = dal.DAL(uri)
         self._create_mode = create
         self._create_network_base_tables()
+        self._hapid_buff = {}
+        self._dbid_buff = {}
 
     #===========================================================================
-    # HELPERS FOR CREATE
+    # PRIVATE
     #===========================================================================
 
     def _create_network_base_tables(self):
@@ -234,12 +236,44 @@ class YatelNetwork(object):
         )
 
     def _hapid2dbid(self, hap_id):
-        query = self._dal.haplotypes.hap_id == hap_id
-        row = self._dal(query).select(self._dal.haplotypes.id).first()
-        return row["id"]
+        if hap_id not in self._hapid_buff:
+            query = self._dal.haplotypes.hap_id == hap_id
+            row = self._dal(query).select(self._dal.haplotypes.id).first()
+            self._hapid_buff[hap_id] = row["id"]
+        return self._hapid_buff[hap_id]
+
+    def _dbid2hapid(self, db_id):
+        if db_id not in self._dbid_buff:
+            query = self._dal.haplotypes.id == db_id
+            row = self._dal(query).select(self._dal.haplotypes.hap_id).first()
+            self._dbid_buff[db_id] = row["hap_id"]
+        return self._dbid_buff[db_id]
 
     def _new_attrs(self, attnames, table):
         return set(attnames).difference(table.fields)
+
+    def _row2hap(self, row):
+        attrs = dict([
+            (k, v) for k, v in row.as_dict().items()
+            if k not in ("id", "hap_id") and v!= None
+        ])
+        hap_id = row["hap_id"]
+        return dom.Haplotype(hap_id, **attrs)
+
+    def _row2fact(self, row):
+        attrs = dict([
+            (k, v) for k, v in row.as_dict().items()
+            if k not in ("id", "hap") and v!= None
+        ])
+        hap_id = self._dbid2hapid(row["hap"])
+        return dom.Fact(hap_id, **attrs)
+
+    def _row2edge(self, row):
+        haps = [self._dbid2hapid(v)
+                for k, v in row.as_dict().items()
+                if k not in ("id", "weight") and v!= None]
+        weight = row["weight"]
+        return dom.Edge(weight, *haps)
 
     #===========================================================================
     # CREATE METHODS
@@ -337,10 +371,42 @@ class YatelNetwork(object):
         self._dal.commit()
         self._create_mode = False
 
+    #===========================================================================
+    # QUERIES # not use self._dal here!!!!
+    #===========================================================================
 
-    #===========================================================================
-    # QUERIES
-    #===========================================================================
+    def iter_haplotypes(self):
+        """Iterates over all ``dom.Haplotype`` instances store in the database.
+
+        """
+        for row in self.dal(self.dal.haplotypes).select():
+            yield self._row2hap(row)
+
+    def iter_facts(self):
+        """Iterates over all ``dom.Fact`` instances store in the database."""
+        for row in self.dal(self.dal.facts).select():
+            yield self._row2fact(row)
+
+    def iter_edges(self):
+        """Iterates over all ``dom.Edge`` instances store in the database."""
+        for row in self.dal(self.dal.edges).select():
+            yield self._row2edge(row)
+
+    def haplotype_by_id(self, hap_id):
+        """Return a ``dom.Haplotype`` instace store in the dabase with the
+        giver ``hap_id``.
+
+        **Params**
+            :hap_id: An existing id of the ``haplotypes`` type table.
+
+        **Return**
+            ``dom.Haplotype`` instance.
+
+        """
+        query = self.dal.haplotypes.id == self._hapid2dbid(hap_id)
+        row = self.dal(query).select(limitby=(0, 1)).first()
+        return self._row2hap(row)
+
 
     #===========================================================================
     # PROPERTIES
