@@ -220,11 +220,11 @@ class YatelNetwork(object):
     def add_element(self, elem):
         if self.created:
             raise YatelNetworkError("Network already created")
-#~
-        #~ # if is an haplotypes
-        #~ if isinstance(elem, dom.Haplotype):
-            #~ new_attrs_names = self._new_attrs(elem.names_attrs(),
-                                              #~ self._dal.haplotypes)
+
+        # if is an haplotypes
+        if isinstance(elem, dom.Haplotype):
+            new_attrs_names = self._new_attrs(elem.names_attrs(),
+                                              self._dal.haplotypes)
             #~ new_attrs = []
             #~ attrs_descs = []
             #~ for fname in new_attrs_names:
