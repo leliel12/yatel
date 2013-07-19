@@ -187,8 +187,8 @@ class YatelNetwork(object):
             #~ self._dbid_buff[db_id] = row["hap_id"]
         #~ return self._dbid_buff[db_id]
 #~
-    #~ def _new_attrs(self, attnames, table):
-        #~ return set(attnames).difference(table.fields)
+    def _new_attrs(self, attnames, table):
+        return set(attnames).difference(table.columns.keys())
 #~
     #~ def _row2hap(self, row):
         #~ attrs = dict([
@@ -212,14 +212,14 @@ class YatelNetwork(object):
                 #~ if k not in ("id", "weight") and v!= None]
         #~ weight = row["weight"]
         #~ return dom.Edge(weight, *haps)
-#~
-    #~ #===========================================================================
-    #~ # CREATE METHODS
-    #~ #===========================================================================
-#~
-    #~ def add_element(self, elem):
-        #~ if self.created:
-            #~ raise YatelNetworkError("Network already created")
+
+    #===========================================================================
+    # CREATE METHODS
+    #===========================================================================
+
+    def add_element(self, elem):
+        if self.created:
+            raise YatelNetworkError("Network already created")
 #~
         #~ # if is an haplotypes
         #~ if isinstance(elem, dom.Haplotype):
