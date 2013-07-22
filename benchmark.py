@@ -12,7 +12,7 @@
 
 import os, random, collections, hashlib, time, pprint
 
-from yatel import db, db2, dom
+from yatel import db, db2, db3, dom
 
 import numpy as np
 
@@ -23,11 +23,14 @@ import numpy as np
 path = os.path.dirname(os.path.abspath(__file__))
 peewee_path = os.path.join(path, "data", "bench_pewee.db")
 dal_path = os.path.join(path, "data", "bench_dal.db")
+sa_path = os.path.join(path, "data", "bench_sa.db")
 
 if os.path.exists(peewee_path):
     os.remove(peewee_path)
 if os.path.exists(dal_path):
     os.remove(dal_path)
+if os.path.exists(sa_path):
+    os.remove(sa_path)
 
 
 #===============================================================================
@@ -106,6 +109,7 @@ haps, facts, edges = create_network()
 
 peewee_db = None
 dal_db = None
+sa_db = None
 
 @bench()
 def create_peewee():
@@ -115,6 +119,14 @@ def create_peewee():
 @bench()
 def create_dal():
     conn = db2.YatelNetwork("sqlite", dbname=dal_path, create=True)
+    map(conn.add_element, haps)
+    map(conn.add_element, facts)
+    map(conn.add_element, edges)
+    conn.end_creation()
+
+@bench()
+def create_sa():
+    conn = db3.YatelNetwork("sqlite", dbname=dal_path, create=True)
     map(conn.add_element, haps)
     map(conn.add_element, facts)
     map(conn.add_element, edges)

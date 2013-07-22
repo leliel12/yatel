@@ -45,18 +45,18 @@ import sqlalchemy as sql
 #===============================================================================
 
 # The order to show schema variables, if it not in this list put at the end
-VARS_ORDER = ("dbname", "user", "password", "dsn", "host", "port")
+VARS_SCHEMA_ORDER = ("dbname", "user", "password", "dsn", "host", "port")
+
 
 SCHEMAS = (
-    "sqlite",
+    'sqlite',
     #"mysql",
     #"postgres",
 
 )
 
-
 SCHEMA_URIS = {
-    "sqlite": 'sqlite:///${dbname}',
+    'sqlite': "sqlite:///${dbname}",
 }
 
 
@@ -67,13 +67,11 @@ for schema in SCHEMAS:
     for e, n, b, i in tpl.pattern.findall(tpl.template):
         if n or b:
             variables.append(n or b)
-    variables.sort(key=lambda v: VARS_ORDER.index(v)
-                                 if v in VARS_ORDER
-                                 else len(VARS_ORDER))
+    variables.sort(key=lambda v: VARS_SCHEMA_ORDER.index(v))
     SCHEMA_VARS[schema] = variables
 
 
-DAL_TYPES = {
+SQL_ALCHEMY_TYPES = {
     datetime.datetime:
         lambda x: sql.DateTime(),
     datetime.time:
@@ -117,6 +115,7 @@ class YatelNetwork(object):
         tpl = string.Template(SCHEMA_URIS[schema])
         self._uri = tpl.substitute(kwargs)
         self._metadata = sql.MetaData(self._uri)
+
         self._hapid_buff = {}
         self._dbid_buff = {}
         self._create_mode = create
@@ -152,26 +151,32 @@ class YatelNetwork(object):
             sql.Column("data", sql.PickleType(), nullable=False),
         )
 
-        # base struct
-        self._haplotypes = sql.Table(
-            'haplotypes', self._metadata,
+        self._creation_buff = sql.Table(
+            "cration_buff", self._metadata,
             sql.Column("id", sql.Integer(), primary_key=True),
-            sql.Column("hap_id", sql.String(512), unique=True, nullable=False)
-        )
-
-        self._facts = sql.Table(
-            'facts', self._metadata,
-            sql.Column("id", sql.Integer(), primary_key=True),
-            sql.Column("hap", sql.Integer(), sql.ForeignKey('haplotypes.id')),
-        )
-
-        self._facts = sql.Table(
-            'edges', self._metadata,
-            sql.Column("id", sql.Integer(), primary_key=True),
-            sql.Column("weight", sql.Float(), nullable=False),
+            sql.Column("data", sql.PickleType(), nullable=False)
         )
 
         self._metadata.create_all()
+        #~ # base struct
+        #~ self._haplotypes = sql.Table(
+            #~ 'haplotypes', self._metadata,
+            #~ sql.Column("id", sql.Integer(), primary_key=True),
+            #~ sql.Column("hap_id", sql.String(512), unique=True, nullable=False)
+        #~ )
+#~
+        #~ self._facts = sql.Table(
+            #~ 'facts', self._metadata,
+            #~ sql.Column("id", sql.Integer(), primary_key=True),
+            #~ sql.Column("hap", sql.Integer(), sql.ForeignKey('haplotypes.id')),
+        #~ )
+#~
+        #~ self._facts = sql.Table(
+            #~ 'edges', self._metadata,
+            #~ sql.Column("id", sql.Integer(), primary_key=True),
+            #~ sql.Column("weight", sql.Float(), nullable=False),
+        #~ )
+
 
     #~ def _hapid2dbid(self, hap_id):
         #~ if hap_id not in self._hapid_buff:
@@ -188,7 +193,11 @@ class YatelNetwork(object):
         #~ return self._dbid_buff[db_id]
 #~
     def _new_attrs(self, attnames, table):
+        select = self._yatel_fields.select(self._yatel_fields.tname == table)
+
+
         return set(attnames).difference(table.columns.keys())
+
 #~
     #~ def _row2hap(self, row):
         #~ attrs = dict([
@@ -223,17 +232,15 @@ class YatelNetwork(object):
 
         # if is an haplotypes
         if isinstance(elem, dom.Haplotype):
-            new_attrs_names = self._new_attrs(elem.names_attrs(),
-                                              self._dal.haplotypes)
-            #~ new_attrs = []
-            #~ attrs_descs = []
-            #~ for fname in new_attrs_names:
-                #~ ftype =  DAL_TYPES[type(elem[fname])](elem[fname])
-                #~ field = dal.Field(fname, ftype, notnull=False)
-                #~ desc = {"tname": 'haplotypes', "fname": fname, "ftype": ftype,
-                        #~ "is_unique": False, "reference_to": None}
-                #~ new_attrs.append(field)
-                #~ attrs_descs.append(desc)
+            new_attrs_names = self._new_attrs(elem.names_attrs(), "haplotypes")
+            for fname in new_attrs_names:
+                value = elem[fname]
+                ftype = SQL_ALCHEMY_TYPES[value](value)
+                self._yatel_fields.insert().execute(
+                    tname='haplotypes', fname=fname,
+                    ftype=type(ftype).__name__,
+                    is_unique=False, reference_to=None
+                )
             #~ if new_attrs:
                 #~ self._dal.define_table(
                     #~ 'haplotypes',
@@ -303,11 +310,11 @@ class YatelNetwork(object):
             #~ msg = "Object '{}' is not yatel.dom type".format(str(elem))
             #~ raise YatelNetworkError(msg)
 
-    #~ def end_creation(self):
-        #~ if self.created:
-            #~ raise YatelNetworkError("Network already created")
+    def end_creation(self):
+        if self.created:
+            raise YatelNetworkError("Network already created")
         #~ self._dal.commit()
-        #~ self._create_mode = False
+        self._create_mode = False
 
     #===========================================================================
     # QUERIES # not use self._dal here!!!!
@@ -350,9 +357,9 @@ class YatelNetwork(object):
     # PROPERTIES
     #===========================================================================
 
-    #~ @property
-    #~ def created(self):
-        #~ return not self._create_mode
+    @property
+    def created(self):
+        return not self._create_mode
 
 
 
