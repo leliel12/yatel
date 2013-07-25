@@ -79,7 +79,7 @@ def create_network():
         haps.append(dom.Haplotype(name, **attrs))
 
     facts = []
-    for _ in range(random.randint(10, 50)):
+    for _ in range(random.randint(899, 900)):
         hap_id = random.choice(haps).hap_id
         attrs = {}
         for jdx, func in enumerate(sorted(choices.values())):
@@ -102,6 +102,8 @@ def create_network():
 #===============================================================================
 
 haps, facts, edges = create_network()
+
+print len(haps) + len(facts) + len(edges)
 
 #===============================================================================
 # CREATE THE two db

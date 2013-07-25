@@ -125,7 +125,14 @@ class YatelNetwork(object):
 
         if self._create_mode:
             self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: []}
-            self._temp_database()
+            tpl = string.Template(SCHEMA_URIS["sqlite"])
+            self._tmp_dbfile = tempfile.NamedTemporaryFile(suffix="_yatel")
+            self._tmp_meta = sql.MetaData(
+                tpl.substitute(dbname="cosito.db")
+            )
+            self._create_temp_database_tables()
+            self._tmp_conn = self._tmp_meta.bind.connect()
+            self._tmp_trans = self._tmp_conn.begin()
         else:
             self._metadata.reflect()
 
@@ -133,13 +140,7 @@ class YatelNetwork(object):
     # PRIVATE
     #===========================================================================
 
-    def _temp_database(self):
-
-        tpl = string.Template(SCHEMA_URIS["sqlite"])
-        self._tmp_dbfile = tempfile.NamedTemporaryFile(suffix="_yatel")
-        self._tmp_meta = sql.MetaData(
-            tpl.substitute(dbname="cosito.db")
-        )
+    def _create_temp_database_tables(self):
 
         # temporaty table
         self._tmp_objects = sql.Table(
@@ -269,7 +270,7 @@ class YatelNetwork(object):
                                     sql.ForeignKey('{}.id'.format(HAPLOTYPES)),
                                     nullable=True),
                 columns.append(column)
-            self._column_buff[FACTS].extend(columns)
+            self._column_buff[EDGES].extend(columns)
             data = {}
             for idx, hap_id in enumerate(elem.haps_id):
                 data["hap_{}".format(idx)] = hap_id
@@ -280,13 +281,17 @@ class YatelNetwork(object):
         else:
             msg = "Object '{}' is not yatel.dom type".format(str(elem))
             raise YatelNetworkError(msg)
-
-        self._tmp_objects.insert().execute(tname=tname, data=data)
+        self._tmp_conn.execute(self._tmp_objects.insert(),
+                               tname=tname, data=data)
 
     def end_creation(self):
         if self.created:
             raise YatelNetworkError("Network already created")
-        #~ self._dal.commit()
+        self._tmp_trans.commit()
+
+
+
+
         self._create_mode = False
 
     #===========================================================================
