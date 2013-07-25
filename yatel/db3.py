@@ -96,6 +96,7 @@ SQL_ALCHEMY_TYPES = {
 HAPLOTYPES = "haplotypes"
 FACTS = "facts"
 EDGES = "edges"
+VERSIONS = "versions"
 
 
 #===============================================================================
@@ -128,59 +129,24 @@ class YatelNetwork(object):
             tpl = string.Template(SCHEMA_URIS["sqlite"])
             self._tmp_dbfile = tempfile.NamedTemporaryFile(suffix="_yatel")
             self._tmp_meta = sql.MetaData(
-                tpl.substitute(dbname="cosito.db")
+                tpl.substitute(dbname=self._tmp_dbfile.name)
             )
-            self._create_temp_database_tables()
+            self._tmp_objects = sql.Table(
+                'tmp_objects', self._tmp_meta,
+                sql.Column("id", sql.Integer(), primary_key=True),
+                sql.Column("tname", sql.String(length=15), nullable=False),
+                sql.Column("data", sql.PickleType(), nullable=False),
+            )
+            self._tmp_meta.create_all()
             self._tmp_conn = self._tmp_meta.bind.connect()
             self._tmp_trans = self._tmp_conn.begin()
+
         else:
             self._metadata.reflect()
 
     #===========================================================================
     # PRIVATE
     #===========================================================================
-
-    def _create_temp_database_tables(self):
-
-        # temporaty table
-        self._tmp_objects = sql.Table(
-            'tmp_objects', self._tmp_meta,
-            sql.Column("id", sql.Integer(), primary_key=True),
-            sql.Column("tname", sql.String(length=15), nullable=False),
-            sql.Column("data", sql.PickleType(), nullable=False),
-        )
-        self._tmp_meta.create_all()
-
-
-        #~ # first static tables
-        #~ self._yatel_versions = sql.Table(
-            #~ 'yatel_versions', self._metadata,
-            #~ sql.Column("id", sql.Integer(), primary_key=True),
-            #~ sql.Column("tag", sql.String(512), unique=True,nullable=False),
-            #~ sql.Column("datetime", sql.DateTime(), nullable=False),
-            #~ sql.Column("comment", sql.Text(), nullable=False),
-            #~ sql.Column("data", sql.PickleType(), nullable=False),
-        #~ )
-
-        #self._metadata.create_all()
-        #~ # base struct
-        #~ self._haplotypes = sql.Table(
-            #~ 'haplotypes', self._metadata,
-            #~ sql.Column("id", sql.Integer(), primary_key=True),
-            #~ sql.Column("hap_id", sql.String(512), unique=True, nullable=False)
-        #~ )
-#~
-        #~ self._facts = sql.Table(
-            #~ 'facts', self._metadata,
-            #~ sql.Column("id", sql.Integer(), primary_key=True),
-            #~ sql.Column("hap", sql.Integer(), sql.ForeignKey('haplotypes.id')),
-        #~ )
-#~
-        #~ self._facts = sql.Table(
-            #~ 'edges', self._metadata,
-            #~ sql.Column("id", sql.Integer(), primary_key=True),
-            #~ sql.Column("weight", sql.Float(), nullable=False),
-        #~ )
 
 
     #~ def _hapid2dbid(self, hap_id):
@@ -266,9 +232,11 @@ class YatelNetwork(object):
             columns = []
             while need_haps_number > actual_haps_number + len(columns):
                 aname = "hap_{}".format(actual_haps_number + len(columns))
-                column = sql.Column(aname, None,
-                                    sql.ForeignKey('{}.id'.format(HAPLOTYPES)),
-                                    nullable=True),
+                column = sql.Column(
+                    aname, sql.String(512),
+                    sql.ForeignKey('{}.hap_id'.format(HAPLOTYPES)),
+                    nullable=True
+                )
                 columns.append(column)
             self._column_buff[EDGES].extend(columns)
             data = {}
@@ -285,12 +253,53 @@ class YatelNetwork(object):
                                tname=tname, data=data)
 
     def end_creation(self):
+
         if self.created:
             raise YatelNetworkError("Network already created")
+
+        # first confirm all changes to the temp database
         self._tmp_trans.commit()
 
+        # create te tables
+        self._versions_table = sql.Table(
+            VERSIONS, self._metadata,
+            sql.Column("id", sql.Integer(), primary_key=True),
+            sql.Column("tag", sql.String(512), unique=True,nullable=False),
+            sql.Column("datetime", sql.DateTime(), nullable=False),
+            sql.Column("comment", sql.Text(), nullable=False),
+            sql.Column("data", sql.PickleType(), nullable=False),
+        )
+
+        self._haplotypes_table = sql.Table(
+            HAPLOTYPES, self._metadata,
+            sql.Column("hap_id", sql.String(512), primary_key=True),
+            *self._column_buff[HAPLOTYPES]
+        )
+
+        self._facts_table = sql.Table(
+            FACTS, self._metadata,
+            sql.Column("id", sql.Integer(), primary_key=True),
+            sql.Column(
+                "hap_id", sql.String(512),
+                sql.ForeignKey('{}.hap_id'.format(HAPLOTYPES)),
+                nullable=False
+            ),
+            *self._column_buff[FACTS]
+        )
+
+        self._edges_table = sql.Table(
+            EDGES, self._metadata,
+            sql.Column("id", sql.Integer(), primary_key=True),
+            sql.Column("weight", sql.Float(), nullable=False),
+            *self._column_buff[EDGES]
+        )
+        self._metadata.create_all()
 
 
+        # populate tables inside a transaction
+        # destroys the buffers
+        # close all tmp references
+        # destroy tmp file
 
         self._create_mode = False
 
