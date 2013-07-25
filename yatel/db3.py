@@ -33,6 +33,7 @@ for testing use:
 
 import datetime
 import string
+import tempfile
 import decimal
 
 from yatel import dom
@@ -85,14 +86,16 @@ SQL_ALCHEMY_TYPES = {
     float:
         lambda x: sql.Float(),
     str:
-        lambda x: sql.String(512) if len(x) < 512 else sql.Text(),
+        lambda x: sql.String(512) if len(x) < 512 else sql.Text,
     unicode:
-        lambda x: sql.String(512) if len(x) < 512 else sql.Text(),
+        lambda x: sql.String(512) if len(x) < 512 else sql.Text,
     decimal.Decimal:
         lambda x: sql.Numeric()
 }
 
-FK = "FK"
+HAPLOTYPES = "haplotypes"
+FACTS = "facts"
+EDGES = "edges"
 
 
 #===============================================================================
@@ -121,7 +124,8 @@ class YatelNetwork(object):
         self._create_mode = create
 
         if self._create_mode:
-            self._create_network_base_tables()
+            self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: []}
+            self._temp_database()
         else:
             self._metadata.reflect()
 
@@ -129,35 +133,35 @@ class YatelNetwork(object):
     # PRIVATE
     #===========================================================================
 
-    def _create_network_base_tables(self):
+    def _temp_database(self):
 
-        # first add the static tables
-        self._yatel_fields = sql.Table(
-            'yatel_fields', self._metadata,
-            sql.Column("id", sql.Integer(), primary_key=True),
-            sql.Column("tname", sql.String(20), nullable=False),
-            sql.Column("fname", sql.String(512), nullable=False),
-            sql.Column("ftype", sql.String(20), nullable=False),
-            sql.Column("tname", sql.Boolean(), nullable=False),
-            sql.Column("reference_to", sql.String(20), nullable=True)
+        tpl = string.Template(SCHEMA_URIS["sqlite"])
+        self._tmp_dbfile = tempfile.NamedTemporaryFile(suffix="_yatel")
+        self._tmp_meta = sql.MetaData(
+            tpl.substitute(dbname="cosito.db")
         )
 
-        self._yatel_versions = sql.Table(
-            'yatel_versions', self._metadata,
+        # temporaty table
+        self._tmp_objects = sql.Table(
+            'tmp_objects', self._tmp_meta,
             sql.Column("id", sql.Integer(), primary_key=True),
-            sql.Column("tag", sql.String(512), unique=True,nullable=False),
-            sql.Column("datetime", sql.DateTime(), nullable=False),
-            sql.Column("comment", sql.Text(), nullable=False),
+            sql.Column("tname", sql.String(length=15), nullable=False),
             sql.Column("data", sql.PickleType(), nullable=False),
         )
+        self._tmp_meta.create_all()
 
-        self._creation_buff = sql.Table(
-            "cration_buff", self._metadata,
-            sql.Column("id", sql.Integer(), primary_key=True),
-            sql.Column("data", sql.PickleType(), nullable=False)
-        )
 
-        self._metadata.create_all()
+        #~ # first static tables
+        #~ self._yatel_versions = sql.Table(
+            #~ 'yatel_versions', self._metadata,
+            #~ sql.Column("id", sql.Integer(), primary_key=True),
+            #~ sql.Column("tag", sql.String(512), unique=True,nullable=False),
+            #~ sql.Column("datetime", sql.DateTime(), nullable=False),
+            #~ sql.Column("comment", sql.Text(), nullable=False),
+            #~ sql.Column("data", sql.PickleType(), nullable=False),
+        #~ )
+
+        #self._metadata.create_all()
         #~ # base struct
         #~ self._haplotypes = sql.Table(
             #~ 'haplotypes', self._metadata,
@@ -193,10 +197,8 @@ class YatelNetwork(object):
         #~ return self._dbid_buff[db_id]
 #~
     def _new_attrs(self, attnames, table):
-        select = self._yatel_fields.select(self._yatel_fields.tname == table)
-
-
-        return set(attnames).difference(table.columns.keys())
+        columns = [c.name for c in self._column_buff[table]]
+        return set(attnames).difference(columns)
 
 #~
     #~ def _row2hap(self, row):
@@ -230,85 +232,56 @@ class YatelNetwork(object):
         if self.created:
             raise YatelNetworkError("Network already created")
 
-        # if is an haplotypes
+        data = None
+        tname = None
+
         if isinstance(elem, dom.Haplotype):
-            new_attrs_names = self._new_attrs(elem.names_attrs(), "haplotypes")
-            for fname in new_attrs_names:
-                value = elem[fname]
-                ftype = SQL_ALCHEMY_TYPES[value](value)
-                self._yatel_fields.insert().execute(
-                    tname='haplotypes', fname=fname,
-                    ftype=type(ftype).__name__,
-                    is_unique=False, reference_to=None
-                )
-            #~ if new_attrs:
-                #~ self._dal.define_table(
-                    #~ 'haplotypes',
-                    #~ self._dal.haplotypes,
-                    #~ redefine=True, *new_attrs
-                #~ )
-                #~ self._dal.yatel_fields.bulk_insert(attrs_descs)
-#~
-            #~ attrs = dict(elem.items_attrs())
-            #~ attrs.update(hap_id=elem.hap_id)
-            #~ self._dal.haplotypes.insert(**attrs)
-#~
-        #~ # if is a fact
-        #~ elif isinstance(elem, dom.Fact):
-            #~ new_attrs_names = self._new_attrs(elem.names_attrs(),
-                                              #~ self._dal.facts)
-            #~ new_attrs = []
-            #~ attrs_descs = []
-            #~ for fname in new_attrs_names:
-                #~ ftype =  DAL_TYPES[type(elem[fname])](elem[fname])
-                #~ field = dal.Field(fname, ftype, notnull=False)
-                #~ desc = {"tname": 'facts', "fname": fname, "ftype": ftype,
-                        #~ "is_unique": False, "reference_to": None}
-                #~ new_attrs.append(field)
-                #~ attrs_descs.append(desc)
-            #~ if new_attrs:
-                #~ self._dal.define_table(
-                    #~ 'facts',
-                    #~ self._dal.facts,
-                    #~ redefine=True, *new_attrs
-                #~ )
-                #~ self._dal.yatel_fields.bulk_insert(attrs_descs)
-#~
-            #~ attrs = dict(elem.items_attrs())
-            #~ attrs.update(hap=self._hapid2dbid(elem.hap_id))
-            #~ self._dal.facts.insert(**attrs)
-#~
-        #~ # if is an edge
-        #~ elif isinstance(elem, dom.Edge):
-            #~ actual_haps_number = len(self._dal.edges.fields) - 2
-            #~ need_haps_number = len(elem.haps_id)
-#~
-            #~ new_attrs = []
-            #~ attrs_descs = []
-            #~ while need_haps_number > actual_haps_number + len(new_attrs):
-                #~ fname = "hap_{}".format(actual_haps_number + len(new_attrs))
-                #~ field = dal.Field(fname, self._dal.haplotypes, notnull=False)
-                #~ desc = {"tname": 'edges', "fname": fname, "ftype": FK,
-                        #~ "is_unique": False, "reference_to": 'haplotypes'}
-                #~ new_attrs.append(field)
-                #~ attrs_descs.append(desc)
-            #~ if new_attrs:
-                #~ self._dal.define_table(
-                    #~ 'edges',
-                    #~ self._dal.edges,
-                    #~ redefine=True, *new_attrs)
-                #~ self._dal.yatel_fields.bulk_insert(attrs_descs)
-#~
-            #~ attrs = {}
-            #~ for idx, hap_id in enumerate(elem.haps_id):
-                #~ attrs["hap_{}".format(idx)] = self._hapid2dbid(hap_id)
-            #~ attrs.update(weight=elem.weight)
-            #~ self._dal.edges.insert(**attrs)
-#~
-        #~ # if is trash
-        #~ else:
-            #~ msg = "Object '{}' is not yatel.dom type".format(str(elem))
-            #~ raise YatelNetworkError(msg)
+            new_attrs_names = self._new_attrs(elem.names_attrs(), HAPLOTYPES)
+            for aname in new_attrs_names:
+                avalue = elem[aname]
+                atype = type(avalue)
+                ctype = SQL_ALCHEMY_TYPES[atype](avalue)
+                column = sql.Column(aname, ctype, nullable=True)
+                self._column_buff[HAPLOTYPES].append(column)
+            data = dict(elem.items_attrs())
+            data["hap_id"] = elem.hap_id
+            tname = HAPLOTYPES
+
+        elif isinstance(elem, dom.Fact):
+            new_attrs_names = self._new_attrs(elem.names_attrs(), FACTS)
+            for aname in new_attrs_names:
+                avalue = elem[aname]
+                atype = type(avalue)
+                ctype = SQL_ALCHEMY_TYPES[atype](avalue)
+                column = sql.Column(aname, ctype, nullable=True)
+                self._column_buff[FACTS].append(column)
+            data = dict(elem.items_attrs())
+            data["hap_id"] = elem.hap_id
+            tname = FACTS
+
+        elif isinstance(elem, dom.Edge):
+            actual_haps_number = len(self._column_buff[EDGES])
+            need_haps_number = len(elem.haps_id)
+            columns = []
+            while need_haps_number > actual_haps_number + len(columns):
+                aname = "hap_{}".format(actual_haps_number + len(columns))
+                column = sql.Column(aname, None,
+                                    sql.ForeignKey('{}.id'.format(HAPLOTYPES)),
+                                    nullable=True),
+                columns.append(column)
+            self._column_buff[FACTS].extend(columns)
+            data = {}
+            for idx, hap_id in enumerate(elem.haps_id):
+                data["hap_{}".format(idx)] = hap_id
+            data.update(weight=elem.weight)
+            tname = EDGES
+
+        # if is trash
+        else:
+            msg = "Object '{}' is not yatel.dom type".format(str(elem))
+            raise YatelNetworkError(msg)
+
+        self._tmp_objects.insert().execute(tname=tname, data=data)
 
     def end_creation(self):
         if self.created:
