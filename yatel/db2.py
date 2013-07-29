@@ -164,7 +164,7 @@ class YatelNetwork(object):
     def __init__(self, schema, create=False, **kwargs):
         tpl = string.Template(SCHEMA_URIS[schema])
         uri = tpl.substitute(kwargs)
-        self._dal = dal.DAL(uri)
+        self._dal = dal.DAL(uri, adapter_args={"logfile": None})
         self._create_mode = create
         self._create_network_base_tables()
         self._hapid_buff = {}

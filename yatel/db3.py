@@ -295,8 +295,12 @@ class YatelNetwork(object):
         )
         self._metadata.create_all()
 
-
         # populate tables inside a transaction
+        with self._metadata.bind.begin() as connection:
+            print dir(self._tmp_objects)
+            query = self._tmp_objects.select().where(tname=HAPLOTYPES)
+            for row in self._tmp_conn.execute(query):
+                print row["tname"]
         # destroys the buffers
         # close all tmp references
         # destroy tmp file

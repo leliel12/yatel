@@ -110,7 +110,6 @@ print len(haps) + len(facts) + len(edges)
 #===============================================================================
 
 peewee_db = None
-dal_db = None
 sa_db = None
 
 @bench()
@@ -128,7 +127,7 @@ def create_dal():
 
 @bench()
 def create_sa():
-    conn = db3.YatelNetwork("sqlite", dbname=dal_path, create=True)
+    conn = db3.YatelNetwork("sqlite", dbname=sa_path, create=True)
     map(conn.add_element, haps)
     map(conn.add_element, facts)
     map(conn.add_element, edges)
