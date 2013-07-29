@@ -38,7 +38,7 @@ import decimal
 
 from yatel import dom
 
-import sqlalchemy as sql
+import sqlalchemy as sa
 
 
 #===============================================================================
@@ -74,23 +74,23 @@ for schema in SCHEMAS:
 
 SQL_ALCHEMY_TYPES = {
     datetime.datetime:
-        lambda x: sql.DateTime(),
+        lambda x: sa.DateTime(),
     datetime.time:
-        lambda x: sql.Time(),
+        lambda x: sa.Time(),
     datetime.date:
-        lambda x: sql.Date(),
+        lambda x: sa.Date(),
     bool:
-        lambda x: sql.Boolean(),
+        lambda x: sa.Boolean(),
     int:
-        lambda x: sql.Integer(),
+        lambda x: sa.Integer(),
     float:
-        lambda x: sql.Float(),
+        lambda x: sa.Float(),
     str:
-        lambda x: sql.String(512) if len(x) < 512 else sql.Text,
+        lambda x: sa.String(512) if len(x) < 512 else sa.Text,
     unicode:
-        lambda x: sql.String(512) if len(x) < 512 else sql.Text,
+        lambda x: sa.String(512) if len(x) < 512 else sa.Text,
     decimal.Decimal:
-        lambda x: sql.Numeric()
+        lambda x: sa.Numeric()
 }
 
 HAPLOTYPES = "haplotypes"
@@ -118,7 +118,7 @@ class YatelNetwork(object):
     def __init__(self, schema, create=False, **kwargs):
         tpl = string.Template(SCHEMA_URIS[schema])
         self._uri = tpl.substitute(kwargs)
-        self._metadata = sql.MetaData(self._uri)
+        self._metadata = sa.MetaData(self._uri)
 
         self._hapid_buff = {}
         self._dbid_buff = {}
@@ -128,14 +128,14 @@ class YatelNetwork(object):
             self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: []}
             tpl = string.Template(SCHEMA_URIS["sqlite"])
             self._tmp_dbfile = tempfile.NamedTemporaryFile(suffix="_yatel")
-            self._tmp_meta = sql.MetaData(
+            self._tmp_meta = sa.MetaData(
                 tpl.substitute(dbname=self._tmp_dbfile.name)
             )
-            self._tmp_objects = sql.Table(
+            self._tmp_objects = sa.Table(
                 'tmp_objects', self._tmp_meta,
-                sql.Column("id", sql.Integer(), primary_key=True),
-                sql.Column("tname", sql.String(length=15), nullable=False),
-                sql.Column("data", sql.PickleType(), nullable=False),
+                sa.Column("id", sa.Integer(), primary_key=True),
+                sa.Column("tname", sa.String(length=15), nullable=False),
+                sa.Column("data", sa.PickleType(), nullable=False),
             )
             self._tmp_meta.create_all()
             self._tmp_conn = self._tmp_meta.bind.connect()
@@ -208,7 +208,7 @@ class YatelNetwork(object):
                 avalue = elem[aname]
                 atype = type(avalue)
                 ctype = SQL_ALCHEMY_TYPES[atype](avalue)
-                column = sql.Column(aname, ctype, nullable=True)
+                column = sa.Column(aname, ctype, nullable=True)
                 self._column_buff[HAPLOTYPES].append(column)
             data = dict(elem.items_attrs())
             data["hap_id"] = elem.hap_id
@@ -220,7 +220,7 @@ class YatelNetwork(object):
                 avalue = elem[aname]
                 atype = type(avalue)
                 ctype = SQL_ALCHEMY_TYPES[atype](avalue)
-                column = sql.Column(aname, ctype, nullable=True)
+                column = sa.Column(aname, ctype, nullable=True)
                 self._column_buff[FACTS].append(column)
             data = dict(elem.items_attrs())
             data["hap_id"] = elem.hap_id
@@ -232,9 +232,9 @@ class YatelNetwork(object):
             columns = []
             while need_haps_number > actual_haps_number + len(columns):
                 aname = "hap_{}".format(actual_haps_number + len(columns))
-                column = sql.Column(
-                    aname, sql.String(512),
-                    sql.ForeignKey('{}.hap_id'.format(HAPLOTYPES)),
+                column = sa.Column(
+                    aname, sa.String(512),
+                    sa.ForeignKey('{}.hap_id'.format(HAPLOTYPES)),
                     nullable=True
                 )
                 columns.append(column)
@@ -261,36 +261,36 @@ class YatelNetwork(object):
         self._tmp_trans.commit()
 
         # create te tables
-        self._versions_table = sql.Table(
+        self._versions_table = sa.Table(
             VERSIONS, self._metadata,
-            sql.Column("id", sql.Integer(), primary_key=True),
-            sql.Column("tag", sql.String(512), unique=True,nullable=False),
-            sql.Column("datetime", sql.DateTime(), nullable=False),
-            sql.Column("comment", sql.Text(), nullable=False),
-            sql.Column("data", sql.PickleType(), nullable=False),
+            sa.Column("id", sa.Integer(), primary_key=True),
+            sa.Column("tag", sa.String(512), unique=True,nullable=False),
+            sa.Column("datetime", sa.DateTime(), nullable=False),
+            sa.Column("comment", sa.Text(), nullable=False),
+            sa.Column("data", sa.PickleType(), nullable=False),
         )
 
-        self._haplotypes_table = sql.Table(
+        self._haplotypes_table = sa.Table(
             HAPLOTYPES, self._metadata,
-            sql.Column("hap_id", sql.String(512), primary_key=True),
+            sa.Column("hap_id", sa.String(512), primary_key=True),
             *self._column_buff[HAPLOTYPES]
         )
 
-        self._facts_table = sql.Table(
+        self._facts_table = sa.Table(
             FACTS, self._metadata,
-            sql.Column("id", sql.Integer(), primary_key=True),
-            sql.Column(
-                "hap_id", sql.String(512),
-                sql.ForeignKey('{}.hap_id'.format(HAPLOTYPES)),
+            sa.Column("id", sa.Integer(), primary_key=True),
+            sa.Column(
+                "hap_id", sa.String(512),
+                sa.ForeignKey('{}.hap_id'.format(HAPLOTYPES)),
                 nullable=False
             ),
             *self._column_buff[FACTS]
         )
 
-        self._edges_table = sql.Table(
+        self._edges_table = sa.Table(
             EDGES, self._metadata,
-            sql.Column("id", sql.Integer(), primary_key=True),
-            sql.Column("weight", sql.Float(), nullable=False),
+            sa.Column("id", sa.Integer(), primary_key=True),
+            sa.Column("weight", sa.Float(), nullable=False),
             *self._column_buff[EDGES]
         )
         self._metadata.create_all()
