@@ -26,6 +26,14 @@ for testing use:
 
 """
 
+#===============================================================================
+# DEVELOPER NOTES
+#===============================================================================
+
+# first see this video https://www.youtube.com/watch?v=woKYyhLCcnU
+# then: http://docs.sqlalchemy.org/en/latest/core/tutorial.html
+# and then: http://docs.sqlalchemy.org/en/latest/core/connections.html
+
 
 #===============================================================================
 # IMPORTS
@@ -35,10 +43,12 @@ import datetime
 import string
 import tempfile
 import decimal
+import os
 
 from yatel import dom
 
 import sqlalchemy as sa
+from sqlalchemy import sql
 
 
 #===============================================================================
@@ -118,6 +128,7 @@ class YatelNetwork(object):
     def __init__(self, schema, create=False, **kwargs):
         tpl = string.Template(SCHEMA_URIS[schema])
         self._uri = tpl.substitute(kwargs)
+
         self._metadata = sa.MetaData(self._uri)
 
         self._hapid_buff = {}
@@ -125,8 +136,8 @@ class YatelNetwork(object):
         self._create_mode = create
 
         if self._create_mode:
-            self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: []}
             tpl = string.Template(SCHEMA_URIS["sqlite"])
+            self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: []}
             self._tmp_dbfile = tempfile.NamedTemporaryFile(suffix="_yatel")
             self._tmp_meta = sa.MetaData(
                 tpl.substitute(dbname=self._tmp_dbfile.name)
@@ -140,7 +151,6 @@ class YatelNetwork(object):
             self._tmp_meta.create_all()
             self._tmp_conn = self._tmp_meta.bind.connect()
             self._tmp_trans = self._tmp_conn.begin()
-
         else:
             self._metadata.reflect()
 
@@ -148,21 +158,6 @@ class YatelNetwork(object):
     # PRIVATE
     #===========================================================================
 
-
-    #~ def _hapid2dbid(self, hap_id):
-        #~ if hap_id not in self._hapid_buff:
-            #~ query = self._dal.haplotypes.hap_id == hap_id
-            #~ row = self._dal(query).select(self._dal.haplotypes.id).first()
-            #~ self._hapid_buff[hap_id] = row["id"]
-        #~ return self._hapid_buff[hap_id]
-#~
-    #~ def _dbid2hapid(self, db_id):
-        #~ if db_id not in self._dbid_buff:
-            #~ query = self._dal.haplotypes.id == db_id
-            #~ row = self._dal(query).select(self._dal.haplotypes.hap_id).first()
-            #~ self._dbid_buff[db_id] = row["hap_id"]
-        #~ return self._dbid_buff[db_id]
-#~
     def _new_attrs(self, attnames, table):
         columns = [c.name for c in self._column_buff[table]]
         return set(attnames).difference(columns)
@@ -201,6 +196,21 @@ class YatelNetwork(object):
 
         data = None
         tname = None
+
+        # determine the hap_id columns
+        if isinstance(elem, (dom.Haplotype, dom.Fact)) \
+           and not self._column_buff[HAPLOTYPES]:
+                avalue = elem.hap_id
+                atype = type(avalue)
+                ctype = SQL_ALCHEMY_TYPES[atype](avalue)
+                self._column_buff[HAPLOTYPES].append(
+                    sa.Column("hap_id", ctype, primary_key=True)
+                )
+                self._column_buff[FACTS].append(
+                    sa.Column("hap_id", ctype,
+                              sa.ForeignKey('{}.hap_id'.format(HAPLOTYPES)),
+                              nullable=False)
+                )
 
         if isinstance(elem, dom.Haplotype):
             new_attrs_names = self._new_attrs(elem.names_attrs(), HAPLOTYPES)
@@ -271,19 +281,12 @@ class YatelNetwork(object):
         )
 
         self._haplotypes_table = sa.Table(
-            HAPLOTYPES, self._metadata,
-            sa.Column("hap_id", sa.String(512), primary_key=True),
-            *self._column_buff[HAPLOTYPES]
+            HAPLOTYPES, self._metadata, *self._column_buff[HAPLOTYPES]
         )
 
         self._facts_table = sa.Table(
             FACTS, self._metadata,
             sa.Column("id", sa.Integer(), primary_key=True),
-            sa.Column(
-                "hap_id", sa.String(512),
-                sa.ForeignKey('{}.hap_id'.format(HAPLOTYPES)),
-                nullable=False
-            ),
             *self._column_buff[FACTS]
         )
 
@@ -296,14 +299,30 @@ class YatelNetwork(object):
         self._metadata.create_all()
 
         # populate tables inside a transaction
-        with self._metadata.bind.begin() as connection:
-            print dir(self._tmp_objects)
-            query = self._tmp_objects.select().where(tname=HAPLOTYPES)
+        with self._metadata.bind.begin() as conn:
+            query = self._tmp_objects.select()
             for row in self._tmp_conn.execute(query):
-                print row["tname"]
-        # destroys the buffers
+                table = None
+                if row.tname == HAPLOTYPES:
+                    table = self._haplotypes_table
+                elif row.tname == FACTS:
+                    table = self._facts_table
+                elif row.tname == EDGES:
+                    table = self._edges_table
+                else:
+                    msg = "Invalid tname '{}'".format(row.tname)
+                    raise YatelNetworkError(msg)
+                conn.execute(table.insert(), **row.data)
+
         # close all tmp references
+
         # destroy tmp file
+        self._tmp_dbfile.close()
+
+        # destroys the buffers
+        del self._column_buff
+        del self._tmp_objects
+        del self._tmp_dbfile
 
         self._create_mode = False
 
