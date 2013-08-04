@@ -16,6 +16,7 @@ from yatel import db, db2, db3, dom
 
 import numpy as np
 
+
 #===============================================================================
 # PRE CONFIG
 #===============================================================================
@@ -143,6 +144,12 @@ def connect_peewee():
 def connect_dal():
     global dal_db
     dal_db = db2.YatelNetwork("sqlite", dbname=dal_path)
+
+@bench()
+def connect_sa():
+    global sa_db
+    sa_db = db3.YatelNetwork("sqlite", dbname=sa_path)
+
 
 @bench(100)
 def iter_haplotypes_peewee():
