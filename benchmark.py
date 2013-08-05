@@ -186,6 +186,18 @@ def fact_attribute_values_sa():
     for an in sa_db.fact_attributes_names():
         list(sa_db.fact_attribute_values(an))
 
+@bench(100)
+def facts_by_haplotype_peewee():
+    for hap in haps:
+        list(peewee_db.facts_by_haplotype(hap))
+
+@bench(100)
+def facts_by_haplotype_sa():
+    for hap in haps:
+        list(sa_db.facts_by_haplotype(hap))
+
+
+
 #===============================================================================
 # MAIN
 #===============================================================================

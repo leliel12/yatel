@@ -397,13 +397,22 @@ class YatelNetwork(object):
         for row in self.execute(query):
             yield row[att_name]
 
+    def facts_by_haplotype(self, hap):
+        """Return a ``iterator`` of all facts of a given ``dom.Haplotype``"""
+        query = sql.select([self._facts_table]).where(
+            self._facts_table.c.hap_id==hap.hap_id
+        ).distinct()
+        for row in self.execute(query):
+            yield self._row2fact(row)
 
     #===========================================================================
     # PROPERTIES
     #===========================================================================
 
-
-
+    @property
+    def name(self):
+        """The name of the connection."""
+        return self._uri
 
     @property
     def created(self):
