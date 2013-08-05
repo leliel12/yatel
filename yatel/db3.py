@@ -335,27 +335,32 @@ class YatelNetwork(object):
         self._create_mode = False
 
     #===========================================================================
-    # QUERIES # use self.conn here
+    # QUERIES # use execute here
     #===========================================================================
+
+    def execute(self, query):
+        if not self.created:
+            raise YatelNetworkError("Network not created")
+        return self._engine.execute(query)
 
     def iter_haplotypes(self):
         """Iterates over all ``dom.Haplotype`` instances store in the database.
 
         """
         query = self._haplotypes_table.select()
-        for row in self.conn.execute(query):
+        for row in self.execute(query):
             yield self._row2hap(row)
 
     def iter_facts(self):
         """Iterates over all ``dom.Fact`` instances store in the database."""
         query = self._facts_table.select()
-        for row in self.conn.execute(query):
+        for row in self.execute(query):
             yield self._row2fact(row)
 
     def iter_edges(self):
         """Iterates over all ``dom.Edge`` instances store in the database."""
         query = self._edges_table.select()
-        for row in self.conn.execute(query):
+        for row in self.execute(query):
             yield self._row2edge(row)
 
     def haplotype_by_id(self, hap_id):
@@ -369,9 +374,10 @@ class YatelNetwork(object):
             ``dom.Haplotype`` instance.
 
         """
-        query = self._haplotypes_table.select()
-        query = query.where(self._haplotypes_table.c.hap_id == hap_id)
-        row = self.conn.execute(query).fetchone()
+        query = self._haplotypes_table.select().where(
+            self._haplotypes_table.c.hap_id == hap_id
+        ).limit(1)
+        row = self.execute(query).fetchone()
         return self._row2hap(row)
 
 
@@ -379,11 +385,7 @@ class YatelNetwork(object):
     # PROPERTIES
     #===========================================================================
 
-    @property
-    def conn(self):
-        if not self.created:
-            raise YatelNetworkError("Network not created")
-        return self._engine.connect()
+
 
 
     @property
