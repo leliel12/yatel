@@ -12,7 +12,7 @@
 
 import os, random, collections, hashlib, time, pprint
 
-from yatel import db, db2, db3, dom
+from yatel import db, db3, dom
 
 import numpy as np
 
@@ -23,13 +23,10 @@ import numpy as np
 
 path = os.path.dirname(os.path.abspath(__file__))
 peewee_path = os.path.join(path, "data", "bench_pewee.db")
-dal_path = os.path.join(path, "data", "bench_dal.db")
 sa_path = os.path.join(path, "data", "bench_sa.db")
 
 if os.path.exists(peewee_path):
     os.remove(peewee_path)
-if os.path.exists(dal_path):
-    os.remove(dal_path)
 if os.path.exists(sa_path):
     os.remove(sa_path)
 
@@ -119,14 +116,6 @@ def create_peewee():
     conn.init_with_values(haps, facts, edges)
 
 @bench()
-def create_dal():
-    conn = db2.YatelNetwork("sqlite", dbname=dal_path, create=True)
-    map(conn.add_element, haps)
-    map(conn.add_element, facts)
-    map(conn.add_element, edges)
-    conn.end_creation()
-
-@bench()
 def create_sa():
     conn = db3.YatelNetwork("sqlite", dbname=sa_path, create=True)
     map(conn.add_element, haps)
@@ -141,39 +130,43 @@ def connect_peewee():
     peewee_db.init_yatel_database()
 
 @bench()
-def connect_dal():
-    global dal_db
-    dal_db = db2.YatelNetwork("sqlite", dbname=dal_path)
-
-@bench()
 def connect_sa():
     global sa_db
     sa_db = db3.YatelNetwork("sqlite", dbname=sa_path)
-
 
 @bench(100)
 def iter_haplotypes_peewee():
     list(peewee_db.iter_haplotypes())
 
 @bench(100)
-def iter_haplotypes_dal():
-    list(dal_db.iter_haplotypes())
+def iter_haplotypes_sa():
+    list(sa_db.iter_haplotypes())
 
 @bench(100)
 def iter_facts_peewee():
     list(peewee_db.iter_facts())
 
 @bench(100)
-def iter_facts_dal():
-    list(dal_db.iter_facts())
+def iter_facts_sa():
+    list(sa_db.iter_facts())
 
 @bench(100)
 def iter_edges_peewee():
     list(peewee_db.iter_edges())
 
 @bench(100)
-def iter_edges_dal():
-    list(dal_db.iter_edges())
+def iter_edges_sa():
+    list(sa_db.iter_edges())
+
+@bench(100)
+def haplotype_by_id_peewee():
+    for hap in haps:
+        peewee_db.haplotype_by_id(hap.hap_id)
+
+@bench(100)
+def haplotype_by_id_sa():
+    for hap in haps:
+        sa_db.haplotype_by_id(hap.hap_id)
 
 
 #===============================================================================
