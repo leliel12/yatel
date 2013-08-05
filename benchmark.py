@@ -168,6 +168,23 @@ def haplotype_by_id_sa():
     for hap in haps:
         sa_db.haplotype_by_id(hap.hap_id)
 
+@bench(100)
+def fact_attributes_names_peewee():
+    list(peewee_db.fact_attributes_names())
+
+@bench(100)
+def fact_attributes_names_sa():
+    list(sa_db.fact_attributes_names())
+
+@bench(100)
+def fact_attribute_values_peewee():
+    for an in peewee_db.fact_attributes_names():
+        list(peewee_db.fact_attribute_values(an))
+
+@bench(100)
+def fact_attribute_values_sa():
+    for an in sa_db.fact_attributes_names():
+        list(sa_db.fact_attribute_values(an))
 
 #===============================================================================
 # MAIN

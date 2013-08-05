@@ -347,19 +347,19 @@ class YatelNetwork(object):
         """Iterates over all ``dom.Haplotype`` instances store in the database.
 
         """
-        query = self._haplotypes_table.select()
+        query = sql.select([self._haplotypes_table])
         for row in self.execute(query):
             yield self._row2hap(row)
 
     def iter_facts(self):
         """Iterates over all ``dom.Fact`` instances store in the database."""
-        query = self._facts_table.select()
+        query = sql.select([self._facts_table])
         for row in self.execute(query):
             yield self._row2fact(row)
 
     def iter_edges(self):
         """Iterates over all ``dom.Edge`` instances store in the database."""
-        query = self._edges_table.select()
+        query = sql.select([self._edges_table])
         for row in self.execute(query):
             yield self._row2edge(row)
 
@@ -374,11 +374,28 @@ class YatelNetwork(object):
             ``dom.Haplotype`` instance.
 
         """
-        query = self._haplotypes_table.select().where(
+        query = sql.select([self._haplotypes_table]).where(
             self._haplotypes_table.c.hap_id == hap_id
         ).limit(1)
         row = self.execute(query).fetchone()
         return self._row2hap(row)
+
+    def fact_attributes_names(self):
+        """Return a ``iterator`` of all existing ``dom.Fact`` atributes."""
+        for c in self._facts_table.c:
+            if c.name not in ("id", "hap_id"):
+                yield c.name
+
+
+    def fact_attribute_values(self, att_name):
+        """Return a ``iterator`` of all posible values of given ``dom.Fact``
+        atribute.
+
+        """
+        att = self._facts_table.c[att_name]
+        query = sql.select([att]).where(att != None).distinct()
+        for row in self.execute(query):
+            yield row[att_name]
 
 
     #===========================================================================
