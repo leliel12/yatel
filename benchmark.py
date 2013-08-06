@@ -168,6 +168,32 @@ def haplotype_by_id_sa():
     for hap in haps:
         sa_db.haplotype_by_id(hap.hap_id)
 
+@bench(1)
+def enviroment_peewee():
+    for fact in facts:
+        env = dict(fact.items_attrs())
+        list(peewee_db.enviroment(**env))
+
+@bench(1)
+def enviroment_sa():
+    for fact in facts:
+        env = dict(fact.items_attrs())
+        list(sa_db.enviroment(env))
+
+@bench(1)
+def edges_enviroment_peewee():
+    for fact in facts:
+        env = dict(fact.items_attrs())
+        list(peewee_db.edges_enviroment(**env))
+        break
+
+@bench(1)
+def edgest_enviroment_sa():
+    for fact in facts:
+        env = dict(fact.items_attrs())
+        list(sa_db.edges_enviroment(env))
+        break
+
 @bench(100)
 def fact_attributes_names_peewee():
     list(peewee_db.fact_attributes_names())
@@ -196,13 +222,23 @@ def facts_by_haplotype_sa():
     for hap in haps:
         list(sa_db.facts_by_haplotype(hap))
 
+@bench(100)
+def minmax_edges_peewee():
+    peewee_db.minmax_edges()
+
+@bench(100)
+def minmax_edges_sa():
+    sa_db.minmax_edges()
 
 
 #===============================================================================
 # MAIN
 #===============================================================================
 
-if __name__ == "__main__":
+def main():
     run()
     for k, v in benchs.items():
         print "{} -> {}".format(k, v)
+
+if __name__ == "__main__":
+    main()

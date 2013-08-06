@@ -61,6 +61,7 @@ VARS_SCHEMA_ORDER = ("dbname", "user", "password", "dsn", "host", "port")
 
 SCHEMAS = (
     'sqlite',
+    'memory',
     #"mysql",
     #"postgres",
 
@@ -68,6 +69,7 @@ SCHEMAS = (
 
 SCHEMA_URIS = {
     'sqlite': "sqlite:///${dbname}",
+    'memory': "sqlite://",
 }
 
 
@@ -125,11 +127,11 @@ class YatelNetworkError(Exception):
 
 class YatelNetwork(object):
 
-    def __init__(self, schema, create=False, **kwargs):
+    def __init__(self, schema, create=False, log=None, **kwargs):
         tpl = string.Template(SCHEMA_URIS[schema])
         self._uri = tpl.substitute(kwargs)
 
-        self._engine = sa.create_engine(self._uri)
+        self._engine = sa.create_engine(self._uri, echo=bool(log))
         self._metadata = sa.MetaData(self._engine)
 
         self._hapid_buff = {}
@@ -192,6 +194,8 @@ class YatelNetwork(object):
     #===========================================================================
     # CREATE METHODS
     #===========================================================================
+    def add_elements(self, elems):
+        map(self.add_element, elems)
 
     def add_element(self, elem):
         if self.created:
@@ -303,7 +307,7 @@ class YatelNetwork(object):
 
         # populate tables inside a transaction
         with self._metadata.bind.begin() as conn:
-            query = self._tmp_objects.select()
+            query = sql.select([self._tmp_objects])
             for row in self._tmp_conn.execute(query):
                 table = None
                 if row.tname == HAPLOTYPES:
@@ -333,15 +337,21 @@ class YatelNetwork(object):
         del self._tmp_trans
 
         self._create_mode = False
+        self.save_version(tag="init", comment="-* AUTO CREATED *-")
 
     #===========================================================================
     # QUERIES # use execute here
     #===========================================================================
 
     def execute(self, query):
+        """Execute a given query to the backend"""
         if not self.created:
             raise YatelNetworkError("Network not created")
         return self._engine.execute(query)
+
+    #===========================================================================
+    # HAPLOTYPE QUERIES
+    #===========================================================================
 
     def iter_haplotypes(self):
         """Iterates over all ``dom.Haplotype`` instances store in the database.
@@ -350,18 +360,6 @@ class YatelNetwork(object):
         query = sql.select([self._haplotypes_table])
         for row in self.execute(query):
             yield self._row2hap(row)
-
-    def iter_facts(self):
-        """Iterates over all ``dom.Fact`` instances store in the database."""
-        query = sql.select([self._facts_table])
-        for row in self.execute(query):
-            yield self._row2fact(row)
-
-    def iter_edges(self):
-        """Iterates over all ``dom.Edge`` instances store in the database."""
-        query = sql.select([self._edges_table])
-        for row in self.execute(query):
-            yield self._row2edge(row)
 
     def haplotype_by_id(self, hap_id):
         """Return a ``dom.Haplotype`` instace store in the dabase with the
@@ -380,12 +378,166 @@ class YatelNetwork(object):
         row = self.execute(query).fetchone()
         return self._row2hap(row)
 
+    def haplotype_by_sql(self, query, **kwargs):
+        """Trye to execute an arbitrary *sql* and return an iterable of
+        ``dom.Haplotype`` instances selected by the query.
+
+        NOTE: Init all queries with ``select * from haplotype``
+
+        **Params**
+            :query: The *sql* query.
+            :kwargs: Argument to replace the ``:varname`` in the query.
+
+        **Returns**
+            A ``iterator`` of ``dom.Haplotype`` instance.
+
+        For more information see: http://docs.sqlalchemy.org/en/rel_0_8/core/tutorial.html#using-text
+
+        """
+        if not query.lower().startswith("select * from haplotype"):
+            msg = "'query' must start with 'select * from 'haplotype'"
+            raise ValueError(msg)
+        query = sql.text(query)
+        for row in self.execute(query, **kwargs):
+            yield self._row2hap(row)
+
+    def enviroment(self, env=None, **kwargs):
+        """Return a iterator of ``dom.Haplotype`` related to a ``dom.Fact`` with
+        attribute and value specified in ``kwargs``
+
+        **Params**
+            :env: Keys are ``dom.Fact`` attribute name and value a posible
+                  value of the given attribte.
+            :kwargs: Keys are ``dom.Fact`` attribute name and value a posible
+                     value of the given attribte.
+
+        **Return**
+            ``iterator`` of ``dom.Haplotype``.
+
+        **Example**
+
+            ::
+
+                >>> from yatel import db, dom
+                >>> conn = db.YatelNetwork("sqlite", create=True,
+                                           dbname="yateldatabase.db")
+                >>> conn.add_elements([dom.Haplotype("hap1"),
+                                       dom.Haplotype("hap2"),
+                                       dom.Fact("hap1", a=1, c="foo"),
+                                       dom.Fact("hap2", a=1, b=2),
+                                       dom.Edge(1, "hap1", "hap2")])
+                >>> conn.enviroment(a=1)
+                (<Haplotype 'hap1' at 0x2463250>, <Haplotype 'hap2' at 0x2463390>)
+                >>> conn.enviroment({"c": "foo"})
+                (<Haplotype 'hap1' at 0x2463250>, )
+                >>> conn.enviroment({"a": 1}, b=2)
+                (<Haplotype 'hap2' at 0x2463390>, )
+
+        """
+        env = env or {}
+        env.update(kwargs)
+        where = sql.and_(*[self._facts_table.c[k] == v
+                           for k, v in env.items()])
+        query = sql.select([self._haplotypes_table]).select_from(
+            self._haplotypes_table.join(
+                self._facts_table,
+                self._facts_table.c.hap_id == self._haplotypes_table.c.hap_id
+            )
+        ).where(where).distinct()
+        for row in self.execute(query):
+            yield self._row2hap(row)
+
+    #===========================================================================
+    # EDGES QUERIES
+    #===========================================================================
+
+    def iter_edges(self):
+        """Iterates over all ``dom.Edge`` instances store in the database."""
+        query = sql.select([self._edges_table])
+        for row in self.execute(query):
+            yield self._row2edge(row)
+
+    def edges_enviroment(self, env=None, **kwargs):
+        """Iterates over all ``dom.Edge`` instances of a given enviroment"""
+        env = env or {}
+        env.update(kwargs)
+        where = sql.and_(*[self._facts_table.c[k] == v
+                           for k, v in env.items()])
+
+        joins = sql.or_(*[v == self._facts_table.c.hap_id
+                          for v in self._edges_table.c.values()])
+
+        query = sql.select([self._edges_table]).select_from(
+            self._edges_table.join(self._facts_table, joins)
+        ).where(where).distinct()
+        for row in self.execute(query):
+            yield self._row2edge(row)
+
+    def minmax_edges(self):
+        """Return a ``tuple`` with ``len == 2`` containing the  edgest with
+        minimum ane maximun *weight*
+
+        """
+        query = sql.select([self._edges_table]).order_by(
+                    self._edges_table.c.weight.asc()
+                ).limit(1)
+        mine = self._row2edge(self.execute(query).fetchone())
+        query = sql.select([self._edges_table]).order_by(
+                    self._edges_table.c.weight.desc()
+                ).limit(1)
+        maxe = self._row2edge(self.execute(query).fetchone())
+        return mine, maxe
+
+    def filter_edges(self, minweight, maxweight):
+        """Iterates of a the ``dom.Edge`` instance with *weight* value between
+        ``minweight`` and ``maxwright``
+
+        """
+        query = sql.select([self._edges_table]).where(
+            self._edges_table.c.weight.between(minweight, maxweight)
+        )
+        for row in self.execute(query):
+            yield self._row2edge(row)
+
+    def edges_by_haplotypes(self, haps):
+        """Iterates over all nodes of a given list of haplotypes without
+           repetitions
+
+        """
+        haps_id = tuple(hap.hap_id for hap in haps)
+        where = sql.or_(*[v.in_(haps_id)
+                          for k, v in self._edges_table.c.items()
+                          if k.startswith("hap_")])
+        query = sql.select([self._edges_table]).where(where).distinct()
+        for row in self.execute(query):
+            yield self._row2edge(row)
+
+    def edges_by_haplotype(self, hap):
+        """Iterates over all the edges of a given dom.Haplotype.
+
+        """
+        where = sql.or_(*[v == hap.hap_id
+                          for k, v in self._edges_table.c.items()
+                          if k.startswith("hap_")])
+        query = sql.select([self._edges_table]).where(where).distinct()
+        for row in self.execute(query):
+            yield self._row2edge(row)
+
+    #===========================================================================
+    # FACTS QUERIES
+    #===========================================================================
+
+    def iter_facts(self):
+        """Iterates over all ``dom.Fact`` instances store in the database."""
+        query = sql.select([self._facts_table])
+        for row in self.execute(query):
+            yield self._row2fact(row)
+
     def fact_attributes_names(self):
         """Return a ``iterator`` of all existing ``dom.Fact`` atributes."""
         for c in self._facts_table.c:
             if c.name not in ("id", "hap_id"):
                 yield c.name
-
 
     def fact_attribute_values(self, att_name):
         """Return a ``iterator`` of all posible values of given ``dom.Fact``
@@ -404,6 +556,137 @@ class YatelNetwork(object):
         ).distinct()
         for row in self.execute(query):
             yield self._row2fact(row)
+
+    #===========================================================================
+    # VERSIONS QUERIES
+    #===========================================================================
+
+    def versions_infos(self):
+        """A ``iterator`` with all existing versions.
+
+        Each element contains 3 elements: the  version ``id``, the  version
+        ``datetime`` of creation, and the  version ``tag``
+
+        """
+        query = sql.select([self._versions_table.c.id,
+                            self._versions_table.c.datetime,
+                            self._versions_table.c.tag])
+        for row in self.execute(query):
+            yield dict(row)
+
+    def iter_versions(self):
+        """This function iterate over all versions
+
+        WARNING: this is used only with dump propuses, use get_version for
+        retrieve a particular version
+
+        """
+        query = sql.select([self._versions_table])
+        for row in self.execute(query):
+            yield dict(row)
+
+    def save_version(self, tag, comment="", hap_sql="",
+                     topology={}, weight_range=(None, None), enviroments=()):
+        """Store a new exploration status version in the database.
+
+        **Params**
+            :tag: The tag of the new version (unique).
+            :comment: A comment about the new version.
+            :hap_sql: For execute in ``YatelConnection.hap_sql``.
+            :topology: A dictionary with hap_ids as keys and a *iterable*
+                       with (x, y) position as value.
+            :weight_tange: A *iterable* with two ``int`` or ``float``
+                           representing the relevante ``dom.Edge`` instance.
+            :enviroments: A *iterable* with 2 values: **1** a ``bool``
+                          representing if the enviroment is active or not;
+                          **2** A ``dict`` with ``dom.Fact`` attribute name
+                          as keys, and attribute value as value.
+
+        **Returns**
+            A ``tuple`` with 3 values: the new version ``id``, the new version
+            ``datetime`` of creation, and the new version ``tag``.
+
+        """
+        td = {}
+        for hap_id, xy in topology.items():
+            # validate if this hap is in this network
+            self.haplotype_by_id(hap_id)
+            td[hap_id] = list(xy)
+
+        if not all(weight_range):
+            weight_range = [e.weight for e in self.minmax_edges()]
+        minw, maxw = weight_range
+        nwmin, nwmax = [e.weight for e in self.minmax_edges()]
+        if minw > maxw \
+           or minw < nwmin \
+           or minw > nwmax \
+           or maxw > nwmax \
+           or maxw < nwmin:
+            raise ValueError("Invalid range: ({}, {})".format(minw, maxw))
+        wrl = [minw, maxw]
+
+        envl = []
+        for active, enviroment in enviroments:
+            active = bool(active)
+            for varname, varvalue in enviroment.items():
+                if varname not in self.fact_attributes_names():
+                    msg = "Invalid fact attribute: '{}'".format(varname)
+                    raise ValueError(msg)
+                if (varvalue is not None
+                    and varvalue not in self.fact_attribute_values(varname)):
+                        msg = "Invalid value '{}' for fact attribute '{}'"
+                        msg = msg.format(varvalue, varname)
+                        raise ValueError(msg)
+            envl.append([active, enviroment])
+
+        data = {"topology": td, "weight_range": wrl,
+                "enviroments": envl, "hap_sql": hap_sql}
+
+        try:
+            old_data = self.get_version()["data"]
+        except:
+            pass
+        else:
+            if data == old_data:
+                msg = "Nothing changed from the last version '{}'"
+                msg = msg.format(vdbo.tag)
+                raise ValueError(msg)
+
+        query = sql.insert(self._versions_table).values(
+            tag=tag, datetime=format_date(datetime.datetime.now()),
+            comment=comment, data=data)
+        self.execute(query)
+
+
+    def get_version(self, match=None):
+        """Return a version by the given filter.
+
+        Behavior:
+            * If ``match`` is ``None``: The last version is returned.
+            * If ``match`` is instance of ``int``: The search is by version
+              *id*.
+            * If ``match`` is instance of ``datetime``: The search is by
+              version creation *datetime*.
+            * If ``match`` is instance of ``str``: The search is by version
+              *tag*.
+
+        """
+        query = sql.select([self._versions_table])
+        if match is None:
+            query = query.order_by(self._versions_table.c.datetime.desc())
+        elif isinstance(match, int):
+            query = query.where(self._versions_table.c.id==match)
+        elif isinstance(match, datetime.datetime):
+            match = format_date(match)
+            query = query.where(self._versions_table.c.datetime==match)
+        elif isinstance(match, basestring):
+            query = query.where(self._versions_table.c.tag==match)
+        else:
+            msg = "Match must be None, int, str, unicode or datetime instance"
+            raise TypeError(msg)
+        query = query.limit(1)
+        row = self.execute(query).fetchone()
+        return dict(row)
 
     #===========================================================================
     # PROPERTIES
@@ -425,19 +708,28 @@ class YatelNetwork(object):
 # FUNCTIONS
 #===============================================================================
 
-#~ def allin(l1, l2):
-    #~ """Returns ``True`` if all elements in ``l1`` is in ``l2``"""
-    #~ for l in l1:
-        #~ if l not in l2:
-            #~ return False
-    #~ return True
+def format_date(dt):
+    """This function prepare the  datetime instance to be stored in the
+    database by removing all unused data
+
+    """
+    dtf = "%Y-%m-%dT%H:%M:%S"
+    return datetime.datetime.strptime(dt.strftime(dtf), dtf)
 
 
 #===============================================================================
 # MAIN
 #===============================================================================
 
-
+def _test():
+    conn = YatelNetwork("memory", create=True)
+    conn.add_elements([dom.Haplotype("hap1"),
+                       dom.Haplotype("hap2"),
+                       dom.Fact("hap1", a=1, c="foo"),
+                       dom.Fact("hap2", a=1, b=2),
+                       dom.Edge(1, "hap1", "hap2")])
+    conn.end_creation()
+    return conn
 
 if __name__ == "__main__":
     print(__doc__)
