@@ -357,13 +357,17 @@ class YatelNetwork(object):
     def haplotypes_iterator(self):
         """Iterates over all ``dom.Haplotype`` instances store in the database.
 
-        **WARNING:** This method execute one query for every edge of the given
-        haplotype
-
         """
         query = sql.select([self._haplotypes_table])
         for row in self.execute(query):
+            yield self._row2hap(row)
 
+    def haplotypes_by_ids(self, haps_ids):
+        query = sql.select([self._haplotypes_table]).where(
+            self._haplotypes_table.c.hap_id.in_(haps_ids)
+        ).limit(1)
+        for row in row = self.execute(query):
+            yield self._row2hap(row)
 
     def haplotype_by_id(self, hap_id):
         """Return a ``dom.Haplotype`` instace store in the dabase with the
@@ -385,6 +389,9 @@ class YatelNetwork(object):
     def haplotype_links(self, hap):
         """iterates over all ``hap`` conected *haplotypes*
 
+        **WARNING:** This method execute one query for every edge of the given
+        haplotype
+
         **Params**
           :hap: ``dom.Haplotype`` instance
         **Return**
@@ -393,7 +400,13 @@ class YatelNetwork(object):
 
         """
         for edge in self.edges_by_haplotype(hap):
-            print edge
+            haps_ids = [hap_id
+                        for hap_id in edge.haps_id
+                        if hap_id != hap.hap_id]
+            if haps_ids:
+                yield edge.weight, tuple(self.haplotypes_by_ids(haps_ids))
+            else:
+                yield edge.weight, (hap,)
 
     def haplotypes_by_sql(self, query, **kwargs):
         """Try to execute an arbitrary *sql* and return an iterable of
