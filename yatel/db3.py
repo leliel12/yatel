@@ -194,6 +194,7 @@ class YatelNetwork(object):
     #===========================================================================
     # CREATE METHODS
     #===========================================================================
+
     def add_elements(self, elems):
         map(self.add_element, elems)
 
@@ -353,7 +354,7 @@ class YatelNetwork(object):
     # HAPLOTYPE QUERIES
     #===========================================================================
 
-    def iter_haplotypes(self):
+    def haplotypes_iterator(self):
         """Iterates over all ``dom.Haplotype`` instances store in the database.
 
         """
@@ -378,8 +379,8 @@ class YatelNetwork(object):
         row = self.execute(query).fetchone()
         return self._row2hap(row)
 
-    def haplotype_by_sql(self, query, **kwargs):
-        """Trye to execute an arbitrary *sql* and return an iterable of
+    def haplotypes_by_sql(self, query, **kwargs):
+        """Try to execute an arbitrary *sql* and return an iterable of
         ``dom.Haplotype`` instances selected by the query.
 
         NOTE: Init all queries with ``select * from haplotype``
@@ -401,7 +402,7 @@ class YatelNetwork(object):
         for row in self.execute(query, **kwargs):
             yield self._row2hap(row)
 
-    def enviroment(self, env=None, **kwargs):
+    def haplotypes_enviroment(self, env=None, **kwargs):
         """Return a iterator of ``dom.Haplotype`` related to a ``dom.Fact`` with
         attribute and value specified in ``kwargs``
 
@@ -451,7 +452,7 @@ class YatelNetwork(object):
     # EDGES QUERIES
     #===========================================================================
 
-    def iter_edges(self):
+    def edges_iterator(self):
         """Iterates over all ``dom.Edge`` instances store in the database."""
         query = sql.select([self._edges_table])
         for row in self.execute(query):
@@ -473,7 +474,7 @@ class YatelNetwork(object):
         for row in self.execute(query):
             yield self._row2edge(row)
 
-    def minmax_edges(self):
+    def edges_top_weights(self):
         """Return a ``tuple`` with ``len == 2`` containing the  edgest with
         minimum ane maximun *weight*
 
@@ -488,7 +489,7 @@ class YatelNetwork(object):
         maxe = self._row2edge(self.execute(query).fetchone())
         return mine, maxe
 
-    def filter_edges(self, minweight, maxweight):
+    def edges_by_weight(self, minweight, maxweight):
         """Iterates of a the ``dom.Edge`` instance with *weight* value between
         ``minweight`` and ``maxwright``
 
@@ -512,7 +513,7 @@ class YatelNetwork(object):
         for row in self.execute(query):
             yield self._row2edge(row)
 
-    def edges_by_haplotype(self, hap):
+    def edges_by_haplotypes(self, hap):
         """Iterates over all the edges of a given dom.Haplotype.
 
         """
@@ -527,7 +528,7 @@ class YatelNetwork(object):
     # FACTS QUERIES
     #===========================================================================
 
-    def iter_facts(self):
+    def facts_iterator(self):
         """Iterates over all ``dom.Fact`` instances store in the database."""
         query = sql.select([self._facts_table])
         for row in self.execute(query):
@@ -561,7 +562,7 @@ class YatelNetwork(object):
     # VERSIONS QUERIES
     #===========================================================================
 
-    def versions_infos(self):
+    def versions_infos_interator(self):
         """A ``iterator`` with all existing versions.
 
         Each element contains 3 elements: the  version ``id``, the  version
@@ -574,7 +575,7 @@ class YatelNetwork(object):
         for row in self.execute(query):
             yield dict(row)
 
-    def iter_versions(self):
+    def versions_iterator(self):
         """This function iterate over all versions
 
         WARNING: this is used only with dump propuses, use get_version for
