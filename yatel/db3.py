@@ -357,10 +357,13 @@ class YatelNetwork(object):
     def haplotypes_iterator(self):
         """Iterates over all ``dom.Haplotype`` instances store in the database.
 
+        **WARNING:** This method execute one query for every edge of the given
+        haplotype
+
         """
         query = sql.select([self._haplotypes_table])
         for row in self.execute(query):
-            yield self._row2hap(row)
+
 
     def haplotype_by_id(self, hap_id):
         """Return a ``dom.Haplotype`` instace store in the dabase with the
@@ -378,6 +381,19 @@ class YatelNetwork(object):
         ).limit(1)
         row = self.execute(query).fetchone()
         return self._row2hap(row)
+
+    def haplotype_links(self, hap):
+        """iterates over all ``hap`` conected *haplotypes*
+
+        **Params**
+          :hap: ``dom.Haplotype`` instance
+        **Return**
+            An iterable with 2 components: A distance as ``float`` and a
+            ``list`` with the conected haplotypes.
+
+        """
+        for edge in self.edges_by_haplotype(hap):
+            print edge
 
     def haplotypes_by_sql(self, query, **kwargs):
         """Try to execute an arbitrary *sql* and return an iterable of
@@ -466,7 +482,8 @@ class YatelNetwork(object):
                            for k, v in env.items()])
 
         joins = sql.or_(*[v == self._facts_table.c.hap_id
-                          for v in self._edges_table.c.values()])
+                          for k, v in self._edges_table.c.items()
+                          if k.startswith("hap_")])
 
         query = sql.select([self._edges_table]).select_from(
             self._edges_table.join(self._facts_table, joins)
@@ -513,7 +530,7 @@ class YatelNetwork(object):
         for row in self.execute(query):
             yield self._row2edge(row)
 
-    def edges_by_haplotypes(self, hap):
+    def edges_by_haplotype(self, hap):
         """Iterates over all the edges of a given dom.Haplotype.
 
         """
@@ -615,9 +632,9 @@ class YatelNetwork(object):
             td[hap_id] = list(xy)
 
         if not all(weight_range):
-            weight_range = [e.weight for e in self.minmax_edges()]
+            weight_range = [e.weight for e in self.edges_top_weights()]
         minw, maxw = weight_range
-        nwmin, nwmax = [e.weight for e in self.minmax_edges()]
+        nwmin, nwmax = [e.weight for e in self.edges_top_weights()]
         if minw > maxw \
            or minw < nwmin \
            or minw > nwmax \
