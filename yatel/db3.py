@@ -365,8 +365,8 @@ class YatelNetwork(object):
     def haplotypes_by_ids(self, haps_ids):
         query = sql.select([self._haplotypes_table]).where(
             self._haplotypes_table.c.hap_id.in_(haps_ids)
-        ).limit(1)
-        for row in row = self.execute(query):
+        )
+        for row in self.execute(query):
             yield self._row2hap(row)
 
     def haplotype_by_id(self, hap_id):
@@ -753,8 +753,8 @@ def format_date(dt):
 #===============================================================================
 
 def _test():
-    conn = YatelNetwork("memory", create=True)
-    conn.add_elements([dom.Haplotype("hap1"),
+    conn = YatelNetwork("memory", create=True, log=True)
+    conn.add_elements([dom.Haplotype("hap1", a=2),
                        dom.Haplotype("hap2"),
                        dom.Fact("hap1", a=1, c="foo"),
                        dom.Fact("hap2", a=1, b=2),
