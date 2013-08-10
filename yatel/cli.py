@@ -49,18 +49,13 @@ def database(flags, returns):
 
         The conn string is like: 'sqlite://[DATABASE]' or
         'mysql://USER:PASSWORD@HOST:PORT/DATABASE' or
-        'postgres://USER:PASSWORD@HOST:PORT/DATABASE'. If you want to connect
-        to a remote yatel use 'yatel://HOST:PORT'
+        'postgres://USER:PASSWORD@HOST:PORT/DATABASE'.
 
         """
         parsed = urlparse.urlparse(flags.database)
         engine = parsed.scheme
         conf = {}
-        if engine == "yatel":
-            fullpath = parsed.netloc + parsed.path
-            host, port = [p for p in fullpath.split(":", 1)]
-            conf = {"engine": engine, "host": host, "port": int(port)}
-        elif engine not in db.ENGINES:
+        if engine not in db.ENGINES:
             raise ValueError(db.ENGINES)
         elif engine in db.FILE_ENGINES:
             dbname = parsed.netloc + parsed.path

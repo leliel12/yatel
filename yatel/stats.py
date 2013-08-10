@@ -31,66 +31,66 @@ from yatel.libs import cead
 # BASIC POSITION STATS
 #===============================================================================
 
-def average(conn, **env):
-    arr = env2weightarray(conn, **env)
+def average(dsrc, **env):
+    arr = env2weightarray(dsrc, **env)
     return np.average(arr)
 
 
-def median(conn, **env):
-    arr = env2weightarray(conn, **env)
+def median(dsrc, **env):
+    arr = env2weightarray(dsrc, **env)
     return np.median(arr)
 
 
-def percentile(conn, q, **env):
-    arr = env2weightarray(conn, **env)
+def percentile(dsrc, q, **env):
+    arr = env2weightarray(dsrc, **env)
     return np.percentile(arr, q)
 
 
-def min(conn, **env):
-    arr = env2weightarray(conn, **env)
+def min(dsrc, **env):
+    arr = env2weightarray(dsrc, **env)
     return np.min(arr)
 
 
-def max(conn, **env):
-    arr = env2weightarray(conn, **env)
+def max(dsrc, **env):
+    arr = env2weightarray(dsrc, **env)
     return np.max(arr)
 
 
-def amin(conn, **env):
-    arr = env2weightarray(conn, **env)
+def amin(dsrc, **env):
+    arr = env2weightarray(dsrc, **env)
     return np.amin(arr)
 
 
-def amax(conn, **env):
-    arr = env2weightarray(conn, **env)
+def amax(dsrc, **env):
+    arr = env2weightarray(dsrc, **env)
     return np.amax(arr)
 
 
-def sum(conn, **env):
-    arr = env2weightarray(conn, **env)
+def sum(dsrc, **env):
+    arr = env2weightarray(dsrc, **env)
     return np.sum(arr)
 
 
-def mode(conn, **env):
-    arr = env2weightarray(conn, **env)
+def mode(dsrc, **env):
+    arr = env2weightarray(dsrc, **env)
     return cead.mode(arr)
 
 
-def Q(conn, **env):
+def Q(dsrc, **env):
     """Quartile average"""
-    arr = env2weightarray(conn, **env)
+    arr = env2weightarray(dsrc, **env)
     return cead.Q(arr)
 
 
-def TRI(conn, **env):
+def TRI(dsrc, **env):
     """Trimedian"""
-    arr = env2weightarray(conn, **env)
+    arr = env2weightarray(dsrc, **env)
     return cead.TRI(arr)
 
 
-def MID(conn, **env):
+def MID(dsrc, **env):
     """Inter quartile average"""
-    arr = env2weightarray(conn, **env)
+    arr = env2weightarray(dsrc, **env)
     return cead.MID(arr)
 
 
@@ -98,50 +98,50 @@ def MID(conn, **env):
 # DISPERTION STATS
 #===============================================================================
 
-def var(conn, **env):
-    arr = env2weightarray(conn, **env)
+def var(dsrc, **env):
+    arr = env2weightarray(dsrc, **env)
     return np.var(arr)
 
 
-def std(conn, **env):
-    arr = env2weightarray(conn, **env)
+def std(dsrc, **env):
+    arr = env2weightarray(dsrc, **env)
     return np.std(arr)
 
 
-def variation(conn, **env):
-    arr = env2weightarray(conn, **env)
+def variation(dsrc, **env):
+    arr = env2weightarray(dsrc, **env)
     return stats.variation(arr)
 
 
-def MD(conn, **env):
+def MD(dsrc, **env):
     """Average deviation"""
-    arr = env2weightarray(conn, **env)
+    arr = env2weightarray(dsrc, **env)
     return cead.MD(arr)
 
 
-def MeD(conn, **env):
+def MeD(dsrc, **env):
     """Median deviation"""
-    arr = env2weightarray(conn, **env)
+    arr = env2weightarray(dsrc, **env)
     return cead.MeD(arr)
 
 
-def range(conn, **env):
+def range(dsrc, **env):
     """Range"""
-    arr = env2weightarray(conn, **env)
+    arr = env2weightarray(dsrc, **env)
     return cead.range(arr)
 
 
-def varQ(conn, **env):
+def varQ(dsrc, **env):
     """Quartile variation
 
     """
-    arr = env2weightarray(conn, **env)
+    arr = env2weightarray(dsrc, **env)
     return cead.varQ(arr)
 
 
-def MAD(conn, **env):
+def MAD(dsrc, **env):
     """Mediana of absolute observations"""
-    arr = env2weightarray(conn, **env)
+    arr = env2weightarray(dsrc, **env)
     return cead.MAD(arr)
 
 
@@ -149,21 +149,21 @@ def MAD(conn, **env):
 # SYMETRY
 #===============================================================================
 
-def Sp_pearson(conn, **env):
+def Sp_pearson(dsrc, **env):
     """Pearson symetry indicator"""
-    arr = env2weightarray(conn, **env)
+    arr = env2weightarray(dsrc, **env)
     return cead.Sp_pearson(arr)
 
 
-def H1_yule(conn, **env):
+def H1_yule(dsrc, **env):
     """Yule symetry indicator"""
-    arr = env2weightarray(conn, **env)
+    arr = env2weightarray(dsrc, **env)
     return cead.H1_yule(arr)
 
 
-def H3_kelly(conn, **env):
+def H3_kelly(dsrc, **env):
     """Kelly symetry indicator"""
-    arr = env2weightarray(conn, **env)
+    arr = env2weightarray(dsrc, **env)
     return cead.H3_kelly(arr)
 
 
@@ -171,14 +171,14 @@ def H3_kelly(conn, **env):
 # KURTOSIS
 #===============================================================================
 
-def kurtosis(conn, **env):
-    arr = env2weightarray(conn, **env)
+def kurtosis(dsrc, **env):
+    arr = env2weightarray(dsrc, **env)
     return stats.kurtosis(arr)
 
 
-def K1_kurtosis(conn, **env):
+def K1_kurtosis(dsrc, **env):
     """Robust kurtosis coeficient"""
-    arr = env2weightarray(conn, **env)
+    arr = env2weightarray(dsrc, **env)
     return cead.K1_kurtosis(arr)
 
 
@@ -191,26 +191,26 @@ def weights2array(edges):
     return np.array([e.weight for e in edges])
 
 
-def env2weightarray(conn, **kwargs):
+def env2weightarray(dsrc, **kwargs):
     """This function always return a *numpy.ndarray* with this conditions:
 
-    - If ``conn`` is instance of ``numpy.ndarray`` the same array is returned.
-    - If ``conn`` is instance of ``db.YatelConnection`` and come enviroment is
+    - If ``dsrc`` is instance of ``numpy.ndarray`` the same array is returned.
+    - If ``dsrc`` is instance of ``db.YatelNetwork`` and come enviroment is
       given return all the edges in this enviroment.
-    - If ``conn`` is instance of ``db.YatelConnection`` and no enviroment is
+    - If ``dsrc`` is instance of ``db.Yateldsrcection`` and no enviroment is
       given  then return all edges.
-    - In the last case the function try to convert conn to ``numpy.ndarray``
+    - In the last case the function try to convert dsrc to ``numpy.ndarray``
       instance.
 
     """
-    if isinstance(conn, np.ndarray):
-        return conn
-    elif isinstance(conn, db.YatelConnection):
+    if isinstance(dsrc, np.ndarray):
+        return dsrc
+    elif isinstance(dsrc, db.YatelNetwork):
         if not kwargs:
-            return weights2array(conn.iter_edges())
-        return weights2array(conn.edges_enviroment(**kwargs))
+            return weights2array(dsrc.edges_iterator())
+        return weights2array(dsrc.edges_enviroment(**kwargs))
     else:
-        return np.array(conn)
+        return np.array(dsrc)
 
 
 #===============================================================================

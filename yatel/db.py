@@ -55,11 +55,11 @@ from sqlalchemy import sql
 # EXCEPTIONS
 #===============================================================================
 
-# The order to show schema variables, if it not in this list put at the end
-VARS_SCHEMA_ORDER = ("dbname", "user", "password", "dsn", "host", "port")
+# The order to show ENGINE variables, if it not in this list put at the end
+VARS_ENGINE_ORDER = ("dbname", "user", "password", "dsn", "host", "port")
 
 
-SCHEMAS = (
+ENGINES = (
     'sqlite',
     'memory',
     #"mysql",
@@ -67,21 +67,21 @@ SCHEMAS = (
 
 )
 
-SCHEMA_URIS = {
+ENGINE_URIS = {
     'sqlite': "sqlite:///${dbname}",
     'memory': "sqlite://",
 }
 
 
-SCHEMA_VARS = {}
-for schema in SCHEMAS:
-    tpl = string.Template(SCHEMA_URIS[schema])
+ENGINE_VARS = {}
+for engine in ENGINES:
+    tpl = string.Template(ENGINE_URIS[engine])
     variables = []
     for e, n, b, i in tpl.pattern.findall(tpl.template):
         if n or b:
             variables.append(n or b)
-    variables.sort(key=lambda v: VARS_SCHEMA_ORDER.index(v))
-    SCHEMA_VARS[schema] = variables
+    variables.sort(key=lambda v: VARS_ENGINE_ORDER.index(v))
+    ENGINE_VARS[engine] = variables
 
 
 SQL_ALCHEMY_TYPES = {
@@ -105,9 +105,14 @@ SQL_ALCHEMY_TYPES = {
         lambda x: sa.Numeric()
 }
 
+# TABLE NAMES
+
 HAPLOTYPES = "haplotypes"
+
 FACTS = "facts"
+
 EDGES = "edges"
+
 VERSIONS = "versions"
 
 
@@ -127,8 +132,8 @@ class YatelNetworkError(Exception):
 
 class YatelNetwork(object):
 
-    def __init__(self, schema, create=False, log=None, **kwargs):
-        tpl = string.Template(SCHEMA_URIS[schema])
+    def __init__(self, ENGINE, create=False, log=None, **kwargs):
+        tpl = string.Template(ENGINE_URIS[ENGINE])
         self._uri = tpl.substitute(kwargs)
 
         self._engine = sa.create_engine(self._uri, echo=bool(log))
@@ -139,7 +144,7 @@ class YatelNetwork(object):
         self._create_mode = create
 
         if self._create_mode:
-            tpl = string.Template(SCHEMA_URIS["sqlite"])
+            tpl = string.Template(ENGINE_URIS["sqlite"])
             self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: []}
             self._tmp_dbfile = tempfile.NamedTemporaryFile(suffix="_yatel")
             self._tmp_meta = sa.MetaData(
@@ -164,6 +169,21 @@ class YatelNetwork(object):
     #===========================================================================
     # PRIVATE
     #===========================================================================
+
+    def _is_version(self, obj):
+        columns = {'comment': basestring, 'data': object,
+                   'datetime': datetime.datetime,
+                   'id': int, 'tag': basestring}
+        is_version = True
+        if isinstance(obj, dict) and len(obj) == len(columns) \
+           and sorted(obj.keys()) == sorted(columns.keys()):
+               for c, ct in columns.items():
+                    if not isinstance(obj[c], ct):
+                        is_version = False
+                        break
+        else:
+            is_version = False
+        return is_version
 
     def _new_attrs(self, attnames, table):
         columns = [c.name for c in self._column_buff[table]]
@@ -263,10 +283,16 @@ class YatelNetwork(object):
             data.update(weight=elem.weight)
             tname = EDGES
 
+        # version dictionary
+        elif self._is_version(elem):
+            data = elem
+            data.update(datetime=format_date(elem["datetime"]))
+            tname = VERSIONS
+
         # if is trash
         else:
             msg = "Object '{}' is not yatel.dom type".format(str(elem))
-            raise YatelNetworkError(msg)
+            raise TypeError(msg)
         self._tmp_conn.execute(self._tmp_objects.insert(),
                                tname=tname, data=data)
 
@@ -282,7 +308,7 @@ class YatelNetwork(object):
         self._versions_table = sa.Table(
             VERSIONS, self._metadata,
             sa.Column("id", sa.Integer(), primary_key=True),
-            sa.Column("tag", sa.String(512), unique=True,nullable=False),
+            sa.Column("tag", sa.String(512), unique=True, nullable=False),
             sa.Column("datetime", sa.DateTime(), nullable=False),
             sa.Column("comment", sa.Text(), nullable=False),
             sa.Column("data", sa.PickleType(), nullable=False),
@@ -317,6 +343,8 @@ class YatelNetwork(object):
                     table = self._facts_table
                 elif row.tname == EDGES:
                     table = self._edges_table
+                elif row.tname == VERSIONS:
+                    table = self._versions_table
                 else:
                     msg = "Invalid tname '{}'".format(row.tname)
                     raise YatelNetworkError(msg)
@@ -338,7 +366,8 @@ class YatelNetwork(object):
         del self._tmp_trans
 
         self._create_mode = False
-        self.save_version(tag="init", comment="-* AUTO CREATED *-")
+        if not self.versions_count():
+            self.save_version(tag="init", comment="-* AUTO CREATED *-")
 
     #===========================================================================
     # QUERIES # use execute here
@@ -349,6 +378,7 @@ class YatelNetwork(object):
         if not self.created:
             raise YatelNetworkError("Network not created")
         return self._engine.execute(query)
+
 
     #===========================================================================
     # HAPLOTYPE QUERIES
@@ -504,7 +534,7 @@ class YatelNetwork(object):
         for row in self.execute(query):
             yield self._row2edge(row)
 
-    def edges_top_weights(self):
+    def edges_min_and_max_weights(self):
         """Return a ``tuple`` with ``len == 2`` containing the  edgest with
         minimum ane maximun *weight*
 
@@ -645,14 +675,11 @@ class YatelNetwork(object):
             td[hap_id] = list(xy)
 
         if not all(weight_range):
-            weight_range = [e.weight for e in self.edges_top_weights()]
+            weight_range = [e.weight for e in self.edges_min_and_max_weights()]
         minw, maxw = weight_range
-        nwmin, nwmax = [e.weight for e in self.edges_top_weights()]
-        if minw > maxw \
-           or minw < nwmin \
-           or minw > nwmax \
-           or maxw > nwmax \
-           or maxw < nwmin:
+        nwmin, nwmax = [e.weight for e in self.edges_min_and_max_weights()]
+        if minw > maxw or minw < nwmin \
+           or minw > nwmax or maxw > nwmax or maxw < nwmin:
             raise ValueError("Invalid range: ({}, {})".format(minw, maxw))
         wrl = [minw, maxw]
 
@@ -688,7 +715,6 @@ class YatelNetwork(object):
             comment=comment, data=data)
         self.execute(query)
 
-
     def get_version(self, match=None):
         """Return a version by the given filter.
 
@@ -719,6 +745,10 @@ class YatelNetwork(object):
         row = self.execute(query).fetchone()
         return dict(row)
 
+    def versions_count(self):
+        """Return how many versions are stored"""
+        return sql.select([self._versions_table.c.id]).count().scalar()
+
     #===========================================================================
     # PROPERTIES
     #===========================================================================
@@ -731,8 +761,6 @@ class YatelNetwork(object):
     @property
     def created(self):
         return not self._create_mode
-
-
 
 
 #===============================================================================
@@ -758,7 +786,10 @@ def _test():
                        dom.Haplotype("hap2"),
                        dom.Fact("hap1", a=1, c="foo"),
                        dom.Fact("hap2", a=1, b=2),
-                       dom.Edge(1, "hap1", "hap2")])
+                       dom.Edge(1, "hap1", "hap2"),
+                       {"id": 1, "tag": "j", "comment": "k",
+                        "datetime": datetime.datetime.now(),
+                        "data": {}}])
     conn.end_creation()
     return conn
 
