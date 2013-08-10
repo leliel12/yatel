@@ -20,7 +20,6 @@
 #===============================================================================
 
 import sys
-import urlparse
 import os
 import argparse
 
@@ -47,57 +46,12 @@ parser.add_argument("--no-gui", action="store_true")
 def database(flags, returns):
         """database to be open with yatel
 
-        The conn string is like: 'sqlite://[DATABASE]' or
+        The conn string is like: 'sqlite:///[DATABASE]' or
         'mysql://USER:PASSWORD@HOST:PORT/DATABASE' or
         'postgres://USER:PASSWORD@HOST:PORT/DATABASE'.
 
         """
-        parsed = urlparse.urlparse(flags.database)
-        engine = parsed.scheme
-        conf = {}
-        if engine not in db.ENGINES:
-            raise ValueError(db.ENGINES)
-        elif engine in db.FILE_ENGINES:
-            dbname = parsed.netloc + parsed.path
-            conf = {"engine": engine, "dbname": dbname}
-        else:
-            dbname = parsed.path[1:]
-            auth, loc = parsed.netloc.split("@", 1)
-            user, password = [p for p in auth.split(":")]
-            host, port = [p for p in loc.split(":")]
-            conf = {"engine": engine, "dbname": dbname, "user": user,
-                     "host": host, "port": int(port), "password": password}
-        engine = conf.pop("engine")
-        if engine != "yatel":
-            name = conf.pop("dbname")
-            conn = db.YatelConnection(engine, name, **conf)
-            return conn
-        else:
-            return remote.YatelRemoteClient(host=conf["host"],
-                                             port=conf["port"])
-
-
-@parser.callback(exclusive="ex0", action="store", metavar="HOST:PORT", exit=0)
-def serve(flags, returns):
-    """serve the given yatel connection via web server via JSON-RPC
-
-    """
-    def serve_parser(p):
-        host, port = p.split(":")
-        port = int(port)
-        if not 0 <= port <= 65535:
-            raise ValueError("port must be 0-65535")
-        return {"host": host, "port": int(port)}
-
-
-    serve_args = serve_parser(flags.serve)
-    conn = returns.database
-    if isinstance(conn, remote.YatelRemoteClient):
-        parser.error("you can't serve a yatel remote instance")
-    if not conn.inited:
-        conn.init_yatel_database()
-    server = remote.YatelServer(conn)
-    server.run(**serve_args)
+        return db.parse_uri(flags.database, create=False)
 
 
 @parser.callback(exclusive="ex0", action="store",
@@ -119,11 +73,13 @@ def exportdb(flags, returns):
         kwargs["default_flow_style"] = False
     else:
       parser.error("Invalid extension '{}'".format(ext))
-    conn = returns.database
+
+    conn_data = returns.database
+    conn_data["create"] = False
+    conn = db.YatelNetwork(**conn_data)
     with open(flags.exportdb, "w") as fp:
-        conn.init_yatel_database()
-        exporter(conn.iter_haplotypes(), conn.iter_facts(),
-                 conn.iter_edges(), conn.iter_versions(),
+        exporter(conn.haplotypes_iterator(), conn.facts_iterator(),
+                 conn.edgest_iterator(), conn.versions_iterator(),
                  stream=fp, **kwargs)
         print("Dumped '{}' to '{}'".format(conn.name, flags.exportdb))
 
@@ -135,9 +91,10 @@ def importdb(flags, returns):
     Only local databases are allowed
 
     """
-    conn = returns.database
-    if not isinstance(conn, db.YatelConnection):
-        parser.error("Remote yatel are not allowed here")
+    conn_data = returns.database
+    conn_data["create"] = True
+    conn = db.YatelNetwork(**conn_data)
+
     ext = os.path.splitext(flags.importdb)[-1].lower()
     importer = None
     if ext in (".yjf", ".json"):
@@ -147,9 +104,10 @@ def importdb(flags, returns):
     else:
       parser.error("Invalid extension '{}'".format(ext))
     with open(flags.importdb) as fp:
-        conn.init_with_values(*importer(fp))
-
-
+        for elemlist in importer(fp):
+            for elem in elemlist:
+                conn.add_element(elem)
+    conn.end_creation()
 
 
 #===============================================================================

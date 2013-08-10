@@ -49,6 +49,7 @@ from yatel import dom
 
 import sqlalchemy as sa
 from sqlalchemy import sql
+from sqlalchemy.engine import url
 
 
 #===============================================================================
@@ -56,20 +57,22 @@ from sqlalchemy import sql
 #===============================================================================
 
 # The order to show ENGINE variables, if it not in this list put at the end
-VARS_ENGINE_ORDER = ("dbname", "user", "password", "dsn", "host", "port")
+VARS_ENGINE_ORDER = ("database", "user", "password", "dsn", "host", "port")
 
 
 ENGINES = (
     'sqlite',
     'memory',
-    #"mysql",
-    #"postgres",
-
+    'mysql',
+    'postgresql',
 )
 
+
 ENGINE_URIS = {
-    'sqlite': "sqlite:///${dbname}",
+    'sqlite': "sqlite:///${database}",
     'memory': "sqlite://",
+    'mysql': "mysql://${user}:${password}@${host}:${port}/${database}",
+    'postgresql': "postgresql://${user}:${password}@${host}:${port}/${database}"
 }
 
 
@@ -132,8 +135,11 @@ class YatelNetworkError(Exception):
 
 class YatelNetwork(object):
 
-    def __init__(self, ENGINE, create=False, log=None, **kwargs):
-        tpl = string.Template(ENGINE_URIS[ENGINE])
+    def __init__(self, engine, create=False, log=None, **kwargs):
+
+        tpl = string.Template(ENGINE_URIS[engine])
+        kwargs = dict((k, v) for k, v in kwargs.items()
+                      if k in ENGINE_VARS[engine])
         self._uri = tpl.substitute(kwargs)
 
         self._engine = sa.create_engine(self._uri, echo=bool(log))
@@ -148,7 +154,7 @@ class YatelNetwork(object):
             self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: []}
             self._tmp_dbfile = tempfile.NamedTemporaryFile(suffix="_yatel")
             self._tmp_meta = sa.MetaData(
-                tpl.substitute(dbname=self._tmp_dbfile.name)
+                tpl.substitute(database=self._tmp_dbfile.name)
             )
             self._tmp_objects = sa.Table(
                 'tmp_objects', self._tmp_meta,
@@ -774,6 +780,30 @@ def format_date(dt):
     """
     dtf = "%Y-%m-%dT%H:%M:%S"
     return datetime.datetime.strptime(dt.strftime(dtf), dtf)
+
+
+def parse_uri(uri, create, log=None):
+    """Create a dictionary for use in creation of YatelNetwork
+
+    ::
+
+        parsed = db.parse_uri("mysql://tito:pass@localhost:2525/mydb",
+                               create=True, log=None)
+        nw = db.YatelNetwork(**parsed)
+
+    is equivalent to
+
+    ::
+        nw = db.YatelNetwork("mysql", database="mydb", user="tito",
+                             password="pass", host="localhost", port=2525,
+                             create=True, log=None)
+
+    """
+    urlo = url.make_url(uri)
+    return {"create": create, "log": log,
+            "engine": urlo.drivername, "database": urlo.database,
+            "user": urlo.username, "password": urlo.password,
+            "host": urlo.host, "port": urlo.port}
 
 
 #===============================================================================
