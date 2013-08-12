@@ -55,9 +55,9 @@ def database(flags, returns):
 
 @parser.callback("--fake-network", action="store_true")
 def fake_network(flags, returns):
-    """Create a new fake full conected network with 25 haplotypes on 
+    """Create a new fake full conected network with 25 haplotypes on
     given connection string.
-    
+
     Every haplotype has betweetn 0 and 10 facts.
 
     """
@@ -164,7 +164,7 @@ def exportdb(flags, returns):
     conn = db.YatelNetwork(**conn_data)
     with open(flags.exportdb, "w") as fp:
         exporter(conn.haplotypes_iterator(), conn.facts_iterator(),
-                 conn.edgest_iterator(), conn.versions_iterator(),
+                 conn.edges_iterator(), conn.versions_iterator(),
                  stream=fp, **kwargs)
         print("Dumped '{}' to '{}'".format(conn.name, flags.exportdb))
 
