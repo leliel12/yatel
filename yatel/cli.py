@@ -27,7 +27,7 @@ import caipyrinha
 
 import yatel
 from yatel import db, dom
-from yatel.conversors import yyf2yatel, yjf2yatel
+from yatel import conv
 
 
 #===============================================================================
@@ -120,23 +120,23 @@ def fake_network(flags, returns):
 
     conn_data = returns.database
     conn_data["create"] = True
-    conn = db.YatelNetwork(**conn_data)
+    nw = db.YatelNetwork(**conn_data)
     for hap_id in range(25):
         attrs = gime_fake_hap_attrs()
         hap = dom.Haplotype(hap_id, **attrs)
-        conn.add_element(hap)
+        nw.add_element(hap)
 
     for hap_id in range(25):
         for _ in range(random.randint(0, 10)):
             attrs = gimme_fake_fact_attrs()
             fact = dom.Fact(hap_id, **attrs)
-            conn.add_element(fact)
+            nw.add_element(fact)
 
     for hap_id0 in range(25):
         for hap_id1 in range(hap_id0, 25):
             edge = dom.Edge(random.randint(1, 10), hap_id0, hap_id1)
-            conn.add_element(edge)
-    conn.end_creation()
+            nw.add_element(edge)
+    nw.end_creation()
 
 
 @parser.callback(exclusive="ex0", action="store",
@@ -147,26 +147,15 @@ def exportdb(flags, returns):
 
     """
     ext = os.path.splitext(flags.exportdb)[-1].lower()
-    exporter = None
-    kwargs = {}
-    if ext in (".yjf", ".json"):
-        exporter = yjf2yatel.dump
-        kwargs["indent"] = 2
-        kwargs["ensure_ascii"] = True
-    elif ext in (".yyf", ".yaml", ".yml"):
-        exporter = yyf2yatel.dump
-        kwargs["default_flow_style"] = False
-    else:
-        parser.error("Invalid extension '{}'".format(ext))
+    if ext not in conv.convs():
+        raise ValueError("Invalid type '{}'".format(ext))
 
     conn_data = returns.database
     conn_data["create"] = False
-    conn = db.YatelNetwork(**conn_data)
+    nw = db.YatelNetwork(**conn_data)
+
     with open(flags.exportdb, "w") as fp:
-        exporter(conn.haplotypes_iterator(), conn.facts_iterator(),
-                 conn.edges_iterator(), conn.versions_iterator(),
-                 stream=fp, **kwargs)
-        print("Dumped '{}' to '{}'".format(conn.name, flags.exportdb))
+        conv.dump(rtype=ext, nw=nw, stream=fp)
 
 
 @parser.callback(exclusive="ex0", action="store",
@@ -176,23 +165,18 @@ def importdb(flags, returns):
     Only local databases are allowed
 
     """
+
+    ext = os.path.splitext(flags.exportdb)[-1].lower()
+    if ext not in conv.convs():
+        raise ValueError("Invalid type '{}'".format(ext))
+
     conn_data = returns.database
     conn_data["create"] = True
     conn = db.YatelNetwork(**conn_data)
 
-    ext = os.path.splitext(flags.importdb)[-1].lower()
-    importer = None
-    if ext in (".yjf", ".json"):
-        importer = yjf2yatel.load
-    elif ext in (".yyf", ".yaml", ".yml"):
-        importer = yyf2yatel.load
-    else:
-        parser.error("Invalid extension '{}'".format(ext))
     with open(flags.importdb) as fp:
-        for elemlist in importer(fp):
-            for elem in elemlist:
-                conn.add_element(elem)
-    conn.end_creation()
+        conv.load(rtype=ext, nw=nw, stream=fp)
+    nw.end_creation()
 
 
 #===============================================================================

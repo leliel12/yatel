@@ -23,7 +23,7 @@ files
 import yaml
 
 from yatel import dom
-from yatel.conversors import dict2yatel
+from yatel.conv import coreconv
 
 
 #===============================================================================

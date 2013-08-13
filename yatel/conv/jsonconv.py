@@ -33,12 +33,14 @@ from yatel.conv import coreconv
 class JSONConverter(coreconv.BaseConverter):
 
     def dump(self, nw, stream=None, **kwargs):
+        kwargs["indent"] = kwargs.get("indent", 2)
+        kwargs["ensure_ascii"] = kwargs.get("ensure_ascii", True)
         data = super(JSONConversor, self).dump(nw)
         if stream:
             return json.dump(data, stream, **kwargs)
         return json.dumps(data, **kwargs)
 
-    def load(self, nw, stream):
+    def load(self, nw, stream, **kwargs):
         loader = json.loads if isinstance(stream, basestring) else json.load
         data = loader(stream, **kwargs)
         return super(JSONConversor, self).load(nw, data)
