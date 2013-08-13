@@ -30,7 +30,7 @@ from yatel.conv import coreconv
 # IO FUNCTIONS
 #===============================================================================
 
-class JSONConversor(coreconv.BaseConversor):
+class JSONConverter(coreconv.BaseConverter):
 
     def dump(self, nw, stream=None, **kwargs):
         data = super(JSONConversor, self).dump(nw)

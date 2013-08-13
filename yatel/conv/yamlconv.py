@@ -30,20 +30,16 @@ from yatel.conversors import dict2yatel
 # IO FUNCTIONS
 #===============================================================================
 
-def dump(haps, facts, edges, versions, stream=None, **kwargs):
-    """Convert dom objects into yyf stream
+class YAMLConverter(coreconv.BaseConverter):
 
-    """
-    data = dict2yatel.dump(haps, facts, edges, versions)
-    return yaml.safe_dump(data, stream, **kwargs)
+    def dump(self, nw, stream=None, **kwargs):
+        data = super(JSONConversor, self).dump(nw)
+        return yaml.safe_dump(data, stream=stream, **kwargs)
 
+    def load(self, nw, stream):
+        data = yaml.load(stream, **kwargs)
+        return super(JSONConversor, self).load(nw, data)
 
-def load(stream, **kwargs):
-    """Convert YYF stream into dom objects
-
-    """
-    data = yaml.load(stream, **kwargs)
-    return dict2yatel.load(data)
 
 
 #===============================================================================

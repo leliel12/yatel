@@ -48,7 +48,7 @@ class ConversionError(Exception):
 # CLASS
 #===============================================================================
 
-class BaseConversor(object):
+class BaseConverter(object):
 
     def validate_read(self, nw):
         if not isinstance(nw, db.YatelNetwork) or not nw.created:
