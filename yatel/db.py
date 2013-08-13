@@ -44,6 +44,7 @@ import string
 import tempfile
 import decimal
 import os
+import cPickle
 
 from yatel import dom
 
@@ -216,6 +217,12 @@ class YatelNetwork(object):
                 if k not in ("id", "weight") and v!= None]
         weight = row["weight"]
         return dom.Edge(weight, *haps)
+
+    def _row2version(self, row):
+        ver = dict(row)
+        if isinstance(row.data, basestring):
+            ver["data"] = cPickle.loads(row.data)
+        return ver
 
     #===========================================================================
     # CREATE METHODS
@@ -402,6 +409,7 @@ class YatelNetwork(object):
         query = sql.select([self._haplotypes_table]).where(
             self._haplotypes_table.c.hap_id.in_(haps_ids)
         )
+        print row
         for row in self.execute(query):
             yield self._row2hap(row)
 
@@ -650,7 +658,7 @@ class YatelNetwork(object):
         """
         query = sql.select([self._versions_table])
         for row in self.execute(query):
-            yield dict(row)
+            yield self._row2version(row)
 
     def save_version(self, tag, comment="", hap_sql="",
                      topology={}, weight_range=(None, None), enviroments=()):
@@ -749,7 +757,7 @@ class YatelNetwork(object):
             raise TypeError(msg)
         query = query.limit(1)
         row = self.execute(query).fetchone()
-        return dict(row)
+        return self._row2version(row)
 
     def versions_count(self):
         """Return how many versions are stored"""

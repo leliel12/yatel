@@ -120,6 +120,7 @@ class BaseConverter(object):
         """Convert a ``db.YatelConnection().get_version()` result entry into a
         ``dict``"""
         version = copy.deepcopy(version)
+        print version
         version["data"]["topology"] = [
             [k, v] for k, v in version["data"]["topology"].items()
         ]
@@ -148,7 +149,7 @@ class BaseConverter(object):
         ``edgest`` and ``version``
 
         """
-        self.validate_write(nw)
+        self.validate_read(nw)
         return {
             "version": DEFAULT_VERSION,
             "haplotypes": [
@@ -167,7 +168,7 @@ class BaseConverter(object):
         into dom oobject and store it in the yatel.db.YatelNetwork instance.
 
         """
-        self.validate_read(dsrc)
+        self.validate_write(nw)
         for kw in data["haplotypes"]:
             nw.add_element(self.dict2hap(kw))
         for kw in data["facts"]:

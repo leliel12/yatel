@@ -33,13 +33,12 @@ from yatel.conv import coreconv
 class YAMLConverter(coreconv.BaseConverter):
 
     def dump(self, nw, stream=None, **kwargs):
-        data = super(JSONConversor, self).dump(nw)
+        data = super(YAMLConverter, self).dump(nw)
         return yaml.safe_dump(data, stream=stream, **kwargs)
 
     def load(self, nw, stream):
         data = yaml.load(stream, **kwargs)
-        return super(JSONConversor, self).load(nw, data)
-
+        return super(YAMLConverter, self).load(nw, data)
 
 
 #===============================================================================

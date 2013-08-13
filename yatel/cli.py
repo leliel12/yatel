@@ -146,7 +146,7 @@ def exportdb(flags, returns):
     yaml, yml, json or yjf.
 
     """
-    ext = os.path.splitext(flags.exportdb)[-1].lower()
+    ext = flags.exportdb.rsplit(".", 1)[-1].lower()
     if ext not in conv.convs():
         raise ValueError("Invalid type '{}'".format(ext))
 
@@ -166,7 +166,7 @@ def importdb(flags, returns):
 
     """
 
-    ext = os.path.splitext(flags.exportdb)[-1].lower()
+    ext = flags.exportdb.rsplit(".", 1)[-1].lower()
     if ext not in conv.convs():
         raise ValueError("Invalid type '{}'".format(ext))
 
