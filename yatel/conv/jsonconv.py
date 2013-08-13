@@ -23,29 +23,25 @@ files
 import json
 
 from yatel import dom
-from yatel.conversors import dict2yatel
+from yatel.conv import coreconv
 
 
 #===============================================================================
 # IO FUNCTIONS
 #===============================================================================
 
-def dump(haps, facts, edges, versions, stream=None, **kwargs):
-    """Convert dom objects into yjf stream
+class JSONConversor(coreconv.BaseConversor):
 
-    """
-    data = dict2yatel.dump(haps, facts, edges, versions)
-    dumper = json.dump if stream else json.dumps
-    return dumper(data, stream, **kwargs)
+    def dump(self, nw, stream=None, **kwargs):
+        data = super(JSONConversor, self).dump(nw)
+        if stream:
+            return json.dump(data, stream, **kwargs)
+        return json.dumps(data, **kwargs)
 
-
-def load(stream, **kwargs):
-    """Convert YJF stream into dom objects
-
-    """
-    loader = json.loads if isinstance(stream, str) else json.load
-    data = loader(stream, **kwargs)
-    return dict2yatel.load(data)
+    def load(self, nw, stream):
+        loader = json.loads if isinstance(stream, basestring) else json.load
+        data = loader(stream, **kwargs)
+        return super(JSONConversor, self).load(nw, data)
 
 
 #===============================================================================
