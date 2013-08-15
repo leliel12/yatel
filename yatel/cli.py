@@ -22,11 +22,13 @@
 import sys
 import os
 import random
+import imp
+import argparse
 
 import caipyrinha
 
 import yatel
-from yatel import db, dom
+from yatel import db, dom, etl
 from yatel import conv
 
 
@@ -120,6 +122,7 @@ def fake_network(flags, returns):
 
     conn_data = returns.database
     conn_data["create"] = True
+    conn_data["log"] = True
     nw = db.YatelNetwork(**conn_data)
     for hap_id in range(25):
         attrs = gime_fake_hap_attrs()
@@ -152,6 +155,7 @@ def exportdb(flags, returns):
 
     conn_data = returns.database
     conn_data["create"] = False
+    conn_data["log"] = True
     nw = db.YatelNetwork(**conn_data)
 
     with open(flags.exportdb, "w") as fp:
@@ -172,11 +176,45 @@ def importdb(flags, returns):
 
     conn_data = returns.database
     conn_data["create"] = True
-    conn = db.YatelNetwork(**conn_data)
+    conn_data["log"] = True
+    nw = db.YatelNetwork(**conn_data)
 
     with open(flags.importdb) as fp:
         conv.load(rtype=ext, nw=nw, stream=fp)
     nw.end_creation()
+
+
+@parser.callback("--run-etl", exclusive="ex0", action="store",
+                 metavar="filename.py", exit=0)
+def run_etl(flags, returns):
+    """Run one or more etl inside of a given script"""
+    dirname, filename = os.path.split(flags.etl)
+    modname = os.path.splitext(filename)[0]
+    found = imp.find_module(modname, [dirname])
+
+    if modname in sys.modules:
+        idx = 1
+        tpl = "etl_" + modname + "_{}"
+        while tpl.format(idx) in sys.modules:
+            idx += 1
+        modname =  tpl.format(idx)
+
+    etlmodule = imp.load_module(modname, *found)
+
+    conn_data = returns.database
+    conn_data["create"] = not db.exists(conn_data)
+    conn_data["log"] = True
+
+    nw = db.YatelNetwork(**conn_data)
+
+
+@parser.callback("--create-etl", exclusive="ex0", action="store",
+                 metavar="etl_filename.py", type=argparse.FileType('w'), exit=0)
+def create_etl(flags, returns):
+    """Create a template file for write yout own etl"""
+    fp = flags.create_etl
+    fp.write(etl.get_template())
+
 
 
 #===============================================================================

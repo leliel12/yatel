@@ -152,7 +152,7 @@ class YatelNetwork(object):
 
         if self._create_mode:
             tpl = string.Template(ENGINE_URIS["sqlite"])
-            self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: []}
+            self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: 0}
             self._tmp_dbfile = tempfile.NamedTemporaryFile(suffix="_yatel")
             self._tmp_meta = sa.MetaData(
                 tpl.substitute(database=self._tmp_dbfile.name)
@@ -168,10 +168,10 @@ class YatelNetwork(object):
             self._tmp_trans = self._tmp_conn.begin()
         else:
             self._metadata.reflect()
-            self._versions_table = self._metadata.tables[VERSIONS]
-            self._haplotypes_table = self._metadata.tables[HAPLOTYPES]
-            self._facts_table = self._metadata.tables[FACTS]
-            self._edges_table = self._metadata.tables[EDGES]
+            self.versions_table = self._metadata.tables[VERSIONS]
+            self.haplotypes_table = self._metadata.tables[HAPLOTYPES]
+            self.facts_table = self._metadata.tables[FACTS]
+            self.edges_table = self._metadata.tables[EDGES]
 
     #===========================================================================
     # PRIVATE
@@ -225,8 +225,17 @@ class YatelNetwork(object):
         return ver
 
     #===========================================================================
-    # CREATE METHODS
+    # DDL METHODS
     #===========================================================================
+
+    def delete_tables(self):
+        if not self.created:
+            raise YatelNetworkError("Network not created")
+        with self._metadata.bind.begin() as conn:
+            conn.execute(self.versions_table.delete())
+            conn.execute(self.haplotypes_table.delete())
+            conn.execute(self.facts_table.delete())
+            conn.execute(self.edges_table.delete())
 
     def add_elements(self, elems):
         map(self.add_element, elems)
@@ -278,22 +287,12 @@ class YatelNetwork(object):
             tname = FACTS
 
         elif isinstance(elem, dom.Edge):
-            actual_haps_number = len(self._column_buff[EDGES])
-            need_haps_number = len(elem.haps_id)
-            columns = []
-            while need_haps_number > actual_haps_number + len(columns):
-                aname = "hap_{}".format(actual_haps_number + len(columns))
-                column = sa.Column(
-                    aname, sa.String(512),
-                    sa.ForeignKey('{}.hap_id'.format(HAPLOTYPES)),
-                    nullable=True
-                )
-                columns.append(column)
-            self._column_buff[EDGES].extend(columns)
+            if len(elem.haps_id) > self._column_buff[EDGES]:
+                self._column_buff[EDGES] = len(elem.haps_id)
             data = {}
             for idx, hap_id in enumerate(elem.haps_id):
                 data["hap_{}".format(idx)] = hap_id
-            data.update(weight=elem.weight)
+            data["weight"] = elem.weight
             tname = EDGES
 
         # version dictionary
@@ -318,7 +317,7 @@ class YatelNetwork(object):
         self._tmp_trans.commit()
 
         # create te tables
-        self._versions_table = sa.Table(
+        self.versions_table = sa.Table(
             VERSIONS, self._metadata,
             sa.Column("id", sa.Integer(), primary_key=True),
             sa.Column("tag", sa.String(512), unique=True, nullable=False),
@@ -327,21 +326,26 @@ class YatelNetwork(object):
             sa.Column("data", sa.PickleType(), nullable=False),
         )
 
-        self._haplotypes_table = sa.Table(
+        self.haplotypes_table = sa.Table(
             HAPLOTYPES, self._metadata, *self._column_buff[HAPLOTYPES]
         )
 
-        self._facts_table = sa.Table(
+        self.facts_table = sa.Table(
             FACTS, self._metadata,
             sa.Column("id", sa.Integer(), primary_key=True),
             *self._column_buff[FACTS]
         )
 
-        self._edges_table = sa.Table(
+        edges_columns = [
+            sa.Column("hap_{}".format(idx), self.haplotypes_table.c.hap_id.type,
+                      sa.ForeignKey(HAPLOTYPES + '.hap_id'), nullable=True)
+            for idx in range(self._column_buff[EDGES])
+        ]
+        self.edges_table = sa.Table(
             EDGES, self._metadata,
             sa.Column("id", sa.Integer(), primary_key=True),
             sa.Column("weight", sa.Float(), nullable=False),
-            *self._column_buff[EDGES]
+            *edges_columns
         )
         self._metadata.create_all()
 
@@ -351,13 +355,13 @@ class YatelNetwork(object):
             for row in self._tmp_conn.execute(query):
                 table = None
                 if row.tname == HAPLOTYPES:
-                    table = self._haplotypes_table
+                    table = self.haplotypes_table
                 elif row.tname == FACTS:
-                    table = self._facts_table
+                    table = self.facts_table
                 elif row.tname == EDGES:
-                    table = self._edges_table
+                    table = self.edges_table
                 elif row.tname == VERSIONS:
-                    table = self._versions_table
+                    table = self.versions_table
                 else:
                     msg = "Invalid tname '{}'".format(row.tname)
                     raise YatelNetworkError(msg)
@@ -401,13 +405,13 @@ class YatelNetwork(object):
         """Iterates over all ``dom.Haplotype`` instances store in the database.
 
         """
-        query = sql.select([self._haplotypes_table])
+        query = sql.select([self.haplotypes_table])
         for row in self.execute(query):
             yield self._row2hap(row)
 
     def haplotypes_by_ids(self, haps_ids):
-        query = sql.select([self._haplotypes_table]).where(
-            self._haplotypes_table.c.hap_id.in_(haps_ids)
+        query = sql.select([self.haplotypes_table]).where(
+            self.haplotypes_table.c.hap_id.in_(haps_ids)
         )
         print row
         for row in self.execute(query):
@@ -424,8 +428,8 @@ class YatelNetwork(object):
             ``dom.Haplotype`` instance.
 
         """
-        query = sql.select([self._haplotypes_table]).where(
-            self._haplotypes_table.c.hap_id == hap_id
+        query = sql.select([self.haplotypes_table]).where(
+            self.haplotypes_table.c.hap_id == hap_id
         ).limit(1)
         row = self.execute(query).fetchone()
         return self._row2hap(row)
@@ -510,12 +514,12 @@ class YatelNetwork(object):
         """
         env = env or {}
         env.update(kwargs)
-        where = sql.and_(*[self._facts_table.c[k] == v
+        where = sql.and_(*[self.facts_table.c[k] == v
                            for k, v in env.items()])
-        query = sql.select([self._haplotypes_table]).select_from(
-            self._haplotypes_table.join(
-                self._facts_table,
-                self._facts_table.c.hap_id == self._haplotypes_table.c.hap_id
+        query = sql.select([self.haplotypes_table]).select_from(
+            self.haplotypes_table.join(
+                self.facts_table,
+                self.facts_table.c.hap_id == self.haplotypes_table.c.hap_id
             )
         ).where(where).distinct()
         for row in self.execute(query):
@@ -527,7 +531,7 @@ class YatelNetwork(object):
 
     def edges_iterator(self):
         """Iterates over all ``dom.Edge`` instances store in the database."""
-        query = sql.select([self._edges_table])
+        query = sql.select([self.edges_table])
         for row in self.execute(query):
             yield self._row2edge(row)
 
@@ -535,15 +539,15 @@ class YatelNetwork(object):
         """Iterates over all ``dom.Edge`` instances of a given enviroment"""
         env = env or {}
         env.update(kwargs)
-        where = sql.and_(*[self._facts_table.c[k] == v
+        where = sql.and_(*[self.facts_table.c[k] == v
                            for k, v in env.items()])
 
-        joins = sql.or_(*[v == self._facts_table.c.hap_id
-                          for k, v in self._edges_table.c.items()
+        joins = sql.or_(*[v == self.facts_table.c.hap_id
+                          for k, v in self.edges_table.c.items()
                           if k.startswith("hap_")])
 
-        query = sql.select([self._edges_table]).select_from(
-            self._edges_table.join(self._facts_table, joins)
+        query = sql.select([self.edges_table]).select_from(
+            self.edges_table.join(self.facts_table, joins)
         ).where(where).distinct()
         for row in self.execute(query):
             yield self._row2edge(row)
@@ -553,12 +557,12 @@ class YatelNetwork(object):
         minimum ane maximun *weight*
 
         """
-        query = sql.select([self._edges_table]).order_by(
-                    self._edges_table.c.weight.asc()
+        query = sql.select([self.edges_table]).order_by(
+                    self.edges_table.c.weight.asc()
                 ).limit(1)
         mine = self._row2edge(self.execute(query).fetchone())
-        query = sql.select([self._edges_table]).order_by(
-                    self._edges_table.c.weight.desc()
+        query = sql.select([self.edges_table]).order_by(
+                    self.edges_table.c.weight.desc()
                 ).limit(1)
         maxe = self._row2edge(self.execute(query).fetchone())
         return mine, maxe
@@ -568,8 +572,8 @@ class YatelNetwork(object):
         ``minweight`` and ``maxwright``
 
         """
-        query = sql.select([self._edges_table]).where(
-            self._edges_table.c.weight.between(minweight, maxweight)
+        query = sql.select([self.edges_table]).where(
+            self.edges_table.c.weight.between(minweight, maxweight)
         )
         for row in self.execute(query):
             yield self._row2edge(row)
@@ -581,9 +585,9 @@ class YatelNetwork(object):
         """
         haps_id = tuple(hap.hap_id for hap in haps)
         where = sql.or_(*[v.in_(haps_id)
-                          for k, v in self._edges_table.c.items()
+                          for k, v in self.edges_table.c.items()
                           if k.startswith("hap_")])
-        query = sql.select([self._edges_table]).where(where).distinct()
+        query = sql.select([self.edges_table]).where(where).distinct()
         for row in self.execute(query):
             yield self._row2edge(row)
 
@@ -592,9 +596,9 @@ class YatelNetwork(object):
 
         """
         where = sql.or_(*[v == hap.hap_id
-                          for k, v in self._edges_table.c.items()
+                          for k, v in self.edges_table.c.items()
                           if k.startswith("hap_")])
-        query = sql.select([self._edges_table]).where(where).distinct()
+        query = sql.select([self.edges_table]).where(where).distinct()
         for row in self.execute(query):
             yield self._row2edge(row)
 
@@ -604,13 +608,13 @@ class YatelNetwork(object):
 
     def facts_iterator(self):
         """Iterates over all ``dom.Fact`` instances store in the database."""
-        query = sql.select([self._facts_table])
+        query = sql.select([self.facts_table])
         for row in self.execute(query):
             yield self._row2fact(row)
 
     def fact_attributes_names(self):
         """Return a ``iterator`` of all existing ``dom.Fact`` atributes."""
-        for c in self._facts_table.c:
+        for c in self.facts_table.c:
             if c.name not in ("id", "hap_id"):
                 yield c.name
 
@@ -619,15 +623,15 @@ class YatelNetwork(object):
         atribute.
 
         """
-        att = self._facts_table.c[att_name]
+        att = self.facts_table.c[att_name]
         query = sql.select([att]).where(att != None).distinct()
         for row in self.execute(query):
             yield row[att_name]
 
     def facts_by_haplotype(self, hap):
         """Return a ``iterator`` of all facts of a given ``dom.Haplotype``"""
-        query = sql.select([self._facts_table]).where(
-            self._facts_table.c.hap_id==hap.hap_id
+        query = sql.select([self.facts_table]).where(
+            self.facts_table.c.hap_id==hap.hap_id
         ).distinct()
         for row in self.execute(query):
             yield self._row2fact(row)
@@ -643,9 +647,9 @@ class YatelNetwork(object):
         ``datetime`` of creation, and the  version ``tag``
 
         """
-        query = sql.select([self._versions_table.c.id,
-                            self._versions_table.c.datetime,
-                            self._versions_table.c.tag])
+        query = sql.select([self.versions_table.c.id,
+                            self.versions_table.c.datetime,
+                            self.versions_table.c.tag])
         for row in self.execute(query):
             yield dict(row)
 
@@ -656,7 +660,7 @@ class YatelNetwork(object):
         retrieve a particular version
 
         """
-        query = sql.select([self._versions_table])
+        query = sql.select([self.versions_table])
         for row in self.execute(query):
             yield self._row2version(row)
 
@@ -724,7 +728,7 @@ class YatelNetwork(object):
                 msg = msg.format(vdbo.tag)
                 raise ValueError(msg)
 
-        query = sql.insert(self._versions_table).values(
+        query = sql.insert(self.versions_table).values(
             tag=tag, datetime=format_date(datetime.datetime.now()),
             comment=comment, data=data)
         self.execute(query)
@@ -742,16 +746,16 @@ class YatelNetwork(object):
               *tag*.
 
         """
-        query = sql.select([self._versions_table])
+        query = sql.select([self.versions_table])
         if match is None:
-            query = query.order_by(self._versions_table.c.datetime.desc())
+            query = query.order_by(self.versions_table.c.datetime.desc())
         elif isinstance(match, int):
-            query = query.where(self._versions_table.c.id==match)
+            query = query.where(self.versions_table.c.id==match)
         elif isinstance(match, datetime.datetime):
             match = format_date(match)
-            query = query.where(self._versions_table.c.datetime==match)
+            query = query.where(self.versions_table.c.datetime==match)
         elif isinstance(match, basestring):
-            query = query.where(self._versions_table.c.tag==match)
+            query = query.where(self.versions_table.c.tag==match)
         else:
             msg = "Match must be None, int, str, unicode or datetime instance"
             raise TypeError(msg)
@@ -761,14 +765,14 @@ class YatelNetwork(object):
 
     def versions_count(self):
         """Return how many versions are stored"""
-        return sql.select([self._versions_table.c.id]).count().scalar()
+        return sql.select([self.versions_table.c.id]).count().scalar()
 
     #===========================================================================
     # PROPERTIES
     #===========================================================================
 
     @property
-    def name(self):
+    def uri(self):
         """The name of the connection."""
         return self._uri
 
@@ -790,7 +794,7 @@ def format_date(dt):
     return datetime.datetime.strptime(dt.strftime(dtf), dtf)
 
 
-def parse_uri(uri, create, log=None):
+def parse_uri(uri, create=False, log=None):
     """Create a dictionary for use in creation of YatelNetwork
 
     ::
@@ -812,6 +816,35 @@ def parse_uri(uri, create, log=None):
             "engine": urlo.drivername, "database": urlo.database,
             "user": urlo.username, "password": urlo.password,
             "host": urlo.host, "port": urlo.port}
+
+def exists(engine, **kwargs):
+    """Returns true if exists a db.YatelNetwork database in that connection
+
+    """
+    try:
+        kwargs.pop("create", None)
+        nw = YatelNetwork(engine, create=False, **kwargs)
+        hap_id_type = type(nw.haplotypes_table.c.hap_id.type)
+
+        if not (nw.facts_table.c.hap_id.type, hap_id_type):
+            raise Exception()
+
+        if not (isinstance(nw.edges_table.c.weight.type, sa.Float)
+                and all(isinstance(cv.type, hap_id_type)
+                        for cn, cv in nw.edges_table.c.items()
+                        if cn not in ("weight", "id"))):
+            raise Exception()
+
+        if not (isinstance(nw.versions_table.c.id.type, sa.Integer)
+                and isinstance(nw.versions_table.c.tag.type, sa.String)
+                and isinstance(nw.versions_table.c.comment.type, sa.Text)
+                and isinstance(nw.versions_table.c.datetime.type, sa.DateTime)
+                and nw.versions_table.c.data.type):
+            raise Exception()
+    except:
+        return False
+    else:
+        return True
 
 
 #===============================================================================
