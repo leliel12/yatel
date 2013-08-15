@@ -126,7 +126,7 @@ def get_template():
 
 def execute_etl(nw, etlcls):
 
-    etl_name = etlcls.__name__
+    etl_name = type(etlcls).__name__
 
     if not inspect.isclass(etlcls) or not issubclass(etlcls, ETL):
         msg = "'{}' is not subclass of ETL".format(etlname)

@@ -206,6 +206,10 @@ def run_etl(flags, returns):
     conn_data["log"] = True
 
     nw = db.YatelNetwork(**conn_data)
+    for k, v in vars(etlmodule).items():
+        if not k.startswith("_") \
+        and inspect.isclass(v) and issubclass(v, etl.ETL):
+            etl.run_etl(nw, v)
 
 
 @parser.callback("--create-etl", exclusive="ex0", action="store",
