@@ -119,6 +119,8 @@ EDGES = "edges"
 
 VERSIONS = "versions"
 
+TABLES = (HAPLOTYPES, FACTS, EDGES, VERSIONS)
+
 
 #===============================================================================
 # ERROR
@@ -138,10 +140,7 @@ class YatelNetwork(object):
 
     def __init__(self, engine, create=False, log=None, **kwargs):
 
-        tpl = string.Template(ENGINE_URIS[engine])
-        kwargs = dict((k, v) for k, v in kwargs.items()
-                      if k in ENGINE_VARS[engine])
-        self._uri = tpl.substitute(kwargs)
+        self._uri = to_uri(engine, **kwargs)
 
         self._engine = sa.create_engine(self._uri, echo=bool(log))
         self._metadata = sa.MetaData(self._engine)
@@ -167,7 +166,7 @@ class YatelNetwork(object):
             self._tmp_conn = self._tmp_meta.bind.connect()
             self._tmp_trans = self._tmp_conn.begin()
         else:
-            self._metadata.reflect()
+            self._metadata.reflect(only=TABLES)
             self.versions_table = self._metadata.tables[VERSIONS]
             self.haplotypes_table = self._metadata.tables[HAPLOTYPES]
             self.facts_table = self._metadata.tables[FACTS]
@@ -227,15 +226,6 @@ class YatelNetwork(object):
     #===========================================================================
     # DDL METHODS
     #===========================================================================
-
-    def delete_tables(self):
-        if not self.created:
-            raise YatelNetworkError("Network not created")
-        with self._metadata.bind.begin() as conn:
-            conn.execute(self.versions_table.delete())
-            conn.execute(self.haplotypes_table.delete())
-            conn.execute(self.facts_table.delete())
-            conn.execute(self.edges_table.delete())
 
     def add_elements(self, elems):
         map(self.add_element, elems)
@@ -316,41 +306,46 @@ class YatelNetwork(object):
         # first confirm all changes to the temp database
         self._tmp_trans.commit()
 
-        # create te tables
-        self.versions_table = sa.Table(
-            VERSIONS, self._metadata,
-            sa.Column("id", sa.Integer(), primary_key=True),
-            sa.Column("tag", sa.String(512), unique=True, nullable=False),
-            sa.Column("datetime", sa.DateTime(), nullable=False),
-            sa.Column("comment", sa.Text(), nullable=False),
-            sa.Column("data", sa.PickleType(), nullable=False),
-        )
-
-        self.haplotypes_table = sa.Table(
-            HAPLOTYPES, self._metadata, *self._column_buff[HAPLOTYPES]
-        )
-
-        self.facts_table = sa.Table(
-            FACTS, self._metadata,
-            sa.Column("id", sa.Integer(), primary_key=True),
-            *self._column_buff[FACTS]
-        )
-
-        edges_columns = [
-            sa.Column("hap_{}".format(idx), self.haplotypes_table.c.hap_id.type,
-                      sa.ForeignKey(HAPLOTYPES + '.hap_id'), nullable=True)
-            for idx in range(self._column_buff[EDGES])
-        ]
-        self.edges_table = sa.Table(
-            EDGES, self._metadata,
-            sa.Column("id", sa.Integer(), primary_key=True),
-            sa.Column("weight", sa.Float(), nullable=False),
-            *edges_columns
-        )
-        self._metadata.create_all()
-
-        # populate tables inside a transaction
         with self._metadata.bind.begin() as conn:
+
+            self._metadata.reflect(conn, only=lambda n, m: n in TABLES)
+            self._metadata.drop_all(conn)
+            self._metadata.clear()
+
+            # create te tables
+            self.versions_table = sa.Table(
+                VERSIONS, self._metadata,
+                sa.Column("id", sa.Integer(), primary_key=True),
+                sa.Column("tag", sa.String(512), unique=True, nullable=False),
+                sa.Column("datetime", sa.DateTime(), nullable=False),
+                sa.Column("comment", sa.Text(), nullable=False),
+                sa.Column("data", sa.PickleType(), nullable=False),
+            )
+
+            self.haplotypes_table = sa.Table(
+                HAPLOTYPES, self._metadata, *self._column_buff[HAPLOTYPES]
+            )
+
+            self.facts_table = sa.Table(
+                FACTS, self._metadata,
+                sa.Column("id", sa.Integer(), primary_key=True),
+                *self._column_buff[FACTS]
+            )
+
+            edges_columns = [
+                sa.Column("hap_{}".format(idx), self.haplotypes_table.c.hap_id.type,
+                          sa.ForeignKey(HAPLOTYPES + '.hap_id'), nullable=True)
+                for idx in range(self._column_buff[EDGES])
+            ]
+            self.edges_table = sa.Table(
+                EDGES, self._metadata,
+                sa.Column("id", sa.Integer(), primary_key=True),
+                sa.Column("weight", sa.Float(), nullable=False),
+                *edges_columns
+            )
+
+            self._metadata.create_all(conn)
+
             query = sql.select([self._tmp_objects])
             for row in self._tmp_conn.execute(query):
                 table = None
@@ -817,6 +812,15 @@ def parse_uri(uri, create=False, log=None):
             "user": urlo.username, "password": urlo.password,
             "host": urlo.host, "port": urlo.port}
 
+
+def to_uri(engine, **kwargs):
+    """Create a correct uri for a given engine ignorin all unused parameters"""
+    tpl = string.Template(ENGINE_URIS[engine])
+    engine_vars = ENGINE_VARS[engine]
+    kwargs = dict((k, v) for k, v in kwargs.items() if k in engine_vars)
+    return tpl.substitute(kwargs)
+
+
 def exists(engine, **kwargs):
     """Returns true if exists a db.YatelNetwork database in that connection
 
@@ -847,6 +851,22 @@ def exists(engine, **kwargs):
         return True
 
 
+def copy(from_nw, to_nw):
+    """Copy all the network in ``from_nw`` to the network ``to_nw``.
+
+    ``from_nw`` must be created and ``to_nw`` in create mode. Is your
+    responsability to call ``to_nw.end_creation()`` after the copy
+
+    """
+    to_nw.add_elements(from_nw.haplotypes_iterator())
+    to_nw.add_elements(from_nw.facts_iterator())
+    to_nw.add_elements(from_nw.edges_iterator())
+    to_nw.add_elements(from_nw.versions_iterator())
+
+
+
+
+
 #===============================================================================
 # MAIN
 #===============================================================================
@@ -863,6 +883,7 @@ def _test():
                         "data": {}}])
     conn.end_creation()
     return conn
+
 
 if __name__ == "__main__":
     print(__doc__)

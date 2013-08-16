@@ -41,7 +41,10 @@ parser = caipyrinha.Caipyrinha(prog=yatel.PRJ,
 parser.add_argument("--version", action='version',
                     version="%(prog)s {}".format(yatel.STR_VERSION))
 parser.add_argument("--no-gui", action="store_true")
-
+parser.add_argument("-f", "--force", action="store_true",
+                    help=("If you perform some action like import or"
+                          "copy this option destroy"
+                          "a network in this connection"))
 
 @parser.callback(action="store", metavar="CONNECTION_STRING")
 def database(flags, returns):
@@ -52,6 +55,7 @@ def database(flags, returns):
         'postgres://USER:PASSWORD@HOST:PORT/DATABASE'.
 
         """
+        _fail_if_exists(flags)
         return db.parse_uri(flags.database, create=False)
 
 
@@ -63,6 +67,8 @@ def fake_network(flags, returns):
     Every haplotype has betweetn 0 and 10 facts.
 
     """
+
+    _fail_if_no_force("--fake-network", flags, returns.database)
 
     lorem_ipsum = [
         'takimata', 'sea', 'ametlorem', 'magna', 'ea', 'consetetur', 'sed',
@@ -168,6 +174,7 @@ def load(flags, returns):
     Only local databases are allowed
 
     """
+    _fail_if_no_force("--load", flags, returns.database)
 
     ext = flags.load.name.rsplit(".", 1)[-1].lower()
     if ext not in conv.convs():
@@ -201,10 +208,10 @@ def run_etl(flags, returns):
     etlmodule = imp.load_module(modname, *found)
 
     conn_data = returns.database
-    conn_data["create"] = not db.exists(conn_data)
+    conn_data["create"] = True
     conn_data["log"] = True
-
     nw = db.YatelNetwork(**conn_data)
+
     for k, v in vars(etlmodule).items():
         if not k.startswith("_") \
         and inspect.isclass(v) and issubclass(v, etl.ETL):
@@ -219,10 +226,34 @@ def create_etl(flags, returns):
     fp.write(etl.get_template())
 
 
+@parser.callback(exclusive="ex0", action="store",
+                 metavar="CONNECTION_STRING", exit=0)
+def copy(flags, returns):
+    """Copy the database to this connection"""
+
+    to_conn_data = db.parse_uri(flags.copy, create=True, log=True)
+    _fail_if_no_force("--load", flags, to_conn_data)
+
+    to_nw = db.YatelNetwork(**to_conn_data)
+
+    conn_data = returns.database
+    conn_data["create"] = False
+    conn_data["log"] = True
+    from_nw = db.YatelNetwork(**conn_data)
+
+    db.copy(from_nw, to_nw)
+    to_nw.end_creation()
+
 
 #===============================================================================
 # FUNCTION
 #===============================================================================
+
+def _fail_if_no_force(cmd, flags, conn_data):
+    if not flags.force and db.exists(**conn_data):
+        msg = ("A YatelNetwork already exists in '{}', and a command"
+               "'{}' will destroy it.").format(db.to_uri(**conn_data), cmd)
+        parser.error(msg)
 
 def main():
     """Run yatel
