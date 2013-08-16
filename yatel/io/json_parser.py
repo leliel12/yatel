@@ -23,19 +23,19 @@ files
 import json
 
 from yatel import dom
-from yatel.conv import coreconv
+from yatel.io import core
 
 
 #===============================================================================
 # IO FUNCTIONS
 #===============================================================================
 
-class JSONConverter(coreconv.BaseConverter):
+class JSONParser(core.BaseParser):
 
     def dump(self, nw, stream=None, **kwargs):
         kwargs["indent"] = kwargs.get("indent", 2)
         kwargs["ensure_ascii"] = kwargs.get("ensure_ascii", True)
-        data = super(JSONConverter, self).dump(nw)
+        data = super(JSONParser, self).dump(nw)
         if stream:
             return json.dump(data, stream, **kwargs)
         return json.dumps(data, **kwargs)
@@ -43,7 +43,7 @@ class JSONConverter(coreconv.BaseConverter):
     def load(self, nw, stream, **kwargs):
         loader = json.loads if isinstance(stream, basestring) else json.load
         data = loader(stream, **kwargs)
-        return super(JSONConverter, self).load(nw, data)
+        return super(JSONParser, self).load(nw, data)
 
 
 #===============================================================================

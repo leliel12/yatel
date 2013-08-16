@@ -11,8 +11,8 @@
 # DOCS
 #===============================================================================
 
-"""This package contains several modules for convert yatel dom object
-into objests of another libraries
+"""This package contains several modules for serielze yatel dom object
+into streams
 
 """
 
@@ -22,52 +22,50 @@ into objests of another libraries
 
 import inspect
 
+from yatel.io.core import BaseParser, ParserError
+
 #===============================================================================
 # FUNCTIONS
 #===============================================================================
 
-from yatel.conv.coreconv import BaseConverter, ConversionError
-
-_convs = {}
-
-
+_pars = {}
 def register(cls, *rtypes):
-    if not inspect.isclass(cls) or not issubclass(cls, BaseConverter):
-        raise TypeError("'cls' must be subclass of 'yatel.con.BaseConverter'")
+    if not inspect.isclass(cls) or not issubclass(cls, BaseParser):
+        raise TypeError("'cls' must be subclass of 'yatel.io.BaseParser'")
     for rtype in rtypes:
-        _convs[rtype] = cls
+        _pars[rtype] = cls
 
 
-def convs():
-    return _convs.keys()
+def parsers():
+    return _pars.keys()
 
 
-def conv(rtype):
-    return _convs[rtype]
+def parser(rtype):
+    return _pars[rtype]
 
 
 def load(rtype, nw, stream, **kwargs):
-    cls = _convs[rtype]
-    conv = cls()
-    return conv.load(nw, stream=stream, **kwargs)
+    cls = _pars[rtype]
+    parser = cls()
+    return parser.load(nw, stream=stream, **kwargs)
 
 
 def dump(rtype, nw, stream=None, **kwargs):
-    cls = _convs[rtype]
-    conv = cls()
-    return conv.dump(nw, stream=stream, **kwargs)
+    cls = _pars[rtype]
+    parser = cls()
+    return parser.dump(nw, stream=stream, **kwargs)
 
 
 #===============================================================================
 # REGISTERS!
 #===============================================================================
 
-from yatel.conv import jsonconv
-register(jsonconv.JSONConverter, "yjf", "json")
+from yatel.io import json_parser
+register(json_parser.JSONParser, "yjf", "json")
 
 
-from yatel.conv import yamlconv
-register(yamlconv.YAMLConverter, "yyf", "yaml", "yml")
+from yatel.io import yaml_parser
+register(yaml_parser.YAMLParser, "yyf", "yaml", "yml")
 
 
 #===============================================================================

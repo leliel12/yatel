@@ -29,7 +29,7 @@ import caipyrinha
 
 import yatel
 from yatel import db, dom, etl
-from yatel import conv
+from yatel import io
 
 
 #===============================================================================
@@ -163,7 +163,7 @@ def dump(flags, returns):
     conn_data["log"] = True
     nw = db.YatelNetwork(**conn_data)
 
-    conv.dump(rtype=ext, nw=nw, stream=flags.dump)
+    io.dump(rtype=ext, nw=nw, stream=flags.dump)
 
 
 @parser.callback(exclusive="ex0", action="store", type=argparse.FileType(),
@@ -184,7 +184,7 @@ def load(flags, returns):
     conn_data["log"] = True
     nw = db.YatelNetwork(**conn_data)
 
-    conv.load(rtype=ext, nw=nw, stream=flags.load)
+    io.load(rtype=ext, nw=nw, stream=flags.load)
 
     nw.end_creation()
 

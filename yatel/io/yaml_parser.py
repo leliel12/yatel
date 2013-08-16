@@ -23,22 +23,22 @@ files
 import yaml
 
 from yatel import dom
-from yatel.conv import coreconv
+from yatel.io import core
 
 
 #===============================================================================
 # IO FUNCTIONS
 #===============================================================================
 
-class YAMLConverter(coreconv.BaseConverter):
+class YAMLParser(core.BaseParser):
 
     def dump(self, nw, stream=None, **kwargs):
-        data = super(YAMLConverter, self).dump(nw)
+        data = super(YAMLParser, self).dump(nw)
         return yaml.safe_dump(data, stream=stream, **kwargs)
 
     def load(self, nw, stream):
         data = yaml.load(stream, **kwargs)
-        return super(YAMLConverter, self).load(nw, data)
+        return super(YAMLParser, self).load(nw, data)
 
 
 #===============================================================================

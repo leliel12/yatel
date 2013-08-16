@@ -40,7 +40,7 @@ DEFAULT_VERSION = "0.2"
 # ERROR
 #===============================================================================
 
-class ConversionError(Exception):
+class ParserError(Exception):
     pass
 
 
@@ -48,17 +48,17 @@ class ConversionError(Exception):
 # CLASS
 #===============================================================================
 
-class BaseConverter(object):
+class BaseParser(object):
 
     def validate_read(self, nw):
         if not isinstance(nw, db.YatelNetwork) or not nw.created:
             msg = "load need a db.YatelNetwork instance created"
-            raise ConversionError(msg)
+            raise ParserError(msg)
 
     def validate_write(self, nw):
         if not isinstance(nw, db.YatelNetwork) or nw.created:
             msg = "load need a db.YatelNetwork instance not created"
-            raise ConversionError(msg)
+            raise ParserError(msg)
 
     def hap2dict(self, hap):
         """Convert a ``dom.Haplotype`` instance into a dict"""
