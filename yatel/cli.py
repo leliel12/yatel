@@ -142,14 +142,14 @@ def fake_network(flags, returns):
     nw.end_creation()
 
 
-@parser.callback(exclusive="ex0", action="store",
-                   metavar="filename.<EXT>", exit=0)
-def exportdb(flags, returns):
+@parser.callback(exclusive="ex0", action="store", type=argparse.FileType("w"),
+                 metavar="filename.<EXT>", exit=0)
+def dump(flags, returns):
     """Export the given database to YYF or YJF format. Extension must be yyf,
     yaml, yml, json or yjf.
 
     """
-    ext = flags.exportdb.rsplit(".", 1)[-1].lower()
+    ext = flags.dump.name.rsplit(".", 1)[-1].lower()
     if ext not in conv.convs():
         raise ValueError("Invalid type '{}'".format(ext))
 
@@ -158,19 +158,18 @@ def exportdb(flags, returns):
     conn_data["log"] = True
     nw = db.YatelNetwork(**conn_data)
 
-    with open(flags.exportdb, "w") as fp:
-        conv.dump(rtype=ext, nw=nw, stream=fp)
+    conv.dump(rtype=ext, nw=nw, stream=flags.dump)
 
 
-@parser.callback(exclusive="ex0", action="store",
+@parser.callback(exclusive="ex0", action="store", type=argparse.FileType(),
                  metavar="filename.<EXT>", exit=0)
-def importdb(flags, returns):
+def load(flags, returns):
     """Import the given YYF or YJF format file to the given database. WARNING:
     Only local databases are allowed
 
     """
 
-    ext = flags.exportdb.rsplit(".", 1)[-1].lower()
+    ext = flags.load.name.rsplit(".", 1)[-1].lower()
     if ext not in conv.convs():
         raise ValueError("Invalid type '{}'".format(ext))
 
@@ -179,8 +178,8 @@ def importdb(flags, returns):
     conn_data["log"] = True
     nw = db.YatelNetwork(**conn_data)
 
-    with open(flags.importdb) as fp:
-        conv.load(rtype=ext, nw=nw, stream=fp)
+    conv.load(rtype=ext, nw=nw, stream=flags.load)
+
     nw.end_creation()
 
 
