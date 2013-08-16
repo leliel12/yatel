@@ -24,12 +24,14 @@ import os
 import random
 import imp
 import argparse
+import inspect
 
 import caipyrinha
 
 import yatel
 from yatel import db, dom, etl
 from yatel import io
+from yatel import stats
 
 
 #===============================================================================
@@ -218,11 +220,13 @@ def run_etl(flags, returns):
 
 
 @parser.callback("--create-etl", exclusive="ex0", action="store",
-                 metavar="etl_filename.py", type=argparse.FileType('w'), exit=0)
+                 metavar="etl_filename.py", type=argparse.FileType('w'),
+                 exit=0)
 def create_etl(flags, returns):
     """Create a template file for write yout own etl"""
+    tpl = etl.get_template()
     fp = flags.create_etl
-    fp.write(etl.get_template())
+    fp.write(tpl)
 
 
 @parser.callback(exclusive="ex0", action="store",
