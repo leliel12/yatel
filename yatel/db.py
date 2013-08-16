@@ -408,7 +408,6 @@ class YatelNetwork(object):
         query = sql.select([self.haplotypes_table]).where(
             self.haplotypes_table.c.hap_id.in_(haps_ids)
         )
-        print row
         for row in self.execute(query):
             yield self._row2hap(row)
 

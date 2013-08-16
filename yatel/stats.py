@@ -11,7 +11,7 @@
 # DOCS
 #===============================================================================
 
-"""Statistic functions for calculate weight statustics over yatel enviroments
+"""Statistic functions for calculate weight statistics over yatel enviroments
 
 """
 

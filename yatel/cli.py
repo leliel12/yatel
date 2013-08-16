@@ -155,7 +155,7 @@ def dump(flags, returns):
 
     """
     ext = flags.dump.name.rsplit(".", 1)[-1].lower()
-    if ext not in conv.convs():
+    if ext not in io.parsers():
         raise ValueError("Invalid type '{}'".format(ext))
 
     conn_data = returns.database
@@ -176,7 +176,7 @@ def load(flags, returns):
     _fail_if_no_force("--load", flags, returns.database)
 
     ext = flags.load.name.rsplit(".", 1)[-1].lower()
-    if ext not in conv.convs():
+    if ext not in io.parsers():
         raise ValueError("Invalid type '{}'".format(ext))
 
     conn_data = returns.database
