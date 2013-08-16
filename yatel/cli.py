@@ -254,8 +254,10 @@ def copy(flags, returns):
 
 def _fail_if_no_force(cmd, flags, conn_data):
     if not flags.force and db.exists(**conn_data):
-        msg = ("A YatelNetwork already exists in '{}', and a command "
-               "'{}' will destroy it.").format(db.to_uri(**conn_data), cmd)
+        msg = ("There is an existing 'YatelNetwork' in the conection '{}' and "
+               "the command '{}' will destroy it. If you want to destroy it "
+               "anyway use the option '-f' or '--force' along with "
+               "the command '{}'").format(db.to_uri(**conn_data), cmd, cmd)
         parser.error(msg)
 
 def main():
