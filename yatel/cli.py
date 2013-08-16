@@ -55,7 +55,6 @@ def database(flags, returns):
         'postgres://USER:PASSWORD@HOST:PORT/DATABASE'.
 
         """
-        _fail_if_exists(flags)
         return db.parse_uri(flags.database, create=False)
 
 
@@ -251,7 +250,7 @@ def copy(flags, returns):
 
 def _fail_if_no_force(cmd, flags, conn_data):
     if not flags.force and db.exists(**conn_data):
-        msg = ("A YatelNetwork already exists in '{}', and a command"
+        msg = ("A YatelNetwork already exists in '{}', and a command "
                "'{}' will destroy it.").format(db.to_uri(**conn_data), cmd)
         parser.error(msg)
 
