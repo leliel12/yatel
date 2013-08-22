@@ -29,11 +29,6 @@ import abc
 # CONSTANTS
 #===============================================================================
 
-CLEAR_MODE = "clear"
-APPEND_MODE = "append"
-
-MODES = (CLEAR_MODE, APPEND_MODE)
-
 ETL_TEMPLATE = string.Template("""
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
@@ -41,7 +36,7 @@ ETL_TEMPLATE = string.Template("""
 '''auto created template for create your custom etl for yatel'''
 
 
-from yatel import etl
+from yatel import etl, dom
 
 
 #===============================================================================
@@ -49,6 +44,8 @@ from yatel import etl
 #===============================================================================
 
 class CustomETL(etl.ETL):
+
+# you can access the current network from the attribute 'self.nw'
 
 ${code}
 
@@ -71,10 +68,6 @@ class ETL(object):
     __metaclass__ = abc.ABCMeta
 
     def setup(self):
-        pass
-
-    @abc.abstractmethod
-    def get_mode(self):
         pass
 
     def pre_haplotype_gen(self):
@@ -124,34 +117,9 @@ def get_template():
     return ETL_TEMPLATE.substitute(code="\n".join(defs))
 
 
-def execute_etl(nw, etlcls):
-
-    etl_name = type(etlcls).__name__
-
-    if not inspect.isclass(etlcls) or not issubclass(etlcls, ETL):
-        msg = "'{}' is not subclass of ETL".format(etlname)
-        raise TypeError(msg)
-
-    etl = etlcls()
-    etl.setup()
-    mode = etl.get_mode()
-
-    if not nw.created:
-        new_nw = db.YatelNetwork(db.parse_uri(nw.uri), create=True, log=True)
-
-        if mode not in MODES:
-            msg = "Invalid mode '{}'".format(str(mode))
-            raise ValueError(msg)
-        elif mode == CLEAR_MODE:
-            pass
-        elif mode == APPEND_MODE:
-            new_nw.add_elements(nw.haplotype_iterator())
-            new_nw.add_elements(nw.fact_iterator())
-            new_nw.add_elements(nw.edge_iterator())
-            new_nw.add_elements(nw.version_iterator())
-
-        nw.delete_tables()
-        nw = new_nw
+def execute_etl(nw, etl):
+    """Execute an ETL instance.
+    """
 
     etl.pre_haplotype_gen()
     for hap in etl.haplotype_gen():
@@ -186,6 +154,8 @@ def execute_etl(nw, etlcls):
     etl.teardown()
 
     nw.end_creation()
+
+    return nw
 
 
 #===============================================================================

@@ -25,6 +25,7 @@ import random
 import imp
 import argparse
 import inspect
+import datetime
 
 import caipyrinha
 
@@ -168,6 +169,29 @@ def dump(flags, returns):
     io.dump(rtype=ext, nw=nw, stream=flags.dump)
 
 
+@parser.callback(exclusive="ex0", action="store",
+                 metavar="filename_template.<EXT>", exit=0)
+def backup(flags, returns):
+    """Like dump but always create a new file with the format
+    'filename_template<TIMESTAMP>.<EXT>'
+
+    """
+    fname, ext = flags.backup.rsplit(".", 1)
+
+    if ext.lower() not in io.parsers():
+        raise ValueError("Invalid type '{}'".format(ext))
+
+    fpath = "{}{}.{}".format(fname, datetime.datetime.utcnow().isoformat(), ext)
+
+    conn_data = returns.database
+    conn_data["create"] = False
+    conn_data["log"] = True
+    nw = db.YatelNetwork(**conn_data)
+
+    with open(fpath, 'w') as fp:
+        io.dump(rtype=ext.lower(), nw=nw, stream=fp)
+
+
 @parser.callback(exclusive="ex0", action="store", type=argparse.FileType(),
                  metavar="filename.<EXT>", exit=0)
 def load(flags, returns):
@@ -191,8 +215,40 @@ def load(flags, returns):
     nw.end_creation()
 
 
-@parser.callback("--run-etl", exclusive="ex0", action="store",
-                 metavar="filename.py", exit=0)
+@parser.callback(exclusive="ex0", action="store",
+                 metavar="CONNECTION_STRING", exit=0)
+def copy(flags, returns):
+    """Copy the database (of `database` to this connection"""
+
+    to_conn_data = db.parse_uri(flags.copy, create=True, log=True)
+    _fail_if_no_force("--conn", flags, to_conn_data)
+
+    to_nw = db.YatelNetwork(**to_conn_data)
+
+    conn_data = returns.database
+    conn_data["create"] = False
+    conn_data["log"] = True
+    from_nw = db.YatelNetwork(**conn_data)
+
+    db.copy(from_nw, to_nw)
+    to_nw.end_creation()
+
+
+@parser.callback("--create-etl", exclusive="ex0", action="store",
+                 metavar="etl_filename.py", type=argparse.FileType('w'),
+                 exit=0)
+def create_etl(flags, returns):
+    """Create a template file for write yout own etl"""
+    tpl = etl.get_template()
+    fp = flags.create_etl
+    fp.write(tpl)
+
+
+#=================================================
+# LAST ALWAYS!
+#=================================================
+
+@parser.callback("--run-etl", action="store", metavar="filename.py", exit=0)
 def run_etl(flags, returns):
     """Run one or more etl inside of a given script"""
     dirname, filename = os.path.split(flags.etl)
@@ -217,35 +273,6 @@ def run_etl(flags, returns):
         if not k.startswith("_") \
         and inspect.isclass(v) and issubclass(v, etl.ETL):
             etl.run_etl(nw, v)
-
-
-@parser.callback("--create-etl", exclusive="ex0", action="store",
-                 metavar="etl_filename.py", type=argparse.FileType('w'),
-                 exit=0)
-def create_etl(flags, returns):
-    """Create a template file for write yout own etl"""
-    tpl = etl.get_template()
-    fp = flags.create_etl
-    fp.write(tpl)
-
-
-@parser.callback(exclusive="ex0", action="store",
-                 metavar="CONNECTION_STRING", exit=0)
-def copy(flags, returns):
-    """Copy the database to this connection"""
-
-    to_conn_data = db.parse_uri(flags.copy, create=True, log=True)
-    _fail_if_no_force("--load", flags, to_conn_data)
-
-    to_nw = db.YatelNetwork(**to_conn_data)
-
-    conn_data = returns.database
-    conn_data["create"] = False
-    conn_data["log"] = True
-    from_nw = db.YatelNetwork(**conn_data)
-
-    db.copy(from_nw, to_nw)
-    to_nw.end_creation()
 
 
 #===============================================================================
