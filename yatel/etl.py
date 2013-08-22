@@ -120,7 +120,7 @@ def get_template():
     return ETL_TEMPLATE.substitute(code="\n".join(defs))
 
 
-def execute_etl(nw, etl):
+def execute(nw, etl):
     """Execute an ETL instance.
     """
 

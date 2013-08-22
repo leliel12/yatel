@@ -248,7 +248,8 @@ def create_etl(flags, returns):
 # LAST ALWAYS!
 #=================================================
 
-@parser.callback("--run-etl", action="store", metavar="filename.py", exit=0)
+@parser.callback("--run-etl", exclusive="ex0", action="store",
+                 metavar="filename.py", exit=0)
 def run_etl(flags, returns):
     """Run one or more etl inside of a given script"""
     dirname, filename = os.path.split(flags.run_etl)
@@ -264,16 +265,25 @@ def run_etl(flags, returns):
 
     etlmodule = imp.load_module(modname, *found)
 
+    etls = []
+    for k, v in vars(etlmodule).items():
+        if not k.startswith("_") \
+        and inspect.isclass(v) and issubclass(v, etl.ETL):
+            etls.append(v())
+
+    if len(etls) == 0:
+        msg = "No yatel.etl.ETL subclasess found in '{}'"
+        parser.error(msg.format(flags.run_etl))
+    elif len(etls) > 1:
+        msg = "Only ONE subclases of yatel.etl.ETL allowed. Found '{}' in '{}'"
+        parser.error(msg.format(len(etls), flags.run_etl))
+
     conn_data = returns.database
     conn_data["create"] = True
     conn_data["log"] = True
     nw = db.YatelNetwork(**conn_data)
 
-    for k, v in vars(etlmodule).items():
-        if not k.startswith("_") \
-        and inspect.isclass(v) and issubclass(v, etl.ETL):
-            etl.execute_etl(nw, v())
-            break
+    etl.execute(nw, etls[0])
 
     nw.end_creation()
 
