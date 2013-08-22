@@ -3,6 +3,8 @@
 
 '''auto created template for create your custom etl for yatel'''
 
+import random
+
 from yatel import dom
 from yatel import etl
 

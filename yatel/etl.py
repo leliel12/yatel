@@ -24,6 +24,9 @@ import string
 import inspect
 import abc
 
+from yatel import db
+from yatel import dom
+
 
 #===============================================================================
 # CONSTANTS
@@ -121,6 +124,14 @@ def execute_etl(nw, etl):
     """Execute an ETL instance.
     """
 
+    etl_name = type(etl).__name__
+
+    if not isinstance(etl, ETL):
+        msg = "etl is not instance of a subclass of yatel.etl.ETL"
+        raise TypeError(msg)
+
+    etl.setup()
+
     etl.pre_haplotype_gen()
     for hap in etl.haplotype_gen():
         if isinstance(hap, dom.Haplotype):
@@ -136,24 +147,22 @@ def execute_etl(nw, etl):
         if isinstance(fact, dom.Fact):
             nw.add_element(fact)
         else:
-            msg = ("ETL '{}' is 'fact_gen' method"
+            msg = ("ETL '{}' 'fact_gen' method"
                    "return  a non 'dom.Fact' object").format(etl_name)
             raise TypeError(msg)
     etl.post_fact_gen()
 
     etl.pre_edge_gen()
     for edge in etl.edge_gen():
-        if isinstance(hap, dom.Edge):
-            nw.add_element(hap)
+        if isinstance(edge, dom.Edge):
+            nw.add_element(edge)
         else:
-            msg = ("ETL '{}' is 'edge_gen' method"
-                   "return  a non 'dom.Edge' object").format(etl_name)
+            msg = ("ETL '{}' 'edge_gen' method"
+                   "return a non 'dom.Edge' object").format(etl_name)
             raise TypeError(msg)
     etl.post_edge_gen()
 
     etl.teardown()
-
-    nw.end_creation()
 
     return nw
 

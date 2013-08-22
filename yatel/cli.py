@@ -251,7 +251,7 @@ def create_etl(flags, returns):
 @parser.callback("--run-etl", action="store", metavar="filename.py", exit=0)
 def run_etl(flags, returns):
     """Run one or more etl inside of a given script"""
-    dirname, filename = os.path.split(flags.etl)
+    dirname, filename = os.path.split(flags.run_etl)
     modname = os.path.splitext(filename)[0]
     found = imp.find_module(modname, [dirname])
 
@@ -272,7 +272,10 @@ def run_etl(flags, returns):
     for k, v in vars(etlmodule).items():
         if not k.startswith("_") \
         and inspect.isclass(v) and issubclass(v, etl.ETL):
-            etl.run_etl(nw, v)
+            etl.execute_etl(nw, v())
+            break
+
+    nw.end_creation()
 
 
 #===============================================================================
