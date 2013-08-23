@@ -15,7 +15,10 @@ from yatel import etl
 
 class MyETL(etl.ETL):
 
-    def setup(self):
+    def setup(self, lll, coso):
+        import sys
+        print lll
+        sys.exit(0)
         print "setup :)"
         self.haps_id = []
 

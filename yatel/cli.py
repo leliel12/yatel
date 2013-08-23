@@ -61,7 +61,7 @@ def database(flags, returns):
         return db.parse_uri(flags.database, create=False)
 
 
-@parser.callback("--fake-network", action="store_true")
+@parser.callback("--fake-network", exclusive="ex0", action="store_true")
 def fake_network(flags, returns):
     """Create a new fake full conected network with 25 haplotypes on
     given connection string.
@@ -244,30 +244,46 @@ def create_etl(flags, returns):
     fp.write(tpl)
 
 
+@parser.callback("--etl-desc", exclusive="ex0", action="store", nargs=2,
+                 metavar="ARG", exit=0)
+def etl_desc(flags, returns):
+    """Return a list of parameters and documentataton abot the etl
+
+    The first two aruments are the module of the etl and the etl class name,
+
+    """
+    filepath = flags.etl_desc[0]
+    clsname = flags.etl_desc[1]
+
+    etl_cls = etl.etlcls_from_module(filepath, clsname)
+    doc = etl_cls.__doc__
+    params = ", ".join(etl_cls.setup_args)
+    print ("ETL CLASS: {cls}\n"
+           "FILE: {path}\n"
+           "DOC: {doc}\n"
+           "PARAMETERS: {params}\n").format(cls=clsname, path=filepath,
+                                          doc=doc, params=params)
+
+
 #=================================================
 # LAST ALWAYS!
 #=================================================
 
-@parser.callback("--run-etl", exclusive="ex0", action="store", nargs=2,
+@parser.callback("--run-etl", exclusive="ex0", action="store", nargs="+",
                  metavar="ARG", exit=0)
 def run_etl(flags, returns):
-    """Run one or more etl inside of a given script"""
-    dirname, filename = os.path.split(flags.run_etl[0])
-    modname = os.path.splitext(filename)[0]
-    found = imp.find_module(modname, [dirname])
+    """Run one or more etl inside of a given script.
+
+    The first two aruments are the module of the etl and the etl class name,
+    the third onwards are parameters of the setup method of the given class.
+
+    """
+    filepath = flags.run_etl[0]
     clsname = flags.run_etl[1]
+    params = flags.run_etl[2:]
 
-    if modname in sys.modules:
-        idx = 1
-        tpl = "etl_" + modname + "_{}"
-        while tpl.format(idx) in sys.modules:
-            idx += 1
-        modname =  tpl.format(idx)
-
-    etlmodule = imp.load_module(modname, *found)
-
-    etl_instance = getattr(etlmodule, clsname)()
-    print etl_instance
+    etl_cls = etl.etlcls_from_module(filepath, clsname)
+    etl_instance = etl_cls()
 
     conn_data = returns.database
     conn_data["create"] = True
@@ -277,7 +293,7 @@ def run_etl(flags, returns):
 
     nw = db.YatelNetwork(**conn_data)
 
-    etl.execute(nw, etl_instance)
+    etl.execute(nw, etl_instance, *params)
 
     nw.end_creation()
 

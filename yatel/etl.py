@@ -23,6 +23,9 @@
 import string
 import inspect
 import abc
+import os
+import imp
+import sys
 
 from yatel import db
 from yatel import dom
@@ -125,6 +128,21 @@ class ETL(object):
 #===============================================================================
 # FUNCTIONS
 #===============================================================================
+
+def etlcls_from_module(filepath, clsname):
+    """Return a class of a given  filepath.
+
+    """
+    dirname, filename = os.path.split(filepath)
+    modname = os.path.splitext(filename)[0]
+    etlmodule = None
+    if modname not in sys.modules:
+        found = imp.find_module(modname, [dirname])
+        etlmodule = imp.load_module(modname, *found)
+    else:
+        etlmodule = sys.modules[modname]
+    return getattr(etlmodule, clsname)
+
 
 def get_template():
     defs = []
