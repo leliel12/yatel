@@ -135,7 +135,7 @@ def get_template():
     return ETL_TEMPLATE.substitute(code="\n".join(defs))
 
 
-def execute(nw, etl):
+def execute(nw, etl, *args):
     """Execute an ETL instance.
     """
 
@@ -145,7 +145,7 @@ def execute(nw, etl):
         msg = "etl is not instance of a subclass of yatel.etl.ETL"
         raise TypeError(msg)
 
-    etl.setup()
+    etl.setup(*args)
 
     etl.pre_haplotype_gen()
     for hap in etl.haplotype_gen():

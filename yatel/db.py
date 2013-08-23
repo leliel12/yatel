@@ -825,8 +825,9 @@ def exists(engine, **kwargs):
 
     """
     kwargs.pop("create", None)
-    nw = YatelNetwork(engine, create=False, **kwargs)
     try:
+
+        nw = YatelNetwork(engine, create=False, **kwargs)
         hap_id_type = type(nw.haplotypes_table.c.hap_id.type)
 
         if not (nw.facts_table.c.hap_id.type, hap_id_type):
