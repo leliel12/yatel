@@ -20,6 +20,8 @@
 # INSPECT
 #===============================================================================
 
+import inspect
+import abc
 import string
 import inspect
 import os
@@ -29,7 +31,6 @@ import re
 
 from yatel import db
 from yatel import dom
-from yatel.etl.core import ETL
 
 #===============================================================================
 # CONSTANTS
@@ -63,6 +64,65 @@ if __name__ == "__main__":
     print(__doc__)
 
 """.strip())
+
+#===============================================================================
+# META CLASSES
+#===============================================================================
+
+class _ETLMeta(abc.ABCMeta):
+
+    def __init__(self, *args, **kwargs):
+        super(_ETLMeta, self).__init__(*args, **kwargs)
+        spec = inspect.getargspec(self.setup)
+        if spec.varargs or spec.keywords or spec.defaults:
+            msg = "Only positional arguments without defauls is alowed on setup"
+            raise TypeError(msg)
+        self.setup_args = tuple(arg for arg in spec.args if arg != "self")
+
+
+#===============================================================================
+# CLASSES
+#===============================================================================
+
+class ETL(object):
+
+    __metaclass__ = _ETLMeta
+
+    def setup(self):
+        pass
+
+    def pre_haplotype_gen(self):
+        pass
+
+    @abc.abstractmethod
+    def haplotype_gen(self):
+        return []
+
+    def post_haplotype_gen(self):
+        pass
+
+    def pre_fact_gen(self):
+        pass
+
+    @abc.abstractmethod
+    def fact_gen(self):
+        return []
+
+    def post_fact_gen(self):
+        pass
+
+    def pre_edge_gen(self):
+        pass
+
+    @abc.abstractmethod
+    def edge_gen(self):
+        return []
+
+    def post_edge_gen(self):
+        pass
+
+    def teardown(self):
+        pass
 
 
 #===============================================================================
