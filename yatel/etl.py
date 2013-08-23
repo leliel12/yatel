@@ -63,12 +63,27 @@ if __name__ == "__main__":
 
 
 #===============================================================================
+# META CLASSES
+#===============================================================================
+
+class _ETLMeta(abc.ABCMeta):
+
+    def __init__(self, *args, **kwargs):
+        super(_ETLMeta, self).__init__(*args, **kwargs)
+        spec = inspect.getargspec(self.setup)
+        if spec.varargs or spec.keywords or spec.defaults:
+            msg = "Only positional arguments without defauls is alowed on setup"
+            raise TypeError(msg)
+        self.setup_args = tuple(arg for arg in spec.args if arg != "self")
+
+
+#===============================================================================
 # CLASSES
 #===============================================================================
 
 class ETL(object):
 
-    __metaclass__ = abc.ABCMeta
+    __metaclass__ = _ETLMeta
 
     def setup(self):
         pass

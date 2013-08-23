@@ -35,13 +35,11 @@ import yatel
 #===============================================================================
 
 PYPI_REQUIRE = [
-    "peewee>=2.0",
+    "sqlalchemy",
     "pycante",
-    "csvcool",
     "pyzmq",
     "ipython>=0.13",
     "PyYAML",
-    "bottle",
     "Pygments",
     "caipyrinha",
 ]
@@ -49,11 +47,6 @@ PYPI_REQUIRE = [
 MANUAL_REQUIRE = {
     "PyQt4" : "http://www.riverbankcomputing.co.uk/software/pyqt",
     "numpy": "http://numpy.scipy.org/",
-}
-
-
-SUGESTED = {
-    "graph_tool" : "http://projects.skewed.de/graph-tool/",
 }
 
 
@@ -81,11 +74,6 @@ not_found = validate_modules(MANUAL_REQUIRE)
 if not_found:
     print_not_found(not_found, "ERROR")
     sys.exit(1)
-
-
-not_found = validate_modules(SUGESTED)
-if not_found:
-    print_not_found(not_found, "WARNING")
 
 
 #===============================================================================

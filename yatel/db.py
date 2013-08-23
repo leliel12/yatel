@@ -824,9 +824,9 @@ def exists(engine, **kwargs):
     """Returns true if exists a db.YatelNetwork database in that connection
 
     """
+    kwargs.pop("create", None)
+    nw = YatelNetwork(engine, create=False, **kwargs)
     try:
-        kwargs.pop("create", None)
-        nw = YatelNetwork(engine, create=False, **kwargs)
         hap_id_type = type(nw.haplotypes_table.c.hap_id.type)
 
         if not (nw.facts_table.c.hap_id.type, hap_id_type):
@@ -844,7 +844,7 @@ def exists(engine, **kwargs):
                 and isinstance(nw.versions_table.c.datetime.type, sa.DateTime)
                 and nw.versions_table.c.data.type):
             raise Exception()
-    except:
+    except Exception as err:
         return False
     else:
         return True
@@ -864,25 +864,9 @@ def copy(from_nw, to_nw):
 
 
 
-
-
 #===============================================================================
 # MAIN
 #===============================================================================
-
-def _test():
-    conn = YatelNetwork("memory", create=True, log=True)
-    conn.add_elements([dom.Haplotype("hap1", a=2),
-                       dom.Haplotype("hap2"),
-                       dom.Fact("hap1", a=1, c="foo"),
-                       dom.Fact("hap2", a=1, b=2),
-                       dom.Edge(1, "hap1", "hap2"),
-                       {"id": 1, "tag": "j", "comment": "k",
-                        "datetime": datetime.datetime.now(),
-                        "data": {}}])
-    conn.end_creation()
-    return conn
-
 
 if __name__ == "__main__":
     print(__doc__)
