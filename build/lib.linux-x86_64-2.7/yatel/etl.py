@@ -23,9 +23,6 @@
 import string
 import inspect
 import abc
-import os
-import imp
-import sys
 
 from yatel import db
 from yatel import dom
@@ -66,27 +63,12 @@ if __name__ == "__main__":
 
 
 #===============================================================================
-# META CLASSES
-#===============================================================================
-
-class _ETLMeta(abc.ABCMeta):
-
-    def __init__(self, *args, **kwargs):
-        super(_ETLMeta, self).__init__(*args, **kwargs)
-        spec = inspect.getargspec(self.setup)
-        if spec.varargs or spec.keywords or spec.defaults:
-            msg = "Only positional arguments without defauls is alowed on setup"
-            raise TypeError(msg)
-        self.setup_args = tuple(arg for arg in spec.args if arg != "self")
-
-
-#===============================================================================
 # CLASSES
 #===============================================================================
 
 class ETL(object):
 
-    __metaclass__ = _ETLMeta
+    __metaclass__ = abc.ABCMeta
 
     def setup(self):
         pass
@@ -129,21 +111,6 @@ class ETL(object):
 # FUNCTIONS
 #===============================================================================
 
-def etlcls_from_module(filepath, clsname):
-    """Return a class of a given  filepath.
-
-    """
-    dirname, filename = os.path.split(filepath)
-    modname = os.path.splitext(filename)[0]
-    etlmodule = None
-    if modname not in sys.modules:
-        found = imp.find_module(modname, [dirname])
-        etlmodule = imp.load_module(modname, *found)
-    else:
-        etlmodule = sys.modules[modname]
-    return getattr(etlmodule, clsname)
-
-
 def get_template():
     defs = []
     for amethod in ETL.__abstractmethods__:
@@ -153,7 +120,7 @@ def get_template():
     return ETL_TEMPLATE.substitute(code="\n".join(defs))
 
 
-def execute(nw, etl, *args):
+def execute(nw, etl):
     """Execute an ETL instance.
     """
 
@@ -163,7 +130,7 @@ def execute(nw, etl, *args):
         msg = "etl is not instance of a subclass of yatel.etl.ETL"
         raise TypeError(msg)
 
-    etl.setup(*args)
+    etl.setup()
 
     etl.pre_haplotype_gen()
     for hap in etl.haplotype_gen():

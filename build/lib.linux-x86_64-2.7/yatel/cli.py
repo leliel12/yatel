@@ -49,7 +49,6 @@ parser.add_argument("-f", "--force", action="store_true",
                           "copy this option destroy"
                           "a network in this connection"))
 
-
 @parser.callback(action="store", metavar="CONNECTION_STRING")
 def database(flags, returns):
         """database to be open with yatel
@@ -62,7 +61,7 @@ def database(flags, returns):
         return db.parse_uri(flags.database, create=False)
 
 
-@parser.callback("--fake-network", exclusive="ex0", action="store_true")
+@parser.callback("--fake-network", action="store_true")
 def fake_network(flags, returns):
     """Create a new fake full conected network with 25 haplotypes on
     given connection string.
@@ -222,7 +221,7 @@ def copy(flags, returns):
     """Copy the database (of `database` to this connection"""
 
     to_conn_data = db.parse_uri(flags.copy, create=True, log=True)
-    _fail_if_no_force("--copy", flags, to_conn_data)
+    _fail_if_no_force("--conn", flags, to_conn_data)
 
     to_nw = db.YatelNetwork(**to_conn_data)
 
@@ -245,56 +244,46 @@ def create_etl(flags, returns):
     fp.write(tpl)
 
 
-@parser.callback("--etl-desc", exclusive="ex0", action="store", nargs=2,
-                 metavar="ARG", exit=0)
-def etl_desc(flags, returns):
-    """Return a list of parameters and documentataton abot the etl
-
-    The first two aruments are the module of the etl and the etl class name,
-
-    """
-    filepath = flags.etl_desc[0]
-    clsname = flags.etl_desc[1]
-
-    etl_cls = etl.etlcls_from_module(filepath, clsname)
-    doc = etl_cls.__doc__
-    params = ", ".join(etl_cls.setup_args)
-    print ("ETL CLASS: {cls}\n"
-           "FILE: {path}\n"
-           "DOC: {doc}\n"
-           "PARAMETERS: {params}\n").format(cls=clsname, path=filepath,
-                                          doc=doc, params=params)
-
-
 #=================================================
 # LAST ALWAYS!
 #=================================================
 
-@parser.callback("--run-etl", exclusive="ex0", action="store", nargs="+",
-                 metavar="ARG", exit=0)
+@parser.callback("--run-etl", exclusive="ex0", action="store",
+                 metavar="filename.py", exit=0)
 def run_etl(flags, returns):
-    """Run one or more etl inside of a given script.
+    """Run one or more etl inside of a given script"""
+    dirname, filename = os.path.split(flags.run_etl)
+    modname = os.path.splitext(filename)[0]
+    found = imp.find_module(modname, [dirname])
 
-    The first two aruments are the module of the etl and the etl class name,
-    the third onwards are parameters of the setup method of the given class.
+    if modname in sys.modules:
+        idx = 1
+        tpl = "etl_" + modname + "_{}"
+        while tpl.format(idx) in sys.modules:
+            idx += 1
+        modname =  tpl.format(idx)
 
-    """
-    filepath = flags.run_etl[0]
-    clsname = flags.run_etl[1]
-    params = flags.run_etl[2:]
+    etlmodule = imp.load_module(modname, *found)
 
-    etl_cls = etl.etlcls_from_module(filepath, clsname)
-    etl_instance = etl_cls()
+    etls = []
+    for k, v in vars(etlmodule).items():
+        if not k.startswith("_") \
+        and inspect.isclass(v) and issubclass(v, etl.ETL):
+            etls.append(v())
+
+    if len(etls) == 0:
+        msg = "No yatel.etl.ETL subclasess found in '{}'"
+        parser.error(msg.format(flags.run_etl))
+    elif len(etls) > 1:
+        msg = "Only ONE subclases of yatel.etl.ETL allowed. Found '{}' in '{}'"
+        parser.error(msg.format(len(etls), flags.run_etl))
 
     conn_data = returns.database
     conn_data["create"] = True
     conn_data["log"] = True
-
-    _fail_if_no_force("--run-etl", flags, conn_data)
-
     nw = db.YatelNetwork(**conn_data)
 
-    etl.execute(nw, etl_instance, *params)
+    etl.execute(nw, etls[0])
 
     nw.end_creation()
 
@@ -310,7 +299,6 @@ def _fail_if_no_force(cmd, flags, conn_data):
                "anyway use the option '-f' or '--force' along with "
                "the command '{}'").format(db.to_uri(**conn_data), cmd, cmd)
         parser.error(msg)
-
 
 def main():
     """Run yatel

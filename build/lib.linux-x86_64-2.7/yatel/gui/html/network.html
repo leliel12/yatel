@@ -1,0 +1,298 @@
+<!--
+
+ "THE WISKEY-WARE LICENSE":
+ <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
+ you can do whatever you want with this stuff. If we meet some day, and you
+ think this stuff is worth it, you can buy me a WISKEY us return.
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="generator" content="Geany 1.22" />
+
+        <!-- includes -->
+        <script src="res/jquery-2.0.0.min.js"></script>
+        <script src="res/sigma.concat.js"></script>
+
+        <script>
+        <!-- CLASSES -->
+        var Color = function(r, g, b) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+
+            this.toRGBString = function(colorObj){
+                return 'rgb(' + this.r.toString() + ","
+                               + this.g.toString() + ","
+                               + this.b.toString() + ")";
+            }
+
+        }
+        </script>
+
+        <script>
+            // CONSTANTS
+
+            var CL_BACKGROUND = new Color(255, 255, 255);
+
+            var CL_NODE = new Color(133, 133, 133);
+            var CL_HIGLIGHTED_NODE = new Color(22, 22, 22);
+
+            var CL_UNSELECTED_LABEL = new Color(0, 0, 0);
+            var CL_SELECTED_LABEL = new Color(255, 255,  255);
+            var CL_SELECTED_LABEL_BG = new Color(0, 0,  0);
+
+            var CL_EDGE = new Color(133,  133,  133);
+
+        </script>
+
+        <script>
+            // PATCH!
+            Math.randomInt = function(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+        </script>
+
+        <script>
+
+            // FUNCTIONS
+            function init() {
+                sigRoot = document.getElementById('network');
+                sigInst = sigma.init(sigRoot);
+
+                // style the canvas
+                sigRoot.style.marginLeft = "auto";
+                sigRoot.style.marginRight = "auto";
+                sigRoot.style.position = "relative";
+                sigRoot.style.borderRadius = "10px";
+                sigRoot.style.background = CL_BACKGROUND.toRGBString();
+                sigRoot.style.width = "100%";
+                sigRoot.style.height = "100%";
+                sigRoot.style.top = 0;
+                sigRoot.style.left = 0;
+
+                // style the network
+                sigInst = sigma.init(sigRoot)
+                sigInst.configProperties({drawHoverEdges: true});
+                sigInst.drawingProperties({defaultEdgeType: 'curve',
+                                             edgeColor: 'default',
+                                             edgeHoverColor: 'default',
+                                             defaultEdgeHoverColor: CL_EDGE.toRGBString(),
+                                             edgeLabelSize: 'fixed',
+                                             defaultEdgeLabelSize: 15,
+                                             edgeLabelSizeRatio: 2,
+                                             defaultEdgeLabelColor: CL_UNSELECTED_LABEL.toRGBString(),
+                                             edgeLabelThreshold: 0,
+                                             defaultLabelColor: CL_UNSELECTED_LABEL.toRGBString(),
+                                             defaultEdgeLabelHoverBGColor: CL_UNSELECTED_LABEL.toRGBString(),
+                                             edgeHoverSizeRatio: 1,
+                                             defaultActiveLabelBGColor: CL_SELECTED_LABEL_BG.toRGBString(),
+                                             defaultLabelActiveColor: CL_SELECTED_LABEL.toRGBString(),
+                                             hoverSourceOnEdgeHover: false,
+                                             hoverTargetOnEdgeHover: false});
+                sigInst.graphProperties({maxNodeSize: 30,
+                                           edgesPowRatio: 1,
+                                           safe: false});
+                sigInst.mouseProperties({zoomDelta: 0.1,
+                                           dragDelta: 0.2,
+                                           zoomMultiply: 1.382});
+
+                sigInst.bind("downnodes", nodeClicked);
+
+                refresh();
+            }
+
+            function refresh(){
+                sigInst.draw();
+            }
+
+            function nodeClicked(e){
+                var hap_id = e.content[0];
+                selectNode(hap_id);
+                if(typeof python != "undefined")
+                    python.on_nodeclicked(hap_id);
+            }
+
+            function clear(){
+                sigInst.emptyGraph();
+                refresh();
+            }
+
+            function center(){
+                var pts = [];
+                sigInst.iterNodes(function(n){
+                    pts.push({x: n.x, y: n.y});
+                });
+                var sumA = 0;
+                var sumCx = 0;
+                var sumCy = 0;
+                for(var i=0; i<pts.length-1;i++){
+                    var com = pts[i].x * pts[i+1].y - pts[i+1].x * pts[i].y;
+                    sumA += com;
+                    sumCx += (pts[i].x + pts[i+1].x) * com;
+                    sumCy += (pts[i].y + pts[i+1].y) * com;
+                }
+                var A = (1/2) * sumA;
+                var Cx = (1/(6*A)) * sumCx;
+                var Cy = (1/(6*A)) * sumCy;
+                sigInst.goTo(Cx + $(sigRoot).width() / 2.5,
+                              Cy + $(sigRoot).height() / 2.5);
+            }
+
+
+            function getUnusedCoord(height, width, maxIterations){
+                var all_xys = []
+                sigInst.iterNodes(function(n){
+                    all_xys.push({"x": n.x, "y": n.y});
+                });
+                var x = Math.randomInt(0, width);
+                var y = Math.randomInt(0, height);
+                for(var idx=0; idx < maxIterations; idx++){
+                    var empty = true;
+                    for(var jdx=0; jdx < all_xys.length; jdx++){
+                        var xy = all_xys[jdx];
+                        if(xy.x == x && xy.y == y){
+                            empty = false;
+                            x = Math.randomInt(0, width);
+                            y = Math.randomInt(0, height);
+                            break;
+                        }
+                    }
+                    if(empty)
+                        break;
+                }
+                return [x, y];
+            }
+
+            function selectNode(hap_id){
+                sigInst.iterNodes(function(n){
+                    if(n.id == hap_id)
+                        n.active = true;
+                    else
+                        n.active = false;
+                });
+                refresh();
+            }
+
+            function showHapsNames(show){
+                if(show){
+                    sigInst.iterNodes(function(n){
+                        n.label = n.id;
+                    });
+                } else {
+                    sigInst.iterNodes(function(n){
+                        n.label = "";
+                    });
+                }
+                refresh();
+            }
+
+            function showWeights(show){
+                if(show){
+                    sigInst.iterEdges(function(e){
+                        e.label = e.weight.toString();
+                    });
+                } else {
+                    sigInst.iterEdges(function(e){
+                        e.label = "";
+                    });
+                }
+                refresh();
+            }
+
+            function highlightNodes(ids){
+                sigInst.iterNodes(function(node){
+                    if(ids.indexOf(node.id) >= 0){
+                        node.attr.highlighted = true;
+                        node.color = CL_HIGLIGHTED_NODE.toRGBString();
+                    }
+                    else{
+                        node.attr.highlighted = false;
+                        node.color = CL_NODE.toRGBString();
+                    }
+                });
+                refresh();
+            }
+
+            function unhighlightall(){
+                sigInst.iterNodes(function(node){
+                    node.attr.highlighted = false;
+                    node.color = CL_NODE.toRGBString();
+                });
+                refresh();
+            }
+
+            function addNode(id, label, x, y){
+                var params = {x: x, y: y,
+                               label: label, forceLabel: true,
+                               color: CL_NODE.toRGBString(),
+                               highlighted: false,
+                               selected: false};
+                sigInst.addNode(id, params);
+                refresh();
+            }
+
+            function delNode(id){
+                sigInst.dropNode(id);
+                refresh();
+            }
+
+            function addEdge(weight, idf, idt){
+                var id = idf + "_" + idt;
+                var params = {weight: weight,
+                               label: weight.toString()};
+                sigInst.addEdge(id, idf, idt, params).draw();
+                refresh();
+            }
+
+            function filterEdges(edges_id){
+                sigInst.iterEdges(function(e) {
+                    e.hidden = !(edges_id.indexOf(e.id) >= 0);
+                });
+                refresh();
+            }
+
+            function delEdge(idf, idt){
+                var id = idf + "_" + idt;
+                sigInst.dropEdge(id);
+                refresh();
+            }
+
+            function delEdgesWithNode(id){
+                sigInst.iterEdges(function(e) {
+                    if(e.source.indexOf(id) >= 0 || e.target.indexOf(id) >= 0){
+                        sigInst.dropEdge(e.id);
+                    }
+                });
+                refresh();
+            }
+
+            function topology(){
+                var top = {};
+                sigInst.iterNodes(function(n){
+                    top[n.id] = [n.x, n.y];
+                });
+                return top;
+            }
+
+            function moveNode(id, x, y){
+                sigInst.iterNodes(function(n){
+                    n.x = x;
+                    n.y = y;
+                }, [id]);
+                refresh();
+            }
+
+        </script>
+
+    </head>
+
+    <body onLoad="init();">
+        <div id="network"/>
+    </body>
+
+</html>
