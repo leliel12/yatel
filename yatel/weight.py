@@ -22,28 +22,45 @@ elements that can be used as edge weights.
 # IMPORTS
 #===============================================================================
 
+import abc
+import inspect
 import itertools
 
 import numpy
 
+from yatel import dom
+
 
 #===============================================================================
-# ERROR
+# METACLASS
 #===============================================================================
 
-class AbstractWeight(object):
+class _WeightMeta(abc.ABCMeta):
+
+    def __init__(self, *args, **kwargs):
+        super(_WeightMeta, self).__init__(*args, **kwargs)
+        spec = inspect.getargspec(self.weight)
+        if spec.varargs or spec.keywords or spec.defaults or len(spec.args) > 3:
+            msg = "Only self and 2 positional arguments without defauls are alowed on weight"
+            raise TypeError(msg)
+
+
+#===============================================================================
+# BASE CLASS
+#===============================================================================
+
+class Weight(object):
     """Base class of all weight calculators"""
 
-    def __call__(self, haps=[], repeated=False):
-        return self.weights(haps=haps, repeated=repeated)
+    __metaclass__ = _WeightMeta
 
-    def weights(self, haps=[], repeated=False):
-        """Calculate distance between all combinations of acollection of
+    def weights(self, nw, to_same=False):
+        """Calculate distance between all combinations of a collection of
         haplotypes.
 
         **Params**
             :haps: A iterable of ``dom.Haplotype`` instances.
-            :repeated: If calculate the distance between the same haplotype.
+            :to_same: If calculate the distance between the same haplotype.
 
         **Return**
             A ``dict`` like ``{(hap_x, hap_y) : float}``
@@ -51,11 +68,11 @@ class AbstractWeight(object):
         """
         ws = {}
         comb = itertools.combinations_with_replacement \
-               if repeated else itertools.combinations
+               if to_same else itertools.combinations
         for hap0, hap1 in comb(haps, 2):
-            ws[(hap0, hap1)] = self.weight(hap0, hap1)
-        return ws
+            yield hap0, hap1, self.weight(hap0, hap1)
 
+    @abc.abstactmethod
     def weight(self, hap0, hap1):
         """A ``float`` distance between 2 ``dom.Haplotype`` instances"""
         raise NotImplementedError()

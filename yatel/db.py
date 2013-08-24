@@ -498,15 +498,15 @@ class YatelNetwork(object):
                                        dom.Fact("hap1", a=1, c="foo"),
                                        dom.Fact("hap2", a=1, b=2),
                                        dom.Edge(1, "hap1", "hap2")])
-                >>> conn.enviroment(a=1)
+                >>> conn.haplotypes_enviroment(a=1)
                 (<Haplotype 'hap1' at 0x2463250>, <Haplotype 'hap2' at 0x2463390>)
-                >>> conn.enviroment({"c": "foo"})
+                >>> conn.haplotypes_enviroment({"c": "foo"})
                 (<Haplotype 'hap1' at 0x2463250>, )
-                >>> conn.enviroment({"a": 1}, b=2)
+                >>> conn.haplotypes_enviroment({"a": 1}, b=2)
                 (<Haplotype 'hap2' at 0x2463390>, )
 
         """
-        env = env or {}
+        env = dict(env) if env else {}
         env.update(kwargs)
         where = sql.and_(*[self.facts_table.c[k] == v
                            for k, v in env.items()])
@@ -531,7 +531,7 @@ class YatelNetwork(object):
 
     def edges_enviroment(self, env=None, **kwargs):
         """Iterates over all ``dom.Edge`` instances of a given enviroment"""
-        env = env or {}
+        env = dict(env) if env else {}
         env.update(kwargs)
         where = sql.and_(*[self.facts_table.c[k] == v
                            for k, v in env.items()])
