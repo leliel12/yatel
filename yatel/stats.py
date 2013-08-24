@@ -31,66 +31,66 @@ from yatel.libs import cead
 # BASIC POSITION STATS
 #===============================================================================
 
-def average(dsrc, env=None, **kwargs):
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+def average(nw, env=None, **kwargs):
+    arr = env2weightarray(nw, env=env, **kwargs)
     return np.average(arr)
 
 
-def median(dsrc, env=None, **kwargs):
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+def median(nw, env=None, **kwargs):
+    arr = env2weightarray(nw, env=env, **kwargs)
     return np.median(arr)
 
 
-def percentile(dsrc, q, env=None, **kwargs):
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+def percentile(nw, q, env=None, **kwargs):
+    arr = env2weightarray(nw, env=env, **kwargs)
     return np.percentile(arr, q)
 
 
-def min(dsrc, env=None, **kwargs):
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+def min(nw, env=None, **kwargs):
+    arr = env2weightarray(nw, env=env, **kwargs)
     return np.min(arr)
 
 
-def max(dsrc, env=None, **kwargs):
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+def max(nw, env=None, **kwargs):
+    arr = env2weightarray(nw, env=env, **kwargs)
     return np.max(arr)
 
 
-def amin(dsrc, env=None, **kwargs):
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+def amin(nw, env=None, **kwargs):
+    arr = env2weightarray(nw, env=env, **kwargs)
     return np.amin(arr)
 
 
-def amax(dsrc, env=None, **kwargs):
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+def amax(nw, env=None, **kwargs):
+    arr = env2weightarray(nw, env=env, **kwargs)
     return np.amax(arr)
 
 
-def sum(dsrc, env=None, **kwargs):
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+def sum(nw, env=None, **kwargs):
+    arr = env2weightarray(nw, env=env, **kwargs)
     return np.sum(arr)
 
 
-def mode(dsrc, env=None, **kwargs):
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+def mode(nw, env=None, **kwargs):
+    arr = env2weightarray(nw, env=env, **kwargs)
     return cead.mode(arr)
 
 
-def Q(dsrc, env=None, **kwargs):
+def Q(nw, env=None, **kwargs):
     """Quartile average"""
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+    arr = env2weightarray(nw, env=env, **kwargs)
     return cead.Q(arr)
 
 
-def TRI(dsrc, env=None, **kwargs):
+def TRI(nw, env=None, **kwargs):
     """Trimedian"""
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+    arr = env2weightarray(nw, env=env, **kwargs)
     return cead.TRI(arr)
 
 
-def MID(dsrc, env=None, **kwargs):
+def MID(nw, env=None, **kwargs):
     """Inter quartile average"""
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+    arr = env2weightarray(nw, env=env, **kwargs)
     return cead.MID(arr)
 
 
@@ -98,50 +98,50 @@ def MID(dsrc, env=None, **kwargs):
 # DISPERTION STATS
 #===============================================================================
 
-def var(dsrc, env=None, **kwargs):
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+def var(nw, env=None, **kwargs):
+    arr = env2weightarray(nw, env=env, **kwargs)
     return np.var(arr)
 
 
-def std(dsrc, env=None, **kwargs):
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+def std(nw, env=None, **kwargs):
+    arr = env2weightarray(nw, env=env, **kwargs)
     return np.std(arr)
 
 
-def variation(dsrc, env=None, **kwargs):
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+def variation(nw, env=None, **kwargs):
+    arr = env2weightarray(nw, env=env, **kwargs)
     return stats.variation(arr)
 
 
-def MD(dsrc, env=None, **kwargs):
+def MD(nw, env=None, **kwargs):
     """Average deviation"""
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+    arr = env2weightarray(nw, env=env, **kwargs)
     return cead.MD(arr)
 
 
-def MeD(dsrc, env=None, **kwargs):
+def MeD(nw, env=None, **kwargs):
     """Median deviation"""
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+    arr = env2weightarray(nw, env=env, **kwargs)
     return cead.MeD(arr)
 
 
-def range(dsrc, env=None, **kwargs):
+def range(nw, env=None, **kwargs):
     """Range"""
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+    arr = env2weightarray(nw, env=env, **kwargs)
     return cead.range(arr)
 
 
-def varQ(dsrc, env=None, **kwargs):
+def varQ(nw, env=None, **kwargs):
     """Quartile variation
 
     """
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+    arr = env2weightarray(nw, env=env, **kwargs)
     return cead.varQ(arr)
 
 
-def MAD(dsrc, env=None, **kwargs):
+def MAD(nw, env=None, **kwargs):
     """Mediana of absolute observations"""
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+    arr = env2weightarray(nw, env=env, **kwargs)
     return cead.MAD(arr)
 
 
@@ -149,21 +149,21 @@ def MAD(dsrc, env=None, **kwargs):
 # SYMETRY
 #===============================================================================
 
-def Sp_pearson(dsrc, env=None, **kwargs):
+def Sp_pearson(nw, env=None, **kwargs):
     """Pearson symetry indicator"""
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+    arr = env2weightarray(nw, env=env, **kwargs)
     return cead.Sp_pearson(arr)
 
 
-def H1_yule(dsrc, env=None, **kwargs):
+def H1_yule(nw, env=None, **kwargs):
     """Yule symetry indicator"""
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+    arr = env2weightarray(nw, env=env, **kwargs)
     return cead.H1_yule(arr)
 
 
-def H3_kelly(dsrc, env=None, **kwargs):
+def H3_kelly(nw, env=None, **kwargs):
     """Kelly symetry indicator"""
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+    arr = env2weightarray(nw, env=env, **kwargs)
     return cead.H3_kelly(arr)
 
 
@@ -171,14 +171,14 @@ def H3_kelly(dsrc, env=None, **kwargs):
 # KURTOSIS
 #===============================================================================
 
-def kurtosis(dsrc, env=None, **kwargs):
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+def kurtosis(nw, env=None, **kwargs):
+    arr = env2weightarray(nw, env=env, **kwargs)
     return stats.kurtosis(arr)
 
 
-def K1_kurtosis(dsrc, env=None, **kwargs):
+def K1_kurtosis(nw, env=None, **kwargs):
     """Robust kurtosis coeficient"""
-    arr = env2weightarray(dsrc, env=env, **kwargs)
+    arr = env2weightarray(nw, env=env, **kwargs)
     return cead.K1_kurtosis(arr)
 
 
@@ -191,28 +191,31 @@ def weights2array(edges):
     return np.array([e.weight for e in edges])
 
 
-def env2weightarray(dsrc, env=None, **kwargs):
+def env2weightarray(nw, env=None, **kwargs):
     """This function always return a *numpy.ndarray* with this conditions:
 
-    - If ``dsrc`` is instance of ``numpy.ndarray`` the same array is returned.
-    - If ``dsrc`` is instance of ``db.YatelNetwork`` and no enviroment is
+    - If ``nw`` is instance of ``numpy.ndarray`` the same array is returned.
+    - If ``nw`` is instance of ``db.YatelNetwork`` and no enviroment is
       given return all the edges in this enviroment.
-    - If ``dsrc`` is instance of ``db.YatelNetwork`` and no enviroment is
+    - If ``nw`` is instance of ``db.YatelNetwork`` and no enviroment is
       given  then return all edges.
-    - In the last case the function try to convert dsrc to ``numpy.ndarray``
+    - In the last case the function try to convert nw to ``numpy.ndarray``
       instance.
 
     """
     env = dict(env) if env else {}
     env.update(kwargs)
-    if isinstance(dsrc, np.ndarray):
-        return dsrc
-    elif isinstance(dsrc, db.YatelNetwork):
+    if isinstance(nw, np.ndarray):
+        if env:
+            msg = "if nw is numpy.ndarray you you can't use enviroments"
+            raise ValueError(msg)
+        return nw
+    elif isinstance(nw, db.YatelNetwork):
         if not env:
-            return weights2array(dsrc.edges_iterator())
-        return weights2array(dsrc.edges_enviroment(env=env))
+            return weights2array(nw.edges_iterator())
+        return weights2array(nw.edges_enviroment(env=env))
     else:
-        return np.array(dsrc)
+        return np.array(nw)
 
 
 #===============================================================================
