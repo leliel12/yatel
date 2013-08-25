@@ -11,8 +11,8 @@
 # DOCS
 #===============================================================================
 
-"""This package contains several modules for serielze yatel dom object
-into streams
+"""This package contains several modules for calculatte distances between
+haplotypes in yatel
 
 """
 
@@ -22,50 +22,56 @@ into streams
 
 import inspect
 
-from yatel.io.core import BaseParser, ParserError
+from yatel.weight.core import Weight
 
 #===============================================================================
 # FUNCTIONS
 #===============================================================================
 
-_pars = {}
-def register(cls, *rtypes):
-    if not inspect.isclass(cls) or not issubclass(cls, BaseParser):
-        raise TypeError("'cls' must be subclass of 'yatel.io.BaseParser'")
-    for rtype in rtypes:
-        _pars[rtype] = cls
+_weights = {}
+def register(cls, *names):
+    if not inspect.isclass(cls) or not issubclass(cls, Weight):
+        raise TypeError("'cls' must be subclass of 'yatel.weight.Weight'")
+    for name in names:
+        _weights[name] = cls
 
 
-def parsers():
-    return _pars.keys()
+def calculators():
+    return _weights.keys()
 
 
-def parser(rtype):
-    return _pars[rtype]
+def weight_calculator(name):
+    return _weights[name]
 
 
-def load(rtype, nw, stream, **kwargs):
-    cls = _pars[rtype]
-    parser = cls()
-    return parser.load(nw, stream=stream, **kwargs)
+def weight(calcname, hap0, hap1):
+    cls = _weights[calcname]
+    calculator = cls()
+    return calculator.weight(hap0, hap1)
 
 
-def dump(rtype, nw, stream=None, **kwargs):
-    cls = _pars[rtype]
-    parser = cls()
-    return parser.dump(nw, stream=stream, **kwargs)
+def weights(calcname, nw, to_same=False, env=None, **kwargs):
+    cls = _weights[calcname]
+    calculator = cls()
+    return calculator.weights(nw=nw, to_same=to_same, env=env, **kwargs)
 
 
 #===============================================================================
 # REGISTERS!
 #===============================================================================
 
-from yatel.io import json_parser
-register(json_parser.JSONParser, "yjf", "json")
+from yatel.weight import hamming
+register(hamming.Hamming, "hamming", "ham")
 
 
-from yatel.io import yaml_parser
-register(yaml_parser.YAMLParser, "yyf", "yaml", "yml")
+from yatel.weight import euclidean
+register(euclidean.Euclidean, "euclidean", "euc", "ordinary")
+
+
+from yatel.weight import levenshtein
+register(levenshtein.Levenshtein, "levenshtein", "lev")
+register(levenshtein.DamerauLevenshtein, "dameraulevenshtein", "damlev",
+         "damerau-levenshtein")
 
 
 #===============================================================================

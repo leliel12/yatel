@@ -22,6 +22,8 @@ http://en.wikipedia.org/wiki/Hamming_distance
 # IMPORTS
 #===============================================================================
 
+from unicodedata import normalize
+
 from yatel.weight import core
 
 
@@ -80,6 +82,7 @@ class Levenshtein(core.Weight):
             as1 = self.to_seq(hap1.get_attr(name, None))
             value += levenshtein(as0, as1)
         return value
+
 
 #===============================================================================
 # DAMERAU-LEVENSHTEIN
@@ -152,14 +155,14 @@ class DamerauLevenshtein(Levenshtein):
 #===============================================================================
 
 def to_seq_default(obj):
-    """Convert a given object to a normalized utf8 of self
+    """Convert a given object to a normalized sring utf8 of self
 
     """
     if None:
         return ""
     else:
         text = unicode(obj)
-        return lstr(normalize('NFKD', text).encode('uf8', 'ignore'))
+        return str(normalize('NFKD', text).encode('utf8', 'ignore'))
 
 
 #===============================================================================

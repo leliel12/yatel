@@ -28,7 +28,7 @@ import itertools
 
 import numpy
 
-from yatel import dom
+from yatel import dom, db
 
 
 #===============================================================================
