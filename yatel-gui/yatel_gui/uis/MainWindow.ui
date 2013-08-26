@@ -37,7 +37,6 @@
      <property name="title">
       <string>&amp;Import</string>
      </property>
-     <addaction name="actionImportCSV"/>
      <addaction name="actionImportYYF"/>
      <addaction name="actionImportYJF"/>
     </widget>
@@ -53,7 +52,6 @@
      <addaction name="actionExportImage"/>
     </widget>
     <addaction name="actionOpenYatelDB"/>
-    <addaction name="actionConnectToRemoteYatel"/>
     <addaction name="separator"/>
     <addaction name="menu_Import"/>
     <addaction name="menuExport"/>
@@ -126,11 +124,6 @@
     <string>&amp;Load Version</string>
    </property>
   </action>
-  <action name="actionImportCSV">
-   <property name="text">
-    <string>CSV</string>
-   </property>
-  </action>
   <action name="actionImportYYF">
    <property name="text">
     <string>YYF</string>
@@ -163,11 +156,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+?</string>
-   </property>
-  </action>
-  <action name="actionConnectToRemoteYatel">
-   <property name="text">
-    <string>Connect to Remote Yatel...</string>
    </property>
   </action>
   <action name="actionExportImage">
