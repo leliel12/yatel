@@ -37,43 +37,11 @@ import yatel
 PYPI_REQUIRE = [
     "sqlalchemy",
     "pycante",
-    "pyzmq",
-    "ipython>=0.13",
     "PyYAML",
-    "Pygments",
-    "caipyrinha",
+    "numpy"
+
+
 ]
-
-MANUAL_REQUIRE = {
-    "PyQt4" : "http://www.riverbankcomputing.co.uk/software/pyqt",
-    "numpy": "http://numpy.scipy.org/",
-}
-
-
-#===============================================================================
-# WARNINGS FOR MANUAL REQUIRES AND SUGGESTED
-#===============================================================================
-
-def validate_modules(requires):
-    not_found = []
-    for name, url in requires.items():
-        try:
-            __import__(name)
-        except ImportError:
-            not_found.append("{} requires '{}' ({})".format(yatel.PRJ,
-                                                             name, url))
-    return not_found
-
-def print_not_found(not_found, msg):
-    limits = "=" * max(map(len, not_found))
-    print "\n{}\n{}\n{}\n{}\n".format(msg, limits,
-                                        "\n".join(not_found),
-                                        limits)
-
-not_found = validate_modules(MANUAL_REQUIRE)
-if not_found:
-    print_not_found(not_found, "ERROR")
-    sys.exit(1)
 
 
 #===============================================================================
@@ -93,12 +61,6 @@ setup(
     classifiers=yatel.CLASSIFIERS,
     packages=[pkg for pkg in find_packages() if pkg.startswith("yatel")],
     include_package_data=True,
-    package_data={'images': ['yatel/gui/resources/*'],
-                  'uis': ['yatel/gui/uis/*'],
-                  'html': ['yatel/gui/html/*'],
-                  'res': ['yatel/gui/html/res/*']},
     py_modules=["ez_setup"],
-    entry_points={'console_scripts': ['yatel = yatel.cli:main']},
-    setup_requires=["sphinx-pypi-upload"],
     install_requires=PYPI_REQUIRE,
 )
