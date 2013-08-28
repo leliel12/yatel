@@ -11,9 +11,10 @@
 # DOCS
 #===============================================================================
 
-"""Launcher of yatel gui client
+"""Launcher of yatel cli tools
 
 """
+
 
 #===============================================================================
 # IMPORTS
@@ -43,7 +44,6 @@ parser = caipyrinha.Caipyrinha(prog=yatel.PRJ,
                                description=yatel.SHORT_DESCRIPTION)
 parser.add_argument("--version", action='version',
                     version="%(prog)s {}".format(yatel.STR_VERSION))
-parser.add_argument("--no-gui", action="store_true")
 parser.add_argument("-f", "--force", action="store_true",
                     help=("If you perform some action like import or"
                           "copy this option destroy"
@@ -313,15 +313,10 @@ def _fail_if_no_force(cmd, flags, conn_data):
 
 
 def main():
-    """Run yatel
+    """Run yatel cli tools
 
     """
-    if "--no-gui" in sys.argv or "--help" in sys.argv:
-        parser(sys.argv[1:])
-    else:
-        pass
-        # from yatel import gui
-        # gui.run_gui(parser)
+    parser(sys.argv[1:])
 
 
 #===============================================================================
