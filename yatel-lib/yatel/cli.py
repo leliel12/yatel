@@ -34,6 +34,7 @@ import yatel
 from yatel import db, dom, etl
 from yatel import io
 from yatel import stats
+from yatel import weight
 
 
 #===============================================================================
@@ -62,16 +63,18 @@ def database(flags, returns):
         return db.parse_uri(flags.database, create=False)
 
 
-@parser.callback("--fake-network", exclusive="ex0", action="store_true")
+@parser.callback("--fake-network", exclusive="ex0", action="store", nargs=3)
 def fake_network(flags, returns):
-    """Create a new fake full conected network with 25 haplotypes on
-    given connection string.
+    """Create a new fake full conected network with on given connection string.
 
-    Every haplotype has betweetn 0 and 10 facts.
+    The first parameter is the number of haplotypes, the second one is
+    the number of maximun facts of every haplotype and the third is the
+    algoritm to calculate the distance
 
     """
 
     _fail_if_no_force("--fake-network", flags, returns.database)
+
 
     lorem_ipsum = [
         'takimata', 'sea', 'ametlorem', 'magna', 'ea', 'consetetur', 'sed',
@@ -129,25 +132,37 @@ def fake_network(flags, returns):
             attrs[k] = v()
         return attrs
 
+    haps_n = int(flags.fake_network[0])
+    facts_n = int(flags.fake_network[1])
+    weight_calc = flags.fake_network[2]
+
+    if weight_calc not in weight.calculators():
+        msg = "Invalid calculator '{}'. Please use one of: '{}'"
+        msg = msg.format(weight_calc, "|".join(weight.calculators()))
+        parser.error(msg)
+
     conn_data = returns.database
     conn_data["create"] = True
     conn_data["log"] = True
     nw = db.YatelNetwork(**conn_data)
-    for hap_id in range(25):
+
+    haps = []
+    for hap_id in range(haps_n):
         attrs = gime_fake_hap_attrs()
         hap = dom.Haplotype(hap_id, **attrs)
         nw.add_element(hap)
+        haps.append(hap)
 
-    for hap_id in range(25):
-        for _ in range(random.randint(0, 10)):
+    for hap_id in range(haps_n):
+        for _ in range(random.randint(0, facts_n)):
             attrs = gimme_fake_fact_attrs()
             fact = dom.Fact(hap_id, **attrs)
             nw.add_element(fact)
 
-    for hap_id0 in range(25):
-        for hap_id1 in range(hap_id0, 25):
-            edge = dom.Edge(random.randint(1, 10), hap_id0, hap_id1)
-            nw.add_element(edge)
+    for hs, w in weight.weights(weight_calc, haps):
+        haps_id = map(lambda h: h.hap_id, hs)
+        edge = dom.Edge(w, *haps_id)
+        nw.add_element(edge)
     nw.end_creation()
 
 
@@ -275,13 +290,13 @@ def etl_desc(flags, returns):
 def run_etl(flags, returns):
     """Run one or more etl inside of a given script.
 
-    The first two aruments are the module of the etl and the etl class name,
-    the third onwards are parameters of the setup method of the given class.
+    The first argument is in the format path/to/module.py:ClassName
+    the second onwards parameter are parameters of the setup method of the
+    given class.
 
     """
-    filepath = flags.run_etl[0]
-    clsname = flags.run_etl[1]
-    params = flags.run_etl[2:]
+    filepath, clsname = flags.run_etl[0].split(":", 1)
+    params = flags.run_etl[1:]
 
     etl_cls = etl.etlcls_from_module(filepath, clsname)
     etl_instance = etl_cls()
@@ -316,7 +331,11 @@ def main():
     """Run yatel cli tools
 
     """
-    parser(sys.argv[1:])
+    try:
+        args = sys.argv[1:] or ["--help"]
+        parser(args)
+    except Exception as err:
+        parser.error(str(err))
 
 
 #===============================================================================
