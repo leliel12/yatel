@@ -391,6 +391,12 @@ class YatelNetwork(object):
             raise YatelNetworkError("Network not created")
         return self._engine.execute(query)
 
+    def enviroments_iterator(self, facts_attrs=[]):
+        attrs = facts_attrs  if facts_attrs else self.fact_attributes_names()
+        cfilter = [self.facts_table.c[k] for k in attrs]
+        query = sql.select(cfilter).distinct()
+        for row in self.execute(query):
+            yield dict(row)
 
     #===========================================================================
     # HAPLOTYPE QUERIES
