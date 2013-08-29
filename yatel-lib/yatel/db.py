@@ -402,6 +402,11 @@ class YatelNetwork(object):
     # HAPLOTYPE QUERIES
     #===========================================================================
 
+    def haplotypes_ids(self):
+        query = sql.select([self.haplotypes_table.c["hap_id"]])
+        for row in self.execute(query):
+            yield row[0]
+
     def haplotypes_iterator(self):
         """Iterates over all ``dom.Haplotype`` instances store in the database.
 
