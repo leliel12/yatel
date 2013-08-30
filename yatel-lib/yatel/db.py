@@ -403,7 +403,8 @@ class YatelNetwork(object):
     #===========================================================================
 
     def haplotypes_ids(self):
-        query = sql.select([self.haplotypes_table.c["hap_id"]])
+        column = self.haplotypes_table.c["hap_id"]
+        query = sql.select([column]).order_by(column)
         for row in self.execute(query):
             yield row[0]
 
@@ -483,6 +484,23 @@ class YatelNetwork(object):
         query = sql.text(query)
         for row in self.execute(query, **kwargs):
             yield self._row2hap(row)
+
+    def haplotypes_ids_enviroment(self, env=None, **kwargs):
+        """Like haplotypes_enviroments but only return an iterator over hap_ids
+
+        """
+        env = dict(env) if env else {}
+        env.update(kwargs)
+        where = sql.and_(*[self.facts_table.c[k] == v
+                           for k, v in env.items()])
+        query = sql.select([self.haplotypes_table.c["hap_id"]]).select_from(
+            self.haplotypes_table.join(
+                self.facts_table,
+                self.facts_table.c.hap_id == self.haplotypes_table.c.hap_id
+            )
+        ).where(where).distinct()
+        for row in self.execute(query):
+            yield row[0]
 
     def haplotypes_enviroment(self, env=None, **kwargs):
         """Return a iterator of ``dom.Haplotype`` related to a ``dom.Fact`` with
@@ -619,9 +637,9 @@ class YatelNetwork(object):
 
     def fact_attributes_names(self):
         """Return a ``iterator`` of all existing ``dom.Fact`` atributes."""
-        for c in self.facts_table.c:
-            if c.name not in ("id", "hap_id"):
-                yield c.name
+        for c in sorted(self.facts_table.c.keys()):
+            if c not in ("id", "hap_id"):
+                yield c
 
     def fact_attribute_values(self, att_name):
         """Return a ``iterator`` of all posible values of given ``dom.Fact``
