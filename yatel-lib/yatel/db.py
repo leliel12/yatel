@@ -243,8 +243,11 @@ class YatelNetwork(object):
                 avalue = elem.hap_id
                 atype = type(avalue)
                 ctype = SQL_ALCHEMY_TYPES[atype](avalue)
+                extra_params = {}
+                if isinstance(ctype, sa.Integer):
+                    extra_params["autoincrement"] = False
                 self._column_buff[HAPLOTYPES].append(
-                    sa.Column("hap_id", ctype, primary_key=True)
+                    sa.Column("hap_id", ctype, primary_key=True, **extra_params)
                 )
                 self._column_buff[FACTS].append(
                     sa.Column("hap_id", ctype,
@@ -788,7 +791,9 @@ class YatelNetwork(object):
 
     def versions_count(self):
         """Return how many versions are stored"""
-        return sql.select([self.versions_table.c.id]).count().scalar()
+        return len(
+            tuple(self.execute(sql.select([self.versions_table.c.id])))
+        )
 
     #===========================================================================
     # PROPERTIES
