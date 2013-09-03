@@ -36,7 +36,7 @@ class YAMLParser(core.BaseParser):
         data = super(YAMLParser, self).dump(nw)
         return yaml.safe_dump(data, stream=stream, **kwargs)
 
-    def load(self, nw, stream):
+    def load(self, nw, stream, **kwargs):
         data = yaml.load(stream, **kwargs)
         return super(YAMLParser, self).load(nw, data)
 

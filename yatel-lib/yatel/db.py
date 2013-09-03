@@ -102,12 +102,16 @@ SQL_ALCHEMY_TYPES = {
     float:
         lambda x: sa.Float(),
     str:
-        lambda x: sa.String(512) if len(x) < 512 else sa.Text,
+        lambda x: sa.String(500) if len(x) < 500 else sa.Text,
     unicode:
-        lambda x: sa.String(512) if len(x) < 512 else sa.Text,
+        lambda x: sa.String(500) if len(x) < 500 else sa.Text,
     decimal.Decimal:
         lambda x: sa.Numeric()
 }
+
+
+
+
 
 # TABLE NAMES
 

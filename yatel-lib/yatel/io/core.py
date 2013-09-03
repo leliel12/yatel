@@ -99,53 +99,13 @@ class BaseParser(object):
         """
         return dom.Edge(edged["weight"], *edged["haps_id"])
 
-    def version_info2dict(self,  version_info):
-        """Convert a ``db.YatelConnection().versions_infos()` result entry
-        into a ``dict``"""
-        return {"id": version_info[0],
-                "datetime": version_info[1].strftime(yatel.DATETIME_FORMAT),
-                "tag": version_info[2]}
-
-    def dict2version_info(self, version_infod):
-        """Convert a ``dict`` with version info data
-        ``db.YatelConnection().versions_infos()` result entry
-
-        """
-        return (version_infod["id"],
-                datetime.datetime.strptime(version_infod["datetime"],
-                                           yatel.DATETIME_FORMAT),
-                version_infod["tag"])
-
-    def version2dict(self, version):
-        """Convert a ``db.YatelConnection().get_version()` result entry into a
-        ``dict``"""
-        version = copy.deepcopy(version)
-        version["data"]["topology"] = [
-            [k, v] for k, v in version["data"]["topology"].items()
-        ]
-        version["datetime"] = version["datetime"].strftime(yatel.DATETIME_FORMAT)
-        return version
-
-    def dict2version(self, versiond):
-        """Convert a ``dict`` with version data
-        ``db.YatelConnection().get_version()` result entry
-
-        """
-        versiond = copy.deepcopy(versiond)
-        versiond["data"]["topology"] = dict(
-            (k, tuple(v)) for k, v in versiond["data"]["topology"]
-        )
-        versiond["datetime"] = datetime.datetime.strptime(versiond["datetime"],
-                                                          yatel.DATETIME_FORMAT)
-        return versiond
-
     #===========================================================================
     # MAIN METHODS
     #===========================================================================
 
     def dump(self, nw):
         """Convert dom objects into a dict with keys ``haplotypes``, ``facts``,
-        ``edgest`` and ``version``
+        and ``edgest``
 
         """
         self.validate_read(nw)
@@ -156,9 +116,6 @@ class BaseParser(object):
             ],
             "facts": [self.fact2dict(fact) for fact in nw.facts_iterator()],
             "edges": [self.edge2dict(edge) for edge in nw.edges_iterator()],
-            "versions": [
-                self.version2dict(version) for version in nw.versions_iterator()
-            ]
         }
 
 
@@ -174,8 +131,6 @@ class BaseParser(object):
             nw.add_element(self.dict2fact(kw))
         for kw in data["edges"]:
             nw.add_element(self.dict2edge(kw))
-        for kw in data["versions"]:
-            nw.add_element(self.dict2version(kw))
 
 
 #===============================================================================
