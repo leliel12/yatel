@@ -38,9 +38,8 @@ PYPI_REQUIRE = [
     "sqlalchemy",
     "pycante",
     "PyYAML",
-    "numpy"
-
-
+    "numpy",
+    "scipy"
 ]
 
 
