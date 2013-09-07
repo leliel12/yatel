@@ -28,9 +28,9 @@
 # IMPORTS
 #===============================================================================
 
+import uuid
 import datetime
 import string
-import tempfile
 import decimal
 import os
 import cPickle
@@ -120,9 +120,6 @@ FACTS = "facts"
 #: The name of the edges table
 EDGES = "edges"
 
-#: The name of temporaty table
-TEMP = "_tmp_yatel_objects"
-
 #: A collection tihe the 3 table names
 TABLES = (HAPLOTYPES, FACTS, EDGES)
 
@@ -160,7 +157,7 @@ class YatelNetwork(object):
             self._metadata.clear()
             self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: 0}
             self._tmp_objects = sa.Table(
-                TEMP, self._metadata,
+                "tmp_yatel_{}".format(uuid.uuid4()), self._metadata,
                 sa.Column("id", sa.Integer(), primary_key=True),
                 sa.Column("tname", sa.String(length=15), nullable=False),
                 sa.Column("data", sa.PickleType(), nullable=False),
@@ -285,9 +282,6 @@ class YatelNetwork(object):
         if self.created:
             raise YatelNetworkError("Network already created")
 
-        # first confirm all changes to the temp database
-        self._tmp_trans.commit()
-
         with self._metadata.bind.begin() as conn:
 
             # create te tables
@@ -318,7 +312,7 @@ class YatelNetwork(object):
             self._metadata.create_all(conn)
 
             query = sql.select([self._tmp_objects])
-            for row in conn.execute(query):
+            for row in self._tmp_conn.execute(query):
                 table = None
                 if row.tname == HAPLOTYPES:
                     table = self.haplotypes_table
@@ -332,9 +326,9 @@ class YatelNetwork(object):
                 conn.execute(table.insert(), **row.data)
 
         # close all tmp references
-        self._tmp_objects.drop()
-        self._tmp_conn.close()
         self._tmp_trans.close()
+        self._tmp_conn.close()
+
 
         # destroys the buffers
         self._metadata.remove(self._tmp_objects)
