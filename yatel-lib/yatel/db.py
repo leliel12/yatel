@@ -13,17 +13,6 @@
 
 """Database abstraction layer
 
-This new backend has almost the same method than the original db.py and in the
-future will be the only one.
-
-Is developed over sqlalchemy
-
-for testing use:
-
-::
-
-    from yatel import db3 as db
-
 """
 
 #===============================================================================
@@ -57,10 +46,11 @@ from sqlalchemy.engine import url
 # EXCEPTIONS
 #===============================================================================
 
-# The order to show ENGINE variables, if it not in this list put at the end
+#: The order to show ENGINE variables, if it not in this list put at the end
 VARS_ENGINE_ORDER = ("database", "user", "password", "dsn", "host", "port")
 
 
+#: Available engines
 ENGINES = (
     'sqlite',
     'memory',
@@ -69,6 +59,7 @@ ENGINES = (
 )
 
 
+#: Connection uris for the existing engines
 ENGINE_URIS = {
     'sqlite': "sqlite:///${database}",
     'memory': "sqlite://",
@@ -77,6 +68,7 @@ ENGINE_URIS = {
 }
 
 
+#: Variables of the uris
 ENGINE_VARS = {}
 for engine in ENGINES:
     tpl = string.Template(ENGINE_URIS[engine])
@@ -87,40 +79,48 @@ for engine in ENGINES:
     variables.sort(key=lambda v: VARS_ENGINE_ORDER.index(v))
     ENGINE_VARS[engine] = variables
 
-
+#: This dictionary maps a Python types to functions for convert
+#: the a given type instance to a correct sqlalchemy column type.
+#: For retrieve all suported types use db.SQL_ALCHEMY_TYPES.keys()
 SQL_ALCHEMY_TYPES = {
-    datetime.datetime:
-        lambda x: sa.DateTime(),
-    datetime.time:
-        lambda x: sa.Time(),
-    datetime.date:
-        lambda x: sa.Date(),
-    bool:
-        lambda x: sa.Boolean(),
-    int:
-        lambda x: sa.Integer(),
-    float:
-        lambda x: sa.Float(),
-    str:
-        lambda x: sa.String(500) if len(x) < 500 else sa.Text,
-    unicode:
-        lambda x: sa.String(500) if len(x) < 500 else sa.Text,
-    decimal.Decimal:
-        lambda x: sa.Numeric()
+    datetime.datetime: lambda x: sa.DateTime(),
+    datetime.time: lambda x: sa.Time(),
+    datetime.date: lambda x: sa.Date(),
+    bool: lambda x: sa.Boolean(),
+    int: lambda x: sa.Integer(),
+    float: lambda x: sa.Float(),
+    str: lambda x: sa.String(500) if len(x) < 500 else sa.Text(),
+    unicode: lambda x: sa.String(500) if len(x) < 500 else sa.Text(),
+    decimal.Decimal: lambda x: sa.Numeric()
 }
 
-
-
-
+#: This dictionary maps a sqlalchemy Column types to functions for convert
+#: the a given Column class to python type
+#: For retrieve all suported columns use db.PYTHON_TYPES.keys()
+PYTHON_TYPES = {
+    sa.DateTime: lambda x: datetime.datetime,
+    sa.Time: lambda x: datetime.time,
+    sa.Date: lambda x: datetime.date,
+    sa.Boolean: lambda x: bool,
+    sa.Integer: lambda x: int,
+    sa.Float: lambda x: float,
+    sa.String: lambda x: str,
+    sa.Text: lambda x: unicode,
+    sa.Numeric: lambda x: decimal.Decimal,
+}
 
 # TABLE NAMES
 
+#: The name of the haplotypes table
 HAPLOTYPES = "haplotypes"
 
+#: The name of the facts table
 FACTS = "facts"
 
+#: The name of the edges table
 EDGES = "edges"
 
+#: A collection tihe the 3 table names
 TABLES = (HAPLOTYPES, FACTS, EDGES)
 
 
@@ -223,16 +223,19 @@ class YatelNetwork(object):
                 avalue = elem.hap_id
                 atype = type(avalue)
                 ctype = SQL_ALCHEMY_TYPES[atype](avalue)
+                if isinstance(ctype, sa.Text):
+                    ctype = sa.String(500)
                 extra_params = {}
                 if isinstance(ctype, sa.Integer):
                     extra_params["autoincrement"] = False
                 self._column_buff[HAPLOTYPES].append(
-                    sa.Column("hap_id", ctype, primary_key=True, **extra_params)
+                    sa.Column("hap_id", ctype,
+                              index=True, primary_key=True, **extra_params)
                 )
                 self._column_buff[FACTS].append(
                     sa.Column("hap_id", ctype,
                               sa.ForeignKey('{}.hap_id'.format(HAPLOTYPES)),
-                              nullable=False)
+                              index=True, nullable=False)
                 )
 
         if isinstance(elem, dom.Haplotype):
@@ -241,7 +244,7 @@ class YatelNetwork(object):
                 avalue = elem[aname]
                 atype = type(avalue)
                 ctype = SQL_ALCHEMY_TYPES[atype](avalue)
-                column = sa.Column(aname, ctype, nullable=True)
+                column = sa.Column(aname, ctype, index=True, nullable=True)
                 self._column_buff[HAPLOTYPES].append(column)
             data = dict(elem.items_attrs())
             data["hap_id"] = elem.hap_id
@@ -253,7 +256,7 @@ class YatelNetwork(object):
                 avalue = elem[aname]
                 atype = type(avalue)
                 ctype = SQL_ALCHEMY_TYPES[atype](avalue)
-                column = sa.Column(aname, ctype, nullable=True)
+                column = sa.Column(aname, ctype, index=True, nullable=True)
                 self._column_buff[FACTS].append(column)
             data = dict(elem.items_attrs())
             data["hap_id"] = elem.hap_id
@@ -301,8 +304,10 @@ class YatelNetwork(object):
             )
 
             edges_columns = [
-                sa.Column("hap_{}".format(idx), self.haplotypes_table.c.hap_id.type,
-                          sa.ForeignKey(HAPLOTYPES + '.hap_id'), nullable=True)
+                sa.Column("hap_{}".format(idx),
+                          self.haplotypes_table.c.hap_id.type,
+                          sa.ForeignKey(HAPLOTYPES + '.hap_id'),
+                          index=True, nullable=True)
                 for idx in range(self._column_buff[EDGES])
             ]
             self.edges_table = sa.Table(

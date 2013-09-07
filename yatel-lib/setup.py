@@ -40,6 +40,7 @@ PYPI_REQUIRE = [
     "PyYAML",
     "numpy",
     "scipy"
+    "caipyrinha",
 ]
 
 
