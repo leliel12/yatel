@@ -152,20 +152,23 @@ class YatelNetwork(object):
         self._create_mode = create
 
         if self._create_mode:
+            # destroy previous databse
             self._metadata.reflect()
             self._metadata.drop_all()
             self._metadata.clear()
+
+            # helpers
             self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: 0}
-            self._tmp_objects = sa.Table(
-                "tmp_yatel_{}".format(uuid.uuid4()), self._metadata,
+            self._create_objects = sa.Table(
+                "_tmp_yatel_objs_{}".format(uuid.uuid4()), self._metadata,
                 sa.Column("id", sa.Integer(), primary_key=True),
                 sa.Column("tname", sa.String(length=15), nullable=False),
                 sa.Column("data", sa.PickleType(), nullable=False),
                 prefixes=['TEMPORARY'],
             )
-            self._tmp_conn = self._metadata.bind.connect()
-            self._tmp_objects.create(self._tmp_conn)
-            self._tmp_trans = self._tmp_conn.begin()
+            self._create_conn = self._metadata.bind.connect()
+            self._create_objects.create(self._create_conn)
+            self._create_trans = self._create_conn.begin()
         else:
             self._metadata.reflect(only=TABLES)
             self.haplotypes_table = self._metadata.tables[HAPLOTYPES]
@@ -274,45 +277,44 @@ class YatelNetwork(object):
         else:
             msg = "Object '{}' is not yatel.dom type".format(str(elem))
             raise TypeError(msg)
-        self._tmp_conn.execute(self._tmp_objects.insert(),
-                               tname=tname, data=data)
+        self._create_conn.execute(self._create_objects.insert(),
+                                  tname=tname, data=data)
 
     def end_creation(self):
 
         if self.created:
             raise YatelNetworkError("Network already created")
 
-        with self._metadata.bind.begin() as conn:
+        # create te tables
+        self.haplotypes_table = sa.Table(
+            HAPLOTYPES, self._metadata, *self._column_buff[HAPLOTYPES]
+        )
 
-            # create te tables
-            self.haplotypes_table = sa.Table(
-                HAPLOTYPES, self._metadata, *self._column_buff[HAPLOTYPES]
-            )
+        self.facts_table = sa.Table(
+            FACTS, self._metadata,
+            sa.Column("id", sa.Integer(), primary_key=True),
+            *self._column_buff[FACTS]
+        )
 
-            self.facts_table = sa.Table(
-                FACTS, self._metadata,
-                sa.Column("id", sa.Integer(), primary_key=True),
-                *self._column_buff[FACTS]
-            )
+        edges_columns = [
+            sa.Column("hap_{}".format(idx),
+                      self.haplotypes_table.c.hap_id.type,
+                      sa.ForeignKey(HAPLOTYPES + '.hap_id'),
+                      index=True, nullable=True)
+            for idx in range(self._column_buff[EDGES])
+        ]
+        self.edges_table = sa.Table(
+            EDGES, self._metadata,
+            sa.Column("id", sa.Integer(), primary_key=True),
+            sa.Column("weight", sa.Float(), nullable=False),
+            *edges_columns
+        )
 
-            edges_columns = [
-                sa.Column("hap_{}".format(idx),
-                          self.haplotypes_table.c.hap_id.type,
-                          sa.ForeignKey(HAPLOTYPES + '.hap_id'),
-                          index=True, nullable=True)
-                for idx in range(self._column_buff[EDGES])
-            ]
-            self.edges_table = sa.Table(
-                EDGES, self._metadata,
-                sa.Column("id", sa.Integer(), primary_key=True),
-                sa.Column("weight", sa.Float(), nullable=False),
-                *edges_columns
-            )
+        self._metadata.create_all(self._create_conn)
 
-            self._metadata.create_all(conn)
-
-            query = sql.select([self._tmp_objects])
-            for row in self._tmp_conn.execute(query):
+        try:
+            query = sql.select([self._create_objects])
+            for row in self._create_conn.execute(query):
                 table = None
                 if row.tname == HAPLOTYPES:
                     table = self.haplotypes_table
@@ -323,19 +325,24 @@ class YatelNetwork(object):
                 else:
                     msg = "Invalid tname '{}'".format(row.tname)
                     raise YatelNetworkError(msg)
-                conn.execute(table.insert(), **row.data)
+                self._create_conn.execute(table.insert(), **row.data)
+        except Exception as err:
+            self._create_trans.rollback()
+            raise err
+        else:
+            self._create_trans.commit()
 
         # close all tmp references
-        self._tmp_trans.close()
-        self._tmp_conn.close()
+        self._create_trans.close()
+        self._create_conn.close()
 
+        self._metadata.remove(self._create_objects)
 
         # destroys the buffers
-        self._metadata.remove(self._tmp_objects)
         del self._column_buff
-        del self._tmp_objects
-        del self._tmp_conn
-        del self._tmp_trans
+        del self._create_objects
+        del self._create_conn
+        del self._create_trans
 
         self._create_mode = False
 
