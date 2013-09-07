@@ -120,6 +120,9 @@ FACTS = "facts"
 #: The name of the edges table
 EDGES = "edges"
 
+#: The name of temporaty table
+TEMP = "_tmp_yatel_objects"
+
 #: A collection tihe the 3 table names
 TABLES = (HAPLOTYPES, FACTS, EDGES)
 
@@ -152,20 +155,19 @@ class YatelNetwork(object):
         self._create_mode = create
 
         if self._create_mode:
-            tpl = string.Template(ENGINE_URIS["sqlite"])
+            self._metadata.reflect()
+            self._metadata.drop_all()
+            self._metadata.clear()
             self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: 0}
-            self._tmp_dbfile = tempfile.NamedTemporaryFile(suffix="_yatel")
-            self._tmp_meta = sa.MetaData(
-                tpl.substitute(database=self._tmp_dbfile.name)
-            )
             self._tmp_objects = sa.Table(
-                'tmp_objects', self._tmp_meta,
+                TEMP, self._metadata,
                 sa.Column("id", sa.Integer(), primary_key=True),
                 sa.Column("tname", sa.String(length=15), nullable=False),
                 sa.Column("data", sa.PickleType(), nullable=False),
+                prefixes=['TEMPORARY'],
             )
-            self._tmp_meta.create_all()
-            self._tmp_conn = self._tmp_meta.bind.connect()
+            self._tmp_conn = self._metadata.bind.connect()
+            self._tmp_objects.create(self._tmp_conn)
             self._tmp_trans = self._tmp_conn.begin()
         else:
             self._metadata.reflect(only=TABLES)
@@ -288,10 +290,6 @@ class YatelNetwork(object):
 
         with self._metadata.bind.begin() as conn:
 
-            self._metadata.reflect(conn, only=lambda n, m: n in TABLES)
-            self._metadata.drop_all(conn)
-            self._metadata.clear()
-
             # create te tables
             self.haplotypes_table = sa.Table(
                 HAPLOTYPES, self._metadata, *self._column_buff[HAPLOTYPES]
@@ -320,7 +318,7 @@ class YatelNetwork(object):
             self._metadata.create_all(conn)
 
             query = sql.select([self._tmp_objects])
-            for row in self._tmp_conn.execute(query):
+            for row in conn.execute(query):
                 table = None
                 if row.tname == HAPLOTYPES:
                     table = self.haplotypes_table
@@ -334,18 +332,15 @@ class YatelNetwork(object):
                 conn.execute(table.insert(), **row.data)
 
         # close all tmp references
+        self._tmp_objects.drop()
         self._tmp_conn.close()
         self._tmp_trans.close()
 
-        # destroy tmp file
-        self._tmp_dbfile.close()
-
         # destroys the buffers
+        self._metadata.remove(self._tmp_objects)
         del self._column_buff
         del self._tmp_objects
-        del self._tmp_dbfile
         del self._tmp_conn
-        del self._tmp_meta
         del self._tmp_trans
 
         self._create_mode = False
