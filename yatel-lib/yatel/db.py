@@ -350,10 +350,14 @@ class YatelNetwork(object):
     # QUERIES # use execute here
     #===========================================================================
 
-    def execute(self, query):
-        """Execute a given query to the backend"""
+    def validate_created(self):
+        """Raise a ``YatelNetworkError`` if the network is not yet created"""
         if not self.created:
             raise YatelNetworkError("Network not created")
+
+    def execute(self, query):
+        """Execute a given query to the backend"""
+        self.validate_created()
         return self._engine.execute(query)
 
     def enviroments_iterator(self, facts_attrs=[]):
@@ -605,14 +609,35 @@ class YatelNetwork(object):
         for row in self.execute(query):
             yield self._row2fact(row)
 
+    def fact_attributes_types(self):
+        """Maps a fact attribute name to python type of the atttribute
+
+        """
+        self.validate_created()
+        types = {}
+        for att_name in self.fact_attributes_names():
+            column = self.facts_table.c[att_name]
+            pptype = None
+            for satype in type(column.type).__mro__:
+                if satype in PYTHON_TYPES:
+                    pptype = PYTHON_TYPES[satype](satype)
+                    break
+            if pptype:
+                types[att_name] = pptype
+            else:
+                msg = "Hierarchy of '{}' of column '{}' is not valid in yatel"
+                raise YatelNetworkError(msg.format(str(column.type), att_name))
+        return types
+
     def fact_attributes_names(self):
-        """Return a ``iterator`` of all existing ``dom.Fact`` atributes."""
+        """Return an ``iterator`` of all existing ``dom.Fact`` atributes."""
+        self.validate_created()
         for c in sorted(self.facts_table.c.keys()):
             if c not in ("id", "hap_id"):
                 yield c
 
     def fact_attribute_values(self, att_name):
-        """Return a ``iterator`` of all posible values of given ``dom.Fact``
+        """Return an ``iterator`` of all posible values of given ``dom.Fact``
         atribute.
 
         """
