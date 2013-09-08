@@ -374,6 +374,25 @@ class YatelNetwork(object):
     # HAPLOTYPE QUERIES
     #===========================================================================
 
+    def haplotype_attributes_types(self):
+        """Maps a fact attribute name to python type of the atttribute
+
+        """
+        self.validate_created()
+        types = {}
+        for att_name, column in self.haplotypes_table.c.items():
+            pptype = None
+            for satype in type(column.type).__mro__:
+                if satype in PYTHON_TYPES:
+                    pptype = PYTHON_TYPES[satype](satype)
+                    break
+            if pptype:
+                types[att_name] = pptype
+            else:
+                msg = "Hierarchy of '{}' of column '{}' is not valid in yatel"
+                raise YatelNetworkError(msg.format(str(column.type), att_name))
+        return types
+
     def haplotypes_ids(self):
         """Iterates only over all existings hap_id"""
         column = self.haplotypes_table.c["hap_id"]
