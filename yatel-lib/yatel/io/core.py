@@ -23,6 +23,7 @@ another formats.
 
 import datetime
 import copy
+import decimal
 
 import yatel
 from yatel import dom, db
@@ -35,6 +36,37 @@ from yatel import dom, db
 VERSIONS = ("0.2",)
 
 DEFAULT_VERSION = "0.2"
+
+IO_TYPES = {
+    datetime.datetime: lambda x: x.isoformat(),
+    datetime.time: lambda x: x.isoformat(),
+    datetime.date: lambda x: x.isoformat(),
+    bool: lambda x: x,
+    int: lambda x: x,
+    float: lambda x: x,
+    str: lambda x: x,
+    unicode: lambda x: x,
+    decimal.Decimal: lambda x: str(x)
+}
+
+PYTHON_TYPES = {
+    datetime.datetime:
+        lambda x: datetime.datetime.strptime(x, "%Y-%m-%dT%H:%M:%S.%f"),
+    datetime.time:
+        lambda x: datetime.datetime.strptime(s, "%H:%M:%S.%f").time(),
+    datetime.date:
+        lambda x: datetime.datetime.strptime(x, "%Y-%m-%d").date(),
+    bool: lambda x: x,
+    int: lambda x: x,
+    float: lambda x: x,
+    str: lambda x: x,
+    unicode: lambda x: x,
+    decimal.Decimal: lambda x: decimal.Decimal(x)
+}
+
+
+TYPES_NAMES = dict((k, k.__name__) for k in IO_TYPES.keys())
+
 
 #===============================================================================
 # ERROR
