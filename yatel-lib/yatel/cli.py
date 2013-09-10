@@ -331,11 +331,11 @@ def main():
     """Run yatel cli tools
 
     """
-    try:
-        args = sys.argv[1:] or ["--help"]
-        parser(args)
-    except Exception as err:
-        parser.error(str(err))
+#    try:
+    args = sys.argv[1:] or ["--help"]
+    parser(args)
+ #   except Exception as err:
+  #      parser.error(str(err))
 
 
 #===============================================================================

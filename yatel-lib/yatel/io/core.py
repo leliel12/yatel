@@ -33,9 +33,9 @@ from yatel import dom, db
 # CONSTANTS
 #===============================================================================
 
-VERSIONS = ("0.2",)
+VERSIONS = ("0.3",)
 
-DEFAULT_VERSION = "0.2"
+DEFAULT_VERSION = "0.3"
 
 IO_TYPES = {
     datetime.datetime: lambda x: x.isoformat(),
@@ -67,6 +67,7 @@ PYTHON_TYPES = {
 
 TYPES_NAMES = dict((k, k.__name__) for k in IO_TYPES.keys())
 
+NAMES_TYPES = dict((v, k) for k, v in TYPES_NAMES.items())
 
 #===============================================================================
 # ERROR
@@ -92,10 +93,18 @@ class BaseParser(object):
             msg = "load need a db.YatelNetwork instance not created"
             raise ParserError(msg)
 
-    def hap2dict(self, hap):
+    def types2str(self, types):
+        return dict((k, TYPES_NAMES[v]) for k, v in types.items())
+
+    def str2types(self, types):
+        return dict((k, NAMES_TYPES[v]) for k, v in types.items())
+
+    def hap2dict(self, hap, hap_id_type, types):
         """Convert a ``dom.Haplotype`` instance into a dict"""
-        hd = {"hap_id": hap.hap_id}
-        hd.update(hap.items_attrs())
+        hd = {"hap_id": IO_TYPES[hap_id_type](hap.hap_id)}
+        for k, v in hap.items_attrs():
+            atype = types[k]
+            hd[k] = IO_TYPES[atype](v)
         return hd
 
     def dict2hap(self, hapd):
@@ -105,11 +114,14 @@ class BaseParser(object):
         """
         return dom.Haplotype(**hapd)
 
-    def fact2dict(self, fact):
+    def fact2dict(self, fact, hap_id_type, types):
         """Convert a ``dom.Fact`` instance into a dict"""
-        hd = {"hap_id": fact.hap_id}
-        hd.update(fact.items_attrs())
-        return hd
+
+        fd = {"hap_id": IO_TYPES[hap_id_type](fact.hap_id)}
+        for k, v in fact.items_attrs():
+            atype = types[k]
+            fd[k] = IO_TYPES[atype](v)
+        return fd
 
     def dict2fact(self, factd):
         """Convert a ``dict`` with Fact data into a ``dom.Fact``
@@ -118,10 +130,10 @@ class BaseParser(object):
         """
         return dom.Fact(**factd)
 
-    def edge2dict(self, edge):
+    def edge2dict(self, edge, hap_id_type):
         """Convert a ``dom.Edge`` instance into a dict"""
         ed = {"weight": edge.weight}
-        ed["haps_id"] = list(edge.haps_id)
+        ed["haps_id"] = map(IO_TYPES[hap_id_type], edge.haps_id)
         return ed
 
     def dict2edge(self, edged):
@@ -141,13 +153,21 @@ class BaseParser(object):
 
         """
         self.validate_read(nw)
+        hap_types = nw.haplotype_attributes_types()
+        fact_types = nw.fact_attributes_types()
+        hap_id_type = hap_types["hap_id"]
         return {
             "version": DEFAULT_VERSION,
-            "haplotypes": [
-                self.hap2dict(hap) for hap in nw.haplotypes_iterator()
-            ],
-            "facts": [self.fact2dict(fact) for fact in nw.facts_iterator()],
-            "edges": [self.edge2dict(edge) for edge in nw.edges_iterator()],
+            "types": {
+                "haplotypes": self.types2str(hap_types),
+                "facts": self.types2str(fact_types)
+            },
+            "haplotypes": [self.hap2dict(hap, hap_id_type, hap_types)
+                           for hap in nw.haplotypes_iterator()],
+            "facts": [self.fact2dict(fact, hap_id_type, fact_types)
+                      for fact in nw.facts_iterator()],
+            "edges": [self.edge2dict(edge, hap_id_type) for
+                      edge in nw.edges_iterator()],
         }
 
 
