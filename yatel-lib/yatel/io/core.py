@@ -107,12 +107,16 @@ class BaseParser(object):
             hd[k] = IO_TYPES[atype](v)
         return hd
 
-    def dict2hap(self, hapd):
+    def dict2hap(self, hapd, hap_id_type, types):
         """Convert a ``dict`` with haplotype data into a ``dom.Haplotype``
         instance
 
         """
-        return dom.Haplotype(**hapd)
+        params = {}
+        for k, v in hapd.items():
+            atype = hap_id_type if k == "hap_id" else types[k]
+            params[k] = PYTHON_TYPES[atype](v)
+        return dom.Haplotype(**params)
 
     def fact2dict(self, fact, hap_id_type, types):
         """Convert a ``dom.Fact`` instance into a dict"""
@@ -123,12 +127,16 @@ class BaseParser(object):
             fd[k] = IO_TYPES[atype](v)
         return fd
 
-    def dict2fact(self, factd):
+    def dict2fact(self, factd, hap_id_type, types):
         """Convert a ``dict`` with Fact data into a ``dom.Fact``
         instance
 
         """
-        return dom.Fact(**factd)
+        params = {}
+        for k, v in factd.items():
+            atype = hap_id_type if k == "hap_id" else types[k]
+            params[k] = PYTHON_TYPES[atype](v)
+        return dom.Fact(**params)
 
     def edge2dict(self, edge, hap_id_type):
         """Convert a ``dom.Edge`` instance into a dict"""
@@ -136,12 +144,13 @@ class BaseParser(object):
         ed["haps_id"] = map(IO_TYPES[hap_id_type], edge.haps_id)
         return ed
 
-    def dict2edge(self, edged):
+    def dict2edge(self, edged, hap_id_type):
         """Convert a ``dict`` with Edge data into a ``dom.Edge``
         instance
 
         """
-        return dom.Edge(edged["weight"], *edged["haps_id"])
+        haps_ids =  map(PYTHON_TYPES[hap_id_type], edged["haps_id"])
+        return dom.Edge(edged["weight"], *haps_ids)
 
     #===========================================================================
     # MAIN METHODS
@@ -177,12 +186,16 @@ class BaseParser(object):
 
         """
         self.validate_write(nw)
+
+        hap_types = self.str2types(data["types"]["haplotypes"])
+        fact_types = self.str2types(data["types"]["facts"])
+        hap_id_type = hap_types["hap_id"]
         for kw in data["haplotypes"]:
-            nw.add_element(self.dict2hap(kw))
+            nw.add_element(self.dict2hap(kw, hap_id_type, hap_types))
         for kw in data["facts"]:
-            nw.add_element(self.dict2fact(kw))
+            nw.add_element(self.dict2fact(kw, hap_id_type, fact_types))
         for kw in data["edges"]:
-            nw.add_element(self.dict2edge(kw))
+            nw.add_element(self.dict2edge(kw, hap_id_type))
 
 
 #===============================================================================
