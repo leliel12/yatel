@@ -104,7 +104,7 @@ class BaseParser(object):
         hd = {"hap_id": IO_TYPES[hap_id_type](hap.hap_id)}
         for k, v in hap.items_attrs():
             atype = types[k]
-            hd[k] = IO_TYPES[atype](v)
+            hd[k] = IO_TYPES[atype](v) if v is not None else None
         return hd
 
     def dict2hap(self, hapd, hap_id_type, types):
@@ -115,7 +115,7 @@ class BaseParser(object):
         params = {}
         for k, v in hapd.items():
             atype = hap_id_type if k == "hap_id" else types[k]
-            params[k] = PYTHON_TYPES[atype](v)
+            params[k] = PYTHON_TYPES[atype](v) if v is not None else None
         return dom.Haplotype(**params)
 
     def fact2dict(self, fact, hap_id_type, types):
@@ -124,7 +124,7 @@ class BaseParser(object):
         fd = {"hap_id": IO_TYPES[hap_id_type](fact.hap_id)}
         for k, v in fact.items_attrs():
             atype = types[k]
-            fd[k] = IO_TYPES[atype](v)
+            fd[k] = IO_TYPES[atype](v) if v is not None else None
         return fd
 
     def dict2fact(self, factd, hap_id_type, types):
@@ -135,13 +135,17 @@ class BaseParser(object):
         params = {}
         for k, v in factd.items():
             atype = hap_id_type if k == "hap_id" else types[k]
-            params[k] = PYTHON_TYPES[atype](v)
+            params[k] = PYTHON_TYPES[atype](v) if v is not None else None
         return dom.Fact(**params)
 
     def edge2dict(self, edge, hap_id_type):
         """Convert a ``dom.Edge`` instance into a dict"""
         ed = {"weight": edge.weight}
-        ed["haps_id"] = map(IO_TYPES[hap_id_type], edge.haps_id)
+        haps_ids = []
+        for v in edge.haps_id:
+            v = IO_TYPES[hap_id_type](v) if v is not None else None
+            haps_ids.append(v)
+        ed["haps_id"] = haps_ids
         return ed
 
     def dict2edge(self, edged, hap_id_type):
@@ -149,7 +153,10 @@ class BaseParser(object):
         instance
 
         """
-        haps_ids =  map(PYTHON_TYPES[hap_id_type], edged["haps_id"])
+        haps_ids = []
+        for v in edged["haps_id"]:
+            v = PYTHON_TYPES[hap_id_type](v) if v is not None else None
+            haps_ids.append(v)
         return dom.Edge(edged["weight"], *haps_ids)
 
     #===========================================================================

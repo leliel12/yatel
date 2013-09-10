@@ -26,6 +26,7 @@ import random
 import imp
 import argparse
 import inspect
+import traceback
 import datetime
 
 import caipyrinha
@@ -49,7 +50,8 @@ parser.add_argument("-f", "--force", action="store_true",
                     help=("If you perform some action like import or"
                           "copy this option destroy"
                           "a network in this connection"))
-
+parser.add_argument("--full-stack", action="store_true",
+                    help="If yatel fails, show all the stack trace of the error")
 
 @parser.callback(action="store", metavar="CONNECTION_STRING")
 def database(flags, returns):
@@ -331,11 +333,15 @@ def main():
     """Run yatel cli tools
 
     """
-#    try:
     args = sys.argv[1:] or ["--help"]
-    parser(args)
- #   except Exception as err:
-  #      parser.error(str(err))
+    if "--full-tack" in args:
+        parser(args)
+    else:
+        try:
+            parser(args)
+        except Exception as err:
+            parser.error(str(err))
+            print_error()
 
 
 #===============================================================================
