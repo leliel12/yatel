@@ -65,8 +65,10 @@ register(json_parser.JSONParser, "yjf", "json")
 
 
 from yatel.io import yaml_parser
-register(yaml_parser.YAMLParser, "yyf", "yaml", "yml")
+register(yaml_parser.YAMLParser, "yyf", "yaml", "ymf")
 
+from yatel.io import xml_parser
+register(xml_parser.XMLParser, "xml", "yxf")
 
 #===============================================================================
 # MAIN

@@ -334,7 +334,7 @@ def main():
 
     """
     args = sys.argv[1:] or ["--help"]
-    if "--full-tack" in args:
+    if "--full-stack" in args:
         parser(args)
     else:
         try:

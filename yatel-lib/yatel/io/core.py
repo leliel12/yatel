@@ -94,10 +94,10 @@ class BaseParser(object):
             msg = "load need a db.YatelNetwork instance not created"
             raise ParserError(msg)
 
-    def types2str(self, types):
+    def types2strdict(self, types):
         return dict((k, TYPES_NAMES[v]) for k, v in types.items())
 
-    def str2types(self, types):
+    def strdict2types(self, types):
         return dict((k, NAMES_TYPES[v]) for k, v in types.items())
 
     def hap2dict(self, hap, hap_id_type, types):
@@ -176,8 +176,8 @@ class BaseParser(object):
         return {
             "version": DEFAULT_VERSION,
             "types": {
-                "haplotypes": self.types2str(hap_types),
-                "facts": self.types2str(fact_types)
+                "haplotypes": self.types2strdict(hap_types),
+                "facts": self.types2strdict(fact_types)
             },
             "haplotypes": [self.hap2dict(hap, hap_id_type, hap_types)
                            for hap in nw.haplotypes_iterator()],
@@ -195,8 +195,8 @@ class BaseParser(object):
         """
         self.validate_write(nw)
 
-        hap_types = self.str2types(data["types"]["haplotypes"])
-        fact_types = self.str2types(data["types"]["facts"])
+        hap_types = self.strdict2types(data["types"]["haplotypes"])
+        fact_types = self.strdict2types(data["types"]["facts"])
         hap_id_type = hap_types["hap_id"]
         for kw in data["haplotypes"]:
             nw.add_element(self.dict2hap(kw, hap_id_type, hap_types))
