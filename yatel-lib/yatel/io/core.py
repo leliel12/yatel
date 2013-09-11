@@ -56,7 +56,7 @@ PYTHON_TYPES = {
         lambda x: datetime.datetime.strptime(s, "%H:%M:%S.%f").time(),
     datetime.date:
         lambda x: datetime.datetime.strptime(x, "%Y-%m-%d").date(),
-    bool: bool,
+    bool: lambda x: x == True if isinstance(x, basestring) else bool(x),
     int: int,
     float: float,
     str: str,
