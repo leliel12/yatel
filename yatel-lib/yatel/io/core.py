@@ -56,11 +56,11 @@ PYTHON_TYPES = {
         lambda x: datetime.datetime.strptime(s, "%H:%M:%S.%f").time(),
     datetime.date:
         lambda x: datetime.datetime.strptime(x, "%Y-%m-%d").date(),
-    bool: lambda x: x,
-    int: lambda x: x,
-    float: lambda x: x,
-    str: lambda x: x,
-    unicode: lambda x: x,
+    bool: bool,
+    int: int,
+    float: float,
+    str: str,
+    unicode: unicode,
     decimal.Decimal: lambda x: decimal.Decimal(x)
 }
 
