@@ -48,6 +48,8 @@ class Fact(object):
             :attrs: Diferents attributes of this fact.
 
         """
+        if "id" in attrs:
+            raise ValueError("id is not valid attribute name")
         self._hap_id = hap_id
         self._attrs = attrs
 
@@ -128,6 +130,8 @@ class Haplotype(object):
             :attrs: Diferents attributes of this haplotype.
 
         """
+        if "id" in attrs:
+            raise ValueError("id is not valid attribute name")
         self._hap_id = hap_id
         self._attrs = attrs
 
