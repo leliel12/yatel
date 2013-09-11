@@ -365,8 +365,12 @@ class YatelNetwork(object):
 
         """
         attrs = facts_attrs  if facts_attrs else self.fact_attributes_names()
-        cfilter = [self.facts_table.c[k] for k in attrs]
-        query = sql.select(cfilter).distinct()
+        query = sql.select(
+            [self.facts_table.c[k] for k in attrs]
+        ).where(sql.and_(*[
+            self.facts_table.c[k] != None for k in attrs
+        ])).distinct()
+        query = query
         for row in self.execute(query):
             yield dict(row)
 
