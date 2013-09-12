@@ -20,6 +20,7 @@ files
 # IMPORTS
 #===============================================================================
 
+from xml import sax
 from xml.sax import saxutils
 
 try:
@@ -30,12 +31,15 @@ except ImportError:
 from yatel import dom
 from yatel.io import core
 
-
 #===============================================================================
 # IO FUNCTIONS
 #===============================================================================
 
 class XMLParser(core.BaseParser):
+
+    #===========================================================================
+    # DUMP
+    #===========================================================================
 
     def start_elem(self, tag, attrs={}):
         attrs = ' '.join(['{}={}'.format(k, saxutils.quoteattr(v))
@@ -120,8 +124,128 @@ class XMLParser(core.BaseParser):
         if stream is None:
             return fp.getvalue()
 
+    #===========================================================================
+    # LOAD
+    #===========================================================================
+
     def load(self, nw, stream, **kwargs):
-        pass
+        self.validate_write(nw)
+
+        fp = StringIO.StringIO(stream) \
+             if isinstance(stream, basestring) \
+             else stream
+
+        class YatelXMLHandler(sax.ContentHandler):
+
+            def __init__(self, parent, *args, **kwargs):
+
+                self.hap_types = {}
+                self.fact_types = {}
+                self.hap_id_type = None
+                self.version = None
+
+                self.stk = []
+                self.buff = None
+                self.parent = parent
+
+            def startElement(self, name, attrs):
+                self.stk.append(name.lower())
+
+                # first element
+                if self.stk == ["network"]:
+                    self.version = saxutils.unescape(attrs["version"])
+
+                # types
+                elif self.stk == ["network", "types", "haplotypes", "type"]:
+                    name = saxutils.unescape(attrs["name"])
+                    self.buff = name
+                elif self.stk == ["network", "types", "facts", "type"]:
+                    name = saxutils.unescape(attrs["name"])
+                    self.buff = name
+
+                # haplotypes
+                elif self.stk == ["network", "haplotypes", "haplotype"]:
+                    self.buff = {"last": None, "attrs": {}}
+                elif self.stk == ["network", "haplotypes", "haplotype", "attribute"]:
+                    name = saxutils.unescape(attrs["name"])
+                    self.buff["last"] =  name
+
+                # facts
+                elif self.stk == ["network", "facts", "fact"]:
+                    self.buff = {"last": None, "attrs": {}}
+                elif self.stk == ["network", "facts", "fact", "attribute"]:
+                    name = saxutils.unescape(attrs["name"])
+                    self.buff["last"] =  name
+
+                # edges
+                elif self.stk == ["network", "edges", "edge"]:
+                    self.buff = {"weight": None, "haps_id": []}
+
+            def characters(self, content):
+                content = saxutils.unescape(content)
+
+                # types
+                if self.stk == ["network", "types", "haplotypes", "type"]:
+                    self.buff = {self.buff: content}
+                elif self.stk == ["network", "types", "facts", "type"]:
+                    self.buff = {self.buff: content}
+
+                # haplotypes
+                elif self.stk == ["network", "haplotypes", "haplotype", "attribute"]:
+                    last = self.buff["last"]
+                    self.buff["attrs"][last] = content
+
+                # facts
+                elif self.stk == ["network", "facts", "fact", "attribute"]:
+                    last = self.buff["last"]
+                    self.buff["attrs"][last] = content
+
+                # edges
+                elif self.stk == ["network", "edges", "edge", "weight"]:
+                    self.buff["weight"] = float(content)
+                elif self.stk == ["network", "edges", "edge", "haps_id", "hap_id"]:
+                    self.buff["haps_id"].append(content)
+
+            def endElement(self, name):
+                if self.stk[-1] != name.lower():
+                    return
+
+                # types
+                if self.stk == ["network", "types", "haplotypes", "type"]:
+                    self.hap_types.update(self.buff)
+                elif self.stk == ["network", "types", "haplotypes"]:
+                    self.hap_types = self.parent.strdict2types(self.hap_types)
+                elif self.stk == ["network", "types", "facts", "type"]:
+                    self.fact_types.update(self.buff)
+                elif self.stk == ["network", "types", "facts"]:
+                    self.fact_types = self.parent.strdict2types(self.fact_types)
+                elif self.stk == ["network", "types"]:
+                    self.hap_id_type = self.hap_types["hap_id"]
+
+                # haplotypes
+                elif self.stk == ["network", "haplotypes", "haplotype"]:
+                    hapd = self.buff["attrs"]
+                    hap = self.parent.dict2hap(hapd,
+                                               self.hap_id_type, self.hap_types)
+                    nw.add_element(hap)
+
+                # facts
+                elif self.stk == ["network", "facts", "fact"]:
+                    factd = self.buff["attrs"]
+                    fact = self.parent.dict2fact(factd,
+                                                 self.hap_id_type,
+                                                 self.fact_types)
+                    nw.add_element(fact)
+
+                # edges
+                elif self.stk == ["network", "edges", "edge"]:
+                    edge = self.parent.dict2edge(self.buff, self.hap_id_type)
+                    nw.add_element(edge)
+
+                self.stk.pop()
+
+        handler = YatelXMLHandler(self)
+        sax.parse(fp, handler)
 
 
 #===============================================================================
