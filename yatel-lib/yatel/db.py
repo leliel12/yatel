@@ -155,15 +155,15 @@ class YatelNetwork(object):
 
         self._mode = mode
 
-        self._metadata.reflect(only=TABLES)
-
         if self._mode == MODE_READ:
+            self._metadata.reflect(only=TABLES)
             self.haplotypes_table = self._metadata.tables[HAPLOTYPES]
             self.facts_table = self._metadata.tables[FACTS]
             self.edges_table = self._metadata.tables[EDGES]
         else:
 
             if self._mode == MODE_WRITE:
+                self._metadata.reflect()
                 self._metadata.drop_all()
                 self._metadata.clear()
 
@@ -180,17 +180,17 @@ class YatelNetwork(object):
             self._create_objects.create(self._create_conn)
             self._create_trans = self._create_conn.begin()
 
-            if self._mode == MODE_APPEND and len(self._metadata.tables) > 1:
-                self._mode = MODE_READ
+            if self._mode == MODE_APPEND:
+                self._creation_append = True
+                self._metadata.reflect(only=TABLES)
                 self.haplotypes_table = self._metadata.tables[HAPLOTYPES]
                 self.facts_table = self._metadata.tables[FACTS]
                 self.edges_table = self._metadata.tables[EDGES]
                 self.add_elements(self.haplotypes_iterator())
                 self.add_elements(self.facts_iterator())
                 self.add_elements(self.edges_iterator())
-                self._mode = MODE_APPEND
                 self._metadata.drop_all(tables=[self.haplotypes_table,
-                                                self.facts_tabl,
+                                                self.facts_table,
                                                 self.edges_table])
                 self._metadata.remove(self.haplotypes_table)
                 self._metadata.remove(self.facts_table)
@@ -198,6 +198,7 @@ class YatelNetwork(object):
                 del self.haplotypes_table
                 del self.facts_table
                 del self.edges_table
+                del self._creation_append
 
     #===========================================================================
     # PRIVATE
@@ -376,8 +377,9 @@ class YatelNetwork(object):
 
     def validate_read(self):
         """Raise a ``YatelNetworkError`` if the network is in read mode"""
-        if self.mode != MODE_READ:
-            raise YatelNetworkError("Network in {} mode".format(self.mode)
+        if not getattr(self, "_creation_append", None):
+            if self.mode != MODE_READ:
+                raise YatelNetworkError("Network in {} mode".format(self.mode))
 
     def execute(self, query):
         """Execute a given query to the backend"""
