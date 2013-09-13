@@ -155,9 +155,9 @@ class YatelNetwork(object):
 
         self._hapid_buff = {}
         self._dbid_buff = {}
-        self._create_mode = create
+        self._mode = mode
 
-        if self._create_mode:
+        if self._mode:
             # destroy previous databse
             self._metadata.reflect()
             self._metadata.drop_all()
@@ -219,8 +219,8 @@ class YatelNetwork(object):
         map(self.add_element, elems)
 
     def add_element(self, elem):
-        if self.created:
-            raise YatelNetworkError("Network already created")
+        if self.mode == MODE_READ:
+            raise YatelNetworkError("Network in read-only mode")
 
         data = None
         tname = None
@@ -286,10 +286,10 @@ class YatelNetwork(object):
         self._create_conn.execute(self._create_objects.insert(),
                                   tname=tname, data=data)
 
-    def end_creation(self):
+    def confirm_changes(self):
 
-        if self.created:
-            raise YatelNetworkError("Network already created")
+        if self.mode == MODE_READ:
+            raise YatelNetworkError("Network in read-only mode")
 
         # create te tables
         self.haplotypes_table = sa.Table(
@@ -350,20 +350,20 @@ class YatelNetwork(object):
         del self._create_conn
         del self._create_trans
 
-        self._create_mode = False
+        self._mode = MODE_READ
 
     #===========================================================================
     # QUERIES # use execute here
     #===========================================================================
 
-    def validate_created(self):
-        """Raise a ``YatelNetworkError`` if the network is not yet created"""
-        if not self.created:
-            raise YatelNetworkError("Network not created")
+    def validate_read(self):
+        """Raise a ``YatelNetworkError`` if the network is in read mode"""
+        if self.mode != MODE_READ:
+            raise YatelNetworkError("Network in {} mode".format(self.mode)
 
     def execute(self, query):
         """Execute a given query to the backend"""
-        self.validate_created()
+        self.validate_read()
         return self._engine.execute(query)
 
     def enviroments_iterator(self, facts_attrs=[]):
@@ -386,7 +386,7 @@ class YatelNetwork(object):
         """Maps a fact attribute name to python type of the atttribute
 
         """
-        self.validate_created()
+        self.validate_read()
         types = {}
         for att_name, column in self.haplotypes_table.c.items():
             pptype = None
@@ -640,7 +640,7 @@ class YatelNetwork(object):
         """Maps a fact attribute name to python type of the atttribute
 
         """
-        self.validate_created()
+        self.validate_read()
         types = {}
         for att_name in self.fact_attributes_names():
             column = self.facts_table.c[att_name]
@@ -658,7 +658,7 @@ class YatelNetwork(object):
 
     def fact_attributes_names(self):
         """Return an ``iterator`` of all existing ``dom.Fact`` atributes."""
-        self.validate_created()
+        self.validate_read()
         for c in sorted(self.facts_table.c.keys()):
             if c not in ("id", "hap_id"):
                 yield c
@@ -691,8 +691,8 @@ class YatelNetwork(object):
         return self._uri
 
     @property
-    def created(self):
-        return not self._create_mode
+    def mode(self):
+        return self._mode
 
 
 #===============================================================================
@@ -768,8 +768,8 @@ def exists(engine, **kwargs):
 def copy(from_nw, to_nw):
     """Copy all the network in ``from_nw`` to the network ``to_nw``.
 
-    ``from_nw`` must be created and ``to_nw`` in create mode. Is your
-    responsability to call ``to_nw.end_creation()`` after the copy
+    ``from_nw`` must be in  read-only mode and ``to_nw`` in write or append mode.
+    Is your responsability to call ``to_nw.confirm_changes()`` after the copy
 
     """
     to_nw.add_elements(from_nw.haplotypes_iterator())

@@ -69,12 +69,13 @@ def database(flags, returns):
         return db.parse_uri(flags.database, log=flags.log or None)
 
 
-@parser.callback(action="store", metavar="MODE", default=db.MODE_READ)
+@parser.callback(action="store", metavar="[r|w|a]", default=db.MODE_READ)
 def mode(flags, returns):
     """The mode to open the database [r|w|a]"""
     if flags.mode not in db.MODES:
         parser.error("{} is not a valid mode use 'r' 'w' or 'a'")
-    returns.database["mode"] = flags.mode
+    if returns.database:
+        returns.database["mode"] = flags.mode
 
 
 @parser.callback("--fake-network", exclusive="ex0", action="store", nargs=3)
@@ -175,7 +176,7 @@ def fake_network(flags, returns):
         haps_id = map(lambda h: h.hap_id, hs)
         edge = dom.Edge(w, *haps_id)
         nw.add_element(edge)
-    nw.end_creation()
+    nw.confirm_changes()
 
 
 @parser.callback(exclusive="ex0", action="store", type=argparse.FileType("w"),
@@ -234,7 +235,7 @@ def load(flags, returns):
 
     io.load(rtype=ext, nw=nw, stream=flags.load)
 
-    nw.end_creation()
+    nw.confirm_changes()
 
 
 @parser.callback(exclusive="ex0", action="store",
@@ -251,7 +252,7 @@ def copy(flags, returns):
     from_nw = db.YatelNetwork(**conn_data)
 
     db.copy(from_nw, to_nw)
-    to_nw.end_creation()
+    to_nw.confirm_changes()
 
 
 @parser.callback("--create-etl", exclusive="ex0", action="store",
@@ -314,7 +315,7 @@ def run_etl(flags, returns):
 
     etl.execute(nw, etl_instance, *params)
 
-    nw.end_creation()
+    nw.confirm_changes()
 
 
 #===============================================================================
