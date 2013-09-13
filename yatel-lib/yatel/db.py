@@ -162,6 +162,11 @@ class YatelNetwork(object):
             self.facts_table = self._metadata.tables[FACTS]
             self.edges_table = self._metadata.tables[EDGES]
         else:
+
+            if self._mode == MODE_WRITE:
+                self._metadata.drop_all()
+                self._metadata.clear()
+
             # helpers
             self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: 0}
             self._create_objects = sa.Table(
@@ -192,7 +197,7 @@ class YatelNetwork(object):
                 self._metadata.remove(self.edges_table)
                 del self.haplotypes_table
                 del self.facts_table
-                del self.edges_table)
+                del self.edges_table
 
     #===========================================================================
     # PRIVATE
