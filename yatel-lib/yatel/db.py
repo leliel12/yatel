@@ -153,16 +153,15 @@ class YatelNetwork(object):
         self._engine = sa.create_engine(self._uri, echo=bool(log))
         self._metadata = sa.MetaData(self._engine)
 
-        self._hapid_buff = {}
-        self._dbid_buff = {}
         self._mode = mode
 
-        if self._mode:
-            # destroy previous databse
-            self._metadata.reflect()
-            self._metadata.drop_all()
-            self._metadata.clear()
+        self._metadata.reflect(only=TABLES)
 
+        if self._mode == MODE_READ:
+            self.haplotypes_table = self._metadata.tables[HAPLOTYPES]
+            self.facts_table = self._metadata.tables[FACTS]
+            self.edges_table = self._metadata.tables[EDGES]
+        else:
             # helpers
             self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: 0}
             self._create_objects = sa.Table(
@@ -175,11 +174,25 @@ class YatelNetwork(object):
             self._create_conn = self._metadata.bind.connect()
             self._create_objects.create(self._create_conn)
             self._create_trans = self._create_conn.begin()
-        else:
-            self._metadata.reflect(only=TABLES)
-            self.haplotypes_table = self._metadata.tables[HAPLOTYPES]
-            self.facts_table = self._metadata.tables[FACTS]
-            self.edges_table = self._metadata.tables[EDGES]
+
+            if self._mode == MODE_APPEND and len(self._metadata.tables) > 1:
+                self._mode = MODE_READ
+                self.haplotypes_table = self._metadata.tables[HAPLOTYPES]
+                self.facts_table = self._metadata.tables[FACTS]
+                self.edges_table = self._metadata.tables[EDGES]
+                self.add_elements(self.haplotypes_iterator())
+                self.add_elements(self.facts_iterator())
+                self.add_elements(self.edges_iterator())
+                self._mode = MODE_APPEND
+                self._metadata.drop_all(tables=[self.haplotypes_table,
+                                                self.facts_tabl,
+                                                self.edges_table])
+                self._metadata.remove(self.haplotypes_table)
+                self._metadata.remove(self.facts_table)
+                self._metadata.remove(self.edges_table)
+                del self.haplotypes_table
+                del self.facts_table
+                del self.edges_table)
 
     #===========================================================================
     # PRIVATE
