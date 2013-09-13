@@ -123,6 +123,12 @@ EDGES = "edges"
 #: A collection tihe the 3 table names
 TABLES = (HAPLOTYPES, FACTS, EDGES)
 
+MODE_READ = "r"
+MODE_WRITE = "w"
+MODE_APPEND = "a"
+
+#: Collection of tri modes to open the networks
+MODES = (MODE_READ, MODE_WRITE, MODE_APPEND)
 
 #===============================================================================
 # ERROR
@@ -140,7 +146,7 @@ class YatelNetworkError(Exception):
 
 class YatelNetwork(object):
 
-    def __init__(self, engine, create=False, log=None, **kwargs):
+    def __init__(self, engine, mode=MODE_READ, log=None, **kwargs):
 
         self._uri = to_uri(engine, **kwargs)
 
@@ -702,7 +708,7 @@ def format_date(dt):
     return datetime.datetime.strptime(dt.strftime(dtf), dtf)
 
 
-def parse_uri(uri, create=False, log=None):
+def parse_uri(uri, mode=MODE_READ, log=None):
     """Create a dictionary for use in creation of YatelNetwork
 
     ::
@@ -720,7 +726,7 @@ def parse_uri(uri, create=False, log=None):
 
     """
     urlo = url.make_url(uri)
-    return {"create": create, "log": log,
+    return {"mode": mode, "log": log,
             "engine": urlo.drivername, "database": urlo.database,
             "user": urlo.username, "password": urlo.password,
             "host": urlo.host, "port": urlo.port}
@@ -738,10 +744,10 @@ def exists(engine, **kwargs):
     """Returns true if exists a db.YatelNetwork database in that connection
 
     """
-    kwargs.pop("create", None)
+    kwargs.pop("mode", None)
     try:
 
-        nw = YatelNetwork(engine, create=False, **kwargs)
+        nw = YatelNetwork(engine, mode=MODE_READ, **kwargs)
         hap_id_type = type(nw.haplotypes_table.c.hap_id.type)
 
         if not (nw.facts_table.c.hap_id.type, hap_id_type):

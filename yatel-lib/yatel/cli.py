@@ -52,6 +52,10 @@ parser.add_argument("-f", "--force", action="store_true",
                           "a network in this connection"))
 parser.add_argument("--full-stack", action="store_true",
                     help="If yatel fails, show all the stack trace of the error")
+parser.add_argument("--log", action="store_true",
+                    help="log all backend info to stdio")
+
+
 
 @parser.callback(action="store", metavar="CONNECTION_STRING")
 def database(flags, returns):
@@ -62,7 +66,15 @@ def database(flags, returns):
         'postgres://USER:PASSWORD@HOST:PORT/DATABASE'.
 
         """
-        return db.parse_uri(flags.database, create=False)
+        return db.parse_uri(flags.database, log=flags.log or None)
+
+
+@parser.callback(action="store", metavar="MODE", default=db.MODE_READ)
+def mode(flags, returns):
+    """The mode to open the database [r|w|a]"""
+    if flags.mode not in db.MODES:
+        parser.error("{} is not a valid mode use 'r' 'w' or 'a'")
+    returns.database["mode"] = flags.mode
 
 
 @parser.callback("--fake-network", exclusive="ex0", action="store", nargs=3)
@@ -144,8 +156,6 @@ def fake_network(flags, returns):
         parser.error(msg)
 
     conn_data = returns.database
-    conn_data["create"] = True
-    conn_data["log"] = True
     nw = db.YatelNetwork(**conn_data)
 
     haps = []
@@ -180,8 +190,6 @@ def dump(flags, returns):
         raise ValueError("Invalid type '{}'".format(ext))
 
     conn_data = returns.database
-    conn_data["create"] = False
-    conn_data["log"] = True
     nw = db.YatelNetwork(**conn_data)
 
     io.dump(rtype=ext, nw=nw, stream=flags.dump)
@@ -202,8 +210,6 @@ def backup(flags, returns):
     fpath = "{}{}.{}".format(fname, datetime.datetime.utcnow().isoformat(), ext)
 
     conn_data = returns.database
-    conn_data["create"] = False
-    conn_data["log"] = True
     nw = db.YatelNetwork(**conn_data)
 
     with open(fpath, 'w') as fp:
@@ -224,8 +230,6 @@ def load(flags, returns):
         raise ValueError("Invalid type '{}'".format(ext))
 
     conn_data = returns.database
-    conn_data["create"] = True
-    conn_data["log"] = True
     nw = db.YatelNetwork(**conn_data)
 
     io.load(rtype=ext, nw=nw, stream=flags.load)
@@ -244,8 +248,6 @@ def copy(flags, returns):
     to_nw = db.YatelNetwork(**to_conn_data)
 
     conn_data = returns.database
-    conn_data["create"] = False
-    conn_data["log"] = True
     from_nw = db.YatelNetwork(**conn_data)
 
     db.copy(from_nw, to_nw)
@@ -322,7 +324,7 @@ def run_etl(flags, returns):
 def _fail_if_no_force(cmd, flags, conn_data):
     if not flags.force and db.exists(**conn_data):
         msg = ("There is an existing 'YatelNetwork' in the conection '{}' and "
-               "the command '{}' will destroy it. If you want to destroy it "
+               "the command '{}' will altered it. If you want to destroy it "
                "anyway use the option '-f' or '--force' along with "
                "the command '{}'").format(db.to_uri(**conn_data), cmd, cmd)
         parser.error(msg)
