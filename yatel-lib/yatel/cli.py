@@ -262,25 +262,24 @@ def create_etl(flags, returns):
     fp.write(tpl)
 
 
-@parser.callback("--etl-desc", exclusive="ex0", action="store", nargs=2,
+@parser.callback("--desc-etl", exclusive="ex0", action="store", nargs=1,
                  metavar="ARG", exit=0)
-def etl_desc(flags, returns):
-    """Return a list of parameters and documentataton abot the etl
+def desc_etl(flags, returns):
+    """Return a list of parameters and documentataton about the etl
 
-    The first two aruments are the module of the etl and the etl class name,
+    The argument is in the format path/to/module.py:ClassName
 
     """
-    filepath = flags.etl_desc[0]
-    clsname = flags.etl_desc[1]
+    filepath, clsname = flags.desc_etl[0].split(":", 1)
 
     etl_cls = etl.etlcls_from_module(filepath, clsname)
-    doc = etl_cls.__doc__
+    doc = etl_cls.__doc__ or "-"
     params = ", ".join(etl_cls.setup_args)
     print ("ETL CLASS: {cls}\n"
            "FILE: {path}\n"
            "DOC: {doc}\n"
            "PARAMETERS: {params}\n").format(cls=clsname, path=filepath,
-                                          doc=doc, params=params)
+                                            doc=doc, params=params)
 
 
 #=================================================
