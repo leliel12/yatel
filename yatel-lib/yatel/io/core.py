@@ -85,13 +85,13 @@ class ParserError(Exception):
 class BaseParser(object):
 
     def validate_read(self, nw):
-        if not isinstance(nw, db.YatelNetwork) or not nw.created:
-            msg = "load need a db.YatelNetwork instance created"
+        if not isinstance(nw, db.YatelNetwork) or not nw.mode != db.MODE_READ:
+            msg = "load need a db.YatelNetwork in read mode"
             raise ParserError(msg)
 
     def validate_write(self, nw):
-        if not isinstance(nw, db.YatelNetwork) or nw.created:
-            msg = "load need a db.YatelNetwork instance not created"
+        if not isinstance(nw, db.YatelNetwork) or nw.mode == db.MODE_READ:
+            msg = "dump need a db.YatelNetwork instance in write or append mode"
             raise ParserError(msg)
 
     def types2strdict(self, types):

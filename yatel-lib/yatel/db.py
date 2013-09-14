@@ -35,11 +35,11 @@ import decimal
 import os
 import cPickle
 
-from yatel import dom
-
 import sqlalchemy as sa
 from sqlalchemy import sql
 from sqlalchemy.engine import url
+
+from yatel import dom
 
 
 #===============================================================================
@@ -79,6 +79,7 @@ for engine in ENGINES:
     variables.sort(key=lambda v: VARS_ENGINE_ORDER.index(v))
     ENGINE_VARS[engine] = variables
 
+
 #: This dictionary maps a Python types to functions for convert
 #: the a given type instance to a correct sqlalchemy column type.
 #: For retrieve all suported types use db.SQL_ALCHEMY_TYPES.keys()
@@ -93,6 +94,7 @@ SQL_ALCHEMY_TYPES = {
     unicode: lambda x: sa.String(500) if len(x) < 500 else sa.Text(),
     decimal.Decimal: lambda x: sa.Numeric()
 }
+
 
 #: This dictionary maps a sqlalchemy Column types to functions for convert
 #: the a given Column class to python type
@@ -167,7 +169,6 @@ class YatelNetwork(object):
                 self._metadata.drop_all()
                 self._metadata.clear()
 
-            # helpers
             self._column_buff = {HAPLOTYPES: [], FACTS: [], EDGES: 0}
             self._create_objects = sa.Table(
                 "_tmp_yatel_objs_{}".format(uuid.uuid4()), self._metadata,
@@ -189,9 +190,12 @@ class YatelNetwork(object):
                 self.add_elements(self.haplotypes_iterator())
                 self.add_elements(self.facts_iterator())
                 self.add_elements(self.edges_iterator())
-                self._metadata.drop_all(tables=[self.haplotypes_table,
-                                                self.facts_table,
-                                                self.edges_table])
+                self._metadata.drop_all(
+                    self._create_conn,
+                    tables=[self.haplotypes_table,
+                            self.facts_table,
+                            self.edges_table]
+                )
                 self._metadata.remove(self.haplotypes_table)
                 self._metadata.remove(self.facts_table)
                 self._metadata.remove(self.edges_table)
@@ -199,6 +203,7 @@ class YatelNetwork(object):
                 del self.facts_table
                 del self.edges_table
                 del self._creation_append
+
 
     #===========================================================================
     # PRIVATE
@@ -390,11 +395,14 @@ class YatelNetwork(object):
         """Iterates over all convinations of enviroments of the given attrs
 
         """
-        attrs = facts_attrs  if facts_attrs else self.fact_attributes_names()
+        if "hap_id" in facts_attrs:
+            raise ValueError("Invalid fact attr: 'hap_id'")
+        if "id" in facts_attrs:
+            raise ValueError("Invalid fact attr: 'id'")
+        attrs = facts_attrs if facts_attrs else self.fact_attributes_names()
         query = sql.select(
             [self.facts_table.c[k] for k in attrs]
         ).distinct()
-        query = query
         for row in self.execute(query):
             yield dict(row)
 
