@@ -43,6 +43,7 @@ IO_TYPES = {
     datetime.date: lambda x: x.isoformat(),
     bool: lambda x: x,
     int: lambda x: x,
+    long: lambda x: x,
     float: lambda x: x,
     str: lambda x: x,
     unicode: lambda x: x,
@@ -58,6 +59,7 @@ PYTHON_TYPES = {
         lambda x: datetime.datetime.strptime(x, "%Y-%m-%d").date(),
     bool:
         lambda x: x.lower() == "true" if isinstance(x, basestring) else bool(x),
+    long: long,
     int: int,
     float: float,
     str: str,
