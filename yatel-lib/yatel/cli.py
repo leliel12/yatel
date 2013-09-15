@@ -243,7 +243,7 @@ def load(flags, returns):
 def copy(flags, returns):
     """Copy the database (of `database` to this connection"""
 
-    to_conn_data = db.parse_uri(flags.copy, create=True, log=True)
+    to_conn_data = db.parse_uri(flags.copy, mode=db.MODE_WRITE, log=flags.log)
     _fail_if_no_force("--copy", flags, to_conn_data)
 
     to_nw = db.YatelNetwork(**to_conn_data)
@@ -306,8 +306,6 @@ def run_etl(flags, returns):
     etl_instance = etl_cls()
 
     conn_data = returns.database
-    conn_data["create"] = True
-    conn_data["log"] = True
 
     _fail_if_no_force("--run-etl", flags, conn_data)
 

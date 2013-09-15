@@ -87,7 +87,7 @@ class ParserError(Exception):
 class BaseParser(object):
 
     def validate_read(self, nw):
-        if not isinstance(nw, db.YatelNetwork) or not nw.mode != db.MODE_READ:
+        if not isinstance(nw, db.YatelNetwork) or nw.mode != db.MODE_READ:
             msg = "load need a db.YatelNetwork in read mode"
             raise ParserError(msg)
 

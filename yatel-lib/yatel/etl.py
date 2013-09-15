@@ -52,7 +52,7 @@ from yatel import etl, dom
 
 class CustomETL(etl.ETL):
 
-# you can access the current network from the attribute 'self.nw'
+    # you can access the current network from the attribute 'self.nw'
 
 ${code}
 
