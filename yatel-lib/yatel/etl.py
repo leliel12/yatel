@@ -191,7 +191,7 @@ def execute(nw, etl, *args):
     etl.setup(*args)
 
     etl.pre_haplotype_gen()
-    for hap in etl.haplotype_gen():
+    for hap in etl.haplotype_gen() or []:
         if isinstance(hap, dom.Haplotype):
             nw.add_element(hap)
         else:
@@ -201,7 +201,7 @@ def execute(nw, etl, *args):
     etl.post_haplotype_gen()
 
     etl.pre_fact_gen()
-    for fact in etl.fact_gen():
+    for fact in etl.fact_gen() or []:
         if isinstance(fact, dom.Fact):
             nw.add_element(fact)
         else:
@@ -211,7 +211,7 @@ def execute(nw, etl, *args):
     etl.post_fact_gen()
 
     etl.pre_edge_gen()
-    for edge in etl.edge_gen():
+    for edge in etl.edge_gen() or []:
         if isinstance(edge, dom.Edge):
             nw.add_element(edge)
         else:
@@ -221,8 +221,6 @@ def execute(nw, etl, *args):
     etl.post_edge_gen()
 
     etl.teardown()
-
-    return nw
 
 
 #===============================================================================
