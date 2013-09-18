@@ -28,8 +28,9 @@ from yatel import db
 # KMEANS
 #===============================================================================
 
-def kmeans(nw, fact_attrs, k_or_guess, repeated=True, *args, **kwargs):
-    envs, obs, ref = nw2obs(nw, fact_attrs, repeated=repeated)
+def kmeans(nw, fact_attrs, k_or_guess, repeated=True, coordc=None,
+           *args, **kwargs):
+    envs, obs, ref = nw2obs(nw, fact_attrs, repeated=repeated, coordc=coordc)
     codebook, distortion = vq.kmeans(obs=obs, k_or_guess=k_or_guess,
                                      *args, **kwargs)
     clustenv = cluster_enviroments(envs, obs, ref, codebook)
@@ -40,17 +41,24 @@ def kmeans(nw, fact_attrs, k_or_guess, repeated=True, *args, **kwargs):
 # SUPPORT
 #===============================================================================
 
-def nw2obs(nw, fact_attrs, repeated=True):
+def nw2obs(nw, fact_attrs, repeated=True, coordc=None):
     if not isinstance(nw, db.YatelNetwork):
         msg = "nw must be 'yatel.db.YatelNetwork' instance"
         raise TypeError(ms)
-    haps_id = tuple(nw.haplotypes_ids())
+    haps_id = None
+    if coordc is None:
+        haps_id = tuple(nw.haplotypes_ids())
     envs = tuple(nw.enviroments_iterator(fact_attrs))
     mtx = []
     ref = []
     for idx, env in enumerate(envs):
-        ehid = tuple(nw.haplotypes_ids_enviroment(env=env))
-        row = [int(hid in ehid) for hid in haps_id]
+
+        row = None
+        if coordc is None:
+            ehid = tuple(nw.haplotypes_ids_enviroment(env=env))
+            row = [int(hid in ehid) for hid in haps_id]
+        else:
+            row = coordc(nw, env)
 
         if repeated:
             mtx.append(row)
