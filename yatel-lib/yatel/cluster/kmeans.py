@@ -25,10 +25,22 @@ from yatel import db
 
 
 #===============================================================================
-#
+# KMEANS
 #===============================================================================
 
 def kmeans(nw, fact_attrs, k_or_guess, repeated=True, *args, **kwargs):
+    envs, obs, ref = nw2obs(nw, fact_attrs, repeated=repeated)
+    codebook, distortion = vq.kmeans(obs=obs, k_or_guess=k_or_guess,
+                                     *args, **kwargs)
+    clustenv = cluster_enviroments(envs, obs, ref, codebook)
+    return codebook, distortion, clustenv
+
+
+#===============================================================================
+# SUPPORT
+#===============================================================================
+
+def nw2obs(nw, fact_attrs, repeated=True):
     if not isinstance(nw, db.YatelNetwork):
         msg = "nw must be 'yatel.db.YatelNetwork' instance"
         raise TypeError(ms)
@@ -48,9 +60,10 @@ def kmeans(nw, fact_attrs, k_or_guess, repeated=True, *args, **kwargs):
                 mtx.append(row)
             ref.append(mtx.index(row))
 
-    obs = np.array(mtx)
-    codebook, distortion = vq.kmeans(obs=obs, k_or_guess=k_or_guess,
-                                     *args, **kwargs)
+    return envs, np.array(mtx), ref
+
+
+def cluster_enviroments(envs, obs, ref, codebook):
     clustenv = [[] for _ in codebook]
     for idx, env in enumerate(envs):
         ridx = ref[idx]
@@ -61,7 +74,12 @@ def kmeans(nw, fact_attrs, k_or_guess, repeated=True, *args, **kwargs):
             if min_cluster is None or min_cluster[1] > dist:
                 min_cluster = (cluster, dist)
         clustenv[min_cluster[0]].append(env)
+    return tuple(map(tuple, clustenv))
 
-    return codebook, distortion, tuple(map(tuple, clustenv))
 
+#===============================================================================
+# MAIN
+#===============================================================================
 
+if __name__ == "__main__":
+    print(__doc__)
