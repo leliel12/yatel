@@ -493,29 +493,6 @@ class YatelNetwork(object):
             else:
                 yield edge.weight, (hap,)
 
-    def haplotypes_by_sql(self, query, **kwargs):
-        """Try to execute an arbitrary *sql* and return an iterable of
-        ``dom.Haplotype`` instances selected by the query.
-
-        NOTE: Init all queries with ``select * from haplotype``
-
-        **Params**
-            :query: The *sql* query.
-            :kwargs: Argument to replace the ``:varname`` in the query.
-
-        **Returns**
-            A ``iterator`` of ``dom.Haplotype`` instance.
-
-        For more information see: http://docs.sqlalchemy.org/en/rel_0_8/core/tutorial.html#using-text
-
-        """
-        if not query.lower().startswith("select * from haplotype"):
-            msg = "'query' must start with 'select * from 'haplotype'"
-            raise ValueError(msg)
-        query = sql.text(query)
-        for row in self.execute(query, **kwargs):
-            yield self._row2hap(row)
-
     def haplotypes_ids_enviroment(self, env=None, **kwargs):
         """Like haplotypes_enviroments but only return an iterator over hap_ids
 
