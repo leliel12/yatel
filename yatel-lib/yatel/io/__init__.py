@@ -111,9 +111,9 @@ def dump(rtype, nw, stream=None, **kwargs):
     >>> nw.add_elements([dom.Fact(1, att0=True, att1=4),
     ...                  dom.Fact(2, att0=False),
     ...                  dom.Fact(2, att0=True, att2="foo")])
-    >>> nw.add_elements([dom.Edge(12, 1,2),
-    ...                  dom.Edge(34, 2,3),
-    ...                  dom.Edge(1.25, 3,1)])
+    >>> nw.add_elements([dom.Edge(12, 1, 2),
+    ...                  dom.Edge(34, 2, 3),
+    ...                  dom.Edge(1.25, 3, 1)])
     >>> nw.confirm_changes()
     >>> with open("network.xml", "w") as fp:
     ...     io.dmp("xml", nw, fp)

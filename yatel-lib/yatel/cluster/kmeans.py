@@ -97,9 +97,9 @@ def kmeans(nw, fact_attrs, k_or_guess,
     >>> nw.add_elements([dom.Fact(1, att0=True, att1=4),
     ...                  dom.Fact(2, att0=False),
     ...                  dom.Fact(2, att0=True, att2="foo")])
-    >>> nw.add_elements([dom.Edge(12, 1,2),
-    ...                  dom.Edge(34, 2,3),
-    ...                  dom.Edge(1.25, 3,1)])
+    >>> nw.add_elements([dom.Edge(12, 1, 2),
+    ...                  dom.Edge(34, 2, 3),
+    ...                  dom.Edge(1.25, 3, 1)])
     >>> nw.confirm_changes()
     >>> kmeans.kmeans(nw, ["att0", "att2"], 2)
     (array([[1, 0, 0],
@@ -168,9 +168,9 @@ def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
     >>> nw.add_elements([dom.Fact(1, att0=True, att1=4),
     ...                  dom.Fact(2, att0=False),
     ...                  dom.Fact(2, att0=True, att2="foo")])
-    >>> nw.add_elements([dom.Edge(12, 1,2),
-    ...                  dom.Edge(34, 2,3),
-    ...                  dom.Edge(1.25, 3,1)])
+    >>> nw.add_elements([dom.Edge(12, 1, 2),
+    ...                  dom.Edge(34, 2, 3),
+    ...                  dom.Edge(1.25, 3, 1)])
     >>> nw.confirm_changes()
     >>> kmeans.nw2obs(nw, ["att0", "att2"])
     (array([[1, 0, 0],
