@@ -106,8 +106,6 @@ def dump(rtype, nw, stream=None, **kwargs):
     **Example**
 
     >>> from yatel import nw, io
-    >>> from yatel import nw
-    >>> from yatel.cluster import kmeans
     >>> nw = db.YatelNetwork('memory', mode=db.MODE_WRITE)
     >>> nw.add_elements([dom.Haplotype(1), dom.Haplotype(2), dom.Haplotype(3)])
     >>> nw.add_elements([dom.Fact(1, att0=True, att1=4),
