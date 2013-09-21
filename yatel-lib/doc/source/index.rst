@@ -16,7 +16,6 @@ Contents:
 
    install.rst
    manual.rst
-   fileformats.rst
    etl.rst
    apidoc/modules.rst
 

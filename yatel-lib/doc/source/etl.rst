@@ -11,11 +11,11 @@ Sugested *bash* (posix) script
 
 
     DATABASE="engine://your_usr:your_pass@host:port/database";
-    BACKUP_TPL="/path/to/your/backup.json";
+    BACKUP_TPL="/path/to/your/backup.xml";
     ETL="/path/to/your/etl_file.py";
 
-    yatel --no-gui --database $DATABASE --backup $BACKUP_TPL;
-    yatel --no-gui --database $DATABASE --run-etl $ETL;
+    yatel --no-gui --database $DATABASE --backup $BACKUP_TPL --log 2> logfile.txt;
+    yatel --no-gui --database $DATABASE --run-etl $ETL --log 2> logfile.txt;
 
 
 Sugested *bat* (Windows) script
@@ -27,5 +27,5 @@ Sugested *bat* (Windows) script
     set ETL=c:\path\to\your\etl_file.py
     set DATABASE=sqlite://to/thing
 
-    yatel --no-gui --database %DATABASE% --backup %BACKUP_TPL%
-    yatel --no-gui --database %DATABASE% --run-etl %ETL%
+    yatel --no-gui --database %DATABASE% --backup %BACKUP_TPL% --log 2> logfile.txt;
+    yatel --no-gui --database %DATABASE% --run-etl %ETL% --log 2> logfile.txt;

@@ -88,8 +88,8 @@ def kmeans(nw, fact_attrs, k_or_guess,
                                 the enviroments of the i'th centroid of
                                 coodebook
 
-    Example
-    -------
+    **Example**
+
     >>> from yatel import nw
     >>> from yatel.cluster import kmeans
     >>> nw = db.YatelNetwork('memory', mode=db.MODE_WRITE)
@@ -159,8 +159,8 @@ def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
                 - ``envs``: M array of all posible enviroments of the ``nw``
                             by the given ``facts_attrs``
 
-    Example
-    -------
+    **Example**
+
     >>> from yatel import nw
     >>> from yatel.cluster import kmeans
     >>> nw = db.YatelNetwork('memory', mode=db.MODE_WRITE)
