@@ -60,9 +60,9 @@ def kmeans(nw, fact_attrs, k_or_guess,
     :param whiten: execute ``scipy.cluster.vq.whiten`` function over the
                    observation array before executing subjacent *scipy kmeans*.
     :type whiten: bool
-    :param coordc: If coordc is None generates the coordinates for the algorithm
-                   with the haplotypes which exists in each environment.
-                   Otherwise ``coordc`` must be a callable with 2 arguments:
+    :param coordc: If coordc is None generates use ``hap_in_env_coords``
+                   function. Otherwise ``coordc`` must be a callable with
+                   2 arguments:
 
                         - ``nw`` network source of enviroments to classify.
                         - ``env`` the enviroment to calculate the coordinates
@@ -128,6 +128,24 @@ def kmeans(nw, fact_attrs, k_or_guess,
 # SUPPORT
 #===============================================================================
 
+def hap_in_env_coords(nw, env):
+    """Generates the coordinates for the kmeans algorithm
+    with the existences of haplotypes in the environment.
+
+    The returned coordinates has M elements
+    (M is the number of haplotypes in the network)
+    with same order of ``yatel.db.YatelNetwork.haplotypes_ids`` function
+    with 2 posible values:
+
+        - **0** if the haplotype not exist in the enviroment.
+        - **0** if the haplotype exist in the enviroment.
+
+    """
+    haps_id = tuple(nw.haplotypes_ids())
+    ehid = tuple(nw.haplotypes_ids_enviroment(env=env))
+    return [int(hid in ehid) for hid in haps_id]
+
+
 def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
     """Convert a given enviroments defined by ``fact_attrs``
     of a network to observation matrix to cluster with subjacent *scipy kmeans*
@@ -141,9 +159,9 @@ def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
     :param whiten: execute ``scipy.cluster.vq.whiten`` function over the
                    observation array before executing subjacent *scipy kmeans*.
     :type whiten: bool
-    :param coordc: If coordc is None generates the coordinates for the algorithm
-                   with the haplotypes which exists in each environment.
-                   Otherwise ``coordc`` must be a callable with 2 arguments:
+    :param coordc: If coordc is None generates use ``hap_in_env_coords``
+                   function. Otherwise ``coordc`` must be a callable with
+                   2 arguments:
 
                         - ``nw`` network source of enviroments to classify.
                         - ``env`` the enviroment to calculate the coordinates
@@ -184,18 +202,11 @@ def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
     if not isinstance(nw, db.YatelNetwork):
         msg = "nw must be 'yatel.db.YatelNetwork' instance"
         raise TypeError(ms)
-    haps_id = None
-    if coordc is None:
-        haps_id = tuple(nw.haplotypes_ids())
+    coordc = hap_in_env_coords if coordc is None else coordc
     envs = tuple(nw.enviroments_iterator(fact_attrs))
     mtx = []
     for idx, env in enumerate(envs):
-        row = None
-        if coordc is None:
-            ehid = tuple(nw.haplotypes_ids_enviroment(env=env))
-            row = [int(hid in ehid) for hid in haps_id]
-        else:
-            row = coordc(nw, env)
+        row = coordc(nw, env)
         mtx.append(row)
     obs = np.array(mtx)
     if whiten:
