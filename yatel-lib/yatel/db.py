@@ -215,7 +215,7 @@ class YatelNetwork(object):
         columns = [c.name for c in self._column_buff[table]]
         return set(attnames).difference(columns)
 
-    def _row2hap(self, row):
+    def row2hap(self, row):
         attrs = dict([
             (k, v) for k, v in row.items()
             if k != "hap_id" and v!= None
@@ -223,7 +223,7 @@ class YatelNetwork(object):
         hap_id = row["hap_id"]
         return dom.Haplotype(hap_id, **attrs)
 
-    def _row2fact(self, row):
+    def row2fact(self, row):
         attrs = dict([
             (k, v) for k, v in row.items()
             if k not in ("id", "hap_id") and v!= None
@@ -231,7 +231,7 @@ class YatelNetwork(object):
         hap_id = row["hap_id"]
         return dom.Fact(hap_id, **attrs)
 
-    def _row2edge(self, row):
+    def row2edge(self, row):
         haps = [v for k, v in row.items()
                 if k not in ("id", "weight") and v!= None]
         weight = row["weight"]
@@ -444,7 +444,7 @@ class YatelNetwork(object):
         """
         query = sql.select([self.haplotypes_table])
         for row in self.execute(query):
-            yield self._row2hap(row)
+            yield self.row2hap(row)
 
     def haplotypes_by_ids(self, haps_ids):
         """Iterates over all ``dom.Haplotype`` instances with a given ids"""
@@ -452,7 +452,7 @@ class YatelNetwork(object):
             self.haplotypes_table.c.hap_id.in_(haps_ids)
         )
         for row in self.execute(query):
-            yield self._row2hap(row)
+            yield self.row2hap(row)
 
     def haplotype_by_id(self, hap_id):
         """Return a ``dom.Haplotype`` instace store in the dabase with the
@@ -469,7 +469,7 @@ class YatelNetwork(object):
             self.haplotypes_table.c.hap_id == hap_id
         ).limit(1)
         row = self.execute(query).fetchone()
-        return self._row2hap(row)
+        return self.row2hap(row)
 
     def haplotype_links(self, hap):
         """iterates over all ``hap`` conected *haplotypes*
@@ -554,7 +554,7 @@ class YatelNetwork(object):
             )
         ).where(where).distinct()
         for row in self.execute(query):
-            yield self._row2hap(row)
+            yield self.row2hap(row)
 
     #===========================================================================
     # EDGES QUERIES
@@ -564,7 +564,7 @@ class YatelNetwork(object):
         """Iterates over all ``dom.Edge`` instances store in the database."""
         query = sql.select([self.edges_table])
         for row in self.execute(query):
-            yield self._row2edge(row)
+            yield self.row2edge(row)
 
     def edges_enviroment(self, env=None, **kwargs):
         """Iterates over all ``dom.Edge`` instances of a given enviroment"""
@@ -581,7 +581,7 @@ class YatelNetwork(object):
             self.edges_table.join(self.facts_table, joins)
         ).where(where).distinct()
         for row in self.execute(query):
-            yield self._row2edge(row)
+            yield self.row2edge(row)
 
     def edges_min_and_max_weights(self):
         """Return a ``tuple`` with ``len == 2`` containing the  edgest with
@@ -591,11 +591,11 @@ class YatelNetwork(object):
         query = sql.select([self.edges_table]).order_by(
                     self.edges_table.c.weight.asc()
                 ).limit(1)
-        mine = self._row2edge(self.execute(query).fetchone())
+        mine = self.row2edge(self.execute(query).fetchone())
         query = sql.select([self.edges_table]).order_by(
                     self.edges_table.c.weight.desc()
                 ).limit(1)
-        maxe = self._row2edge(self.execute(query).fetchone())
+        maxe = self.row2edge(self.execute(query).fetchone())
         return mine, maxe
 
     def edges_by_weight(self, minweight, maxweight):
@@ -607,7 +607,7 @@ class YatelNetwork(object):
             self.edges_table.c.weight.between(minweight, maxweight)
         )
         for row in self.execute(query):
-            yield self._row2edge(row)
+            yield self.row2edge(row)
 
     def edges_by_haplotypes(self, haps):
         """Iterates over all nodes of a given list of haplotypes without
@@ -620,7 +620,7 @@ class YatelNetwork(object):
                           if k.startswith("hap_")])
         query = sql.select([self.edges_table]).where(where).distinct()
         for row in self.execute(query):
-            yield self._row2edge(row)
+            yield self.row2edge(row)
 
     def edges_by_haplotype(self, hap):
         """Iterates over all the edges of a given dom.Haplotype.
@@ -631,7 +631,7 @@ class YatelNetwork(object):
                           if k.startswith("hap_")])
         query = sql.select([self.edges_table]).where(where).distinct()
         for row in self.execute(query):
-            yield self._row2edge(row)
+            yield self.row2edge(row)
 
     #===========================================================================
     # FACTS QUERIES
@@ -641,7 +641,7 @@ class YatelNetwork(object):
         """Iterates over all ``dom.Fact`` instances store in the database."""
         query = sql.select([self.facts_table])
         for row in self.execute(query):
-            yield self._row2fact(row)
+            yield self.row2fact(row)
 
     def fact_attributes_types(self):
         """Maps a fact attribute name to python type of the atttribute
@@ -686,7 +686,7 @@ class YatelNetwork(object):
             self.facts_table.c.hap_id==hap.hap_id
         ).distinct()
         for row in self.execute(query):
-            yield self._row2fact(row)
+            yield self.row2fact(row)
 
     #===========================================================================
     # PROPERTIES

@@ -147,6 +147,13 @@ def fake_network(flags, returns):
             attrs[k] = v()
         return attrs
 
+    def haps_stored_in_temp(nw):
+        query = db.sql.select([nw._create_objects.c.data]).where(
+            nw._create_objects.c.tname == db.HAPLOTYPES
+        )
+        for hap_data in nw._create_conn.execute(query):
+            yield dom.Haplotype(**hap_data[0])
+
     haps_n = int(flags.fake_network[0])
     facts_n = int(flags.fake_network[1])
     weight_calc = flags.fake_network[2]
@@ -159,12 +166,10 @@ def fake_network(flags, returns):
     conn_data = returns.database
     nw = db.YatelNetwork(**conn_data)
 
-    haps = []
     for hap_id in range(haps_n):
         attrs = gime_fake_hap_attrs()
         hap = dom.Haplotype(hap_id, **attrs)
         nw.add_element(hap)
-        haps.append(hap)
 
     for hap_id in range(haps_n):
         for _ in range(random.randint(0, facts_n)):
@@ -172,7 +177,7 @@ def fake_network(flags, returns):
             fact = dom.Fact(hap_id, **attrs)
             nw.add_element(fact)
 
-    for hs, w in weight.weights(weight_calc, haps):
+    for hs, w in weight.weights(weight_calc, haps_stored_in_temp(nw)):
         haps_id = map(lambda h: h.hap_id, hs)
         edge = dom.Edge(w, *haps_id)
         nw.add_element(edge)
