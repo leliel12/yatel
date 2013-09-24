@@ -39,7 +39,7 @@ PYPI_REQUIRE = [
     "pycante",
     "PyYAML",
     "numpy",
-    "scipy"
+    "scipy",
     "caipyrinha",
 ]
 
