@@ -68,7 +68,7 @@ def mode(a):
     cnt = collections.Counter(a)
     value = np.max(cnt.values())
     n = cnt.values().count(value)
-    return tuple(v[0] for v in cnt.most_common(n))
+    return np.array(tuple(v[0] for v in cnt.most_common(n)))
 
 
 def Q(a):
