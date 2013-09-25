@@ -15,7 +15,6 @@ yatel Package
 
 .. automodule:: yatel.db
     :members:
-    :undoc-members:
     :show-inheritance:
 
 :mod:`dom` Module
