@@ -37,6 +37,17 @@ from yatel import io
 from yatel import stats
 from yatel import weight
 
+#===============================================================================
+# GROUPS
+#===============================================================================
+
+# this group represent an option to show information of something
+GROUP_INFO = 0
+
+# this group execute some operation over your network
+GROUP_OP = GROUP_INFO # information and operation is not allowed
+
+
 
 #===============================================================================
 # CLI parser
@@ -56,14 +67,37 @@ parser.add_argument("--log", action="store_true",
                     help="log all backend info to stdio")
 
 
+@parser.callback("--list-connection-strings", action="store_true",
+                 exclusive=GROUP_INFO, exit=0)
+def list_connection_strings(flags, returns):
+    """List all available connection strings in yatel"""
+    for engine in db.ENGINES:
+        print "{}: {}".format(engine, db.ENGINE_URIS[engine])
+    print ""
+
+
+@parser.callback("--file-extensions", action="store_true",
+                 exclusive=GROUP_INFO, exit=0)
+def file_extensions(flags, returns):
+    """Returns all suported file extensions.
+
+    Same line is same format with difetent extensions
+
+    """
+    grouped = {}
+    for rtype in io.parsers():
+        cls = io.parser(rtype)
+        if cls not in grouped:
+            grouped[cls] = []
+        grouped[cls].append(rtype)
+    for v in grouped.values():
+        print " ".join(v)
+    print ""
+
 
 @parser.callback(action="store", metavar="CONNECTION_STRING")
 def database(flags, returns):
-        """database to be open with yatel
-
-        The conn string is like: 'sqlite:///[DATABASE]' or
-        'mysql://USER:PASSWORD@HOST:PORT/DATABASE' or
-        'postgres://USER:PASSWORD@HOST:PORT/DATABASE'.
+        """database to be open with yatel (see yatel --list-conection-strings)
 
         """
         return db.parse_uri(flags.database, log=flags.log or None)
@@ -78,7 +112,7 @@ def mode(flags, returns):
         returns.database["mode"] = flags.mode
 
 
-@parser.callback("--fake-network", exclusive="ex0", action="store", nargs=3)
+@parser.callback("--fake-network", exclusive=GROUP_OP, action="store", nargs=3)
 def fake_network(flags, returns):
     """Create a new fake full conected network with on given connection string.
 
@@ -182,11 +216,11 @@ def fake_network(flags, returns):
     nw.confirm_changes()
 
 
-@parser.callback(exclusive="ex0", action="store", type=argparse.FileType("w"),
+@parser.callback(exclusive=GROUP_OP, action="store", type=argparse.FileType("w"),
                  metavar="filename.<EXT>", exit=0)
 def dump(flags, returns):
-    """Export the given database to YYF or YJF format. Extension must be yyf,
-    yaml, yml, xml, yxf, json or yjf.
+    """Export the given database to given filename. The format is given by
+    the extension (see: 'yatel --file-extensions')
 
     """
     ext = flags.dump.name.rsplit(".", 1)[-1].lower()
@@ -199,11 +233,12 @@ def dump(flags, returns):
     io.dump(rtype=ext, nw=nw, stream=flags.dump)
 
 
-@parser.callback(exclusive="ex0", action="store",
+@parser.callback(exclusive=GROUP_OP, action="store",
                  metavar="filename_template.<EXT>", exit=0)
 def backup(flags, returns):
     """Like dump but always create a new file with the format
-    'filename_template<TIMESTAMP>.<EXT>'
+    'filename_template<TIMESTAMP>.<EXT>'. The format is given by
+    the extension (see: 'yatel --file-extensions')
 
     """
     fname, ext = flags.backup.rsplit(".", 1)
@@ -220,10 +255,11 @@ def backup(flags, returns):
         io.dump(rtype=ext.lower(), nw=nw, stream=fp)
 
 
-@parser.callback(exclusive="ex0", action="store", type=argparse.FileType(),
+@parser.callback(exclusive=GROUP_OP, action="store", type=argparse.FileType(),
                  metavar="filename.<EXT>", exit=0)
 def load(flags, returns):
-    """Import the given file to the given database.
+    """Import the given file to the given database. The format is given by
+    the extension (see: 'yatel --file-extensions')
 
     """
     _fail_if_no_force("--load", flags, returns.database)
@@ -240,10 +276,10 @@ def load(flags, returns):
     nw.confirm_changes()
 
 
-@parser.callback(exclusive="ex0", action="store",
+@parser.callback(exclusive=GROUP_OP, action="store",
                  metavar="CONNECTION_STRING", exit=0)
 def copy(flags, returns):
-    """Copy the database (of `database` to this connection"""
+    """Copy the database of `database` to this connection"""
 
     to_conn_data = db.parse_uri(flags.copy, mode=db.MODE_WRITE, log=flags.log)
     _fail_if_no_force("--copy", flags, to_conn_data)
@@ -257,17 +293,20 @@ def copy(flags, returns):
     to_nw.confirm_changes()
 
 
-@parser.callback("--create-etl", exclusive="ex0", action="store",
+@parser.callback("--create-etl", exclusive=GROUP_OP, action="store",
                  metavar="etl_filename.py", type=argparse.FileType('w'),
                  exit=0)
 def create_etl(flags, returns):
     """Create a template file for write yout own etl"""
+    ext = flags.create_etl.name.rsplit(".", 1)[-1].lower()
+    if ext != "py":
+        raise ValueError("Invalid extension '{}'. must be 'py'".format(ext))
     tpl = etl.get_template()
     fp = flags.create_etl
     fp.write(tpl)
 
 
-@parser.callback("--desc-etl", exclusive="ex0", action="store", nargs=1,
+@parser.callback("--desc-etl", exclusive=GROUP_INFO, action="store", nargs=1,
                  metavar="ARG", exit=0)
 def desc_etl(flags, returns):
     """Return a list of parameters and documentataton about the etl
@@ -291,7 +330,7 @@ def desc_etl(flags, returns):
 # LAST ALWAYS!
 #=================================================
 
-@parser.callback("--run-etl", exclusive="ex0", action="store", nargs="+",
+@parser.callback("--run-etl", exclusive=GROUP_OP, action="store", nargs="+",
                  metavar="ARG", exit=0)
 def run_etl(flags, returns):
     """Run one or more etl inside of a given script.
