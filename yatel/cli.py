@@ -147,12 +147,10 @@ def fake_network(flags, returns):
             attrs[k] = v()
         return attrs
 
-    def haps_stored_in_temp(nw):
-        query = db.sql.select([nw._create_objects.c.data]).where(
-            nw._create_objects.c.tname == db.HAPLOTYPES
-        )
-        for hap_data in nw._create_conn.execute(query):
-            yield dom.Haplotype(**hap_data[0])
+    def only_haps(iterator):
+        for elem in iterator:
+            if isinstance(elem, dom.Haplotype):
+                yield elem
 
     haps_n = int(flags.fake_network[0])
     facts_n = int(flags.fake_network[1])
@@ -177,7 +175,7 @@ def fake_network(flags, returns):
             fact = dom.Fact(hap_id, **attrs)
             nw.add_element(fact)
 
-    for hs, w in weight.weights(weight_calc, haps_stored_in_temp(nw)):
+    for hs, w in weight.weights(weight_calc, only_haps(nw.temp_iterator())):
         haps_id = map(lambda h: h.hap_id, hs)
         edge = dom.Edge(w, *haps_id)
         nw.add_element(edge)
@@ -188,7 +186,7 @@ def fake_network(flags, returns):
                  metavar="filename.<EXT>", exit=0)
 def dump(flags, returns):
     """Export the given database to YYF or YJF format. Extension must be yyf,
-    yaml, yml, json or yjf.
+    yaml, yml, xml, yxf, json or yjf.
 
     """
     ext = flags.dump.name.rsplit(".", 1)[-1].lower()
@@ -225,8 +223,7 @@ def backup(flags, returns):
 @parser.callback(exclusive="ex0", action="store", type=argparse.FileType(),
                  metavar="filename.<EXT>", exit=0)
 def load(flags, returns):
-    """Import the given YYF or YJF format file to the given database. WARNING:
-    Only local databases are allowed
+    """Import the given file to the given database.
 
     """
     _fail_if_no_force("--load", flags, returns.database)

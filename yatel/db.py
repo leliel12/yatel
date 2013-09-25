@@ -244,6 +244,21 @@ class YatelNetwork(object):
     def add_elements(self, elems):
         map(self.add_element, elems)
 
+    def temp_iterator(self):
+        query = sql.select([self._create_objects])
+        for row in self._create_conn.execute(query):
+            cls, data = None, None
+            if row.tname == HAPLOTYPES:
+                cls, data = dom.Haplotype, row.data
+            elif row.tname == FACTS:
+                cls, data = dom.Fact, row.data
+            elif row.tname == EDGES:
+                cls, data = dom.Edge
+            else:
+                msg = "Invalid tname '{}'".format(row.tname)
+                raise YatelNetworkError(msg)
+            yield cls(**data)
+
     def add_element(self, elem):
         if self.mode == MODE_READ:
             raise YatelNetworkError("Network in read-only mode")
