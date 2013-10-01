@@ -93,7 +93,7 @@ class Weight(object):
 
     @abc.abstractmethod
     def weight(self, hap0, hap1):
-        """A ``float`` distance between 2 ``dom.Haplotype`` instances"""
+        """**Not implemented:** A ``float`` distance between 2 ``dom.Haplotype`` instances"""
         raise NotImplementedError()
 
 
