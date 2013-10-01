@@ -90,7 +90,7 @@ def kmeans(nw, fact_attrs, k_or_guess,
 
     **Example**
 
-    >>> from yatel import nw
+    >>> from yatel import db, dom
     >>> from yatel.cluster import kmeans
     >>> nw = db.YatelNetwork('memory', mode=db.MODE_WRITE)
     >>> nw.add_elements([dom.Haplotype(1), dom.Haplotype(2), dom.Haplotype(3)])
@@ -179,7 +179,7 @@ def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
 
     **Example**
 
-    >>> from yatel import nw
+    >>> from yatel import db, dom
     >>> from yatel.cluster import kmeans
     >>> nw = db.YatelNetwork('memory', mode=db.MODE_WRITE)
     >>> nw.add_elements([dom.Haplotype(1), dom.Haplotype(2), dom.Haplotype(3)])

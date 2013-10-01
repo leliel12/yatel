@@ -39,17 +39,14 @@ class Hamming(core.Weight):
         #. attr_a exist in haplotype0 but not exist in haplotype1.
 
 
-    example
+    **Example**
 
-        ::
-
-            >>> from yatel import dom, weigth
-            >>> h0 = dom.Haplotype("0", attr_a="a", attr_b="b", attr_c=0)
-            >>> h1 = dom.Haplotype("1", attr_a="a", attr_c="0")
-            >>> hamming = weight.Hamming()
-            >>> print  hamming(h0, h1)
-            {(<haplotype0>, <haplotype1>): 2.0}
-
+    >>> from yatel import dom, weigth
+    >>> h0 = dom.Haplotype("0", attr_a="a", attr_b="b", attr_c=0)
+    >>> h1 = dom.Haplotype("1", attr_a="a", attr_c="0")
+    >>> hamming = weight.Hamming()
+    >>> dict(hamming(h0, h1))
+    {(<haplotype0>, <haplotype1>): 2.0}
 
     """
 

@@ -45,9 +45,8 @@ class Levenshtein(core.Weight):
     def __init__(self, to_seq=None):
         """Creates a new instance
 
-        **Params**
-            :to_seq: a callable for convert any object to a string.
-                     By defautl see yatel.weight.levenshtein.to_seq_default
+        :param to_seq: a callable for convert any object to a string.
+                        By defautl see yatel.weight.levenshtein.to_seq_default
 
         """
         self.to_seq = to_seq_default if to_seq is None else to_seq

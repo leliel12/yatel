@@ -11,10 +11,7 @@
 # DOCS
 #===============================================================================
 
-"""This module is used for calculate weights of edges in yatel.
-
-Esentially contains some of knowed algorithms for calculate distances betwwen
-elements that can be used as edge weights.
+"""Base classes for weight calculation in yatel
 
 """
 
@@ -36,7 +33,9 @@ from yatel import dom, db
 #===============================================================================
 
 class _WeightMeta(abc.ABCMeta):
+    """Metaclass for control the weight inheritance
 
+    """
     def __init__(self, *args, **kwargs):
         super(_WeightMeta, self).__init__(*args, **kwargs)
         spec = inspect.getargspec(self.weight)
@@ -55,15 +54,23 @@ class Weight(object):
     __metaclass__ = _WeightMeta
 
     def weights(self, nw, to_same=False, env=None, **kwargs):
-        """Calculate distance between all combinations of a collection of
-        haplotypes.
+        """Calculate distance between all combinations of a existing haplotypes
+        of network enviroment or a collection
 
-        **Params**
-            :nw:
-            :to_same: If calculate the distance between the same haplotype.
+        :param nw: ``yatel.db.YatelNetwork`` instance or iterable of
+                   ``yatel.dom.Haplotype`` instances
+        :param to_same: If ``True` `calculate the distance between the same
+                        haplotype.
+        :type to_dame: bool
+        :param env: enviroment dictionary only if nw is
+                    ``yatel.db.YatelNetwork`` instance.
+        :type env: None or dict
+        :param kwargs: Variable parameters for use as enviroment filter only
+                       if nw is ``yatel.db.YatelNetwork`` instance.
 
-        **Return**
-            A ``dict`` like ``{(hap_x, hap_y) : float}``
+        :returns: A iterator like like ``(hap_x, hap_y), float`` where hap_x is
+                  the origin node, hap_y is the end node and float is the weight
+                  of between them.
 
         """
         env = dict(env) if env else {}

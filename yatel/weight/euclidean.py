@@ -57,26 +57,26 @@ class Euclidean(core.Weight):
         """Creates a new instance
 
         **Params**
-            :to_num: Convert to a number an haplotype attribute number.
-                     The default behavior of ``to_num`` is a sumatory of
-                     base64 ord value of every attribute value or
+        :param to_num: Convert to a number an haplotype attribute number.
+                       The default behavior of ``to_num`` is a sumatory of
+                       base64 ord value of every attribute value or
 
-                    .. code-block:: python
+                        .. code-block:: python
 
-                        def to_num(attr):
-                            value = 0
-                            for c in str(attr).encode("base64"):
-                                value += ord(c)
-                            return value
+                            def to_num(attr):
+                                value = 0
+                                for c in str(attr).encode("base64"):
+                                    value += ord(c)
+                                return value
 
-                        to_num("h") # 294
+                            to_num("h") # 294
+        :type to_num: callable
 
         """
         self.to_num = to_num_default if to_num is None else to_num
 
     def weight(self, hap0, hap1):
         """A ``float`` distance between 2 ``dom.Haplotype`` instances"""
-
         s = 0.0
         for name in set(hap0.names_attrs() + hap1.names_attrs()):
             v0 = self.to_num(hap0.get_attr(name, ""))
