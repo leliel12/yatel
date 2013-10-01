@@ -76,9 +76,6 @@ AUTHOR = "Yatel Team"
 # : Email ot the autor
 EMAIL = "utn_kdd@googlegroups.com"
 
-# : The project root path
-PRJ_PATH = os.path.dirname(os.path.abspath(__file__))
-
 # : The license name
 LICENSE = "WISKEY-WARE"
 
@@ -93,28 +90,6 @@ think this stuff is worth it, you can buy us a WISKEY in return.
 # : Keywords for search of pypi
 KEYWORDS = """Yatel user-profile-distance-based networks  multidimensional
 exploration biology database kdd datamining"""
-
-# : The path to the user home path
-HOME_PATH = os.path.expanduser("~")
-
-# : This is a folder where user put his data
-YATEL_USER_PATH = os.path.join(HOME_PATH, ".yatel")
-if not os.path.isdir(YATEL_USER_PATH):
-    os.makedirs(YATEL_USER_PATH)
-
-
-# : A Set containing all the encodings knowin by python
-ENCODINGS = tuple(sorted(set(encodings.aliases.aliases.values())))
-
-
-# : Determines the default encoding of the files (default utf-8)
-DEFAULT_FILE_ENCODING = encodings.aliases.aliases.get(
-    sys.getfilesystemencoding().lower().replace("-", ""),
-    "utf_8"
-)
-
-# : Format to represent the datetime
-DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 # : If the program is en debug mode
 DEBUG = __debug__

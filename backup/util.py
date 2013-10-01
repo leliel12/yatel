@@ -139,5 +139,26 @@ def norm_text(text):
 # MAIN
 #===============================================================================
 
+
+
+# : The path to the user home path
+HOME_PATH = os.path.expanduser("~")
+
+# : This is a folder where user put his data
+YATEL_USER_PATH = os.path.join(HOME_PATH, ".yatel")
+if not os.path.isdir(YATEL_USER_PATH):
+    os.makedirs(YATEL_USER_PATH)
+
+
+# : A Set containing all the encodings knowin by python
+ENCODINGS = tuple(sorted(set(encodings.aliases.aliases.values())))
+
+
+# : Determines the default encoding of the files (default utf-8)
+DEFAULT_FILE_ENCODING = encodings.aliases.aliases.get(
+    sys.getfilesystemencoding().lower().replace("-", ""),
+    "utf_8"
+)
+
 if __name__ == "__main__":
     print(__doc__)
