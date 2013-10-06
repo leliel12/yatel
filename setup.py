@@ -36,7 +36,6 @@ import yatel
 
 PYPI_REQUIRE = [
     "sqlalchemy",
-    "pycante",
     "PyYAML",
     "numpy",
     "scipy",
