@@ -143,7 +143,7 @@ def hap_in_env_coords(nw, env):
     """
     haps_id = tuple(nw.haplotypes_ids())
     ehid = tuple(nw.haplotypes_ids_enviroment(env=env))
-    return [int(hid in ehid) for hid in haps_id]
+    return [float(hid in ehid) for hid in haps_id]
 
 
 def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
