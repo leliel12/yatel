@@ -46,7 +46,7 @@ from yatel import dom
 # EXCEPTIONS
 #===============================================================================
 
-#: The order to show ENGINE variables, if it not in this list put at the end
+# The order to show ENGINE variables, if it not in this list put at the end
 VARS_ENGINE_ORDER = ("database", "user", "password", "dsn", "host", "port")
 
 
@@ -127,12 +127,20 @@ EDGES = "edges"
 #: A collection tihe the 3 table names
 TABLES = (HAPLOTYPES, FACTS, EDGES)
 
+# MODES
+
+#: Constant of read-only mode
 MODE_READ = "r"
+
+#: Constant of write mode (Destroy the existing database)
 MODE_WRITE = "w"
+
+#: Constant of append mode (copy existing element to temp table)
 MODE_APPEND = "a"
 
-#: Collection of tri modes to open the networks
+#: The 3 modes to open the databases
 MODES = (MODE_READ, MODE_WRITE, MODE_APPEND)
+
 
 #===============================================================================
 # ERROR
@@ -149,9 +157,18 @@ class YatelNetworkError(Exception):
 
 
 class YatelNetwork(object):
+    """Abstraction layer for yatel network databases"""
 
     def __init__(self, engine, mode=MODE_READ, log=None, **kwargs):
-
+        """Creates a new instance
+        
+        :param engine: pick one of the yatel.db.ENGINES
+        :type engine: str
+        :param mode: The mode to open the database. 
+                     - If mode is *r* the network will reflect all the 
+                       existing yatel collections in the database.
+                     - If mode is *w* yatell will destroy all the 
+                       collections"""
         self._uri = to_uri(engine, **kwargs)
 
         self._engine = sa.create_engine(self._uri, echo=bool(log))
