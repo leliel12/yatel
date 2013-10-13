@@ -612,7 +612,7 @@ class YatelNetwork(object):
     #===========================================================================
 
     def validate_read(self):
-        """Raise a ``YatelNetworkError`` if the network is in read mode"""
+        """Raise a ``YatelNetworkError`` if the network is not in read mode"""
         if not getattr(self, "_creation_append", None):
             if self.mode != MODE_READ:
                 raise YatelNetworkError("Network in {} mode".format(self.mode))
@@ -620,6 +620,9 @@ class YatelNetwork(object):
     def execute(self, query):
         """Execute a given query to the backend
 
+        **REQUIRE MODE:** r
+
+        :param query: A valid query to for the backend
 
         """
         self.validate_read()
@@ -627,6 +630,24 @@ class YatelNetwork(object):
 
     def enviroments_iterator(self, facts_attrs=[]):
         """Iterates over all convinations of enviroments of the given attrs
+
+        **REQUIRE MODE:** r
+
+        :params fact_attrs: collection of existing fact attribute names
+        :type fact_attr: iterable
+        :return: Iterator of dictionaries with all valid combinations of
+                 values of a given fact_attrs names
+
+        **Examples**
+
+        >>> for env in nw.enviroments_iterator(["native", "place"]):
+        ···     print env
+        {u'place': None, u'native': True}
+        {u'place': u'Hogwarts', u'native': False}
+        {u'place': None, u'native': False}
+        {u'place': u'Mordor', u'native': True}
+        {u'place': None, u'native': None}
+        ...
 
         """
         if "hap_id" in facts_attrs:
@@ -645,7 +666,26 @@ class YatelNetwork(object):
     #===========================================================================
 
     def haplotype_attributes_types(self):
-        """Maps a fact attribute name to python type of the atttribute
+        """Maps a fact attribute name to Python type of the atttribute
+
+        **REQUIRE MODE:** r
+
+        :returns: dict with key is te haplotype attribute name and value is the
+                  Python type.
+
+        **Example**
+
+        >>> from yatel import db, dom
+        >>> nw = db.YatelNetwork("sqlite", mode="a", log=False, database="nw.db")
+        >>> nw.haplotype_attributes_types()
+        {u'color': str,
+         u'description': str,
+         u'hap_id': int,
+         u'height': float,
+         u'name': str,
+         u'number': int,
+         u'size': float,
+         u'special': bool}
 
         """
         self.validate_read()
