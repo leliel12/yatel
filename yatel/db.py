@@ -161,54 +161,54 @@ class YatelNetwork(object):
 
     def __init__(self, engine, mode=MODE_READ, log=None, **kwargs):
         """Creates a new instance
-        
+
         :param engine: pick one of the yatel.db.ENGINES
         :type engine: str
-        :param mode: The mode to open the database. 
-                     - If mode is *r* the network will reflect all the 
+        :param mode: The mode to open the database.
+                     - If mode is *r* the network will reflect all the
                        existing yatel collections in the database.
-                     - If mode is *w* yatell will destroy all the 
+                     - If mode is *w* yatell will destroy all the
                        collections
-                     - If mode is *a* all the elements are copied to a temporal 
+                     - If mode is *a* all the elements are copied to a temporal
                        table and the network is ready to accept more elements
-         :type mode: str
-         :param log: Print the log of th backend to de std output
-         :type log: None or bool
-         :kwargs: Extra arguments for a given ``engine`` (see ``ENGINE_VARS``)
-         
-         **Log enabled**
-         
-         >>> from yatel import db, dom
-         >>> nw = db.YatelNetwork("memory", mode="w", log=True)
-         [ ... LOGS ... ]
-         
-         
-         **Write mode**
-         
-         >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
-         >>> nw.add_element(dom.Haplotype(1))
-         >>> nw.confirm_changes() # change read mode
-         >>> len(tuple(nw.haplotypes_iterator()))
-         1
-         
-         
-         **Append to previous network**
-         
-         >>> nw = db.YatelNetwork("sqlite", mode="a", log=False, database="nw.db")
-         >>> nw.add_element(dom.Haplotype(2))
-         >>> nw.confirm_changes() # change read mode
-         >>> len(tuple(nw.haplotypes_iterator()))
-         2
-         
-         
-         **Detroy previous data**
-         
-         >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
-         >>> nw.add_element(dom.Haplotype(3))
-         >>> nw.confirm_changes() # change read mode
-         >>> len(tuple(nw.haplotypes_iterator()))
-         1
-         
+        :type mode: str
+        :param log: Print the log of th backend to de std output
+        :type log: None or bool
+        :kwargs: Extra arguments for a given ``engine`` (see ``ENGINE_VARS``)
+
+        **Log enabled**
+
+        >>> from yatel import db, dom
+        >>> nw = db.YatelNetwork("memory", mode="w", log=True)
+        [ ... LOGS ... ]
+
+
+        **Write mode**
+
+        >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
+        >>> nw.add_element(dom.Haplotype(1))
+        >>> nw.confirm_changes() # change read mode
+        >>> len(tuple(nw.haplotypes_iterator()))
+        1
+
+
+        **Append to previous network**
+
+        >>> nw = db.YatelNetwork("sqlite", mode="a", log=False, database="nw.db")
+        >>> nw.add_element(dom.Haplotype(2))
+        >>> nw.confirm_changes() # change read mode
+        >>> len(tuple(nw.haplotypes_iterator()))
+        2
+
+
+        **Detroy previous data**
+
+        >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
+        >>> nw.add_element(dom.Haplotype(3))
+        >>> nw.confirm_changes() # change read mode
+        >>> len(tuple(nw.haplotypes_iterator()))
+        1
+
         """
         self._uri = to_uri(engine, **kwargs)
 
@@ -274,15 +274,36 @@ class YatelNetwork(object):
         return set(attnames).difference(columns)
 
     def row2hap(self, row):
-        """Convert row of haplotypes table to ``yatel.dom.Haplotype`` 
+        """Convert row of haplotypes table to ``yatel.dom.Haplotype``
         instance.
-        
+
         :param row: Row of haplotypes table.
         :type row: dict like object with key *hap_id*
-        
-        
-        
-        
+
+        **Examples**
+
+        >>> from yatel import db
+        >>> nw = db.YatelNetwork("sqlite", mode="r", database="nw.db")
+        >>> for row in nw.execute("select * from haplotypes"):
+        ···    print nw.row2hap(row)
+        <Haplotype '0' at 0x37a9890>
+        <Haplotype '1' at 0x37a9890>
+        <Haplotype '2' at 0x37a9890>
+        ...
+
+        >>> hap = nw.row2hap({"hap_id": 25, "att0": "foo"})
+        >>> hap
+        <Haplotype '25' at 0x37bba90>
+        >>> hap.att0
+        'foo'
+
+        >>> query = sql.select([nw.haplotypes_table]).where(
+        ···     nw.haplotypes_table.c.hap_id == 1
+        ··· ).limit(1)
+        >>> row = query.execute().first()
+        >>> nw.row2hap(row)
+        <Haplotype '1' at 0x3935410>
+
         """
         attrs = dict([
             (k, v) for k, v in row.items()
@@ -292,15 +313,38 @@ class YatelNetwork(object):
         return dom.Haplotype(hap_id, **attrs)
 
     def row2fact(self, row):
-        """Convert row of facts table to ``yatel.dom.Fact`` 
+        """Convert row of facts table to ``yatel.dom.Fact``
         instance.
-        
+
         :param row: Row of facts table.
-        
+        :type row: dict like object with key *hap_id*
+
         **Examples**
-        
-        
-        
+
+        >>> from yatel import db
+        >>> nw = db.YatelNetwork("sqlite", mode="r", database="nw.db")
+        >>> for row in nw.execute("select * from facts"):
+        ···    print nw.row2fact(row)
+        <Fact for '0' at 0x3935810>
+        <Fact for '0' at 0x3935810>
+        <Fact for '0' at 0x3935810>
+        <Fact for '1' at 0x3935810>
+        <Fact for '1' at 0x3935810>
+        ...
+
+        >>> fact = nw.row2fact({"hap_id": 25, "att0": "foo"})
+        >>> fact
+        <Fact '25' at 0x38bfa90>
+        >>> fact.att0
+        'foo'
+
+        >>> query = sql.select([nw.facts_table]).where(
+        ···     nw.facts_table.c.hap_id == 1
+        ··· ).limit(1)
+        >>> row = query.execute().first()
+        >>> nw.row2Fact(row)
+        <Fact for '1' at 0x3935810>
+
         """
         attrs = dict([
             (k, v) for k, v in row.items()
@@ -310,11 +354,41 @@ class YatelNetwork(object):
         return dom.Fact(hap_id, **attrs)
 
     def row2edge(self, row):
-        """Convert row of edges table to ``yatel.dom.Edge`` 
+        """Convert row of edges table to ``yatel.dom.Edge``
         instance
-        
+
         :param row: Row of edges table.
-        
+        :type row: dict like object with key *weight* all other keys is
+                   converted to haps_ids except for "id"
+
+
+        **Examples**
+
+        >>> from yatel import db
+        >>> nw = db.YatelNetwork("sqlite", mode="r", database="nw.db")
+        >>> for row in nw.execute("select * from edges"):
+        ···     print nw.row2edge(row)
+        <Edge '(0, 1) 5.0' at 0x39501d0>
+        <Edge '(0, 2) 7.0' at 0x39501d0>
+        <Edge '(0, 3) 4.0' at 0x39501d0>
+        <Edge '(0, 4) 5.0' at 0x39501d0>
+        ...
+
+        >>> edge = nw.row2edge({"weight": 25, "hap0": 1, "hap1": 2})
+        >>> edge
+        <Edge '(2, 1) 25.0' at 0x3950110>
+        >>> edge.weight
+        25.0
+        >>> edge.haps_id
+        (2, 1)
+
+        >>> query = sql.select([nw.edges_table]).where(
+        ···     nw.edges_table.c.id == 1
+        ··· ).limit(1)
+        >>> row = query.execute().first()
+        >>> nw.row2Edge(row)
+        <Edge '(0, 1) 5.0' at 0x3947f90>
+
         """
         haps = [v for k, v in row.items()
                 if k not in ("id", "weight") and v!= None]
@@ -326,13 +400,16 @@ class YatelNetwork(object):
     #===========================================================================
 
     def add_elements(self, elems):
-        """Add multiple instaces of ``yatel.dom.[Haplotype|Fact|Edge]`` 
+        """Add multiple instaces of ``yatel.dom.[Haplotype|Fact|Edge]``
         instance. The network must be in *w* or *a* mode.
-        
+
+        :param elems: Elements to add
+        :type elems: iterable of yatel.dom.[Haplotype|Fact|Edge] instances.
+
         >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
-         >>> nw.add_element(dom.Haplotype(3))
-        
-        """ 
+        >>> nw.add_element([dom.Haplotype(3), dom.Fact(3, att0="foo")])
+
+        """
         map(self.add_element, elems)
 
     def add_element(self, elem):
@@ -402,7 +479,7 @@ class YatelNetwork(object):
             raise TypeError(msg)
         self._create_conn.execute(self._create_objects.insert(),
                                   tname=tname, data=data)
-    
+
     def temp_iterator(self):
         query = sql.select([self._create_objects])
         for row in self._create_conn.execute(query):
@@ -417,7 +494,7 @@ class YatelNetwork(object):
                 msg = "Invalid tname '{}'".format(row.tname)
                 raise YatelNetworkError(msg)
             yield cls(**data)
-            
+
     def confirm_changes(self):
 
         if self.mode == MODE_READ:

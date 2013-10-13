@@ -11,7 +11,8 @@
 # DOCS
 #===============================================================================
 
-"""
+"""Functionality for create and execute
+`ETLs <http://en.wikipedia.org/wiki/Extract,_transform,_load>`_
 
 """
 
@@ -32,10 +33,12 @@ import re
 from yatel import db
 from yatel import dom
 
+
 #===============================================================================
 # CONSTANTS
 #===============================================================================
 
+#: Template for create etl files
 ETL_TEMPLATE = string.Template("""
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
@@ -70,7 +73,9 @@ if __name__ == "__main__":
 #===============================================================================
 
 class _ETLMeta(abc.ABCMeta):
+    """Metaclass for control the ETL inheritance
 
+    """
     def __init__(self, *args, **kwargs):
         super(_ETLMeta, self).__init__(*args, **kwargs)
         spec = inspect.getargspec(self.setup)
