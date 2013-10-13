@@ -403,6 +403,8 @@ class YatelNetwork(object):
         """Add multiple instaces of ``yatel.dom.[Haplotype|Fact|Edge]``
         instance. The network must be in *w* or *a* mode.
 
+        **REQUIRE MODE:** w|a
+
         :param elems: Elements to add
         :type elems: iterable of yatel.dom.[Haplotype|Fact|Edge] instances.
 
@@ -413,6 +415,19 @@ class YatelNetwork(object):
         map(self.add_element, elems)
 
     def add_element(self, elem):
+        """Add single instance of ``yatel.dom.[Haplotype|Fact|Edge]``
+        instance. The network must be in *w* or *a* mode.
+
+        **REQUIRE MODE:** w|a
+
+        :param elems: Element to add
+        :type elems: instance of yatel.dom.[Haplotype|Fact|Edge].
+
+        >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
+        >>> nw.add_element(dom.Fact(3, att0="foo"))
+
+        """
+
         if self.mode == MODE_READ:
             raise YatelNetworkError("Network in read-only mode")
 
@@ -481,6 +496,25 @@ class YatelNetwork(object):
                                   tname=tname, data=data)
 
     def temp_iterator(self):
+        """Iterates over all elements added to the network.
+
+        **REQUIRE MODE:** w|a
+
+        :returns: iterator of ``yatel.dom.[Haplotype|Edge|Fact]`` instance
+
+        **Example**
+
+        >>> from yatel import db, dom
+        >>> nw = db.YatelNetwork("sqlite", mode="a", database="nw.db")
+        >>> all(
+        ···     map(
+        ···         lambda e: isinstance(e, (dom.Haplotype, dom.Fact, dom.Edge)
+        ···         nw.temp_iterator()
+        ···     )
+        ··· )
+        True
+
+        """
         query = sql.select([self._create_objects])
         for row in self._create_conn.execute(query):
             cls, data = None, None
@@ -496,7 +530,19 @@ class YatelNetwork(object):
             yield cls(**data)
 
     def confirm_changes(self):
+        """Creates the subjacent structures for store the elements added
+        and change to the ``read`` mode.
 
+        **Examples**
+
+        >>> from yatel import db, dom
+        >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
+        >>> nw.add_element(dom.Haplotype(3, att0="foo"))
+        >>> nw.confirm_changes()
+        >>> nw.haplotype_by_id(3)
+        <Haplotype '3' at 0x37a9890>
+
+        """
         if self.mode == MODE_READ:
             raise YatelNetworkError("Network in read-only mode")
 
@@ -572,7 +618,10 @@ class YatelNetwork(object):
                 raise YatelNetworkError("Network in {} mode".format(self.mode))
 
     def execute(self, query):
-        """Execute a given query to the backend"""
+        """Execute a given query to the backend
+
+
+        """
         self.validate_read()
         return self._engine.execute(query)
 
