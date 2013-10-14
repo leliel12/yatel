@@ -704,7 +704,11 @@ class YatelNetwork(object):
         return types
 
     def haplotypes_ids(self):
-        """Iterates only over all existings hap_id"""
+        """Iterates only over all existings hap_id
+
+        :return: iterator of ``yatel.dom.Haplotypes`` haps_ids
+
+        """
         column = self.haplotypes_table.c["hap_id"]
         query = sql.select([column]).order_by(column)
         for row in self.execute(query):
@@ -713,13 +717,24 @@ class YatelNetwork(object):
     def haplotypes_iterator(self):
         """Iterates over all ``dom.Haplotype`` instances store in the database.
 
+        **REQUIRE MODE:** r
+
+        :return: iterator of ``yatel.dom.Haplotypes`` instances
+
         """
         query = sql.select([self.haplotypes_table])
         for row in self.execute(query):
             yield self.row2hap(row)
 
     def haplotypes_by_ids(self, haps_ids):
-        """Iterates over all ``dom.Haplotype`` instances with a given ids"""
+        """Iterates over all ``dom.Haplotype`` instances with a given ids
+
+        **REQUIRE MODE:** r
+
+        :return: iterator of ``yatel.dom.Haplotypes`` instances
+
+
+        """
         query = sql.select([self.haplotypes_table]).where(
             self.haplotypes_table.c.hap_id.in_(haps_ids)
         )
@@ -729,6 +744,8 @@ class YatelNetwork(object):
     def haplotype_by_id(self, hap_id):
         """Return a ``dom.Haplotype`` instace store in the dabase with the
         giver ``hap_id``.
+
+        **REQUIRE MODE:** r
 
         **Params**
             :hap_id: An existing id of the ``haplotypes`` type table.
@@ -746,14 +763,15 @@ class YatelNetwork(object):
     def haplotype_links(self, hap):
         """iterates over all ``hap`` conected *haplotypes*
 
+        **REQUIRE MODE:** r
+
         **WARNING:** This method execute one query for every edge of the given
         haplotype
 
-        **Params**
-          :hap: ``dom.Haplotype`` instance
-        **Return**
-            An iterable with 2 components: A distance as ``float`` and a
-            ``list`` with the conected haplotypes.
+        :param hap: ``dom.Haplotype`` instance
+        :type: yatel.dom.Haplotype
+        :return: An iterable with 2 components: A distance as ``float`` and a
+                 ``list`` with the conected haplotypes.
 
         """
         for edge in self.edges_by_haplotype(hap):
@@ -767,6 +785,11 @@ class YatelNetwork(object):
 
     def haplotypes_ids_enviroment(self, env=None, **kwargs):
         """Like haplotypes_enviroments but only return an iterator over hap_ids
+
+        **REQUIRE MODE:** r
+
+        Please read the ``dom.YatelNetwork.haplotypes_enviroment``
+        for more documentation
 
         """
         env = dict(env) if env else {}
@@ -784,35 +807,34 @@ class YatelNetwork(object):
 
     def haplotypes_enviroment(self, env=None, **kwargs):
         """Return a iterator of ``dom.Haplotype`` related to a ``dom.Fact`` with
-        attribute and value specified in ``kwargs``
+        attribute and value specified in env and ``kwargs``
 
-        **Params**
-            :env: Keys are ``dom.Fact`` attribute name and value a posible
-                  value of the given attribte.
-            :kwargs: Keys are ``dom.Fact`` attribute name and value a posible
-                     value of the given attribte.
+        **REQUIRE MODE:** r
 
-        **Return**
-            ``iterator`` of ``dom.Haplotype``.
+        :param env: Keys are ``dom.Fact`` attribute name and value a posible
+                    value of the given attribte.
+        :type env: dict
+        :param kwargs: Keys are ``dom.Fact`` attribute name and value a posible
+                       value of the given attribte.
+
+        :return: ``iterator`` of ``dom.Haplotype``.
 
         **Example**
 
-            ::
-
-                >>> from yatel import db, dom
-                >>> conn = db.YatelNetwork("sqlite", create=True,
-                                           dbname="yateldatabase.db")
-                >>> conn.add_elements([dom.Haplotype("hap1"),
-                                       dom.Haplotype("hap2"),
-                                       dom.Fact("hap1", a=1, c="foo"),
-                                       dom.Fact("hap2", a=1, b=2),
-                                       dom.Edge(1, "hap1", "hap2")])
-                >>> conn.haplotypes_enviroment(a=1)
-                (<Haplotype 'hap1' at 0x2463250>, <Haplotype 'hap2' at 0x2463390>)
-                >>> conn.haplotypes_enviroment({"c": "foo"})
-                (<Haplotype 'hap1' at 0x2463250>, )
-                >>> conn.haplotypes_enviroment({"a": 1}, b=2)
-                (<Haplotype 'hap2' at 0x2463390>, )
+        >>> from yatel import db, dom
+        >>> conn = db.YatelNetwork("sqlite", create=True,
+        ···                        dbname="yateldatabase.db")
+        >>> conn.add_elements([dom.Haplotype("hap1"),
+        ···                    dom.Haplotype("hap2"),
+        ···                    dom.Fact("hap1", a=1, c="foo"),
+        ···                    dom.Fact("hap2", a=1, b=2),
+        ···                    dom.Edge(1, "hap1", "hap2")])
+        >>> conn.haplotypes_enviroment(a=1)
+        (<Haplotype 'hap1' at 0x2463250>, <Haplotype 'hap2' at 0x2463390>)
+        >>> conn.haplotypes_enviroment({"c": "foo"})
+        (<Haplotype 'hap1' at 0x2463250>, )
+        >>> conn.haplotypes_enviroment({"a": 1}, b=2)
+        (<Haplotype 'hap2' at 0x2463390>, )
 
         """
         env = dict(env) if env else {}
@@ -833,13 +855,25 @@ class YatelNetwork(object):
     #===========================================================================
 
     def edges_iterator(self):
-        """Iterates over all ``dom.Edge`` instances store in the database."""
+        """Iterates over all ``dom.Edge`` instances store in the database.
+
+        **REQUIRE MODE:** r
+
+        :return: iterator of ``yatel.dom.Edge`` isntances
+
+        """
         query = sql.select([self.edges_table])
         for row in self.execute(query):
             yield self.row2edge(row)
 
     def edges_enviroment(self, env=None, **kwargs):
-        """Iterates over all ``dom.Edge`` instances of a given enviroment"""
+        """Iterates over all ``dom.Edge`` instances of a given enviroment
+        please see ``yatel.db.YatelNetwork.haplotypes_enviroment`` for more
+        documentation about enviroment.
+
+        **REQUIRE MODE:** r
+
+        """
         env = dict(env) if env else {}
         env.update(kwargs)
         where = sql.and_(*[self.facts_table.c[k] == v
@@ -859,6 +893,8 @@ class YatelNetwork(object):
         """Return a ``tuple`` with ``len == 2`` containing the  edgest with
         minimum ane maximun *weight*
 
+        **REQUIRE MODE:** r
+
         """
         query = sql.select([self.edges_table]).order_by(
                     self.edges_table.c.weight.asc()
@@ -874,6 +910,8 @@ class YatelNetwork(object):
         """Iterates of a the ``dom.Edge`` instance with *weight* value between
         ``minweight`` and ``maxwright``
 
+        **REQUIRE MODE:** r
+
         """
         query = sql.select([self.edges_table]).where(
             self.edges_table.c.weight.between(minweight, maxweight)
@@ -883,7 +921,9 @@ class YatelNetwork(object):
 
     def edges_by_haplotypes(self, haps):
         """Iterates over all nodes of a given list of haplotypes without
-           repetitions
+        repetitions
+
+        **REQUIRE MODE:** r
 
         """
         haps_id = tuple(hap.hap_id for hap in haps)
@@ -896,6 +936,8 @@ class YatelNetwork(object):
 
     def edges_by_haplotype(self, hap):
         """Iterates over all the edges of a given dom.Haplotype.
+
+        **REQUIRE MODE:** r
 
         """
         where = sql.or_(*[v == hap.hap_id
