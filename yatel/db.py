@@ -822,18 +822,18 @@ class YatelNetwork(object):
         **Example**
 
         >>> from yatel import db, dom
-        >>> conn = db.YatelNetwork("sqlite", create=True,
-        ···                        dbname="yateldatabase.db")
-        >>> conn.add_elements([dom.Haplotype("hap1"),
-        ···                    dom.Haplotype("hap2"),
-        ···                    dom.Fact("hap1", a=1, c="foo"),
-        ···                    dom.Fact("hap2", a=1, b=2),
-        ···                    dom.Edge(1, "hap1", "hap2")])
-        >>> conn.haplotypes_enviroment(a=1)
+        >>> nw = db.YatelNetwork("sqlite", mode=db.MODE_WRITE, database="nw.db")
+        >>> nw.add_elements([dom.Haplotype("hap1"),
+        ···                  dom.Haplotype("hap2"),
+        ···                  dom.Fact("hap1", a=1, c="foo"),
+        ···                  dom.Fact("hap2", a=1, b=2),
+        ···                  dom.Edge(1, "hap1", "hap2")])
+        >>> nw.confirm_changes()
+        >>> tuple(nw.haplotypes_enviroment(a=1))
         (<Haplotype 'hap1' at 0x2463250>, <Haplotype 'hap2' at 0x2463390>)
-        >>> conn.haplotypes_enviroment({"c": "foo"})
+        >>> tuple(nw.haplotypes_enviroment({"c": "foo"}))
         (<Haplotype 'hap1' at 0x2463250>, )
-        >>> conn.haplotypes_enviroment({"a": 1}, b=2)
+        >>> tuple(nw.haplotypes_enviroment({"a": 1}, b=2))
         (<Haplotype 'hap2' at 0x2463390>, )
 
         """
@@ -1091,6 +1091,27 @@ def copy(from_nw, to_nw):
 
     ``from_nw`` must be in  read-only mode and ``to_nw`` in write or append mode.
     Is your responsability to call ``to_nw.confirm_changes()`` after the copy
+
+    :param from_nw: Network in *r* mode.
+    :type from_nw: yatel.db.YatelNetwork
+    :param to_nw: Network in *w* or *a* mode.
+    :type to_nw: yatel.db.YatelNetwork
+
+    **Example**
+
+    >>> from yatel import db, dom
+    >>> from_nw = db.YatelNetwork("memory", mode=db.MODE_WRITE)
+    >>> from_nw.add_elements([dom.Haplotype("hap1"),
+    ···                       dom.Haplotype("hap2"),
+    ···                       dom.Fact("hap1", a=1, c="foo"),
+    ···                       dom.Fact("hap2", a=1, b=2),
+    ···                       dom.Edge(1, "hap1", "hap2")])
+    >>> from_nw.confirm_changes()
+    >>> to_nw = db.YatelNetwork("sqlite", mode=db.MODE_WRITE, database="nw.db")
+    >>> db.copy(from_nw, to_nw)
+    >>> to_nw.confirm_changes()
+    >>> list(from_nw.haplotypes_iterator()) == list(to_nw.haplotypes_iterator())
+    True
 
     """
     to_nw.add_elements(from_nw.haplotypes_iterator())
