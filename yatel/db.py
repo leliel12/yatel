@@ -1031,19 +1031,18 @@ def format_date(dt):
 
 def parse_uri(uri, mode=MODE_READ, log=None):
     """Create a dictionary for use in creation of YatelNetwork
-
-    ::
-
-        parsed = db.parse_uri("mysql://tito:pass@localhost:2525/mydb",
-                               create=True, log=None)
-        nw = db.YatelNetwork(**parsed)
+    
+    >>> from yatel import db
+    >>> parsed = db.parse_uri("mysql://tito:pass@localhost:2525/mydb",
+    ···                       mode=db.MODE_READ, log=None)
+    >>> nw = db.YatelNetwork(**parsed)
 
     is equivalent to
-
-    ::
-        nw = db.YatelNetwork("mysql", database="mydb", user="tito",
-                             password="pass", host="localhost", port=2525,
-                             create=True, log=None)
+    
+    >>> from yatel import db
+    >>> nw = db.YatelNetwork("mysql", database="mydb", user="tito",
+    ···                      password="pass", host="localhost", port=2525,
+    ···                      mode=db.MODE_READ, log=None)
 
     """
     urlo = url.make_url(uri)
@@ -1054,7 +1053,22 @@ def parse_uri(uri, mode=MODE_READ, log=None):
 
 
 def to_uri(engine, **kwargs):
-    """Create a correct uri for a given engine ignorin all unused parameters"""
+    """Create a correct uri for a given engine ignoring all unused parameters
+    
+    :param engine: The engine name
+    :type engine: str
+    :param kwargs: variables of the engine
+    
+    **Example**
+    
+    >>> from yatel import db
+    >>> db.to_uri("sqlite", database="nw.db")
+    'sqlite:///nw.db'
+    >>> db.to_uri("mysql", database="nw", host="localhost", port=3306, 
+    ···           user="root", password="secret")
+    'mysql://root:secret@localhost:3306/nw'
+
+    """
     tpl = string.Template(ENGINE_URIS[engine])
     engine_vars = ENGINE_VARS[engine]
     kwargs = dict((k, v) for k, v in kwargs.items() if k in engine_vars)
