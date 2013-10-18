@@ -1035,7 +1035,7 @@ def parse_uri(uri, mode=MODE_READ, log=None):
     ::
 
         parsed = db.parse_uri("mysql://tito:pass@localhost:2525/mydb",
-                               create=True, log=None)
+                               mode=db.MODE_READ, log=None)
         nw = db.YatelNetwork(**parsed)
 
     is equivalent to
@@ -1043,7 +1043,7 @@ def parse_uri(uri, mode=MODE_READ, log=None):
     ::
         nw = db.YatelNetwork("mysql", database="mydb", user="tito",
                              password="pass", host="localhost", port=2525,
-                             create=True, log=None)
+                             mode=db.MODE_READ, log=None)
 
     """
     urlo = url.make_url(uri)
@@ -1062,7 +1062,29 @@ def to_uri(engine, **kwargs):
 
 
 def exists(engine, **kwargs):
-    """Returns true if exists a db.YatelNetwork database in that connection
+    """Returns ``True`` if exists a db.YatelNetwork database in that connection.
+
+    This function return ``False`` if:
+
+        - The database no exsists.
+        - The hap_id column has diferent types in ``haplotypes``, ``facts`` or
+          ``edges`` tables.
+        - The ``edges`` table hasn't a column ``weight`` with type float.
+
+    **Example**
+
+    >>> from yatel import db, dom
+    >>> db.exists("sqlite", mode="r", database="nw.db")
+    False
+    >>> from_nw = db.YatelNetwork("memory", mode=db.MODE_WRITE)
+    >>> from_nw.add_elements([dom.Haplotype("hap1"),
+    ···                       dom.Haplotype("hap2"),
+    ···                       dom.Fact("hap1", a=1, c="foo"),
+    ···                       dom.Fact("hap2", a=1, b=2),
+    ···                       dom.Edge(1, "hap1", "hap2")])
+    >>> from_nw.confirm_changes()
+    >>> db.exists("sqlite", mode="r", database="nw.db")
+    True
 
     """
     kwargs.pop("mode", None)
