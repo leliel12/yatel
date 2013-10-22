@@ -456,27 +456,25 @@ class YatelNetwork(object):
                 )
 
         if isinstance(elem, dom.Haplotype):
-            new_attrs_names = self._new_attrs(elem.names_attrs(), HAPLOTYPES)
+            new_attrs_names = self._new_attrs(elem.keys(), HAPLOTYPES)
             for aname in new_attrs_names:
                 avalue = elem[aname]
                 atype = type(avalue)
                 ctype = SQL_ALCHEMY_TYPES[atype](avalue)
                 column = sa.Column(aname, ctype, index=True, nullable=True)
                 self._column_buff[HAPLOTYPES].append(column)
-            data = dict(elem.items_attrs())
-            data["hap_id"] = elem.hap_id
+            data = dict(elem)
             tname = HAPLOTYPES
 
         elif isinstance(elem, dom.Fact):
-            new_attrs_names = self._new_attrs(elem.names_attrs(), FACTS)
+            new_attrs_names = self._new_attrs(elem.keys(), FACTS)
             for aname in new_attrs_names:
                 avalue = elem[aname]
                 atype = type(avalue)
                 ctype = SQL_ALCHEMY_TYPES[atype](avalue)
                 column = sa.Column(aname, ctype, index=True, nullable=True)
                 self._column_buff[FACTS].append(column)
-            data = dict(elem.items_attrs())
-            data["hap_id"] = elem.hap_id
+            data = dict(elem)
             tname = FACTS
 
         elif isinstance(elem, dom.Edge):

@@ -53,10 +53,10 @@ class Hamming(core.Weight):
     def weight(self, hap0, hap1):
         """A ``float`` distance between 2 ``dom.Haplotype`` instances"""
         w = 0
-        for name in set(hap0.names_attrs() + hap1.names_attrs()):
-            if name not in hap0.names_attrs() \
-               or name not in hap1.names_attrs() \
-               or hap0.get_attr(name) != hap1.get_attr(name):
+        for name in set(hap0.keys() + hap1.keys()):
+            if name not in hap0.keys() \
+               or name not in hap1.keys() \
+               or hap0.get(name) != hap1.get(name):
                 w += 1
         return w
 

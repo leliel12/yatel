@@ -76,9 +76,9 @@ class Levenshtein(core.Weight):
             return current[n]
 
         value = 0
-        for name in sorted(set(hap0.names_attrs() + hap1.names_attrs())):
-            as0 = self.to_seq(hap0.get_attr(name, None))
-            as1 = self.to_seq(hap1.get_attr(name, None))
+        for name in sorted(set(hap0.keys() + hap1.keys())):
+            as0 = self.to_seq(hap0.get(name))
+            as1 = self.to_seq(hap1.get(name))
             value += levenshtein(as0, as1)
         return value
 
@@ -143,9 +143,9 @@ class DamerauLevenshtein(Levenshtein):
             return thisrow[len(seq2) - 1]
 
         value = 0
-        for name in sorted(set(hap0.names_attrs() + hap1.names_attrs())):
-            as0 = self.to_seq(hap0.get_attr(name, None))
-            as1 = self.to_seq(hap1.get_attr(name, None))
+        for name in sorted(set(hap0.keys() + hap1.keys())):
+            as0 = self.to_seq(hap0.get(name))
+            as1 = self.to_seq(hap1.get(name))
             value += dameraulevenshtein(as0, as1)
         return value
 

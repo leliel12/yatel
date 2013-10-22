@@ -105,9 +105,10 @@ class BaseParser(object):
     def hap2dict(self, hap, hap_id_type, types):
         """Convert a ``dom.Haplotype`` instance into a dict"""
         hd = {"hap_id": IO_TYPES[hap_id_type](hap.hap_id)}
-        for k, v in hap.items_attrs():
-            atype = types[k]
-            hd[k] = IO_TYPES[atype](v) if v is not None else None
+        for k, v in hap.items():
+            if k != "hap_id":
+                atype = types[k]
+                hd[k] = IO_TYPES[atype](v) if v is not None else None
         return hd
 
     def dict2hap(self, hapd, hap_id_type, types):
@@ -125,9 +126,10 @@ class BaseParser(object):
         """Convert a ``dom.Fact`` instance into a dict"""
 
         fd = {"hap_id": IO_TYPES[hap_id_type](fact.hap_id)}
-        for k, v in fact.items_attrs():
-            atype = types[k]
-            fd[k] = IO_TYPES[atype](v) if v is not None else None
+        for k, v in fact.items():
+            if k != "hap_id":
+                atype = types[k]
+                fd[k] = IO_TYPES[atype](v) if v is not None else None
         return fd
 
     def dict2fact(self, factd, hap_id_type, types):

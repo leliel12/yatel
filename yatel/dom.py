@@ -38,14 +38,14 @@ class ValidationError(Exception):
 
 class YatelDOM(collections.Mapping):
 
-    def __init__(self, **kwargs):
+    def __init__(self, **attrs):
         if "id" in attrs:
             raise ValueError("'id' is not valid attribute name")
-        self._data = kwargs
+        self._data = attrs
         super(YatelDOM, self).__init__()
 
     def __getitem__(self, k):
-        return self._data(k)
+        return self._data[k]
 
     def __iter__(self):
         return iter(self._data)
@@ -55,8 +55,7 @@ class YatelDOM(collections.Mapping):
 
     def __eq__(self, obj):
         """x.__eq__(y) <==> x==y"""
-        return isinstance(obj, type(self)) \
-               and super(YatelDOM, self) == obj
+        return isinstance(obj, type(self)) and super(YatelDOM, self).__eq__(obj)
 
     def __ne__(self, obj):
         """x.__ne__(y) <==> x!=y"""
@@ -70,6 +69,10 @@ class YatelDOM(collections.Mapping):
             t = type(self).__name__
             msg = "'{t}' object has no attribute '{n}'".format(t=t, n=n)
             raise AttributeError(msg)
+
+    def __repr__(self):
+        """x.__repr__() <==> repr(x)"""
+        return repr(self._data)
 
 
 #===============================================================================
@@ -88,8 +91,8 @@ class Haplotype(YatelDOM):
             :attrs: Diferents attributes of this haplotype.
 
         """
-        super(Haplotype, self).__init__(hap_id=hap_id, **attrs)
-
+        attrs["hap_id"] = hap_id
+        super(Haplotype, self).__init__(**attrs)
 
     def __repr__(self):
         """x.__repr__() <==> repr(x)"""
@@ -120,7 +123,8 @@ class Fact(YatelDOM):
             :attrs: Diferents attributes of this fact.
 
         """
-        super(Fact, self).__init__(hap_id=hap_id, **attrs)
+        attrs["hap_id"] = hap_id
+        super(Fact, self).__init__(**attrs)
 
     def __repr__(self):
         """x.__repr__() <==> repr(x)"""
@@ -162,6 +166,14 @@ class Edge(YatelDOM):
 # ENVIROMENT
 #===============================================================================
 
+class Emviromet(YatelDOM):
+
+    def __repr__(self):
+        """x.__repr__() <==> repr(x)"""
+        cls = type(self).__name__
+        desc = super(Enviroment, self).__repr__()
+        at = hex(id(self))
+        return "<{cls} {desc} at {at}>".format(cls=cls, desc=desc, at=at)
 
 
 
