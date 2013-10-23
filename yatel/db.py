@@ -561,7 +561,7 @@ class YatelNetwork(object):
         row = self.execute(query).fetchone()
         return self._row2hap(row)
 
-    def haplotypes_enviroment(self, env=None, **kwargs):
+    def haplotypes_by_enviroment(self, env=None, **kwargs):
         """Return a iterator of ``dom.Haplotype`` related to a ``dom.Fact`` with
         attribute and value specified in env and ``kwargs``
 

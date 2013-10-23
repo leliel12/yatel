@@ -137,13 +137,19 @@ def hap_in_env_coords(nw, env):
     with same order of ``yatel.db.YatelNetwork.haplotypes_ids`` function
     with 2 posible values:
 
-        - **0** if the haplotype not exist in the enviroment.
-        - **0** if the haplotype exist in the enviroment.
+        - **0.0** if the haplotype not exist in the enviroment.
+        - **1.0** if the haplotype exist in the enviroment.
 
     """
-    haps_id = tuple(nw.haplotypes_ids())
-    ehid = tuple(nw.haplotypes_ids_enviroment(env=env))
-    return [float(hid in ehid) for hid in haps_id]
+    haps_id = np.fromiter(
+        (hap.hap_id for hap in nw.haplotypes()), np.int64
+    )
+    ehid = np.fromiter(
+        (hap.hap_id for hap in nw.haplotypes_by_enviroment(env=env)), np.int64
+    )
+    return np.fromiter(
+        (float(hid in ehid) for hid in haps_id), np.float
+    )
 
 
 def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
@@ -203,7 +209,7 @@ def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
         msg = "nw must be 'yatel.db.YatelNetwork' instance"
         raise TypeError(ms)
     coordc = hap_in_env_coords if coordc is None else coordc
-    envs = tuple(nw.enviroments_iterator(fact_attrs))
+    envs = tuple(nw.enviroments(fact_attrs))
     mtx = []
     for idx, env in enumerate(envs):
         row = coordc(nw, env)
