@@ -188,7 +188,8 @@ def K1_kurtosis(nw, env=None, **kwargs):
 
 def weights2array(edges):
     """Create a *numpy.ndarray* with all the weights of ``dom.Edges``"""
-    return np.array([e.weight for e in edges])
+    generator = (e.weight for e in edges)
+    return np.fromiter(generator, np.float128)
 
 
 def env2weightarray(nw, env=None, **kwargs):
@@ -212,8 +213,8 @@ def env2weightarray(nw, env=None, **kwargs):
         return nw
     elif isinstance(nw, db.YatelNetwork):
         if not env:
-            return weights2array(nw.edges_iterator())
-        return weights2array(nw.edges_enviroment(env=env))
+            return weights2array(nw.edges())
+        return weights2array(nw.edges_by_enviroment(env=env))
     else:
         return np.array(nw)
 
