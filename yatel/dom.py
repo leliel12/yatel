@@ -166,7 +166,7 @@ class Edge(YatelDOM):
 # ENVIROMENT
 #===============================================================================
 
-class Emviromet(YatelDOM):
+class Enviroment(YatelDOM):
 
     def __repr__(self):
         """x.__repr__() <==> repr(x)"""
@@ -175,6 +175,27 @@ class Emviromet(YatelDOM):
         at = hex(id(self))
         return "<{cls} {desc} at {at}>".format(cls=cls, desc=desc, at=at)
 
+
+#===============================================================================
+# DESCRIPTOR
+#===============================================================================
+
+class Descriptor(YatelDOM):
+
+    def __init__(self, uri, mode, fact_attributes,
+                 haplotype_attributes, edge_attributes, size):
+        super(Descriptor, self).__init__(
+            uri=uri, mode=mode, fact_attributes=fact_attributes,
+            haplotype_attributes=haplotype_attributes,
+            edge_attributes=edge_attributes, size=size
+        )
+
+    def __repr__(self):
+        """x.__repr__() <==> repr(x)"""
+        cls = type(self).__name__
+        desc = self.uri
+        at = hex(id(self))
+        return "<{cls} '{desc}' at {at}>".format(cls=cls, desc=desc, at=at)
 
 
 #===============================================================================

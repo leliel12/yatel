@@ -216,6 +216,7 @@ class YatelNetwork(object):
         self._metadata = sa.MetaData(self._engine)
 
         self._mode = mode
+        self._descriptor = None
 
         if self._mode == MODE_READ:
             self._metadata.reflect(only=TABLES)
@@ -493,40 +494,6 @@ class YatelNetwork(object):
         self._create_conn.execute(self._create_objects.insert(),
                                   tname=tname, data=data)
 
-    def temp_iterator(self):
-        """Iterates over all elements added to the network.
-
-        **REQUIRE MODE:** w|a
-
-        :returns: iterator of ``yatel.dom.[Haplotype|Edge|Fact]`` instance
-
-        **Example**
-
-        >>> from yatel import db, dom
-        >>> nw = db.YatelNetwork("sqlite", mode="a", database="nw.db")
-        >>> all(
-        ···     map(
-        ···         lambda e: isinstance(e, (dom.Haplotype, dom.Fact, dom.Edge)
-        ···         nw.temp_iterator()
-        ···     )
-        ··· )
-        True
-
-        """
-        query = sql.select([self._create_objects])
-        for row in self._create_conn.execute(query):
-            cls, data = None, None
-            if row.tname == HAPLOTYPES:
-                cls, data = dom.Haplotype, row.data
-            elif row.tname == FACTS:
-                cls, data = dom.Fact, row.data
-            elif row.tname == EDGES:
-                cls, data = dom.Edge
-            else:
-                msg = "Invalid tname '{}'".format(row.tname)
-                raise YatelNetworkError(msg)
-            yield cls(**data)
-
     def confirm_changes(self):
         """Creates the subjacent structures for store the elements added
         and change to the ``read`` mode.
@@ -612,7 +579,7 @@ class YatelNetwork(object):
     def validate_read(self):
         """Raise a ``YatelNetworkError`` if the network is not in read mode"""
         if not getattr(self, "_creation_append", None):
-            if self.mode != MODE_READ:
+            if self._mode != MODE_READ:
                 raise YatelNetworkError("Network in {} mode".format(self.mode))
 
     def execute(self, query):
@@ -626,19 +593,19 @@ class YatelNetwork(object):
         self.validate_read()
         return self._engine.execute(query)
 
-    def enviroments_iterator(self, facts_attrs=[]):
+    def enviroments(self, facts_attrs=[]):
         """Iterates over all convinations of enviroments of the given attrs
 
         **REQUIRE MODE:** r
 
-        :params fact_attrs: collection of existing fact attribute names
+        :param fact_attrs: collection of existing fact attribute names
         :type fact_attr: iterable
         :return: Iterator of dictionaries with all valid combinations of
                  values of a given fact_attrs names
 
         **Examples**
 
-        >>> for env in nw.enviroments_iterator(["native", "place"]):
+        >>> for env in nw.enviroments(["native", "place"]):
         ···     print env
         {u'place': None, u'native': True}
         {u'place': u'Hogwarts', u'native': False}
@@ -657,49 +624,11 @@ class YatelNetwork(object):
             [self.facts_table.c[k] for k in attrs]
         ).distinct()
         for row in self.execute(query):
-            yield dict(row)
+            yield dom.Enviroment(**row)
 
     #===========================================================================
     # HAPLOTYPE QUERIES
     #===========================================================================
-
-    def haplotype_attributes_types(self):
-        """Maps a fact attribute name to Python type of the atttribute
-
-        **REQUIRE MODE:** r
-
-        :returns: dict with key is te haplotype attribute name and value is the
-                  Python type.
-
-        **Example**
-
-        >>> from yatel import db, dom
-        >>> nw = db.YatelNetwork("sqlite", mode="a", log=False, database="nw.db")
-        >>> nw.haplotype_attributes_types()
-        {u'color': str,
-         u'description': str,
-         u'hap_id': int,
-         u'height': float,
-         u'name': str,
-         u'number': int,
-         u'size': float,
-         u'special': bool}
-
-        """
-        self.validate_read()
-        types = {}
-        for att_name, column in self.haplotypes_table.c.items():
-            pptype = None
-            for satype in type(column.type).__mro__:
-                if satype in PYTHON_TYPES:
-                    pptype = PYTHON_TYPES[satype](satype)
-                    break
-            if pptype:
-                types[att_name] = pptype
-            else:
-                msg = "Hierarchy of '{}' of column '{}' is not valid in yatel"
-                raise YatelNetworkError(msg.format(str(column.type), att_name))
-        return types
 
     def haplotypes_ids(self):
         """Iterates only over all existings hap_id
@@ -887,51 +816,6 @@ class YatelNetwork(object):
         for row in self.execute(query):
             yield self.row2edge(row)
 
-    def edges_min_and_max_weights(self):
-        """Return a ``tuple`` with ``len == 2`` containing the  edgest with
-        minimum ane maximun *weight*
-
-        **REQUIRE MODE:** r
-
-        """
-        query = sql.select([self.edges_table]).order_by(
-                    self.edges_table.c.weight.asc()
-                ).limit(1)
-        mine = self.row2edge(self.execute(query).fetchone())
-        query = sql.select([self.edges_table]).order_by(
-                    self.edges_table.c.weight.desc()
-                ).limit(1)
-        maxe = self.row2edge(self.execute(query).fetchone())
-        return mine, maxe
-
-    def edges_by_weight(self, minweight, maxweight):
-        """Iterates of a the ``dom.Edge`` instance with *weight* value between
-        ``minweight`` and ``maxwright``
-
-        **REQUIRE MODE:** r
-
-        """
-        query = sql.select([self.edges_table]).where(
-            self.edges_table.c.weight.between(minweight, maxweight)
-        )
-        for row in self.execute(query):
-            yield self.row2edge(row)
-
-    def edges_by_haplotypes(self, haps):
-        """Iterates over all nodes of a given list of haplotypes without
-        repetitions
-
-        **REQUIRE MODE:** r
-
-        """
-        haps_id = tuple(hap.hap_id for hap in haps)
-        where = sql.or_(*[v.in_(haps_id)
-                          for k, v in self.edges_table.c.items()
-                          if k.startswith("hap_")])
-        query = sql.select([self.edges_table]).where(where).distinct()
-        for row in self.execute(query):
-            yield self.row2edge(row)
-
     def edges_by_haplotype(self, hap):
         """Iterates over all the edges of a given dom.Haplotype.
 
@@ -949,48 +833,11 @@ class YatelNetwork(object):
     # FACTS QUERIES
     #===========================================================================
 
-    def facts_iterator(self):
+    def facts(self):
         """Iterates over all ``dom.Fact`` instances store in the database."""
         query = sql.select([self.facts_table])
         for row in self.execute(query):
             yield self.row2fact(row)
-
-    def fact_attributes_types(self):
-        """Maps a fact attribute name to python type of the atttribute
-
-        """
-        self.validate_read()
-        types = {}
-        for att_name in self.fact_attributes_names():
-            column = self.facts_table.c[att_name]
-            pptype = None
-            for satype in type(column.type).__mro__:
-                if satype in PYTHON_TYPES:
-                    pptype = PYTHON_TYPES[satype](satype)
-                    break
-            if pptype:
-                types[att_name] = pptype
-            else:
-                msg = "Hierarchy of '{}' of column '{}' is not valid in yatel"
-                raise YatelNetworkError(msg.format(str(column.type), att_name))
-        return types
-
-    def fact_attributes_names(self):
-        """Return an ``iterator`` of all existing ``dom.Fact`` atributes."""
-        self.validate_read()
-        for c in sorted(self.facts_table.c.keys()):
-            if c not in ("id", "hap_id"):
-                yield c
-
-    def fact_attribute_values(self, att_name):
-        """Return an ``iterator`` of all posible values of given ``dom.Fact``
-        atribute.
-
-        """
-        att = self.facts_table.c[att_name]
-        query = sql.select([att]).where(att != None).distinct()
-        for row in self.execute(query):
-            yield row[att_name]
 
     def facts_by_haplotype(self, hap):
         """Return a ``iterator`` of all facts of a given ``dom.Haplotype``"""
@@ -1001,17 +848,79 @@ class YatelNetwork(object):
             yield self.row2fact(row)
 
     #===========================================================================
-    # PROPERTIES
+    #
     #===========================================================================
 
-    @property
-    def uri(self):
-        """The name of the connection."""
-        return self._uri
+    def describe(self):
 
-    @property
-    def mode(self):
-        return self._mode
+        if self._descriptor:
+            return self._descriptor
+
+        descriptor_data = {}
+
+        def hap_attributes():
+            types = {}
+            for att_name, column in self.haplotypes_table.c.items():
+                pptype = None
+                for satype in type(column.type).__mro__:
+                    if satype in PYTHON_TYPES:
+                        pptype = PYTHON_TYPES[satype](satype)
+                        break
+                if pptype:
+                    types[att_name] = pptype
+                else:
+                    msg = "{} Column type '{}' unsuported".format(
+                        att_name, msg.format(str(column.type))
+                    )
+                    raise YatelNetworkError(msg)
+            return types
+
+        def fact_attributes():
+            types = {}
+            for att_name, column in self.facts_table.c.items():
+                if att_name == "id":
+                    continue
+                pptype = None
+                for satype in type(column.type).__mro__:
+                    if satype in PYTHON_TYPES:
+                        pptype = PYTHON_TYPES[satype](satype)
+                        break
+                if pptype:
+                    types[att_name] = pptype
+                else:
+                    msg = "{} Column type '{}' unsuported".format(
+                        att_name, msg.format(str(column.type))
+                    )
+                    raise YatelNetworkError(msg)
+            return types
+
+        def edge_attributes():
+            max_nodes = len(self.edges_table.c) - 2
+            return {u"weight": float, u"max_nodes": max_nodes}
+
+        def sizes():
+            hapn = self.execute(
+                sql.select([self.haplotypes_table]).alias("hapn").count()
+            ).scalar()
+
+            factn = self.execute(
+                sql.select([self.facts_table]).alias("factn").count()
+            ).scalar()
+
+            edgen = self.execute(
+                sql.select([self.edges_table]).alias("edgen").count()
+            ).scalar()
+            return  {"haplotypes": hapn, "facts": factn, "edges": edgen}
+
+        descriptor_data[u"uri"] = self._uri
+        descriptor_data[u"mode"] = self._mode
+        descriptor_data[u"haplotype_attributes"] = hap_attributes()
+        descriptor_data[u"fact_attributes"] = fact_attributes()
+        descriptor_data[u"edge_attributes"] = edge_attributes()
+        descriptor_data[u"size"] = sizes()
+
+        self._descriptor = dom.Descriptor(**descriptor_data)
+        return self._descriptor
 
 
 #===============================================================================
