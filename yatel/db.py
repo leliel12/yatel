@@ -274,38 +274,7 @@ class YatelNetwork(object):
         columns = [c.name for c in self._column_buff[table]]
         return set(attnames).difference(columns)
 
-    def row2hap(self, row):
-        """Convert row of haplotypes table to ``yatel.dom.Haplotype``
-        instance.
-
-        :param row: Row of haplotypes table.
-        :type row: dict like object with key *hap_id*
-
-        **Examples**
-
-        >>> from yatel import db
-        >>> nw = db.YatelNetwork("sqlite", mode="r", database="nw.db")
-        >>> for row in nw.execute("select * from haplotypes"):
-        ···    print nw.row2hap(row)
-        <Haplotype '0' at 0x37a9890>
-        <Haplotype '1' at 0x37a9890>
-        <Haplotype '2' at 0x37a9890>
-        ...
-
-        >>> hap = nw.row2hap({"hap_id": 25, "att0": "foo"})
-        >>> hap
-        <Haplotype '25' at 0x37bba90>
-        >>> hap.att0
-        'foo'
-
-        >>> query = sql.select([nw.haplotypes_table]).where(
-        ···     nw.haplotypes_table.c.hap_id == 1
-        ··· ).limit(1)
-        >>> row = query.execute().first()
-        >>> nw.row2hap(row)
-        <Haplotype '1' at 0x3935410>
-
-        """
+    def _row2hap(self, row):
         attrs = dict([
             (k, v) for k, v in row.items()
             if k != "hap_id" and v!= None
@@ -313,40 +282,7 @@ class YatelNetwork(object):
         hap_id = row["hap_id"]
         return dom.Haplotype(hap_id, **attrs)
 
-    def row2fact(self, row):
-        """Convert row of facts table to ``yatel.dom.Fact``
-        instance.
-
-        :param row: Row of facts table.
-        :type row: dict like object with key *hap_id*
-
-        **Examples**
-
-        >>> from yatel import db
-        >>> nw = db.YatelNetwork("sqlite", mode="r", database="nw.db")
-        >>> for row in nw.execute("select * from facts"):
-        ···    print nw.row2fact(row)
-        <Fact for '0' at 0x3935810>
-        <Fact for '0' at 0x3935810>
-        <Fact for '0' at 0x3935810>
-        <Fact for '1' at 0x3935810>
-        <Fact for '1' at 0x3935810>
-        ...
-
-        >>> fact = nw.row2fact({"hap_id": 25, "att0": "foo"})
-        >>> fact
-        <Fact '25' at 0x38bfa90>
-        >>> fact.att0
-        'foo'
-
-        >>> query = sql.select([nw.facts_table]).where(
-        ···     nw.facts_table.c.hap_id == 1
-        ··· ).limit(1)
-        >>> row = query.execute().first()
-        >>> nw.row2Fact(row)
-        <Fact for '1' at 0x3935810>
-
-        """
+    def _row2fact(self, row):
         attrs = dict([
             (k, v) for k, v in row.items()
             if k not in ("id", "hap_id") and v!= None
@@ -354,43 +290,7 @@ class YatelNetwork(object):
         hap_id = row["hap_id"]
         return dom.Fact(hap_id, **attrs)
 
-    def row2edge(self, row):
-        """Convert row of edges table to ``yatel.dom.Edge``
-        instance
-
-        :param row: Row of edges table.
-        :type row: dict like object with key *weight* all other keys is
-                   converted to haps_ids except for "id"
-
-
-        **Examples**
-
-        >>> from yatel import db
-        >>> nw = db.YatelNetwork("sqlite", mode="r", database="nw.db")
-        >>> for row in nw.execute("select * from edges"):
-        ···     print nw.row2edge(row)
-        <Edge '(0, 1) 5.0' at 0x39501d0>
-        <Edge '(0, 2) 7.0' at 0x39501d0>
-        <Edge '(0, 3) 4.0' at 0x39501d0>
-        <Edge '(0, 4) 5.0' at 0x39501d0>
-        ...
-
-        >>> edge = nw.row2edge({"weight": 25, "hap0": 1, "hap1": 2})
-        >>> edge
-        <Edge '(2, 1) 25.0' at 0x3950110>
-        >>> edge.weight
-        25.0
-        >>> edge.haps_id
-        (2, 1)
-
-        >>> query = sql.select([nw.edges_table]).where(
-        ···     nw.edges_table.c.id == 1
-        ··· ).limit(1)
-        >>> row = query.execute().first()
-        >>> nw.row2Edge(row)
-        <Edge '(0, 1) 5.0' at 0x3947f90>
-
-        """
+    def _row2edge(self, row):
         haps = [v for k, v in row.items()
                 if k not in ("id", "weight") and v!= None]
         weight = row["weight"]
@@ -630,18 +530,7 @@ class YatelNetwork(object):
     # HAPLOTYPE QUERIES
     #===========================================================================
 
-    def haplotypes_ids(self):
-        """Iterates only over all existings hap_id
-
-        :return: iterator of ``yatel.dom.Haplotypes`` haps_ids
-
-        """
-        column = self.haplotypes_table.c["hap_id"]
-        query = sql.select([column]).order_by(column)
-        for row in self.execute(query):
-            yield row[0]
-
-    def haplotypes_iterator(self):
+    def haplotypes(self):
         """Iterates over all ``dom.Haplotype`` instances store in the database.
 
         **REQUIRE MODE:** r
@@ -651,22 +540,7 @@ class YatelNetwork(object):
         """
         query = sql.select([self.haplotypes_table])
         for row in self.execute(query):
-            yield self.row2hap(row)
-
-    def haplotypes_by_ids(self, haps_ids):
-        """Iterates over all ``dom.Haplotype`` instances with a given ids
-
-        **REQUIRE MODE:** r
-
-        :return: iterator of ``yatel.dom.Haplotypes`` instances
-
-
-        """
-        query = sql.select([self.haplotypes_table]).where(
-            self.haplotypes_table.c.hap_id.in_(haps_ids)
-        )
-        for row in self.execute(query):
-            yield self.row2hap(row)
+            yield self._row2hap(row)
 
     def haplotype_by_id(self, hap_id):
         """Return a ``dom.Haplotype`` instace store in the dabase with the
@@ -685,52 +559,7 @@ class YatelNetwork(object):
             self.haplotypes_table.c.hap_id == hap_id
         ).limit(1)
         row = self.execute(query).fetchone()
-        return self.row2hap(row)
-
-    def haplotype_links(self, hap):
-        """iterates over all ``hap`` conected *haplotypes*
-
-        **REQUIRE MODE:** r
-
-        **WARNING:** This method execute one query for every edge of the given
-        haplotype
-
-        :param hap: ``dom.Haplotype`` instance
-        :type: yatel.dom.Haplotype
-        :return: An iterable with 2 components: A distance as ``float`` and a
-                 ``list`` with the conected haplotypes.
-
-        """
-        for edge in self.edges_by_haplotype(hap):
-            haps_ids = [hap_id
-                        for hap_id in edge.haps_id
-                        if hap_id != hap.hap_id]
-            if haps_ids:
-                yield edge.weight, tuple(self.haplotypes_by_ids(haps_ids))
-            else:
-                yield edge.weight, (hap,)
-
-    def haplotypes_ids_enviroment(self, env=None, **kwargs):
-        """Like haplotypes_enviroments but only return an iterator over hap_ids
-
-        **REQUIRE MODE:** r
-
-        Please read the ``dom.YatelNetwork.haplotypes_enviroment``
-        for more documentation
-
-        """
-        env = dict(env) if env else {}
-        env.update(kwargs)
-        where = sql.and_(*[self.facts_table.c[k] == v
-                           for k, v in env.items()])
-        query = sql.select([self.haplotypes_table.c["hap_id"]]).select_from(
-            self.haplotypes_table.join(
-                self.facts_table,
-                self.facts_table.c.hap_id == self.haplotypes_table.c.hap_id
-            )
-        ).where(where).distinct()
-        for row in self.execute(query):
-            yield row[0]
+        return self._row2hap(row)
 
     def haplotypes_enviroment(self, env=None, **kwargs):
         """Return a iterator of ``dom.Haplotype`` related to a ``dom.Fact`` with
@@ -775,13 +604,13 @@ class YatelNetwork(object):
             )
         ).where(where).distinct()
         for row in self.execute(query):
-            yield self.row2hap(row)
+            yield self._row2hap(row)
 
     #===========================================================================
     # EDGES QUERIES
     #===========================================================================
 
-    def edges_iterator(self):
+    def edges(self):
         """Iterates over all ``dom.Edge`` instances store in the database.
 
         **REQUIRE MODE:** r
@@ -791,9 +620,9 @@ class YatelNetwork(object):
         """
         query = sql.select([self.edges_table])
         for row in self.execute(query):
-            yield self.row2edge(row)
+            yield self._row2edge(row)
 
-    def edges_enviroment(self, env=None, **kwargs):
+    def edges_by_enviroment(self, env=None, **kwargs):
         """Iterates over all ``dom.Edge`` instances of a given enviroment
         please see ``yatel.db.YatelNetwork.haplotypes_enviroment`` for more
         documentation about enviroment.
@@ -814,7 +643,7 @@ class YatelNetwork(object):
             self.edges_table.join(self.facts_table, joins)
         ).where(where).distinct()
         for row in self.execute(query):
-            yield self.row2edge(row)
+            yield self._row2edge(row)
 
     def edges_by_haplotype(self, hap):
         """Iterates over all the edges of a given dom.Haplotype.
@@ -827,7 +656,7 @@ class YatelNetwork(object):
                           if k.startswith("hap_")])
         query = sql.select([self.edges_table]).where(where).distinct()
         for row in self.execute(query):
-            yield self.row2edge(row)
+            yield self._row2edge(row)
 
     #===========================================================================
     # FACTS QUERIES
@@ -837,7 +666,7 @@ class YatelNetwork(object):
         """Iterates over all ``dom.Fact`` instances store in the database."""
         query = sql.select([self.facts_table])
         for row in self.execute(query):
-            yield self.row2fact(row)
+            yield self._row2fact(row)
 
     def facts_by_haplotype(self, hap):
         """Return a ``iterator`` of all facts of a given ``dom.Haplotype``"""
@@ -845,7 +674,23 @@ class YatelNetwork(object):
             self.facts_table.c.hap_id==hap.hap_id
         ).distinct()
         for row in self.execute(query):
-            yield self.row2fact(row)
+            yield self._row2fact(row)
+
+    def facts_by_enviroment(self, env=None, **kwargs):
+        """Iterates over all ``dom.Fact`` instances of a given enviroment
+        please see ``yatel.db.YatelNetwork.haplotypes_enviroment`` for more
+        documentation about enviroment.
+
+        **REQUIRE MODE:** r
+
+        """
+        env = dict(env) if env else {}
+        env.update(kwargs)
+        where = sql.and_(*[self.facts_table.c[k] == v
+                           for k, v in env.items()])
+        query = sql.select([self.facts_table]).where(where).distinct()
+        for row in self.execute(query):
+            yield self._row2fact(row)
 
     #===========================================================================
     #
