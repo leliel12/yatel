@@ -27,6 +27,7 @@ import imp
 import argparse
 import inspect
 import traceback
+import pprint
 import datetime
 
 import caipyrinha
@@ -36,6 +37,7 @@ from yatel import db, dom, etl
 from yatel import io
 from yatel import stats
 from yatel import weight
+
 
 #===============================================================================
 # GROUPS
@@ -112,6 +114,14 @@ def mode(flags, returns):
         returns.database["mode"] = flags.mode
 
 
+@parser.callback("--describe", exclusive=GROUP_OP, action="store_true")
+def describe(flags, returns):
+    """Print information about the network"""
+    conn_data = returns.database
+    nw = db.YatelNetwork(**conn_data)
+    pprint.pprint(dict(nw.describe()))
+
+
 @parser.callback("--fake-network", exclusive=GROUP_OP, action="store", nargs=3)
 def fake_network(flags, returns):
     """Create a new fake full conected network with on given connection string.
@@ -181,11 +191,6 @@ def fake_network(flags, returns):
             attrs[k] = v()
         return attrs
 
-    def only_haps(iterator):
-        for elem in iterator:
-            if isinstance(elem, dom.Haplotype):
-                yield elem
-
     haps_n = int(flags.fake_network[0])
     facts_n = int(flags.fake_network[1])
     weight_calc = flags.fake_network[2]
@@ -198,10 +203,12 @@ def fake_network(flags, returns):
     conn_data = returns.database
     nw = db.YatelNetwork(**conn_data)
 
+    haps = []
     for hap_id in range(haps_n):
         attrs = gime_fake_hap_attrs()
         hap = dom.Haplotype(hap_id, **attrs)
         nw.add_element(hap)
+        haps.append(hap)
 
     for hap_id in range(haps_n):
         for _ in range(random.randint(0, facts_n)):
@@ -209,7 +216,7 @@ def fake_network(flags, returns):
             fact = dom.Fact(hap_id, **attrs)
             nw.add_element(fact)
 
-    for hs, w in weight.weights(weight_calc, only_haps(nw.temp_iterator())):
+    for hs, w in weight.weights(weight_calc, haps):
         haps_id = map(lambda h: h.hap_id, hs)
         edge = dom.Edge(w, *haps_id)
         nw.add_element(edge)
