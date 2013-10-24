@@ -218,14 +218,14 @@ class YatelNetwork(object):
         self._mode = mode
         self._descriptor = None
 
-        if self._mode == MODE_READ:
+        if mode == MODE_READ:
             self._metadata.reflect(only=TABLES)
             self.haplotypes_table = self._metadata.tables[HAPLOTYPES]
             self.facts_table = self._metadata.tables[FACTS]
             self.edges_table = self._metadata.tables[EDGES]
         else:
 
-            if self._mode == MODE_WRITE:
+            if mode == MODE_WRITE:
                 self._metadata.reflect()
                 self._metadata.drop_all()
                 self._metadata.clear()
@@ -242,7 +242,7 @@ class YatelNetwork(object):
             self._create_objects.create(self._create_conn)
             self._create_trans = self._create_conn.begin()
 
-            if self._mode == MODE_APPEND:
+            if mode == MODE_APPEND:
                 self._creation_append = True
                 self._metadata.reflect(only=TABLES)
                 self.haplotypes_table = self._metadata.tables[HAPLOTYPES]
@@ -479,7 +479,7 @@ class YatelNetwork(object):
     def validate_read(self):
         """Raise a ``YatelNetworkError`` if the network is not in read mode"""
         if not getattr(self, "_creation_append", None):
-            if self._mode != MODE_READ:
+            if self.mode != MODE_READ:
                 raise YatelNetworkError("Network in {} mode".format(self.mode))
 
     def execute(self, query):
@@ -758,7 +758,7 @@ class YatelNetwork(object):
             return  {"haplotypes": hapn, "facts": factn, "edges": edgen}
 
         descriptor_data[u"uri"] = self._uri
-        descriptor_data[u"mode"] = self._mode
+        descriptor_data[u"mode"] = self.mode
         descriptor_data[u"haplotype_attributes"] = hap_attributes()
         descriptor_data[u"fact_attributes"] = fact_attributes()
         descriptor_data[u"edge_attributes"] = edge_attributes()
@@ -766,6 +766,14 @@ class YatelNetwork(object):
 
         self._descriptor = dom.Descriptor(**descriptor_data)
         return self._descriptor
+
+    #===========================================================================
+    # PROPERTIES
+    #===========================================================================
+
+    @property
+    def mode(self):
+        return self._mode
 
 
 #===============================================================================
