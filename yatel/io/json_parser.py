@@ -33,7 +33,6 @@ from yatel.io import core
 class JSONParser(core.BaseParser):
 
     def dump(self, nw, stream=None, **kwargs):
-        kwargs["indent"] = kwargs.get("indent", 2)
         kwargs["ensure_ascii"] = kwargs.get("ensure_ascii", True)
         data = super(JSONParser, self).dump(nw)
         if stream:

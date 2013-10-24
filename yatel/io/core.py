@@ -174,8 +174,8 @@ class BaseParser(object):
 
         """
         self.validate_read(nw)
-        hap_types = nw.haplotype_attributes_types()
-        fact_types = nw.fact_attributes_types()
+        hap_types = nw.describe()["haplotype_attributes"]
+        fact_types = nw.describe()["fact_attributes"]
         hap_id_type = hap_types["hap_id"]
         return {
             "version": DEFAULT_VERSION,
@@ -184,11 +184,11 @@ class BaseParser(object):
                 "facts": self.types2strdict(fact_types)
             },
             "haplotypes": [self.hap2dict(hap, hap_id_type, hap_types)
-                           for hap in nw.haplotypes_iterator()],
+                           for hap in nw.haplotypes()],
             "facts": [self.fact2dict(fact, hap_id_type, fact_types)
-                      for fact in nw.facts_iterator()],
+                      for fact in nw.facts()],
             "edges": [self.edge2dict(edge, hap_id_type) for
-                      edge in nw.edges_iterator()],
+                      edge in nw.edges()],
         }
 
 

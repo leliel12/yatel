@@ -56,8 +56,8 @@ class XMLParser(core.BaseParser):
         self.validate_read(nw)
 
         fp = stream or StringIO.StringIO()
-        hap_types = nw.haplotype_attributes_types()
-        fact_types = nw.fact_attributes_types()
+        hap_types = nw.describe()["haplotype_attributes"]
+        fact_types = nw.describe()["fact_attributes"]
         hap_id_type = hap_types["hap_id"]
 
         fp.write(self.start_elem("network",
@@ -80,7 +80,7 @@ class XMLParser(core.BaseParser):
         fp.write(self.end_elem("types"))
 
         fp.write(self.start_elem("haplotypes"))
-        for hap in nw.haplotypes_iterator():
+        for hap in nw.haplotypes():
             fp.write(self.start_elem("haplotype"))
             hapd = self.hap2dict(hap, hap_id_type, hap_types)
             for k, v in hapd.items():
@@ -91,7 +91,7 @@ class XMLParser(core.BaseParser):
         fp.write(self.end_elem("haplotypes"))
 
         fp.write(self.start_elem("facts"))
-        for fact in nw.facts_iterator():
+        for fact in nw.facts():
             fp.write(self.start_elem("fact"))
             factd = self.fact2dict(fact, hap_id_type, fact_types)
             for k, v in factd.items():
@@ -102,7 +102,7 @@ class XMLParser(core.BaseParser):
         fp.write(self.end_elem("facts"))
 
         fp.write(self.start_elem("edges"))
-        for edge in nw.edges_iterator():
+        for edge in nw.edges():
             fp.write(self.start_elem("edge"))
             edged = self.edge2dict(edge, hap_id_type)
 
