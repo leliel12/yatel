@@ -47,7 +47,7 @@ from yatel import weight
 GROUP_INFO = 0
 
 # this group execute some operation over your network
-GROUP_OP = GROUP_INFO # information and operation is not allowed
+GROUP_OP = GROUP_INFO  # information and operation is not allowed
 
 
 

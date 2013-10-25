@@ -168,14 +168,14 @@ class XMLParser(core.BaseParser):
                     self.buff = {"last": None, "attrs": {}}
                 elif self.stk == ["network", "haplotypes", "haplotype", "attribute"]:
                     name = saxutils.unescape(attrs["name"])
-                    self.buff["last"] =  name
+                    self.buff["last"] = name
 
                 # facts
                 elif self.stk == ["network", "facts", "fact"]:
                     self.buff = {"last": None, "attrs": {}}
                 elif self.stk == ["network", "facts", "fact", "attribute"]:
                     name = saxutils.unescape(attrs["name"])
-                    self.buff["last"] =  name
+                    self.buff["last"] = name
 
                 # edges
                 elif self.stk == ["network", "edges", "edge"]:

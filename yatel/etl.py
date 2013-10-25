@@ -38,7 +38,7 @@ from yatel import dom
 # CONSTANTS
 #===============================================================================
 
-#: Template for create etl files
+# : Template for create etl files
 ETL_TEMPLATE = string.Template("""
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-

@@ -152,12 +152,12 @@ if not self.versions_count():
         if match is None:
             query = query.order_by(self.versions_table.c.datetime.desc())
         elif isinstance(match, int):
-            query = query.where(self.versions_table.c.id==match)
+            query = query.where(self.versions_table.c.id == match)
         elif isinstance(match, datetime.datetime):
             match = format_date(match)
-            query = query.where(self.versions_table.c.datetime==match)
+            query = query.where(self.versions_table.c.datetime == match)
         elif isinstance(match, basestring):
-            query = query.where(self.versions_table.c.tag==match)
+            query = query.where(self.versions_table.c.tag == match)
         else:
             msg = "Match must be None, int, str, unicode or datetime instance"
             raise TypeError(msg)

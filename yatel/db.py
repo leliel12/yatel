@@ -32,8 +32,6 @@ import uuid
 import datetime
 import string
 import decimal
-import os
-import cPickle
 
 import sqlalchemy as sa
 from sqlalchemy import sql
@@ -50,7 +48,7 @@ from yatel import dom
 VARS_ENGINE_ORDER = ("database", "user", "password", "dsn", "host", "port")
 
 
-#: Available engines
+# : Available engines
 ENGINES = (
     'sqlite',
     'memory',
@@ -59,7 +57,7 @@ ENGINES = (
 )
 
 
-#: Connection uris for the existing engines
+# : Connection uris for the existing engines
 ENGINE_URIS = {
     'sqlite': "sqlite:///${database}",
     'memory': "sqlite://",
@@ -68,7 +66,7 @@ ENGINE_URIS = {
 }
 
 
-#: Variables of the uris
+# : Variables of the uris
 ENGINE_VARS = {}
 for engine in ENGINES:
     tpl = string.Template(ENGINE_URIS[engine])
@@ -80,9 +78,9 @@ for engine in ENGINES:
     ENGINE_VARS[engine] = variables
 
 
-#: This dictionary maps a Python types to functions for convert
-#: the a given type instance to a correct sqlalchemy column type.
-#: For retrieve all suported types use db.SQL_ALCHEMY_TYPES.keys()
+# : This dictionary maps a Python types to functions for convert
+# : the a given type instance to a correct sqlalchemy column type.
+# : For retrieve all suported types use db.SQL_ALCHEMY_TYPES.keys()
 SQL_ALCHEMY_TYPES = {
     datetime.datetime: lambda x: sa.DateTime(),
     datetime.time: lambda x: sa.Time(),
@@ -97,9 +95,9 @@ SQL_ALCHEMY_TYPES = {
 }
 
 
-#: This dictionary maps a sqlalchemy Column types to functions for convert
-#: the a given Column class to python type
-#: For retrieve all suported columns use db.PYTHON_TYPES.keys()
+# : This dictionary maps a sqlalchemy Column types to functions for convert
+# : the a given Column class to python type
+# : For retrieve all suported columns use db.PYTHON_TYPES.keys()
 PYTHON_TYPES = {
     sa.DateTime: lambda x: datetime.datetime,
     sa.Time: lambda x: datetime.time,
@@ -115,30 +113,30 @@ PYTHON_TYPES = {
 
 # TABLE NAMES
 
-#: The name of the haplotypes table
+# : The name of the haplotypes table
 HAPLOTYPES = "haplotypes"
 
-#: The name of the facts table
+# : The name of the facts table
 FACTS = "facts"
 
-#: The name of the edges table
+# : The name of the edges table
 EDGES = "edges"
 
-#: A collection tihe the 3 table names
+# : A collection tihe the 3 table names
 TABLES = (HAPLOTYPES, FACTS, EDGES)
 
 # MODES
 
-#: Constant of read-only mode
+# : Constant of read-only mode
 MODE_READ = "r"
 
-#: Constant of write mode (Destroy the existing database)
+# : Constant of write mode (Destroy the existing database)
 MODE_WRITE = "w"
 
-#: Constant of append mode (copy existing element to temp table)
+# : Constant of append mode (copy existing element to temp table)
 MODE_APPEND = "a"
 
-#: The 3 modes to open the databases
+# : The 3 modes to open the databases
 MODES = (MODE_READ, MODE_WRITE, MODE_APPEND)
 
 
@@ -277,7 +275,7 @@ class YatelNetwork(object):
     def _row2hap(self, row):
         attrs = dict([
             (k, v) for k, v in row.items()
-            if k != "hap_id" and v!= None
+            if k != "hap_id" and v != None
         ])
         hap_id = row["hap_id"]
         return dom.Haplotype(hap_id, **attrs)
@@ -285,14 +283,14 @@ class YatelNetwork(object):
     def _row2fact(self, row):
         attrs = dict([
             (k, v) for k, v in row.items()
-            if k not in ("id", "hap_id") and v!= None
+            if k not in ("id", "hap_id") and v != None
         ])
         hap_id = row["hap_id"]
         return dom.Fact(hap_id, **attrs)
 
     def _row2edge(self, row):
         haps = [v for k, v in row.items()
-                if k not in ("id", "weight") and v!= None]
+                if k not in ("id", "weight") and v != None]
         weight = row["weight"]
         return dom.Edge(weight, *haps)
 
@@ -671,7 +669,7 @@ class YatelNetwork(object):
     def facts_by_haplotype(self, hap):
         """Return a ``iterator`` of all facts of a given ``dom.Haplotype``"""
         query = sql.select([self.facts_table]).where(
-            self.facts_table.c.hap_id==hap.hap_id
+            self.facts_table.c.hap_id == hap.hap_id
         ).distinct()
         for row in self.execute(query):
             yield self._row2fact(row)
@@ -715,7 +713,7 @@ class YatelNetwork(object):
                     types[att_name] = pptype
                 else:
                     msg = "{} Column type '{}' unsuported".format(
-                        att_name, msg.format(str(column.type))
+                        att_name, str(column.type)
                     )
                     raise YatelNetworkError(msg)
             return types
@@ -734,7 +732,7 @@ class YatelNetwork(object):
                     types[att_name] = pptype
                 else:
                     msg = "{} Column type '{}' unsuported".format(
-                        att_name, msg.format(str(column.type))
+                        att_name, str(column.type)
                     )
                     raise YatelNetworkError(msg)
             return types
@@ -779,15 +777,6 @@ class YatelNetwork(object):
 #===============================================================================
 # FUNCTIONS
 #===============================================================================
-
-def format_date(dt):
-    """This function prepare the  datetime instance to be stored in the
-    database by removing all unused data
-
-    """
-    dtf = "%Y-%m-%dT%H:%M:%S"
-    return datetime.datetime.strptime(dt.strftime(dtf), dtf)
-
 
 def parse_uri(uri, mode=MODE_READ, log=None):
     """Create a dictionary for use in creation of YatelNetwork
