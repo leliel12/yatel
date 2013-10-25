@@ -866,15 +866,12 @@ def exists(engine, **kwargs):
     try:
 
         nw = YatelNetwork(engine, mode=MODE_READ, **kwargs)
-        hap_id_type = type(nw.haplotypes_table.c.hap_id.type)
 
-        if not (nw.facts_table.c.hap_id.type, hap_id_type):
-            raise Exception()
+        hap_types = nw.describe()["haplotype_attributes"]
+        fact_types = nw.describe()["fact_attributes"]
+        edges_types = nw.describe()["edges_attributes"]
 
-        if not (isinstance(nw.edges_table.c.weight.type, sa.Float)
-                and all(isinstance(cv.type, hap_id_type)
-                        for cn, cv in nw.edges_table.c.items()
-                        if cn not in ("weight", "id"))):
+        if hap_types["hap_id"] != fact_types["hap_id"]:
             raise Exception()
 
     except Exception as err:
