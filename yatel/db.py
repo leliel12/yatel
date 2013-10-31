@@ -44,11 +44,7 @@ from yatel import dom
 # EXCEPTIONS
 #===============================================================================
 
-# The order to show ENGINE variables, if it not in this list put at the end
-VARS_ENGINE_ORDER = ("database", "user", "password", "dsn", "host", "port")
-
-
-# : Available engines
+#: Available engines
 ENGINES = (
     'sqlite',
     'memory',
@@ -57,7 +53,7 @@ ENGINES = (
 )
 
 
-# : Connection uris for the existing engines
+#: Connection uris for the existing engines
 ENGINE_URIS = {
     'sqlite': "sqlite:///${database}",
     'memory': "sqlite://",
@@ -66,7 +62,7 @@ ENGINE_URIS = {
 }
 
 
-# : Variables of the uris
+#: Variables of the uris
 ENGINE_VARS = {}
 for engine in ENGINES:
     tpl = string.Template(ENGINE_URIS[engine])
@@ -74,13 +70,12 @@ for engine in ENGINES:
     for e, n, b, i in tpl.pattern.findall(tpl.template):
         if n or b:
             variables.append(n or b)
-    variables.sort(key=lambda v: VARS_ENGINE_ORDER.index(v))
     ENGINE_VARS[engine] = variables
 
 
-# : This dictionary maps a Python types to functions for convert
-# : the a given type instance to a correct sqlalchemy column type.
-# : For retrieve all suported types use db.SQL_ALCHEMY_TYPES.keys()
+#: This dictionary maps a Python types to functions for convert
+#: the a given type instance to a correct sqlalchemy column type.
+#: For retrieve all suported types use db.SQL_ALCHEMY_TYPES.keys()
 SQL_ALCHEMY_TYPES = {
     datetime.datetime: lambda x: sa.DateTime(),
     datetime.time: lambda x: sa.Time(),
@@ -95,9 +90,9 @@ SQL_ALCHEMY_TYPES = {
 }
 
 
-# : This dictionary maps a sqlalchemy Column types to functions for convert
-# : the a given Column class to python type
-# : For retrieve all suported columns use db.PYTHON_TYPES.keys()
+#: This dictionary maps a sqlalchemy Column types to functions for convert
+#: the a given Column class to python type
+#: For retrieve all suported columns use db.PYTHON_TYPES.keys()
 PYTHON_TYPES = {
     sa.DateTime: lambda x: datetime.datetime,
     sa.Time: lambda x: datetime.time,
@@ -113,30 +108,30 @@ PYTHON_TYPES = {
 
 # TABLE NAMES
 
-# : The name of the haplotypes table
+#: The name of the haplotypes table
 HAPLOTYPES = "haplotypes"
 
-# : The name of the facts table
+#: The name of the facts table
 FACTS = "facts"
 
-# : The name of the edges table
+#: The name of the edges table
 EDGES = "edges"
 
-# : A collection tihe the 3 table names
+#: A collection tihe the 3 table names
 TABLES = (HAPLOTYPES, FACTS, EDGES)
 
 # MODES
 
-# : Constant of read-only mode
+#: Constant of read-only mode
 MODE_READ = "r"
 
-# : Constant of write mode (Destroy the existing database)
+#: Constant of write mode (Destroy the existing database)
 MODE_WRITE = "w"
 
-# : Constant of append mode (copy existing element to temp table)
+#: Constant of append mode
 MODE_APPEND = "a"
 
-# : The 3 modes to open the databases
+#: The 3 modes to open the databases
 MODES = (MODE_READ, MODE_WRITE, MODE_APPEND)
 
 
