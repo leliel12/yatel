@@ -31,28 +31,33 @@ MAPINGS = {
     "enviroments": {},
 
     # stats
-    "amax": {'lambda': True, 'nwparam': 'nw'},
-    "amin": {'lambda': True, 'nwparam': 'nw'},
-    "average": {'lambda': True, 'nwparam': 'nw'},
-    "cead": {'lambda': True, 'nwparam': 'nw'},
-    "db": {'lambda': True, 'nwparam': 'nw'},
-    "env2weightarray": {'lambda': True, 'nwparam': 'nw'},
-    "kurtosis": {'lambda': True, 'nwparam': 'nw'},
-    "max": {'lambda': True, 'nwparam': 'nw'},
-    "median": {'lambda': True, 'nwparam': 'nw'},
-    "min": {'lambda': True, 'nwparam': 'nw'},
-    "mode": {'lambda': True, 'nwparam': 'nw'},
-    "np": {'lambda': True, 'nwparam': 'nw'},
-    "percentile": {'lambda': True, 'nwparam': 'nw'},
-    "range": {'lambda': True, 'nwparam': 'nw'},
-    "stats": {'lambda': True, 'nwparam': 'nw'},
-    "std": {'lambda': True, 'nwparam': 'nw'},
-    "sum": {'lambda': True, 'nwparam': 'nw'},
-    "var": {'lambda': True, 'nwparam': 'nw'},
-    "varQ": {'lambda': True, 'nwparam': 'nw'},
-    "variation": {'lambda': True, 'nwparam': 'nw'},
-    "weights2array": {'lambda': True, 'nwparam': 'nw'}
-
+    "amax": {'lambda': True, 'nwparam': 'nw', 'func': stats.amax},
+    "amin": {'lambda': True, 'nwparam': 'nw', 'func': stats.amin },
+    "average": {'lambda': True, 'nwparam': 'nw', 'func': stats.average},
+    "env2weightarray": {'lambda': True, 'nwparam': 'nw', 'func': stats.env2weightarray},
+    "kurtosis": {'lambda': True, 'nwparam': 'nw', 'func': stats.kurtosis},
+    "max": {'lambda': True, 'nwparam': 'nw', 'func': stats.max},
+    "median": {'lambda': True, 'nwparam': 'nw', 'func': stats.median},
+    "min": {'lambda': True, 'nwparam': 'nw', 'func': stats.min},
+    "mode": {'lambda': True, 'nwparam': 'nw', 'func': stats.mode},
+    "percentile": {'lambda': True, 'nwparam': 'nw', 'func': stats.percentile},
+    "range": {'lambda': True, 'nwparam': 'nw', 'func': stats.range},
+    "std": {'lambda': True, 'nwparam': 'nw', 'func': stats.std},
+    "sum": {'lambda': True, 'nwparam': 'nw', 'func': stats.sum},
+    "var": {'lambda': True, 'nwparam': 'nw', 'func': stats.var},
+    "varQ": {'lambda': True, 'nwparam': 'nw', 'func': stats.varQ},
+    "variation": {'lambda': True, 'nwparam': 'nw', 'func': stats.variation},
+    "weights2array": {'lambda': True, 'nwparam': 'nw', 'func': stats.weights2array},
+    "Q": {'lambda': True, 'nwparam': 'nw', 'func': stats.Q},
+    "TRI": {'lambda': True, 'nwparam': 'nw', 'func': stats.TRI},
+    "MID": {'lambda': True, 'nwparam': 'nw', 'func': stats.MID},
+    "MD": {'lambda': True, 'nwparam': 'nw', 'func': stats.MD},
+    "MeD": {'lambda': True, 'nwparam': 'nw', 'func': stats.MeD},
+    "MAD": {'lambda': True, 'nwparam': 'nw', 'func': stats.MAD},
+    "H3_kelly": {'lambda': True, 'nwparam': 'nw', 'func': stats.H3_kelly},
+    "H1_yule": {'lambda': True, 'nwparam': 'nw', 'func': stats.H1_yule},
+    "Sp_pearson": {'lambda': True, 'nwparam': 'nw', 'func': stats.Sp_pearson},
+    "K1_kurtosis": {'lambda': True, 'nwparam': 'nw', 'func': stats.K1_kurtosis},
 }
 
 
@@ -78,7 +83,7 @@ class WrappedCallable(object):
         banned = self._banned_params.intersection(kwargs)
         if banned:
             msg = "{}() got multiple values for keyword argument '{}'"
-            raise TypeError(msg.format(self._fname, ",".join(banned))
+            raise TypeError(msg.format(self._fname, ",".join(banned)))
         kwargs.update(params)
         return self._func(*args, **kwargs)
 
@@ -108,9 +113,12 @@ def function_dict(nw):
         default_parser = lambda x: x
         mfunc = {}
         for fname, fdata in MAPINGS.items():
+
             func = None
             doc = None
             argspec = None
+            parser = fdata.get("parser") or default_parser
+
             if fdata.get("lambda"):
                 func = WrappedCallable(fname, fdata["func"],
                                        {fdata["nwparam"]: nw})
@@ -122,9 +130,9 @@ def function_dict(nw):
                 func = getattr(nw, fname)
                 doc = func.__doc__ or ""
                 argspec = dict(inspect.getargspec(func)._asdict())
-            parser = fdata.get("parser") or default_parser
 
-            # parsing all default values
+            argspec["defaults"] = [(repr(type(d)), str(d))
+                                    for d in argspec["defaults"]]
 
             mfunc[fname] = Function(fname, func, parser, doc, argspec)
         return mfuncs
