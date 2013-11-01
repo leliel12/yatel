@@ -11,7 +11,7 @@
 #===============================================================================
 
 """This package contains all necesary function and classes for execute queries
-using XML
+using JSON
 
 """
 
@@ -19,5 +19,5 @@ using XML
 # IMPORTS
 #===============================================================================
 
-from yatel.qbx.core import YQBX
-from yatel.qbx.function_maps import FUNCTIONS_MAP, register
+from yatel.qbj.core import QBJson
+from yatel.qbj.functions import FUNCTIONS, register

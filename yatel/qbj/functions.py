@@ -23,8 +23,8 @@ from yatel import stats
 #===============================================================================
 
 #: Este ``dict`` contiene las funciones principales que se mapearan desde
-#: yatel a posibles sentencias QBX. Cada llave representa el nombre de la
-#: función dentro de YQBX, por su parte los valores son siempre ``dicts`` que
+#: yatel a posibles sentencias json. Cada llave representa el nombre de la
+#: función dentro de YQBJ, por su parte los valores son siempre ``dicts`` que
 #: tienen llaves siempre opcionales.
 #:
 #: Valores:
@@ -39,7 +39,7 @@ from yatel import stats
 #:      "nwparam": String que indica con que nombre se enviará la instancia de
 #:                 ``yatel.db.YatelNetwork`` a la función si *wrap* es True.
 #:                 Por defecto el valor es ``nw``
-FUNCTIONS_MAP = {
+FUNCTIONS = {
     "haplotypes": {},
     "haplotype_by_id": {},
     "haplotypes_by_enviroment": {},
@@ -92,7 +92,7 @@ def register(**kwargs):
     def _wraps(func):
         name = kwargs.pop("name", None) or func.__name__
         kwargs["func"] = func
-        FUNCTIONS_MAP[name] = kwargs
+        FUNCTIONS[name] = kwargs
         return func
 
     return _wraps
@@ -122,7 +122,7 @@ class WrappedCallable(object):
         return self._func(*args, **kwargs)
 
 
-class YQBXFunction(object):
+class Function(object):
 
     def __init__(self, fname, func, parser, doc, argspec):
         self.fname = fname
@@ -137,7 +137,7 @@ class YQBXFunction(object):
 #===============================================================================
 
 @register(wrap=True)
-def slice(iterable, f, t=None, nw=None):
+def slice(iterable, f, t=None, **kwargs):
     """Split the an iterable from Fth element to Tth element"""
     if t is None:
         return iterable[f]
@@ -178,5 +178,10 @@ def wrap_network(nw):
                                     for d in argspec["defaults"]]
 
 
+#===============================================================================
+# MAIN
+#===============================================================================
 
+if __name__ == "__main__":
+    print(__doc__)
 
