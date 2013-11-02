@@ -33,7 +33,7 @@ import datetime
 import caipyrinha
 
 import yatel
-from yatel import db, dom, etl
+from yatel import db, dom, etl, tests
 from yatel import io
 from yatel import stats
 from yatel import weight
@@ -103,6 +103,14 @@ def database(flags, returns):
 
         """
         return db.parse_uri(flags.database, log=flags.log or None)
+
+
+@parser.callback("--run-tests", action="store_true", exclusive=GROUP_OP)
+def run_tests(flags, returns):
+        """Run all yatel test suites
+
+        """
+        tests.run_tests()
 
 
 @parser.callback(action="store", metavar="[r|w|a]", default=db.MODE_READ)

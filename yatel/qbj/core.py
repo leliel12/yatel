@@ -19,7 +19,7 @@ from yatel.qbj import functions
 
 
 #===============================================================================
-# CLASS
+# CLASS CORE
 #===============================================================================
 
 class QBJson(object):
@@ -27,8 +27,8 @@ class QBJson(object):
     def __init__(self, nw):
             """
             """
+            self.functions = {}
             default_parser = lambda x: x
-            mfunc = {}
             for fname, fdata in functions.FUNCTIONS.items():
 
                 func = None
@@ -44,7 +44,7 @@ class QBJson(object):
                     doc = fdata["func"].__doc__ or ""
                     argspec = dict(inspect.getargspec(internalfunc)._asdict())
                     if nwparam in argspec["args"]:
-                        argspec["args"].remove(fdata["nwparam"])
+                        argspec["args"].remove(nwparam)
                 else:
                     func = getattr(nw, fname)
                     doc = func.__doc__ or ""
@@ -52,8 +52,9 @@ class QBJson(object):
                     argspec["args"].pop(0)
 
                 argspec["defaults"] = [(repr(type(d)), str(d))
-                                        for d in argspec["defaults"]]
-                mfunc[fname] = functions.Function(fname, func, parser, doc, argspec)
+                                        for d in argspec["defaults"] or ()]
+                self.functions[fname] = functions.Function(fname, func, parser,
+                                                           doc, argspec)
 
     def execute_str(self, string):
         sin = StringIO.StringIO(string)
