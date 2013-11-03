@@ -37,9 +37,10 @@ class QBJson(object):
                 parser = fdata.get("parser") or default_parser
 
                 if fdata.get("wrap"):
+                    sendnw = fdata.get("sendnw", True)
                     nwparam = fdata.get("nwparam") or "nw"
                     internalfunc = fdata.get("func")
-                    params = {nwparam: nw}
+                    params = {nwparam: nw} if sendnw else {}
                     func = functions.WrappedCallable(fname, internalfunc, params)
                     doc = fdata["func"].__doc__ or ""
                     argspec = dict(inspect.getargspec(internalfunc)._asdict())

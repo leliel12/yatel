@@ -39,6 +39,9 @@ from yatel import stats
 #:      "nwparam": String que indica con que nombre se enviará la instancia de
 #:                 ``yatel.db.YatelNetwork`` a la función si *wrap* es True.
 #:                 Por defecto el valor es ``nw``
+#:      "sendnw": ``bool`` No se ejecuta en el contexto de la intancia de
+#:                ``yatel.db.YatelNetwork``, por lo cual no se envia el *nwparam*.
+#:                 por defecto en True
 FUNCTIONS = {
     "haplotypes": {},
     "haplotype_by_id": {},
@@ -135,8 +138,8 @@ class Function(object):
 # NATIVE QBX FUNCTIONS
 #===============================================================================
 
-@register(wrap=True)
-def slice(iterable, f, t=None, **kwargs):
+@register(wrap=True, sendnw=False)
+def slice(iterable, f, t=None):
     """Split the an iterable from Fth element to Tth element"""
     if t is None:
         return iterable[f]
