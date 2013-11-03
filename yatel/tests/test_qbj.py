@@ -21,7 +21,7 @@ import random
 
 from yatel.tests.core import YatelTestCase
 
-from yatel import qbj
+from yatel import qbj, stats
 
 
 #===============================================================================
@@ -36,6 +36,8 @@ class QBJsonTest(YatelTestCase):
 
     def test_all_functions(self):
         comps = {
+
+            # directly map to network
             "describe": {"cto": self.nw.describe},
             "enviroments": {"cto": self.nw.enviroments,
                             "precmp": list, "args": [["place", "native"]]},
@@ -67,6 +69,110 @@ class QBJsonTest(YatelTestCase):
                 "kwargs": {"place": "Mordor", "native": True}
             },
 
+            # stats
+            "amin": {
+                "cto": lambda *a, **k: stats.amin(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "amax": {
+                "cto": lambda *a, **k: stats.amax(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "average": {
+                "cto": lambda *a, **k: stats.average(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "env2weightarray": {
+                "cto": lambda *a, **k: stats.env2weightarray(self.nw, *a, **k),
+                "precmp": list, "kwargs": {"place": "Mordor", "native": True}
+            },
+            "kurtosis": {
+                "cto": lambda *a, **k: stats.kurtosis(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "min": {
+                "cto": lambda *a, **k: stats.min(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "median": {
+                "cto": lambda *a, **k: stats.median(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "max": {
+                "cto": lambda *a, **k: stats.max(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "percentile": {
+                "cto": lambda *a, **k: stats.percentile(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True, "q": (25, 55, 60)}
+            },
+            "range": {
+                "cto": lambda *a, **k: stats.range(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "std": {
+                "cto": lambda *a, **k: stats.std(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "sum": {
+                "cto": lambda *a, **k: stats.sum(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "var": {
+                "cto": lambda *a, **k: stats.var(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "varQ": {
+                "cto": lambda *a, **k: stats.varQ(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "variation": {
+                "cto": lambda *a, **k: stats.variation(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "Q": {
+                "cto": lambda *a, **k: stats.Q(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "TRI": {
+                "cto": lambda *a, **k: stats.TRI(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "MID": {
+                "cto": lambda *a, **k: stats.MID(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "MD": {
+                "cto": lambda *a, **k: stats.MD(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "MeD": {
+                "cto": lambda *a, **k: stats.MeD(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "MAD": {
+                "cto": lambda *a, **k: stats.MAD(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "H3_kelly": {
+                "cto": lambda *a, **k: stats.H3_kelly(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "H1_yule": {
+                "cto": lambda *a, **k: stats.H1_yule(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "Sp_pearson": {
+                "cto": lambda *a, **k: stats.Sp_pearson(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+            "K1_kurtosis": {
+                "cto": lambda *a, **k: stats.K1_kurtosis(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
+
+
+            # natives from qbj
             "slice": {"cto": lambda x, f, t: x[f:t],
                       "args": ["guilkmnbhgfyuiooijhg", 5, 8]}
         }
@@ -77,7 +183,7 @@ class QBJsonTest(YatelTestCase):
             kwargs = cmpdata.get("kwargs", {})
             qbjvalue = precmp(self.nqbj.functions[fname].func(*args, **kwargs))
             ctovalue = precmp(cto(*args, **kwargs))
-            self.assertEquals(qbjvalue, ctovalue)
+            self.assertEquals(qbjvalue, ctovalue, "Failed '{}'".format(fname))
 
 
 

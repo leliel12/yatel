@@ -69,7 +69,6 @@ FUNCTIONS = {
     "var": {'wrap': True,  'func': stats.var},
     "varQ": {'wrap': True,  'func': stats.varQ},
     "variation": {'wrap': True,  'func': stats.variation},
-    "weights2array": {'wrap': True,  'func': stats.weights2array},
     "Q": {'wrap': True,  'func': stats.Q},
     "TRI": {'wrap': True,  'func': stats.TRI},
     "MID": {'wrap': True,  'func': stats.MID},
