@@ -171,11 +171,13 @@ class QBJsonTest(YatelTestCase):
                 "kwargs": {"place": "Mordor", "native": True}
             },
 
-
             # natives from qbj
             "slice": {"cto": lambda x, f, t: x[f:t],
                       "args": ["guilkmnbhgfyuiooijhg", 5, 8]}
         }
+        for impfunc in self.nqbj.functions.keys():
+            self.assertIn(impfunc, comps,
+                          "QBJ Function '{}' not tested".format(impfunc))
         for fname, cmpdata in comps.items():
             cto = cmpdata["cto"]
             precmp = cmpdata.get("precmp", lambda x: x)
