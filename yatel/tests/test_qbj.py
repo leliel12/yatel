@@ -102,6 +102,10 @@ class QBJsonTest(YatelTestCase):
                 "cto": lambda *a, **k: stats.max(self.nw, *a, **k),
                 "kwargs": {"place": "Mordor", "native": True}
             },
+            "mode": {
+                "cto": lambda *a, **k: stats.mode(self.nw, *a, **k),
+                "kwargs": {"place": "Mordor", "native": True}
+            },
             "percentile": {
                 "cto": lambda *a, **k: stats.percentile(self.nw, *a, **k),
                 "kwargs": {"place": "Mordor", "native": True, "q": (25, 55, 60)}
