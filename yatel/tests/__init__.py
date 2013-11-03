@@ -19,7 +19,7 @@
 
 import unittest
 
-from yatel.tests import core, qbj
+from yatel.tests import core, test_qbj
 
 
 #===============================================================================

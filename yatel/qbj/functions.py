@@ -118,7 +118,7 @@ class WrappedCallable(object):
         if banned:
             msg = "{}() got multiple values for keyword argument '{}'"
             raise TypeError(msg.format(self._fname, ",".join(banned)))
-        kwargs.update(params)
+        kwargs.update(self._params)
         return self._func(*args, **kwargs)
 
 
@@ -142,40 +142,6 @@ def slice(iterable, f, t=None, **kwargs):
     if t is None:
         return iterable[f]
     return iterable[f:t]
-
-
-#===============================================================================
-# MAPPER
-#===============================================================================
-
-def wrap_network(nw):
-        """
-        """
-        default_parser = lambda x: x
-        mfunc = {}
-        for fname, fdata in MAPINGS.items():
-
-            func = None
-            doc = None
-            argspec = None
-            parser = fdata.get("parser") or default_parser
-
-            if fdata.get("wrap"):
-                nwparam = fdata.get("nwparam") or "nw"
-                internalfunc = fdata.get("func")
-                func = WrappedCallable(fname, internalfunc, {nwparam: nw})
-                doc = fdata["func"].__doc__ or ""
-                argspec = dict(inspect.getargspec(internalfunc)._asdict())
-                if nwparam in argspec["args"]:
-                    argspec["args"].remove(fdata["nwparam"])
-            else:
-                func = getattr(nw, fname)
-                doc = func.__doc__ or ""
-                argspec = dict(inspect.getargspec(func)._asdict())
-                argspec["args"].pop(0)
-
-            argspec["defaults"] = [(repr(type(d)), str(d))
-                                    for d in argspec["defaults"]]
 
 
 #===============================================================================

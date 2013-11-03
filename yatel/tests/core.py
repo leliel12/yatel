@@ -116,11 +116,13 @@ class YatelTestCase(unittest.TestCase):
             edge = dom.Edge(w, *haps_id)
             nw.add_element(edge)
 
+        return [h.hap_id for h in haps]
+
     def setUp(self):
         conn = self.conn()
         conn["mode"] = db.MODE_WRITE
         self.nw = db.YatelNetwork(**conn)
-        self.add_elements(self.nw)
+        self.haps_ids = self.add_elements(self.nw)
         self.nw.confirm_changes()
 
 
