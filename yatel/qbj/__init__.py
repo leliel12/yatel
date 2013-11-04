@@ -20,4 +20,13 @@ using JSON
 #===============================================================================
 
 from yatel.qbj.core import QBJson
+from yatel.qbj.schema import validate
 from yatel.qbj.functions import FUNCTIONS, register
+
+
+#===============================================================================
+# MAIN
+#===============================================================================
+
+if __name__ == "__main__":
+    print(__doc__)

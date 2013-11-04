@@ -105,12 +105,13 @@ def database(flags, returns):
         return db.parse_uri(flags.database, log=flags.log or None)
 
 
-@parser.callback("--run-tests", action="store_true", exclusive=GROUP_OP)
+@parser.callback("--run-tests", metavar="LEVEL", action="store", type=int,
+                 exclusive=GROUP_OP)
 def run_tests(flags, returns):
         """Run all yatel test suites
 
         """
-        tests.run_tests()
+        tests.run_tests(flags.run_tests)
 
 
 @parser.callback(action="store", metavar="[r|w|a]", default=db.MODE_READ)

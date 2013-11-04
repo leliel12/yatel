@@ -19,13 +19,96 @@
 
 import random
 
-from yatel.tests.core import YatelTestCase
+import jsonschema
 
 from yatel import qbj, stats
+from yatel.tests.core import YatelTestCase
 
 
 #===============================================================================
-# BASE CLASS
+# VALIDATE TESTS
+#===============================================================================
+
+class ValidateFunctionTest(YatelTestCase):
+
+    def setUp(self):
+        pass
+
+    def test_validquery(self):
+        valid_query = {
+            "id": 1545454845,
+            "function": {
+                "name": "haplotype_by_id",
+                "args": [
+                    {
+                        "type": "int",
+                        "function": {
+                            "name": "slice",
+                            "kwargs": {
+                                "iterable": {"type": "str", "value": "id_21_"},
+                                "f": {"type": "int", "value": "-1"},
+                                "t": {"type": "int", "value": "-3"}
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+        qbj.validate(valid_query)
+
+    def test_invalid_extra_property(self):
+        invalid_query = {
+            "id": 1545454845,
+            "extra": "don't work",
+            "function": {
+                "name": "haplotypes_by",
+                "args": [
+                    {
+                        "type": "int",
+                        "function": {
+                            "name": "slice",
+                            "kwargs": {
+                                "iterable": {"type": "str", "value": "id_21_"},
+                                "f": {"type": "int", "value": "-1"},
+                                "t": {"type": "int", "value": "-3"}
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+        self.assertRaises(jsonschema.ValidationError,
+                          qbj.validate, invalid_query)
+
+
+    def test_invalid_function_name(self):
+        invalid_query = {
+            "id": 1545454845,
+            "function": {
+                "name": "haplsdsdotypes_by",
+                "args": [
+                    {
+                        "type": "int",
+                        "function": {
+                            "name": "slice",
+                            "kwargs": {
+                                "iterable": {"type": "str", "value": "id_21_"},
+                                "f": {"type": "int", "value": "-1"},
+                                "t": {"type": "int", "value": "-3"}
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+        self.assertRaises(jsonschema.ValidationError,
+                          qbj.validate, invalid_query)
+
+
+
+
+#===============================================================================
+# QBJ TEST
 #===============================================================================
 
 class QBJsonTest(YatelTestCase):
@@ -104,7 +187,7 @@ class QBJsonTest(YatelTestCase):
             },
             "mode": {
                 "cto": lambda *a, **k: stats.mode(self.nw, *a, **k),
-                "kwargs": {"place": "Mordor", "native": True}
+                "precmp": list, "kwargs": {"place": "Mordor", "native": True}
             },
             "percentile": {
                 "cto": lambda *a, **k: stats.percentile(self.nw, *a, **k),
