@@ -40,6 +40,7 @@ class ValidateFunctionTest(YatelTestCase):
             "function": {
                 "name": "haplotype_by_id",
                 "args": [
+                    {"type": 12},
                     {
                         "type": "integer",
                         "function": {

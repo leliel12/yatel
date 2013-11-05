@@ -23,7 +23,6 @@ from yatel.qbj import functions, types
 
 # http://www.tutorialspoint.com/json/json_schema.htm
 
-
 DEFINITIONS = {
 
     "ARGUMENT_STATIC_DEF": {
@@ -32,41 +31,44 @@ DEFINITIONS = {
             "type": {"type": "string", "enum": types.TYPES.keys()},
             "value": {"type": ["string", "number", "boolean", "null"] }
         },
-        "additionalProperties": False
+        "additionalProperties": False,
+        "required": ["type", "value"]
     },
 
     "ARGUMENT_FUNCTION_DEF": {
         "type": "object",
         "properties": {
-            "type": {"type": "string", "enum": types.TYPES.keys()},
+            "atype": {"type": "string", "enum": types.TYPES.keys()},
             "function": {"$ref": "#/definitions/FUNCTION_DEF"}
         },
-        "additionalProperties": False
-    },
-
-    "ARGUMENT_DEF": {
-        "type": "object",
-        "oneOF": [
-            {"$ref": "#/definitions/ARGUMENT_STATIC_DEF"},
-            {"$ref": "#/definitions/ARGUMENT_FUNCTION_DEF"}
-        ],
-        "additionalProperties": False
+        "additionalProperties": False,
+        "required": ["type", "function"]
     },
 
     "FUNCTION_DEF": {
         "type": "object",
         "properties": {
             "name": {"type": "string", "enum": functions.FUNCTIONS.keys()},
+            "args": {
+                "type": "array",
+                "items": {
+                    "oneOF": [
+                        {"$ref": "#/definitions/ARGUMENT_STATIC_DEF"},
+                        {"$ref": "#/definitions/ARGUMENT_FUNCTION_DEF"}
+                    ]
+                }
+            },
             "kwargs": {
                 "type": "object",
                 "patternProperties": {
-                    r".*": {"$ref": "#/definitions/ARGUMENT_DEF"}
+                    r".*": {
+                        "oneOF": [
+                            {"$ref": "#/definitions/ARGUMENT_STATIC_DEF"},
+                            {"$ref": "#/definitions/ARGUMENT_FUNCTION_DEF"}
+                        ]
+                    }
                 },
             },
-            "args": {
-                "type": "array",
-                "items": {"$ref": "#/definitions/ARGUMENT_DEF"}
-            }
         },
         "required": ["name"],
         "additionalProperties": False
@@ -82,7 +84,7 @@ QBJ_SCHEMA = {
     # validation itself
     "type":  "object",
     "definitions" : DEFINITIONS,
-    "properties" : {
+    "properties": {
         "id": {"type": ["string", "number", "boolean", "null"]},
         "function": { "$ref": "#/definitions/FUNCTION_DEF" }
     },

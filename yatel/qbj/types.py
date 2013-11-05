@@ -16,7 +16,7 @@
 TYPES = {
     "boolean": None, "string": None, "datetime": None, "time": None,
     "integer": None, "float": None, "null": None, "complex": None,
-    "array": None, "objet": None, "haplotype": None, "fact": None,
+    "array": None, "object": None, "haplotype": None, "fact": None,
     "edge": None
 }
 
