@@ -41,13 +41,13 @@ class ValidateFunctionTest(YatelTestCase):
                 "name": "haplotype_by_id",
                 "args": [
                     {
-                        "type": "int",
+                        "type": "integer",
                         "function": {
                             "name": "slice",
                             "kwargs": {
-                                "iterable": {"type": "str", "value": "id_21_"},
-                                "f": {"type": "int", "value": "-1"},
-                                "t": {"type": "int", "value": "-3"}
+                                "iterable": {"type": "string", "value": "id_21_"},
+                                "f": {"type": "integer", "value": "-1"},
+                                "t": {"type": "integer", "value": "-3"}
                             }
                         }
                     }
@@ -56,7 +56,7 @@ class ValidateFunctionTest(YatelTestCase):
         }
         qbj.validate(valid_query)
 
-    def test_invalid_extra_property(self):
+    def _test_invalid_extra_property(self):
         invalid_query = {
             "id": 1545454845,
             "extra": "don't work",
@@ -81,7 +81,7 @@ class ValidateFunctionTest(YatelTestCase):
                           qbj.validate, invalid_query)
 
 
-    def test_invalid_function_name(self):
+    def _test_invalid_function_name(self):
         invalid_query = {
             "id": 1545454845,
             "function": {
