@@ -89,7 +89,7 @@ FUNCTIONS = {
 # REGISTER FUNCTION
 #===============================================================================
 
-def register(**kwargs):
+def register_func(**kwargs):
 
     def _wraps(func):
         name = kwargs.pop("name", None) or func.__name__
@@ -138,7 +138,7 @@ class Function(object):
 # NATIVE QBX FUNCTIONS
 #===============================================================================
 
-@register(wrap=True, sendnw=False)
+@register_func(wrap=True, sendnw=False)
 def slice(iterable, f, t=None):
     """Split the an iterable from Fth element to Tth element"""
     if t is None:
