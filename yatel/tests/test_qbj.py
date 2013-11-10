@@ -17,7 +17,7 @@
 # IMPORTS
 #===============================================================================
 
-import random
+import random, datetime
 
 import jsonschema
 
@@ -62,10 +62,10 @@ class ValidateFunctionTest(YatelTestCase):
 # QBJ TEST
 #===============================================================================
 
-class QBJsonTest(YatelTestCase):
+class FunctionTest(YatelTestCase):
 
     def setUp(self):
-        super(QBJsonTest, self).setUp()
+        super(FunctionTest, self).setUp()
         self.wrapped = qbj.wrap_network(self.nw)
 
     def test_all_functions(self):
@@ -224,6 +224,22 @@ class QBJsonTest(YatelTestCase):
             qbjvalue = precmp(self.wrapped[fname].func(*args, **kwargs))
             ctovalue = precmp(cto(*args, **kwargs))
             self.assertEquals(qbjvalue, ctovalue, "Failed '{}'".format(fname))
+
+#===============================================================================
+# TYPE TESTS
+#===============================================================================
+
+class TypeTest(YatelTestCase):
+
+    def test_all_types(self):
+        now = datetime.datetime.now()
+        comps = {
+            "datime": {"original": now, "to_parse": now.isoformat()},
+        }
+        for tname in qbj.TYPES.keys():
+            self.assertIn(tname, comps,
+                          "QBJ Type '{}' not tested".format(tname))
+
 
 
 #===============================================================================
