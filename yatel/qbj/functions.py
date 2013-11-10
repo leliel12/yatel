@@ -147,6 +147,43 @@ def slice(iterable, f, t=None):
 
 
 #===============================================================================
+# NETWORK WRAPPER
+#===============================================================================
+
+def wrap_network(nw):
+    wrapped_network = {}
+    default_parser = lambda x: x
+    for fname, fdata in FUNCTIONS.items():
+
+        wrapped_network_data = {}
+
+        func = None
+        doc = None
+        argspec = None
+        parser = fdata.get("parser") or default_parser
+
+        if fdata.get("wrap"):
+            sendnw = fdata.get("sendnw", True)
+            nwparam = fdata.get("nwparam") or "nw"
+            internalfunc = fdata.get("func")
+            params = {nwparam: nw} if sendnw else {}
+            func = WrappedCallable(fname, internalfunc, params)
+            doc = fdata["func"].__doc__ or ""
+            argspec = dict(inspect.getargspec(internalfunc)._asdict())
+            if nwparam in argspec["args"]:
+                argspec["args"].remove(nwparam)
+        else:
+            func = getattr(nw, fname)
+            doc = func.__doc__ or ""
+            argspec = dict(inspect.getargspec(func)._asdict())
+            argspec["args"].pop(0)
+
+        argspec["defaults"] = [(repr(type(d)), str(d))
+                                for d in argspec["defaults"] or ()]
+        wrapped_network[fname] = Function(fname, func, parser, doc, argspec)
+    return wrapped_network
+
+#===============================================================================
 # MAIN
 #===============================================================================
 

@@ -21,7 +21,7 @@ using JSON
 
 from yatel.qbj.core import QBJson
 from yatel.qbj.schema import validate
-from yatel.qbj.functions import FUNCTIONS, register
+from yatel.qbj.functions import FUNCTIONS, register, wrap_network
 
 
 #===============================================================================

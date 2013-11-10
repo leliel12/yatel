@@ -34,7 +34,7 @@ class ValidateFunctionTest(YatelTestCase):
     def setUp(self):
         pass
 
-    def test_validquery(self):
+    def _test_validquery(self):
         valid_query = {
             "id": 1545454845,
             "function": {
@@ -57,56 +57,6 @@ class ValidateFunctionTest(YatelTestCase):
         }
         qbj.validate(valid_query)
 
-    def _test_invalid_extra_property(self):
-        invalid_query = {
-            "id": 1545454845,
-            "extra": "don't work",
-            "function": {
-                "name": "haplotypes_by",
-                "args": [
-                    {
-                        "type": "int",
-                        "function": {
-                            "name": "slice",
-                            "kwargs": {
-                                "iterable": {"type": "str", "value": "id_21_"},
-                                "f": {"type": "int", "value": "-1"},
-                                "t": {"type": "int", "value": "-3"}
-                            }
-                        }
-                    }
-                ]
-            }
-        }
-        self.assertRaises(jsonschema.ValidationError,
-                          qbj.validate, invalid_query)
-
-
-    def _test_invalid_function_name(self):
-        invalid_query = {
-            "id": 1545454845,
-            "function": {
-                "name": "haplsdsdotypes_by",
-                "args": [
-                    {
-                        "type": "int",
-                        "function": {
-                            "name": "slice",
-                            "kwargs": {
-                                "iterable": {"type": "str", "value": "id_21_"},
-                                "f": {"type": "int", "value": "-1"},
-                                "t": {"type": "int", "value": "-3"}
-                            }
-                        }
-                    }
-                ]
-            }
-        }
-        self.assertRaises(jsonschema.ValidationError,
-                          qbj.validate, invalid_query)
-
-
-
 
 #===============================================================================
 # QBJ TEST
@@ -116,7 +66,7 @@ class QBJsonTest(YatelTestCase):
 
     def setUp(self):
         super(QBJsonTest, self).setUp()
-        self.nqbj = qbj.QBJson(self.nw)
+        self.wrapped = qbj.wrap_network(self.nw)
 
     def test_all_functions(self):
         comps = {
@@ -263,7 +213,7 @@ class QBJsonTest(YatelTestCase):
             "slice": {"cto": lambda x, f, t: x[f:t],
                       "args": ["guilkmnbhgfyuiooijhg", 5, 8]}
         }
-        for impfunc in self.nqbj.functions.keys():
+        for impfunc in self.wrapped.keys():
             self.assertIn(impfunc, comps,
                           "QBJ Function '{}' not tested".format(impfunc))
         for fname, cmpdata in comps.items():
@@ -271,13 +221,9 @@ class QBJsonTest(YatelTestCase):
             precmp = cmpdata.get("precmp", lambda x: x)
             args = cmpdata.get("args", ())
             kwargs = cmpdata.get("kwargs", {})
-            qbjvalue = precmp(self.nqbj.functions[fname].func(*args, **kwargs))
+            qbjvalue = precmp(self.wrapped[fname].func(*args, **kwargs))
             ctovalue = precmp(cto(*args, **kwargs))
             self.assertEquals(qbjvalue, ctovalue, "Failed '{}'".format(fname))
-
-
-
-
 
 
 #===============================================================================
