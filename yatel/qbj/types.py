@@ -13,7 +13,7 @@
 # IMPORTS
 #===============================================================================
 
-import datetime
+import datetime, json
 
 from yatel import dom
 
@@ -30,7 +30,6 @@ TYPES = {
     "null": lambda x: None,
     "complex": lambda x: x if isinstance(x, complex) else complex(x),
     "array": lambda x: x if isinstance(x, list) else list(x),
-    "object": lambda x: x if isinstance(x, dict) else dict(x),
 }
 
 #===============================================================================
@@ -41,7 +40,7 @@ def register_type(**kwargs):
 
     def _wraps(func):
         name = kwargs.get("name") or func.__name__
-        TYPES["name"] = func
+        TYPES[name] = func
         return func
 
     return _wraps
@@ -51,15 +50,33 @@ def register_type(**kwargs):
 # COMPLEX TYPE
 #===============================================================================
 
-@register_type()
-def datetime(x):
+@register_type(name="array")
+def array_type(x):
+    if isinstance(x, basestring):
+        x = json.loads(x)
+    if isinstance(x, list):
+        return x
+    return list(x)
+
+
+@register_type(name="object")
+def object_name(x):
+    if isinstance(x, basestring):
+        x = json.loads(x)
+    if isinstance(x, dict):
+        return x
+    return dict(x)
+
+
+@register_type(name="datetime")
+def datetime_type(x):
     if isinstance(x, datetime.datetime):
         return x
     return datetime.datetime.strptime(x, "%Y-%m-%dT%H:%M:%S.%f")
 
 
-@register_type()
-def date(x):
+@register_type(name="date")
+def date_type(x):
     if isinstance(x, datetime.date):
         return x
     return datetime.datetime.strptime(x, "%Y-%m-%d").date()
@@ -72,32 +89,33 @@ def time(x):
     return datetime.datetime.strptime(x, "%H:%M:%S.%f").time()
 
 
-@register_type()
-def haplotype(x):
+@register_type(name="haplotype")
+def haplotype_type(x):
     if isinstance(x, dom.Haplotype):
         return x
     elif isinstance(x, dict):
         return dom.Haplotype(**x)
-    return dom.Haplotype(*x)
+    return dom.Haplotype(x)
 
 
-@register_type()
-def fact(x):
+@register_type(name="fact")
+def fact_type(x):
     if isinstance(x, dom.Fact):
         return x
     elif isinstance(x, dict):
         return dom.Fact(**x)
-    return dom.Fact(*x)
+    return dom.Fact(x)
 
 
-@register_type()
-def edge(x):
+@register_type(name="edge")
+def edge_type(x):
     if isinstance(x, dom.Edge):
         return x
     elif isinstance(x, dict):
         return dom.Edge(**x)
-    return dom.Edge(*x)
-
+    elif isinstance(x, (list, tuple)):
+        return dom.Edge(*x)
+    return dom.Edge(x)
 
 #===============================================================================
 # MAIN

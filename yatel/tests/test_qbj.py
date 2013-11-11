@@ -21,7 +21,7 @@ import random, datetime
 
 import jsonschema
 
-from yatel import qbj, stats
+from yatel import qbj, stats, dom
 from yatel.tests.core import YatelTestCase
 
 
@@ -234,12 +234,32 @@ class TypeTest(YatelTestCase):
     def test_all_types(self):
         now = datetime.datetime.now()
         comps = {
-            "datime": {"original": now, "to_parse": now.isoformat()},
+            "boolean": {"original": True, "to_parse": "true"},
+            "string": {"original": u"asi", "to_parse": "asi"},
+            "integer": {"original": 10, "to_parse": "10"},
+            "array": {"original": [1], "to_parse": "[1]"},
+            "float": {"original": 23.0, "to_parse": 23},
+            "null": {"original": None, "to_parse": ""},
+            "complex": {"original": 1+2j, "to_parse": "1+2j"},
+            "datetime": {"original": now, "to_parse": now.isoformat()},
+            "time": {"original": now.time(), "to_parse": now.time().isoformat()},
+            "date": {"original": now.date(), "to_parse": now.date().isoformat()},
+            "object": {"original": {'1':2}, "to_parse": '{"1":2}'},
+            "haplotype": {"original": dom.Haplotype(1, a=2), "to_parse": {"hap_id": 1, "a": 2}},
+            "fact": {"original": dom.Fact(1, a=2), "to_parse": {"hap_id": 1, "a": 2}},
+            "edge": {"original": dom.Edge(1, 2, 3), "to_parse": [1,2,3]},
         }
         for tname in qbj.TYPES.keys():
             self.assertIn(tname, comps,
                           "QBJ Type '{}' not tested".format(tname))
-
+        for tname, tdata in comps.items():
+            original = tdata["original"]
+            to_parse = tdata["to_parse"]
+            oparsed = qbj.TYPES[tname](original)
+            tpparsed = qbj.TYPES[tname](to_parse)
+            valuate = original == oparsed == tpparsed
+            msg = "Diferences in: {}|{}|{}".format(original, oparsed, tpparsed)
+            self.assertTrue(valuate, msg)
 
 
 #===============================================================================
