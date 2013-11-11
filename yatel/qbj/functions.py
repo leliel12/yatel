@@ -146,6 +146,12 @@ def slice(iterable, f, t=None):
     return iterable[f:t]
 
 
+@register_func(wrap=True, sendnw=False)
+def ping():
+    "Return always True"
+    return True
+
+
 #===============================================================================
 # NETWORK WRAPPER
 #===============================================================================

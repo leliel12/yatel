@@ -92,7 +92,7 @@ class QBJson(object):
         error_msg = ""
         result = None
         try:
-            schema.validate(querydict)
+            #schema.validate(querydict)
             query_id = querydict["id"]
             function = querydict["function"]
             maintype = querydict["type"]
