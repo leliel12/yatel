@@ -63,7 +63,7 @@ class QBJResolver(object):
 # CLASS CORE
 #===============================================================================
 
-class QBJson(object):
+class QBJEngine(object):
 
     def __init__(self, nw):
         self.context = functions.wrap_network(nw)

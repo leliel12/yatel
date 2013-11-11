@@ -17,7 +17,7 @@
 # IMPORTS
 #===============================================================================
 
-import random, datetime
+import random, datetime, json, StringIO
 
 import jsonschema
 
@@ -261,6 +261,26 @@ class TypeTest(YatelTestCase):
             valuate = original == oparsed == tpparsed
             msg = "Diferences in: {}|{}|{}".format(original, oparsed, tpparsed)
             self.assertTrue(valuate, msg)
+
+#===============================================================================
+# QBJ
+#===============================================================================
+
+class QBJEngineTest(YatelTestCase):
+
+    def setUp(self):
+        super(QBJEngineTest, self).setUp()
+        self.jnw = qbj.QBJEngine(self.nw)
+
+    def test_valid_queries(self):
+        queries = [
+            {'function': {'name': 'describe'}, 'id': 1, 'type': 'object'}
+        ]
+        for q in queries:
+            asstring = json.dumps(q)
+            asstream = StringIO.StringIO(asstring)
+            self.jnw.execute_dict(q)
+
 
 
 #===============================================================================
