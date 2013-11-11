@@ -279,7 +279,7 @@ class QBJEngineTest(YatelTestCase):
         for q in queries:
             asstring = json.dumps(q)
             asstream = StringIO.StringIO(asstring)
-            self.jnw.execute_dict(q)
+            print self.jnw.execute_dict(q)
 
 
 

@@ -35,7 +35,7 @@ class QBJResolver(object):
         name = self.function["name"]
         args = []
         value = None
-        for arg in self.function.get("args"):
+        for arg in self.function.get("args", ()):
             atype = arg["type"]
             if "function" in arg:
                 function = arg["function"]
@@ -46,7 +46,7 @@ class QBJResolver(object):
             result = types.cast(value, atype)
             args.append(result)
         kwargs = {}
-        for kw, arg in self.function.get("kwargs"):
+        for kw, arg in self.function.get("kwargs", {}):
             atype = args["type"]
             if "function" in arg:
                 function = arg["function"]
@@ -84,6 +84,7 @@ class QBJEngine(object):
         return json.dump(outdict, sout)
 
     def execute_dict(self, querydict, stack_trace_on_error=False):
+        import ipdb; ipdb.set_trace()
         query_id = None
         function = None
         maintype = None
