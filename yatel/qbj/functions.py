@@ -183,6 +183,11 @@ def wrap_network(nw):
         wrapped_network[fname] = Function(fname, func, parser, doc, argspec)
     return wrapped_network
 
+
+def evaluate(name, context, args, kwargs):
+    return context[name].func(*args, **kwargs)
+
+
 #===============================================================================
 # MAIN
 #===============================================================================

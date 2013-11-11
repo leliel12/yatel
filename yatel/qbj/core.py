@@ -17,7 +17,46 @@ import sys
 import json
 import traceback
 
-from yatel.qbj import functions, types
+from yatel.qbj import functions, types, schema
+
+#===============================================================================
+# CLASS QBJ RESOLVER
+#===============================================================================
+
+class QBJResolver(object):
+    """ Class doc """
+
+    def __init__ (self, function, context):
+        """ Class initialiser """
+        self.function = function
+        self.context = context
+
+    def resolve(self):
+        name = self.function["name"]
+        args = []
+        value = None
+        for arg in self.function.get("args"):
+            atype = arg["type"]
+            if "function" in arg:
+                function = arg["function"]
+                resolver = QBJResolver(function, self.context)
+                value = resolver.resolve()
+            else:
+                value = args["value"]
+            result = types.cast(value, atype)
+            args.append(result)
+        kwargs = {}
+        for kw, arg in self.function.get("kwargs"):
+            atype = args["type"]
+            if "function" in arg:
+                function = arg["function"]
+                resolver = QBJResolver(function, self.context)
+                value = resolver.resolve()
+            else:
+                value = args["value"]
+            result = types.cast(value, atype)
+            kwargs[kw] = result
+        return functions.evaluate(name, context, arg, kwargs)
 
 
 #===============================================================================
@@ -45,15 +84,23 @@ class QBJson(object):
         return json.dump(outdict, sout)
 
     def execute_dict(self, querydict, stack_trace_on_error=False):
-        query_id = querydict["id"]
-        function = querydict["function"]
-        maintype = querydict["type"]
-        error, stack_trace, error_msg = False, None, ""
+        query_id = None
+        function = None
+        maintype = None
+        error = False
+        stack_trace = None
+        error_msg = ""
         result = None
         try:
+            schema.validate(querydict)
+            query_id = querydict["id"]
+            function = querydict["function"]
+            maintype = querydict["type"]
             main_resolver = QBJResolver(function, self.context)
             result = types.cast(main_resolver.resolve(), maintype)
         except Exception as err:
+            if not query_id and isinstance(querydict, dict):
+                query_id = querydict.get("id")
             error = True
             error_msg = unicode(err)
             if stack_trace_on_error:

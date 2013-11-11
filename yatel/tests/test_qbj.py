@@ -221,7 +221,7 @@ class FunctionTest(YatelTestCase):
             precmp = cmpdata.get("precmp", lambda x: x)
             args = cmpdata.get("args", ())
             kwargs = cmpdata.get("kwargs", {})
-            qbjvalue = precmp(self.wrapped[fname].func(*args, **kwargs))
+            qbjvalue = precmp(qbj.evaluate(fname, self.wrapped, args, kwargs))
             ctovalue = precmp(cto(*args, **kwargs))
             self.assertEquals(qbjvalue, ctovalue, "Failed '{}'".format(fname))
 
@@ -255,8 +255,8 @@ class TypeTest(YatelTestCase):
         for tname, tdata in comps.items():
             original = tdata["original"]
             to_parse = tdata["to_parse"]
-            oparsed = qbj.TYPES[tname](original)
-            tpparsed = qbj.TYPES[tname](to_parse)
+            oparsed = qbj.cast(original, tname)
+            tpparsed = qbj.cast(to_parse, tname)
             valuate = original == oparsed == tpparsed
             msg = "Diferences in: {}|{}|{}".format(original, oparsed, tpparsed)
             self.assertTrue(valuate, msg)
