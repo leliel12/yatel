@@ -56,7 +56,7 @@ class QBJResolver(object):
                 value = args["value"]
             result = types.cast(value, atype)
             kwargs[kw] = result
-        return functions.evaluate(name, context, arg, kwargs)
+        return context.evaluate(name, arg, kwargs)
 
 
 #===============================================================================

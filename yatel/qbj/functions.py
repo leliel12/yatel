@@ -124,7 +124,7 @@ class WrappedCallable(object):
         return self._func(*args, **kwargs)
 
 
-class Function(object):
+class QBJFunction(object):
 
     def __init__(self, fname, func, parser, doc, argspec):
         self.fname = fname
@@ -133,6 +133,11 @@ class Function(object):
         self.doc = doc
         self.argspec = argspec
 
+
+class QBJContext(dict):
+
+    def evaluate(self, name, args, kwargs):
+        return self[name].func(*args, **kwargs)
 
 #===============================================================================
 # NATIVE QBX FUNCTIONS
@@ -157,7 +162,7 @@ def ping():
 #===============================================================================
 
 def wrap_network(nw):
-    wrapped_network = {}
+    wrapped_network = QBJContext()
     default_parser = lambda x: x
     for fname, fdata in FUNCTIONS.items():
 
@@ -186,12 +191,8 @@ def wrap_network(nw):
 
         argspec["defaults"] = [(repr(type(d)), str(d))
                                 for d in argspec["defaults"] or ()]
-        wrapped_network[fname] = Function(fname, func, parser, doc, argspec)
+        wrapped_network[fname] = QBJFunction(fname, func, parser, doc, argspec)
     return wrapped_network
-
-
-def evaluate(name, context, args, kwargs):
-    return context[name].func(*args, **kwargs)
 
 
 #===============================================================================

@@ -211,7 +211,8 @@ class FunctionTest(YatelTestCase):
 
             # natives from qbj
             "slice": {"cto": lambda x, f, t: x[f:t],
-                      "args": ["guilkmnbhgfyuiooijhg", 5, 8]}
+                      "args": ["guilkmnbhgfyuiooijhg", 5, 8]},
+            "ping": {"cto": lambda: True},
         }
         for impfunc in self.wrapped.keys():
             self.assertIn(impfunc, comps,
@@ -221,7 +222,7 @@ class FunctionTest(YatelTestCase):
             precmp = cmpdata.get("precmp", lambda x: x)
             args = cmpdata.get("args", ())
             kwargs = cmpdata.get("kwargs", {})
-            qbjvalue = precmp(qbj.evaluate(fname, self.wrapped, args, kwargs))
+            qbjvalue = precmp(self.wrapped.evaluate(fname, args, kwargs))
             ctovalue = precmp(cto(*args, **kwargs))
             self.assertEquals(qbjvalue, ctovalue, "Failed '{}'".format(fname))
 
