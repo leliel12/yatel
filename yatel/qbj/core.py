@@ -17,6 +17,11 @@ import sys
 import json
 import traceback
 
+try:
+    import cStringIO as StringIO
+except ImportError:
+    import StringIO
+
 from yatel.qbj import functions, types, schema
 
 #===============================================================================
@@ -34,9 +39,9 @@ class QBJResolver(object):
     def resolve(self):
         name = self.function["name"]
         args = []
-        value = None
         for arg in self.function.get("args", ()):
             atype = arg["type"]
+            value = None
             if "function" in arg:
                 function = arg["function"]
                 resolver = QBJResolver(function, self.context)
@@ -48,6 +53,7 @@ class QBJResolver(object):
         kwargs = {}
         for kw, arg in self.function.get("kwargs", {}):
             atype = args["type"]
+            value = None
             if "function" in arg:
                 function = arg["function"]
                 resolver = QBJResolver(function, self.context)
@@ -56,7 +62,7 @@ class QBJResolver(object):
                 value = args["value"]
             result = types.cast(value, atype)
             kwargs[kw] = result
-        return context.evaluate(name, arg, kwargs)
+        return self.context.evaluate(name, args, kwargs)
 
 
 #===============================================================================
@@ -84,7 +90,6 @@ class QBJEngine(object):
         return json.dump(outdict, sout)
 
     def execute_dict(self, querydict, stack_trace_on_error=False):
-        import ipdb; ipdb.set_trace()
         query_id = None
         function = None
         maintype = None
@@ -93,7 +98,7 @@ class QBJEngine(object):
         error_msg = ""
         result = None
         try:
-            #schema.validate(querydict)
+            # schema.validate(querydict)
             query_id = querydict["id"]
             function = querydict["function"]
             maintype = querydict["type"]
@@ -109,8 +114,8 @@ class QBJEngine(object):
                     traceback.format_exception(*sys.exc_info())
                 )
         return {
-            "id": query_id, "error": False, "stack_trace": None,
-            "error_msg": "",  "result": result
+            "id": query_id, "error": error, "stack_trace": stack_trace,
+            "error_msg": error_msg, "result": result
         }
 
 

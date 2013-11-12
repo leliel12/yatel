@@ -30,6 +30,7 @@ TYPES = {
     "null": lambda x: None,
     "complex": lambda x: x if isinstance(x, complex) else complex(x),
     "array": lambda x: x if isinstance(x, list) else list(x),
+    "ignore": lambda x: x
 }
 
 #===============================================================================
@@ -44,6 +45,13 @@ def register_type(**kwargs):
         return func
 
     return _wraps
+
+#===============================================================================
+# ERROR
+#===============================================================================
+
+class CastError(Exception):
+    pass
 
 
 #===============================================================================
@@ -123,7 +131,26 @@ def edge_type(x):
 #===============================================================================
 
 def cast(value, to_type):
-    return TYPES[to_type](value)
+    parsed = None
+    if isinstance(to_type, list):
+        value = TYPES["array"](value)
+        if len(value) != len(to_type):
+            msg = "Diferent lengths 'value' and 'type': {}, {}"
+            raise CastError(msg.format(repr(value), repr(to_type)))
+        parsed = []
+        for v, t in zip(value, to_type):
+            parsed.append(cast(v, t))
+    elif isinstance(to_type, dict):
+        value = TYPES["object"](value)
+        if sorted(value.keys()) != sorted(to_type.keys()):
+            msg = "Some key not match in 'type' or 'value'. {}, {}"
+        parsed = {}
+        for k, v in value.items():
+            t = to_type[k]
+            parsed[k] = cast(v, t)
+    else:
+        parsed = TYPES[to_type](value)
+    return parsed
 
 
 #===============================================================================

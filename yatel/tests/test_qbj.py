@@ -249,6 +249,7 @@ class TypeTest(YatelTestCase):
             "haplotype": {"original": dom.Haplotype(1, a=2), "to_parse": {"hap_id": 1, "a": 2}},
             "fact": {"original": dom.Fact(1, a=2), "to_parse": {"hap_id": 1, "a": 2}},
             "edge": {"original": dom.Edge(1, 2, 3), "to_parse": [1,2,3]},
+            "ignore": {"original": [], "to_parse": []},
         }
         for tname in qbj.TYPES.keys():
             self.assertIn(tname, comps,
@@ -279,7 +280,7 @@ class QBJEngineTest(YatelTestCase):
         for q in queries:
             asstring = json.dumps(q)
             asstream = StringIO.StringIO(asstring)
-            print self.jnw.execute_dict(q)
+            self.jnw.execute_dict(q)
 
 
 
