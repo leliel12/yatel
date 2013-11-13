@@ -29,7 +29,6 @@ TYPES = {
     "float": lambda x: x if isinstance(x, float) else float(x),
     "null": lambda x: None,
     "complex": lambda x: x if isinstance(x, complex) else complex(x),
-    "array": lambda x: x if isinstance(x, list) else list(x),
     "ignore": lambda x: x
 }
 
@@ -90,8 +89,8 @@ def date_type(x):
     return datetime.datetime.strptime(x, "%Y-%m-%d").date()
 
 
-@register_type()
-def time(x):
+@register_type(name="time")
+def time_type(x):
     if isinstance(x, datetime.time):
         return x
     return datetime.datetime.strptime(x, "%H:%M:%S.%f").time()

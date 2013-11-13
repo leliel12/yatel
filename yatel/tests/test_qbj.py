@@ -34,13 +34,13 @@ class ValidateFunctionTest(YatelTestCase):
     def setUp(self):
         pass
 
-    def _test_validquery(self):
+    def test_validquery(self):
         valid_query = {
             "id": 1545454845,
+            "type": "ignore",
             "function": {
                 "name": "haplotype_by_id",
                 "args": [
-                    {"type": 12},
                     {
                         "type": "integer",
                         "function": {
@@ -275,12 +275,37 @@ class QBJEngineTest(YatelTestCase):
 
     def test_valid_queries(self):
         queries = [
-            {'function': {'name': 'describe'}, 'id': 1, 'type': 'object'}
+            {'function': {'name': 'describe'}, 'id': 1, 'type': 'object'},
+            {
+                "id": 1545454845,
+                "type": "ignore",
+                "function": {
+                    "name": "haplotype_by_id",
+                    "args": [
+                        {
+                            "type": "integer",
+                            "function": {
+                                "name": "slice",
+                                "kwargs": {
+                                    "iterable": {"type": "string", "value": "id_01_"},
+                                    "f": {"type": "integer", "value": "-3"},
+                                    "t": {"type": "integer", "value": "-1"}
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
         ]
         for q in queries:
             asstring = json.dumps(q)
             asstream = StringIO.StringIO(asstring)
-            self.jnw.execute_dict(q)
+            result = self.jnw.execute_dict(q, True)
+            if result["error"]:
+                self.fail("\n".join(
+                    [result["error_msg"], result["stack_trace"]])
+                )
+
 
 
 

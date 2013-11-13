@@ -47,19 +47,19 @@ class QBJResolver(object):
                 resolver = QBJResolver(function, self.context)
                 value = resolver.resolve()
             else:
-                value = args["value"]
+                value = arg["value"]
             result = types.cast(value, atype)
             args.append(result)
         kwargs = {}
-        for kw, arg in self.function.get("kwargs", {}):
-            atype = args["type"]
+        for kw, arg in self.function.get("kwargs", {}).items():
+            atype = arg["type"]
             value = None
             if "function" in arg:
                 function = arg["function"]
                 resolver = QBJResolver(function, self.context)
                 value = resolver.resolve()
             else:
-                value = args["value"]
+                value = arg["value"]
             result = types.cast(value, atype)
             kwargs[kw] = result
         return self.context.evaluate(name, args, kwargs)
@@ -98,7 +98,7 @@ class QBJEngine(object):
         error_msg = ""
         result = None
         try:
-            # schema.validate(querydict)
+            schema.validate(querydict)
             query_id = querydict["id"]
             function = querydict["function"]
             maintype = querydict["type"]

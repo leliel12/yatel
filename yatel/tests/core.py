@@ -125,6 +125,20 @@ class YatelTestCase(unittest.TestCase):
         self.haps_ids = self.add_elements(self.nw)
         self.nw.confirm_changes()
 
+    def assertSameUnsortedContent(self, i0, i1):
+        i0 = list(i0)
+        i1 = list(i1)
+        while i0:
+            elem = i0.pop()
+            if elem in i1:
+                i1.remove(elem)
+            else:
+                msg = "'{}' only in one collection".format(repr(elem))
+                raise AssertionError(msg)
+        if i1:
+            elem = i1.pop()
+            msg = "'{}' only in one collection".format(repr(elem))
+            raise AssertionError(msg)
 
 #===============================================================================
 # MAIN

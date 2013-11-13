@@ -892,9 +892,9 @@ def copy(from_nw, to_nw):
     True
 
     """
-    to_nw.add_elements(from_nw.haplotypes_iterator())
-    to_nw.add_elements(from_nw.facts_iterator())
-    to_nw.add_elements(from_nw.edges_iterator())
+    to_nw.add_elements(from_nw.haplotypes())
+    to_nw.add_elements(from_nw.facts())
+    to_nw.add_elements(from_nw.edges())
 
 
 #===============================================================================
