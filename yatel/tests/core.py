@@ -140,6 +140,10 @@ class YatelTestCase(unittest.TestCase):
             msg = "'{}' only in one collection".format(repr(elem))
             raise AssertionError(msg)
 
+    def rrange(self, li, ls):
+        top = random.randint(li, ls)
+        return xrange(top)
+
 #===============================================================================
 # MAIN
 #===============================================================================

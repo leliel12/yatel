@@ -512,7 +512,14 @@ class YatelNetwork(object):
             raise ValueError("Invalid fact attr: 'hap_id'")
         if "id" in facts_attrs:
             raise ValueError("Invalid fact attr: 'id'")
-        attrs = facts_attrs if facts_attrs else self.fact_attributes_names()
+        attrs = None
+        if facts_attrs:
+            attrs = facts_attrs
+        else:
+            attrs = tuple(
+                k for k in self.describe()["fact_attributes"].keys()
+                if k != "hap_id"
+            )
         query = sql.select(
             [self.facts_table.c[k] for k in attrs]
         ).distinct()

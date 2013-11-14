@@ -20,16 +20,55 @@
 #===============================================================================
 
 import collections
+import decimal
+import datetime
+import inspect
+
 
 #===============================================================================
-# ERROR
+# CONSTANTS
 #===============================================================================
 
-class ValidationError(Exception):
-    """Used in function ``dom.validate`` function.
+CONTAINER_TYPES = (tuple, set, list, frozenset)
 
-    """
-    pass
+HASH_TYPES = (dict,)
+
+TO_SIMPLE_TYPES = {
+    datetime.datetime: lambda x: x.isoformat(),
+    datetime.time: lambda x: x.isoformat(),
+    datetime.date: lambda x: x.isoformat(),
+    bool: lambda x: x,
+    int: lambda x: x,
+    long: lambda x: x,
+    float: lambda x: x,
+    str: lambda x: x,
+    unicode: lambda x: x,
+    decimal.Decimal: lambda x: str(x),
+    type(None): lambda x: None
+}
+
+TO_PYTHON_TYPES = {
+    datetime.datetime:
+        lambda x: datetime.datetime.strptime(x, "%Y-%m-%dT%H:%M:%S.%f"),
+    datetime.time:
+        lambda x: datetime.datetime.strptime(s, "%H:%M:%S.%f").time(),
+    datetime.date:
+        lambda x: datetime.datetime.strptime(x, "%Y-%m-%d").date(),
+    bool:
+        lambda x: x.lower() == "true" if isinstance(x, basestring) else bool(x),
+    long: long,
+    int: int,
+    float: float,
+    str: str,
+    unicode: unicode,
+    decimal.Decimal: lambda x: decimal.Decimal(x),
+    type(None): lambda x: None
+}
+
+
+TYPES_TO_NAMES = dict((k, k.__name__) for k in TO_SIMPLE_TYPES.keys())
+
+NAMES_TO_TYPES = dict((v, k) for k, v in TYPES_TO_NAMES.items())
 
 
 #===============================================================================
@@ -73,6 +112,22 @@ class YatelDOM(collections.Mapping):
     def __repr__(self):
         """x.__repr__() <==> repr(x)"""
         return repr(self._data)
+
+    def as_simple_dict(self):
+        return to_simple_type(self._data)
+
+    @classmethod
+    def from_simple_dict(cls, data, types={}):
+        prepared_data = {}
+        for k, v in data.items():
+            if k in types:
+                type_parser = types[k]
+                if type_parser in NAMES_TO_TYPES:
+                    type_parser = NAMES_TO_TYPES[type_parser]
+                v = type_parser(v)
+            prepared_data[k] = v
+        return cls(**prepared_data)
+
 
 
 #===============================================================================
@@ -143,7 +198,7 @@ class Edge(YatelDOM):
 
     """
 
-    def __init__(self, weight, *haps_id):
+    def __init__(self, weight, *haps_id, **kwargs):
         """Creates a new instance.
 
         **Params**
@@ -151,6 +206,10 @@ class Edge(YatelDOM):
             :haps_id: The list of the related haplotypes.
 
         """
+        if haps_id and "haps_id" in kwargs:
+            msg = "__init__() got multiple values for keyword argument 'haps_id'"
+            raise TypeError(msg)
+        haps_id = haps_id or kwargs["haps_id"]
         super(Edge, self).__init__(weight=float(weight), haps_id=haps_id)
 
     def __repr__(self):
@@ -196,6 +255,27 @@ class Descriptor(YatelDOM):
         desc = self.uri
         at = hex(id(self))
         return "<{cls} '{desc}' at {at}>".format(cls=cls, desc=desc, at=at)
+
+#===============================================================================
+# FUNCTIONS
+#===============================================================================
+
+def to_simple_type(e):
+    if isinstance(e, YatelDOM):
+        return e.as_simple_dict()
+    etype = type(e)
+    if etype in CONTAINER_TYPES:
+        return map(to_simple_type, e)
+    elif etype in HASH_TYPES:
+        return dict((k, to_simple_type(v)) for k, v in e.items())
+    elif etype == type:
+        return TYPES_TO_NAMES[e]
+    return TO_SIMPLE_TYPES[etype](e)
+
+
+#~ def to_python_type(e, t, cls=dict):
+    #~ if inspect.isclass(t) and issubclass(t, YatelDOM):
+        #~ t.from_simple_dict(e
 
 
 #===============================================================================
