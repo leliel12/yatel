@@ -94,7 +94,7 @@ def simplifier(obj):
         value = TYPES_TO_NAMES[obj]
     else:
         value = TO_SIMPLE_TYPES[type(obj)](obj)
-    return {"$type": typename, "$value": value}
+    return {"type": typename, "value": value}
 
 
 #def complicate(obj, types, cast_to=dict)
