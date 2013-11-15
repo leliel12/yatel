@@ -15,7 +15,7 @@
 
 import datetime, json
 
-from yatel import dom
+from yatel import dom, typeconv
 
 
 #===============================================================================
@@ -23,12 +23,14 @@ from yatel import dom
 #===============================================================================
 
 TYPES = {
-    "boolean": lambda x: x if isinstance(x, bool) else bool(x),
-    "string": lambda x: x if isinstance(x, unicode) else unicode(x),
-    "integer": lambda x: x if isinstance(x, int) else int(x),
+    "bool": lambda x: x if isinstance(x, bool) else bool(x),
+    "str": lambda x: x if isinstance(x, unicode) else unicode(x),
+    "unicode": lambda x: x if isinstance(x, unicode) else unicode(x),
+    "int": lambda x: x if isinstance(x, int) else int(x),
     "float": lambda x: x if isinstance(x, float) else float(x),
-    "null": lambda x: None,
+    "NoneType": lambda x: None,
     "complex": lambda x: x if isinstance(x, complex) else complex(x),
+    "long": lambda x: x if isinstance(x, long) else long(x),
     "ignore": lambda x: x
 }
 
@@ -57,8 +59,14 @@ class CastError(Exception):
 # COMPLEX TYPE
 #===============================================================================
 
-@register_type(name="array")
-def array_type(x):
+@register_type(name="type")
+def type_type(x):
+    if type(x) == type:
+        return x
+
+
+@register_type(name="list")
+def list_type(x):
     if isinstance(x, basestring):
         x = json.loads(x)
     if isinstance(x, list):
@@ -66,7 +74,16 @@ def array_type(x):
     return list(x)
 
 
-@register_type(name="object")
+@register_type(name="tuple")
+def tuple_type(x):
+    if isinstance(x, basestring):
+        x = json.loads(x)
+    if isinstance(x, tuple):
+        return x
+    return tuple(x)
+
+
+@register_type(name="dict")
 def object_name(x):
     if isinstance(x, basestring):
         x = json.loads(x)
@@ -96,7 +113,7 @@ def time_type(x):
     return datetime.datetime.strptime(x, "%H:%M:%S.%f").time()
 
 
-@register_type(name="haplotype")
+@register_type(name="Haplotype")
 def haplotype_type(x):
     if isinstance(x, dom.Haplotype):
         return x
@@ -105,7 +122,7 @@ def haplotype_type(x):
     return dom.Haplotype(x)
 
 
-@register_type(name="fact")
+@register_type(name="Fact")
 def fact_type(x):
     if isinstance(x, dom.Fact):
         return x
@@ -114,7 +131,7 @@ def fact_type(x):
     return dom.Fact(x)
 
 
-@register_type(name="edge")
+@register_type(name="Edge")
 def edge_type(x):
     if isinstance(x, dom.Edge):
         return x

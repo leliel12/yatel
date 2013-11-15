@@ -22,7 +22,9 @@ try:
 except ImportError:
     import StringIO
 
+from yatel import typeconv
 from yatel.qbj import functions, types, schema
+
 
 #===============================================================================
 # CLASS QBJ RESOLVER
@@ -87,7 +89,8 @@ class QBJEngine(object):
         outdict = self.execute_dict(
             indict, stack_trace_on_error=stack_trace_on_error
         )
-        return json.dump(outdict, sout)
+        siplified = typeconv.simplifier(outdict)
+        return json.dump(simplifier, sout)
 
     def execute_dict(self, querydict, stack_trace_on_error=False):
         query_id = None

@@ -21,7 +21,7 @@ import random, datetime, json, StringIO
 
 import jsonschema
 
-from yatel import qbj, stats, dom
+from yatel import qbj, stats, dom, typeconv
 from yatel.tests.core import YatelTestCase
 
 
@@ -34,7 +34,7 @@ class ValidateFunctionTest(YatelTestCase):
     def setUp(self):
         pass
 
-    def test_validquery(self):
+    def _test_validquery(self):
         valid_query = {
             "id": 1545454845,
             "type": "ignore",
@@ -232,10 +232,17 @@ class FunctionTest(YatelTestCase):
 
 class TypeTest(YatelTestCase):
 
-    def test_all_types(self):
+    def test_suport_all_yatel_types(self):
+        c0 = qbj.TYPES.keys()
+        c1 = typeconv.NAMES_TO_TYPES.keys() + ["ignore"]
+        c0.sort()
+        c1.sort()
+        self.assertEquals(c0, c1)
+
+    def _test_all_types(self):
         now = datetime.datetime.now()
         comps = {
-            "boolean": {"original": True, "to_parse": "true"},
+            "bool": {"original": True, "to_parse": "true"},
             "string": {"original": u"asi", "to_parse": "asi"},
             "integer": {"original": 10, "to_parse": "10"},
             "array": {"original": [1], "to_parse": "[1]"},
@@ -273,7 +280,7 @@ class QBJEngineTest(YatelTestCase):
         super(QBJEngineTest, self).setUp()
         self.jnw = qbj.QBJEngine(self.nw)
 
-    def test_valid_queries(self):
+    def _test_valid_queries(self):
         queries = [
             {'function': {'name': 'describe'}, 'id': 1, 'type': 'object'},
             {

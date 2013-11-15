@@ -19,7 +19,7 @@
 
 import random
 
-from yatel import db, dom
+from yatel import db, dom, typeconv
 from yatel.tests.core import YatelTestCase
 
 
@@ -28,20 +28,8 @@ from yatel.tests.core import YatelTestCase
 #===============================================================================
 
 class TestFunctions(YatelTestCase):
+    pass
 
-    def test_to_simple_types(self):
-        generators = (
-            [self.nw.describe()],
-            self.nw.enviroments(),
-            self.nw.haplotypes(),
-            self.nw.facts(),
-            self.nw.edges()
-        )
-        for gen in generators:
-            for thing in gen:
-                self.assertEquals(
-                    thing.as_simple_dict(), dom.to_simple_type(thing)
-                )
 
 
 #===============================================================================

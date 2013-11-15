@@ -10,7 +10,7 @@
 # DOC
 #===============================================================================
 
-"""yatel.db module tests"""
+"""yatel.dom module tests"""
 
 
 #===============================================================================
@@ -19,7 +19,7 @@
 
 import random
 
-from yatel import db
+from yatel import typeconv
 from yatel.tests.core import YatelTestCase
 
 
@@ -27,28 +27,27 @@ from yatel.tests.core import YatelTestCase
 # VALIDATE TESTS
 #===============================================================================
 
-class TestDBFunctions(YatelTestCase):
+class TestTypeConvFunctions(YatelTestCase):
 
-    def test_enviroments(self):
-        desc = self.nw.describe()
-        fact_attrs = desc["fact_attributes"].keys()
-        for size in xrange(0, len(fact_attrs)):
-            filters = set()
-            while len(filters) < size:
-                f = random.choice(fact_attrs)
-                if f != "hap_id":
-                    filters.add(f)
-            list(self.nw.enviroments(list(filters)))
+    def test_verify_bidirection(self):
+        c0 = typeconv.TO_SIMPLE_TYPES.keys()
+        c1 = typeconv.TO_PYTHON_TYPES.keys()
+        c0.sort()
+        c1.sort()
+        self.assertEquals(c0, c1)
 
-    def test_copy(self):
-        anw = db.YatelNetwork(engine="memory", mode=db.MODE_WRITE)
-        db.copy(self.nw, anw)
-        anw.confirm_changes()
-        for method in ["haplotypes", "facts", "edges"]:
-            nw_values = getattr(self.nw, method)()
-            anw_values = getattr(anw, method)()
-            self.assertSameUnsortedContent(nw_values, anw_values)
-        self.assertEquals(self.nw.describe(), anw.describe())
+    def test_simplifier(self):
+        generators = (
+            [self.nw.describe()],
+            self.nw.enviroments(),
+            self.nw.haplotypes(),
+            self.nw.facts(),
+            self.nw.edges()
+        )
+        for gen in generators:
+            for thing in gen:
+                typeconv.simplifier(thing)
+
 
 
 #===============================================================================
