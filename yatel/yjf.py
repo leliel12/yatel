@@ -27,6 +27,13 @@ except:
 
 from yatel import typeconv
 
+#===============================================================================
+# CONSTANTS
+#===============================================================================
+
+YJF_VERSION = (0, 5)
+YJF_STR_VERSION = ".".join(YJF_VERSION)
+
 
 #===============================================================================
 # CLASS
@@ -41,6 +48,7 @@ class JSONParser(object):
             "haplotypes":  map(typeconv.simplifier, nw.haplotypes()),
             "facts": map(typeconv.simplifier, nw.facts()),
             "edges": map(typeconv.simplifier, nw.edges()),
+            "version": YJF_STR_VERSION,
         }
         json.dump(data, fp, *args, **kwargs)
 
