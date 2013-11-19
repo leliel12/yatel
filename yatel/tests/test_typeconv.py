@@ -54,7 +54,7 @@ class TestTypeConvFunctions(YatelTestCase):
             self.nw.enviroments(),
             self.nw.haplotypes(),
             self.nw.facts(),
-            #~ self.nw.edges()
+            self.nw.edges()
         )
         for gen in generators:
             for thing in gen:
