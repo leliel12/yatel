@@ -34,7 +34,7 @@ import caipyrinha
 
 import yatel
 from yatel import db, dom, etl, tests
-from yatel import io
+from yatel import yjf
 from yatel import stats
 from yatel import weight
 
@@ -75,25 +75,6 @@ def list_connection_strings(flags, returns):
     """List all available connection strings in yatel"""
     for engine in db.ENGINES:
         print "{}: {}".format(engine, db.ENGINE_URIS[engine])
-    print ""
-
-
-@parser.callback("--file-extensions", action="store_true",
-                 exclusive=GROUP_INFO, exit=0)
-def file_extensions(flags, returns):
-    """Returns all suported file extensions.
-
-    Same line is same format with difetent extensions
-
-    """
-    grouped = {}
-    for rtype in io.parsers():
-        cls = io.parser(rtype)
-        if cls not in grouped:
-            grouped[cls] = []
-        grouped[cls].append(rtype)
-    for v in grouped.values():
-        print " ".join(v)
     print ""
 
 
@@ -227,40 +208,30 @@ def fake_network(flags, returns):
 
     for hs, w in weight.weights(weight_calc, haps):
         haps_id = map(lambda h: h.hap_id, hs)
-        edge = dom.Edge(w, *haps_id)
+        edge = dom.Edge(w, haps_id)
         nw.add_element(edge)
     nw.confirm_changes()
 
 
 @parser.callback(exclusive=GROUP_OP, action="store", type=argparse.FileType("w"),
-                 metavar="filename.<EXT>", exit=0)
+                 metavar="filename.json", exit=0)
 def dump(flags, returns):
-    """Export the given database to given filename. The format is given by
-    the extension (see: 'yatel --file-extensions')
+    """Export the given database to json format.
 
     """
-    ext = flags.dump.name.rsplit(".", 1)[-1].lower()
-    if ext not in io.parsers():
-        raise ValueError("Invalid type '{}'".format(ext))
-
     conn_data = returns.database
     nw = db.YatelNetwork(**conn_data)
-
-    io.dump(rtype=ext, nw=nw, stream=flags.dump)
+    yjf.dump(nw=nw, stream=flags.dump)
 
 
 @parser.callback(exclusive=GROUP_OP, action="store",
-                 metavar="filename_template.<EXT>", exit=0)
+                 metavar="filename_template.json", exit=0)
 def backup(flags, returns):
     """Like dump but always create a new file with the format
-    'filename_template<TIMESTAMP>.<EXT>'. The format is given by
-    the extension (see: 'yatel --file-extensions')
+    'filename_template<TIMESTAMP>.json'.
 
     """
     fname, ext = flags.backup.rsplit(".", 1)
-
-    if ext.lower() not in io.parsers():
-        raise ValueError("Invalid type '{}'".format(ext))
 
     fpath = "{}{}.{}".format(fname, datetime.datetime.utcnow().isoformat(), ext)
 
@@ -268,27 +239,18 @@ def backup(flags, returns):
     nw = db.YatelNetwork(**conn_data)
 
     with open(fpath, 'w') as fp:
-        io.dump(rtype=ext.lower(), nw=nw, stream=fp)
+        yjf.dump(nw=nw, stream=fp)
 
 
 @parser.callback(exclusive=GROUP_OP, action="store", type=argparse.FileType(),
-                 metavar="filename.<EXT>", exit=0)
+                 metavar="filename.json", exit=0)
 def load(flags, returns):
-    """Import the given file to the given database. The format is given by
-    the extension (see: 'yatel --file-extensions')
+    """Import the given file to the given database.
 
     """
-    _fail_if_no_force("--load", flags, returns.database)
-
-    ext = flags.load.name.rsplit(".", 1)[-1].lower()
-    if ext not in io.parsers():
-        raise ValueError("Invalid type '{}'".format(ext))
-
     conn_data = returns.database
     nw = db.YatelNetwork(**conn_data)
-
-    io.load(rtype=ext, nw=nw, stream=flags.load)
-
+    yjf.load(nw=nw, stream=flags.load)
     nw.confirm_changes()
 
 

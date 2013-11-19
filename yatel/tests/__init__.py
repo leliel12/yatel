@@ -19,7 +19,7 @@
 
 import unittest
 
-from yatel.tests import core, test_qbj, test_db, test_dom, test_typeconv
+from yatel.tests import core,  test_db, test_dom, test_typeconv
 
 
 #===============================================================================

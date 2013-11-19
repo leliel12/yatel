@@ -136,7 +136,7 @@ class Edge(YatelDOM):
 
     """
 
-    def __init__(self, weight, *haps_id, **kwargs):
+    def __init__(self, weight, haps_id):
         """Creates a new instance.
 
         **Params**
@@ -144,10 +144,6 @@ class Edge(YatelDOM):
             :haps_id: The list of the related haplotypes.
 
         """
-        if haps_id and "haps_id" in kwargs:
-            msg = "__init__() got multiple values for keyword argument 'haps_id'"
-            raise TypeError(msg)
-        haps_id = haps_id or kwargs["haps_id"]
         super(Edge, self).__init__(weight=float(weight), haps_id=haps_id)
 
     def __repr__(self):

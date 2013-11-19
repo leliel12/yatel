@@ -113,7 +113,7 @@ class YatelTestCase(unittest.TestCase):
 
         for hs, w in weight.weights(weight_calc, haps):
             haps_id = map(lambda h: h.hap_id, hs)
-            edge = dom.Edge(w, *haps_id)
+            edge = dom.Edge(w, haps_id)
             nw.add_element(edge)
 
         return [h.hap_id for h in haps]

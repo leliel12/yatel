@@ -97,17 +97,20 @@ def simplifier(obj):
     return {"type": typename, "value": value}
 
 
-#def complicate(obj, types, cast_to=dict)
-    #~ def from_simple_dict(cls, data, types={}):
-        #~ prepared_data = {}
-        #~ for k, v in data.items():
-            #~ if k in types:
-                #~ type_parser = types[k]
-                #~ if type_parser in NAMES_TO_TYPES:
-                    #~ type_parser = NAMES_TO_TYPES[type_parser]
-                #~ v = type_parser(v)
-            #~ prepared_data[k] = v
-        #~ return cls(**prepared_data)
+def parse(obj):
+    typename = obj["type"]
+    value = obj["value"]
+    otype = NAMES_TO_TYPES[typename]
+    if otype in CONTAINER_TYPES:
+        value = map(parse, value)
+    elif otype in HASHED_TYPES:
+        data = dict((k, parse(v)) for k, v in value.items())
+        value = otype(**data)
+    elif otype == type:
+        value = NAMES_TO_TYPES[value]
+    else:
+        value = TO_PYTHON_TYPES[otype](value)
+    return value
 
 #===============================================================================
 # MAIN

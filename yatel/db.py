@@ -287,7 +287,7 @@ class YatelNetwork(object):
         haps = [v for k, v in row.items()
                 if k not in ("id", "weight") and v != None]
         weight = row["weight"]
-        return dom.Edge(weight, *haps)
+        return dom.Edge(weight, haps)
 
     #===========================================================================
     # DDL METHODS
@@ -583,7 +583,7 @@ class YatelNetwork(object):
         ···                  dom.Haplotype("hap2"),
         ···                  dom.Fact("hap1", a=1, c="foo"),
         ···                  dom.Fact("hap2", a=1, b=2),
-        ···                  dom.Edge(1, "hap1", "hap2")])
+        ···                  dom.Edge(1, ("hap1", "hap2"))])
         >>> nw.confirm_changes()
         >>> tuple(nw.haplotypes_enviroment(a=1))
         (<Haplotype 'hap1' at 0x2463250>, <Haplotype 'hap2' at 0x2463390>)
@@ -847,7 +847,7 @@ def exists(engine, **kwargs):
     ···                       dom.Haplotype("hap2"),
     ···                       dom.Fact("hap1", a=1, c="foo"),
     ···                       dom.Fact("hap2", a=1, b=2),
-    ···                       dom.Edge(1, "hap1", "hap2")])
+    ···                       dom.Edge(1, ("hap1", "hap2"))])
     >>> from_nw.confirm_changes()
     >>> db.exists("sqlite", mode="r", database="nw.db")
     True
@@ -890,12 +890,12 @@ def copy(from_nw, to_nw):
     ···                       dom.Haplotype("hap2"),
     ···                       dom.Fact("hap1", a=1, c="foo"),
     ···                       dom.Fact("hap2", a=1, b=2),
-    ···                       dom.Edge(1, "hap1", "hap2")])
+    ···                       dom.Edge(1, ("hap1", "hap2"))])
     >>> from_nw.confirm_changes()
     >>> to_nw = db.YatelNetwork("sqlite", mode=db.MODE_WRITE, database="nw.db")
     >>> db.copy(from_nw, to_nw)
     >>> to_nw.confirm_changes()
-    >>> list(from_nw.haplotypes_iterator()) == list(to_nw.haplotypes_iterator())
+    >>> list(from_nw.haplotypes()) == list(to_nw.haplotypes())
     True
 
     """

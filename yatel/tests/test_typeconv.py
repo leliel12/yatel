@@ -48,6 +48,20 @@ class TestTypeConvFunctions(YatelTestCase):
             for thing in gen:
                 typeconv.simplifier(thing)
 
+    def test_parse(self):
+        generators = (
+            [self.nw.describe()],
+            self.nw.enviroments(),
+            self.nw.haplotypes(),
+            self.nw.facts(),
+            #~ self.nw.edges()
+        )
+        for gen in generators:
+            for thing in gen:
+                simplified = typeconv.simplifier(thing)
+                regenerated = typeconv.parse(simplified)
+
+
 
 
 #===============================================================================
