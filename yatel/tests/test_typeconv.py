@@ -60,6 +60,23 @@ class TestTypeConvFunctions(YatelTestCase):
             for thing in gen:
                 simplified = typeconv.simplifier(thing)
                 regenerated = typeconv.parse(simplified)
+                self.assertEquals(thing, regenerated)
+
+    def test_ignore(self):
+        generators = (
+            [self.nw.describe()],
+            self.nw.enviroments(),
+            self.nw.haplotypes(),
+            self.nw.facts(),
+            self.nw.edges()
+        )
+        for gen in generators:
+            for thing in gen:
+                simplified = typeconv.simplifier(thing)
+                simplified["type"] = typeconv.LITERAL_TYPE
+                regenerated = typeconv.parse(simplified)
+                self.assertNotEquals(thing, regenerated)
+                self.assertEquals(simplified["value"], regenerated)
 
 
 

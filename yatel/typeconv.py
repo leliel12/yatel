@@ -31,6 +31,8 @@ from yatel import dom
 # CONSTANTS
 #===============================================================================
 
+LITERAL_TYPE = "literal"
+
 CONTAINER_TYPES = (tuple, set, list, frozenset)
 
 HASHED_TYPES = tuple([dict] + dom.YatelDOM.__subclasses__())
@@ -100,6 +102,8 @@ def simplifier(obj):
 def parse(obj):
     typename = obj["type"]
     value = obj["value"]
+    if typename == LITERAL_TYPE:
+        return value
     otype = NAMES_TO_TYPES[typename]
     if otype in CONTAINER_TYPES:
         value = map(parse, value)

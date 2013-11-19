@@ -31,7 +31,7 @@ from yatel import typeconv
 # CONSTANTS
 #===============================================================================
 
-YJF_VERSION = (0, 5)
+YJF_VERSION = ("0", "5")
 YJF_STR_VERSION = ".".join(YJF_VERSION)
 
 
