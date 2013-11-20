@@ -89,7 +89,6 @@ class QBJEngine(object):
     def execute_dict(self, querydict, stack_trace_on_error=False):
         query_id = None
         function = None
-        maintype = None
         error = False
         stack_trace = None
         error_msg = ""
@@ -98,7 +97,6 @@ class QBJEngine(object):
             #schema.validate(querydict)
             query_id = querydict["id"]
             function = querydict["function"]
-            maintype = querydict["type"]
             main_resolver = QBJResolver(function, self.context)
             result = typeconv.simplifier(main_resolver.resolve())
         except Exception as err:

@@ -156,6 +156,10 @@ def ping():
     "Return always True"
     return True
 
+@register_func(wrap=True, sendnw=False)
+def variable(value):
+    return value
+
 
 #===============================================================================
 # NETWORK WRAPPER

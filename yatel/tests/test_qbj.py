@@ -213,6 +213,7 @@ class FunctionTest(YatelTestCase):
             "slice": {"cto": lambda x, f, t: x[f:t],
                       "args": ["guilkmnbhgfyuiooijhg", 5, 8]},
             "ping": {"cto": lambda: True},
+            "variable": {"cto": lambda value: value, "kwargs": {"value": 1}}
         }
         for impfunc in self.wrapped.keys():
             self.assertIn(impfunc, comps,
@@ -240,13 +241,21 @@ class QBJEngineTest(YatelTestCase):
         queries = [
             {'function': {'name': 'describe'}, 'id': 1, 'type': 'Descriptor'},
             {
+                "id": 251255,
+                "function": {
+                    "name": "variable",
+                    "args": [
+                        {'type': 'dict', 'value': {'hola': {'type': 'literal', 'value': 1}}}
+                    ]
+                }
+            },
+            {
                 "id": 1545454845,
-                "type": "Haplotype",
                 "function": {
                     "name": "haplotype_by_id",
                     "args": [
                         {
-                            "type": "int",
+                            "type": "literal",
                             "function": {
                                 "name": "slice",
                                 "kwargs": {
@@ -264,7 +273,6 @@ class QBJEngineTest(YatelTestCase):
             asstring = json.dumps(q)
             asstream = StringIO.StringIO(asstring)
             result = self.jnw.execute_dict(q, True)
-            import ipdb; ipdb.set_trace()
             if result["error"]:
                 self.fail("\n".join(
                     [result["error_msg"], result["stack_trace"]])
