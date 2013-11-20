@@ -15,7 +15,9 @@
 
 import jsonschema
 
-from yatel.qbj import functions, types
+from yatel.qbj import functions
+from yatel import typeconv
+
 
 #===============================================================================
 # SCHEMA
@@ -27,7 +29,7 @@ from yatel.qbj import functions, types
 DEFINITIONS = {
     "TYPE_SINGLE_DEF" : {
         "type": "string",
-        "enum": types.TYPES.keys()
+        "enum": typeconv.NAMES_TO_TYPES.keys()
     },
 
     "TYPE_ARRAY_DEF" : {

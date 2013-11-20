@@ -79,8 +79,6 @@ class TestTypeConvFunctions(YatelTestCase):
                 self.assertEquals(simplified["value"], regenerated)
 
 
-
-
 #===============================================================================
 # MAIN
 #===============================================================================

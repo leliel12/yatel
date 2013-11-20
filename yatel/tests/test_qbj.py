@@ -29,7 +29,7 @@ from yatel.tests.core import YatelTestCase
 # VALIDATE TESTS
 #===============================================================================
 
-class ValidateFunctionTest(YatelTestCase):
+class _ValidateFunctionTest(YatelTestCase):
 
     def setUp(self):
         pass
@@ -227,54 +227,10 @@ class FunctionTest(YatelTestCase):
             self.assertEquals(qbjvalue, ctovalue, "Failed '{}'".format(fname))
 
 #===============================================================================
-# TYPE TESTS
-#===============================================================================
-
-class TypeTest(YatelTestCase):
-
-    def test_suport_all_yatel_types(self):
-        c0 = qbj.TYPES.keys()
-        c1 = typeconv.NAMES_TO_TYPES.keys() + ["ignore"]
-        c0.sort()
-        c1.sort()
-        self.assertEquals(c0, c1)
-
-    def _test_all_types(self):
-        now = datetime.datetime.now()
-        comps = {
-            "bool": {"original": True, "to_parse": "true"},
-            "string": {"original": u"asi", "to_parse": "asi"},
-            "integer": {"original": 10, "to_parse": "10"},
-            "array": {"original": [1], "to_parse": "[1]"},
-            "float": {"original": 23.0, "to_parse": 23},
-            "null": {"original": None, "to_parse": ""},
-            "complex": {"original": 1+2j, "to_parse": "1+2j"},
-            "datetime": {"original": now, "to_parse": now.isoformat()},
-            "time": {"original": now.time(), "to_parse": now.time().isoformat()},
-            "date": {"original": now.date(), "to_parse": now.date().isoformat()},
-            "object": {"original": {'1':2}, "to_parse": '{"1":2}'},
-            "haplotype": {"original": dom.Haplotype(1, a=2), "to_parse": {"hap_id": 1, "a": 2}},
-            "fact": {"original": dom.Fact(1, a=2), "to_parse": {"hap_id": 1, "a": 2}},
-            "edge": {"original": dom.Edge(1, 2, 3), "to_parse": [1,2,3]},
-            "ignore": {"original": [], "to_parse": []},
-        }
-        for tname in qbj.TYPES.keys():
-            self.assertIn(tname, comps,
-                          "QBJ Type '{}' not tested".format(tname))
-        for tname, tdata in comps.items():
-            original = tdata["original"]
-            to_parse = tdata["to_parse"]
-            oparsed = qbj.cast(original, tname)
-            tpparsed = qbj.cast(to_parse, tname)
-            valuate = original == oparsed == tpparsed
-            msg = "Diferences in: {}|{}|{}".format(original, oparsed, tpparsed)
-            self.assertTrue(valuate, msg)
-
-#===============================================================================
 # QBJ
 #===============================================================================
 
-class QBJEngineTest(YatelTestCase):
+class _QBJEngineTest(YatelTestCase):
 
     def setUp(self):
         super(QBJEngineTest, self).setUp()
