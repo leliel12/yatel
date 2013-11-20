@@ -230,29 +230,29 @@ class FunctionTest(YatelTestCase):
 # QBJ
 #===============================================================================
 
-class _QBJEngineTest(YatelTestCase):
+class QBJEngineTest(YatelTestCase):
 
     def setUp(self):
         super(QBJEngineTest, self).setUp()
         self.jnw = qbj.QBJEngine(self.nw)
 
-    def _test_valid_queries(self):
+    def test_valid_queries(self):
         queries = [
-            {'function': {'name': 'describe'}, 'id': 1, 'type': 'object'},
+            {'function': {'name': 'describe'}, 'id': 1, 'type': 'Descriptor'},
             {
                 "id": 1545454845,
-                "type": "ignore",
+                "type": "Haplotype",
                 "function": {
                     "name": "haplotype_by_id",
                     "args": [
                         {
-                            "type": "integer",
+                            "type": "int",
                             "function": {
                                 "name": "slice",
                                 "kwargs": {
-                                    "iterable": {"type": "string", "value": "id_01_"},
-                                    "f": {"type": "integer", "value": "-3"},
-                                    "t": {"type": "integer", "value": "-1"}
+                                    "iterable": {"type": "unicode", "value": "id_01_"},
+                                    "f": {"type": "int", "value": "-3"},
+                                    "t": {"type": "int", "value": "-1"}
                                 }
                             }
                         }
@@ -264,6 +264,7 @@ class _QBJEngineTest(YatelTestCase):
             asstring = json.dumps(q)
             asstream = StringIO.StringIO(asstring)
             result = self.jnw.execute_dict(q, True)
+            import ipdb; ipdb.set_trace()
             if result["error"]:
                 self.fail("\n".join(
                     [result["error_msg"], result["stack_trace"]])

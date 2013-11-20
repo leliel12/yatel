@@ -64,9 +64,6 @@ class YatelDOM(collections.Mapping):
         """x.__repr__() <==> repr(x)"""
         return repr(self._data)
 
-    def as_simple_dict(self):
-        return to_simple_type(self._data)
-
 
 #===============================================================================
 # HAPLOTYPES
