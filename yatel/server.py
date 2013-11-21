@@ -28,10 +28,10 @@ from yatel import db, qbj
 # BASE CLASS
 #===============================================================================
 
-class YatelHTTPServer(flask.Flask):
+class YatelHttpServer(flask.Flask):
 
     def __init__(self, **config):
-        super(YatelHTTPServer, self).__init__()
+        super(YatelHttpServer, self).__init__(__name__)
         self.config.from_object(config)
 
         self._nws = {}
@@ -39,18 +39,19 @@ class YatelHTTPServer(flask.Flask):
         self.route("/")(self._its_works)
         self.route("/qbj/<nw>")(self._qbj)
 
-    def add_nw(self, nwname, nw, qbj):
+    def add_nw(self, nwname, nw, enable_qbj):
         if not isinstance(nw, db.YatelNetwork):
             raise TypeError("nw must be db.YatelNetwork subclass")
         self._nws[nwname] = {"nwname": nwname, "nw": nw}
-        if qbj:
+        if enable_qbj:
             self._nws[nwname]["qbj"] = qbj.QBJEngine(nw)
 
     def _its_works(self):
         return "{} works!".format(type(self).__name__)
 
     def _qbj(self, nw):
-        pass
+        jnw = self._nws[nw]["qbj"]
+
 
 
 

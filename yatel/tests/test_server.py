@@ -10,30 +10,34 @@
 # DOC
 #===============================================================================
 
-"""All yatel tests"""
+"""yatel.server module tests"""
 
 
 #===============================================================================
 # IMPORTS
 #===============================================================================
 
-import unittest
+import random
 
-from yatel.tests import (core, test_db, test_dom, test_typeconv,
-                         test_qbj, test_server)
+from yatel import server
+from yatel.tests.core import YatelTestCase
 
 
 #===============================================================================
-# FUNCTIONS
+# VALIDATE TESTS
 #===============================================================================
 
-def run_tests(verbosity=1):
-    loader = unittest.TestLoader()
-    runner = unittest.runner.TextTestRunner(verbosity=verbosity)
-    for testcase in core.YatelTestCase.subclasses():
-        for test_suite in loader.loadTestsFromTestCase(testcase):
-            if test_suite.countTestCases():
-                runner.run(test_suite)
+class TestYatelHttpServer(YatelTestCase):
+
+    def setUp(self):
+        super(TestYatelHttpServer, self).setUp()
+        self.server = server.YatelHttpServer()
+        self.client = self.server.test_client()
+        self.server.add_nw("testnw", self.nw, enable_qbj=True)
+
+    def test_query(self):
+        pass
+
 
 
 #===============================================================================
