@@ -71,21 +71,6 @@ class QBJEngine(object):
     def __init__(self, nw):
         self.context = functions.wrap_network(nw)
 
-    def execute_str(self, string, stack_trace_on_error=False):
-        sin = StringIO.StringIO(string)
-        sout = StringIO.StringIO()
-        self.execute_stream(
-            sin, sout, stack_trace_on_error=stack_trace_on_error
-        )
-        return sout.getvalue()
-
-    def execute_stream(self, sin, sout, stack_trace_on_error=False):
-        indict = json.load(sin)
-        outdict = self.execute_dict(
-            indict, stack_trace_on_error=stack_trace_on_error
-        )
-        return json.dump(outdict, sout)
-
     def execute_dict(self, querydict, stack_trace_on_error=False):
         query_id = None
         function = None
