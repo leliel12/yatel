@@ -269,14 +269,16 @@ class QBJEngineTest(YatelTestCase):
                 }
             }
         ]
-        for q in queries:
-            asstring = json.dumps(q)
-            asstream = StringIO.StringIO(asstring)
-            result = self.jnw.execute_dict(q, True)
-            if result["error"]:
-                self.fail("\n".join(
-                    [result["error_msg"], result["stack_trace"]])
-                )
+        for dictionary in queries:
+            string = json.dumps(dictionary)
+            stream = StringIO.StringIO(string)
+            for q in [dictionary, string, stream]:
+                result = self.jnw.execute(q, True)
+                if result["error"]:
+                    self.fail("\n".join(
+                        [result["error_msg"], result["stack_trace"]])
+                    )
+
 
 
 

@@ -71,7 +71,7 @@ class QBJEngine(object):
     def __init__(self, nw):
         self.context = functions.wrap_network(nw)
 
-    def execute_dict(self, querydict, stack_trace_on_error=False):
+    def execute(self, querydict, stack_trace_on_error=False):
         query_id = None
         function = None
         error = False
@@ -79,6 +79,10 @@ class QBJEngine(object):
         error_msg = ""
         result = None
         try:
+            if isinstance(querydict, basestring):
+                querydict = json.loads(querydict)
+            elif hasattr(querydict, "read"):
+                querydict = json.load(querydict)
             #schema.validate(querydict)
             query_id = querydict["id"]
             function = querydict["function"]
