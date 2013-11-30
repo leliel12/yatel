@@ -36,12 +36,14 @@ def run_tests(verbosity=1):
             collected.update(collect(testcls))
         return collected
 
+    suite = unittest.TestSuite()
     loader = unittest.TestLoader()
     runner = unittest.runner.TextTestRunner(verbosity=verbosity)
     for testcase in collect(core.YatelTestCase):
-        for test_suite in loader.loadTestsFromTestCase(testcase):
-            if test_suite.countTestCases():
-                runner.run(test_suite)
+        tests = loader.loadTestsFromTestCase(testcase)
+        if tests.countTestCases():
+                suite.addTests(tests)
+    runner.run(suite)
 
 
 #===============================================================================
