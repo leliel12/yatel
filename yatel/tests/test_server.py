@@ -63,13 +63,13 @@ class TestYatelHttpServerFromDict(TestYatelHttpServer):
 
     def setUp(self):
         super(TestYatelHttpServerFromDict, self).setUp()
-        self.testnw = "testnw"
         self.data = {
             "CONFIG": {"DEBUG": True},
             "NETWORKS": {
                 self.testnw: {
                     "uri": self.nw.describe()["uri"],
-                    "qbj": True
+                    "qbj": True,
+                    "algo": "asi"
                 }
             }
         }

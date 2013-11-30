@@ -21,6 +21,8 @@
 
 import json, string, os
 
+import jsonschema
+
 import flask
 
 from yatel import db, qbj
@@ -29,6 +31,33 @@ from yatel import db, qbj
 #===============================================================================
 # CONSTANTS
 #===============================================================================
+
+CONF_SCHEMA = {
+    "schema": "yatel server configuration schema",
+    "type": "object",
+    "properties": {
+        "CONFIG": {
+            "type": "object",
+            "properties": {
+                "DEBUG": {"type": "boolean"}
+            },
+            "extraProperties": True
+        },
+        "NETWORKS": {
+            "type": "object",
+            "patternProperties": {
+                "^[a-zA-Z0-9_-]$": {
+                    "type": "object",
+                    "properties":{
+                        "uri": {"type": "string"},
+                        "qbj": {"type": "boolean"}
+                    },
+                    "extraProperties": False
+                }
+            }
+        }
+    }
+}
 
 CONF_BASE = {
     "CONFIG": {
@@ -102,6 +131,7 @@ class YatelHttpServer(flask.Flask):
 #===============================================================================
 
 def from_dict(data):
+    jsonschema.validate(data, CONF_SCHEMA)
     config = data["CONFIG"]
     server = YatelHttpServer(**config)
     for nwname, nwdata in data["NETWORKS"].items():
