@@ -57,6 +57,20 @@ class YatelHttpServer(flask.Flask):
 
 
 #===============================================================================
+# FUNCTIONS
+#===============================================================================
+
+def from_dict(data):
+    config = data["CONFIG"]
+    server = YatelHttpServer(**config)
+    for nwname, nwdata in data["NETWORKS"].items():
+        nw = db.YatelNetwork(**db.parse_uri(nwdata["uri"]))
+        qbj = nwdata.get("qbj", False)
+        server.add_nw(nwname, nw, qbj)
+    return server
+
+
+#===============================================================================
 # MAIN
 #===============================================================================
 

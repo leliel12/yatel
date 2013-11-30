@@ -19,6 +19,7 @@
 
 import unittest
 import random
+import tempfile
 
 from yatel import db, dom, weight
 
@@ -124,6 +125,10 @@ class YatelTestCase(unittest.TestCase):
         self.nw = db.YatelNetwork(**conn)
         self.haps_ids = self.add_elements(self.nw)
         self.nw.confirm_changes()
+
+    def tearDown(self):
+        if self.conn()["engine"] == "sqlite":
+            os.remove(self.conn()["database"])
 
     def assertSameUnsortedContent(self, i0, i1):
         i0 = list(i0)

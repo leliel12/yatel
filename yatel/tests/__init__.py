@@ -28,9 +28,17 @@ from yatel.tests import (core, test_db, test_dom, test_typeconv,
 #===============================================================================
 
 def run_tests(verbosity=1):
+
+    def collect(cls):
+        collected = set()
+        for testcls in cls.subclasses():
+            collected.add(testcls)
+            collected.update(collect(testcls))
+        return collected
+
     loader = unittest.TestLoader()
     runner = unittest.runner.TextTestRunner(verbosity=verbosity)
-    for testcase in core.YatelTestCase.subclasses():
+    for testcase in collect(core.YatelTestCase):
         for test_suite in loader.loadTestsFromTestCase(testcase):
             if test_suite.countTestCases():
                 runner.run(test_suite)

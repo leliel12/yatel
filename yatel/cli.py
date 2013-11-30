@@ -29,11 +29,12 @@ import inspect
 import traceback
 import pprint
 import datetime
+import json
 
 import caipyrinha
 
 import yatel
-from yatel import db, dom, etl, tests
+from yatel import db, dom, etl, tests, server
 from yatel import yjf
 from yatel import stats
 from yatel import weight
@@ -112,7 +113,8 @@ def describe(flags, returns):
     pprint.pprint(dict(nw.describe()))
 
 
-@parser.callback("--fake-network", exclusive=GROUP_OP, action="store", nargs=3)
+@parser.callback("--fake-network", exclusive=GROUP_OP, action="store", nargs=3,
+                 metavar=("N_HAPLOTYPES", "APROX_N_FACTS", "WEIGHT_CALCULATOR"))
 def fake_network(flags, returns):
     """Create a new fake full conected network with on given connection string.
 
@@ -271,6 +273,18 @@ def copy(flags, returns):
     to_nw.confirm_changes()
 
 
+@parser.callback("--runserver", exclusive=GROUP_OP, action="store", nargs=2,
+                 metavar=("CONF.json", "HOST:PORT"), exit=0)
+def runserver(flags, returns):
+    """Run yatel as http server with a given config file"""
+    confpath, hostport = flags.runserver
+    host, port = hostport.split(":", 1)
+    with open(confpath) as fp:
+        data = json.load(fp)
+    srv = server.from_dict(data)
+    srv.app_run(host=host, port=int(port), debug=data["CONFIG"]["DEBUG"])
+
+
 @parser.callback("--create-etl", exclusive=GROUP_OP, action="store",
                  metavar="etl_filename.py", type=argparse.FileType('w'),
                  exit=0)
@@ -285,7 +299,7 @@ def create_etl(flags, returns):
 
 
 @parser.callback("--desc-etl", exclusive=GROUP_INFO, action="store", nargs=1,
-                 metavar="ARG", exit=0)
+                 metavar="PATH/TO/MODULE.py:ClassName", exit=0)
 def desc_etl(flags, returns):
     """Return a list of parameters and documentataton about the etl
 
