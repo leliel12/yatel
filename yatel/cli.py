@@ -216,7 +216,7 @@ def fake_network(flags, returns):
 
 
 @parser.callback(exclusive=GROUP_OP, action="store", type=argparse.FileType("w"),
-                 metavar="filename.json", exit=0)
+                 metavar="FILENAME.json", exit=0)
 def dump(flags, returns):
     """Export the given database to json format.
 
@@ -227,7 +227,7 @@ def dump(flags, returns):
 
 
 @parser.callback(exclusive=GROUP_OP, action="store",
-                 metavar="filename_template.json", exit=0)
+                 metavar="FILENAME_TEMPLATE.json", exit=0)
 def backup(flags, returns):
     """Like dump but always create a new file with the format
     'filename_template<TIMESTAMP>.json'.
@@ -245,7 +245,7 @@ def backup(flags, returns):
 
 
 @parser.callback(exclusive=GROUP_OP, action="store", type=argparse.FileType(),
-                 metavar="filename.json", exit=0)
+                 metavar="FILENAME.json", exit=0)
 def load(flags, returns):
     """Import the given file to the given database.
 
@@ -273,20 +273,33 @@ def copy(flags, returns):
     to_nw.confirm_changes()
 
 
+@parser.callback("--create-wsgi", exclusive=GROUP_OP, action="store",
+                 metavar="FILE.wsgi CONF.json", nargs=2, exit=0)
+def create_wsgi(flags, returns):
+    """Create a new wsgi file for a given configuration"""
+    wsgipath, confpath = flags.create_wsgi
+    wsgi_ext = wsgipath.rsplit(".", 1)[-1].lower()
+    if wsgi_ext != "wsgi":
+        msg = "Invalid extension '{}'. must be 'wsgi'".format(wsgi_ext)
+        raise ValueError(msg)
+    with open(wsgipath, "w") as fp:
+        fp.write(server.get_wsgi_template(confpath))
+
+
 @parser.callback("--create-server-conf", exclusive=GROUP_OP, action="store",
-                 metavar="conf.json", type=argparse.FileType('w'), exit=0)
+                 metavar="CONF.json", type=argparse.FileType('w'), exit=0)
 def create_server_conf(flags, returns):
     """Create a new configuration file for runserver"""
     ext = flags.create_server_conf.name.rsplit(".", 1)[-1].lower()
     if ext != "json":
         raise ValueError("Invalid extension '{}'. must be 'json'".format(ext))
-    tpl = server.get_template()
+    tpl = server.get_conf_template()
     fp = flags.create_server_conf
     fp.write(tpl)
 
 
 @parser.callback("--runserver", exclusive=GROUP_OP, action="store", nargs=2,
-                 metavar=("conf.json", "HOST:PORT"), exit=0)
+                 metavar=("CONF.json", "HOST:PORT"), exit=0)
 def runserver(flags, returns):
     """Run yatel as http server with a given config file"""
     confpath, hostport = flags.runserver
@@ -298,7 +311,7 @@ def runserver(flags, returns):
 
 
 @parser.callback("--create-etl", exclusive=GROUP_OP, action="store",
-                 metavar="etl_filename.py", type=argparse.FileType('w'),
+                 metavar="ETL_FILENAME.py", type=argparse.FileType('w'),
                  exit=0)
 def create_etl(flags, returns):
     """Create a template file for write yout own etl"""

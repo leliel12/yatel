@@ -82,7 +82,7 @@ class TestFunctions(YatelTestCase):
     def setUp(self): pass
 
     def test_get_template(self):
-        tpl = server.get_template()
+        tpl = server.get_conf_template()
         self.assertEquals(json.loads(tpl), server.CONF_BASE)
 
 

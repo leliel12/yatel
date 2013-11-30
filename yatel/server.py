@@ -19,7 +19,7 @@
 # IMPORTS
 #===============================================================================
 
-import json
+import json, string, os
 
 import flask
 
@@ -41,6 +41,27 @@ CONF_BASE = {
         }
     }
 }
+
+WSGI_BASE_TPL = string.Template("""
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys, os, json
+
+# Change working directory so relative paths (and template lookup) work again
+sys.path.append(os.path.dirname(__file__))
+os.chdir(os.path.dirname(__file__))
+
+# Error output redirect to Apache2 logs
+sys.stdout =  sys.stderr
+
+with open("${confpath}") as fp:
+    conf = json.load(fp)
+
+from yatel import server
+application = server.from_dict(conf)
+
+""")
 
 
 
@@ -90,8 +111,14 @@ def from_dict(data):
     return server
 
 
-def get_template():
+def get_conf_template():
     return json.dumps(CONF_BASE, indent=2)
+
+
+def get_wsgi_template(confpath):
+    if not os.path.isfile(confpath):
+        raise ValueError("confpath '{}' not exists".format(confpath))
+    return WSGI_BASE_TPL.substitute(confpath=confpath).strip()
 
 
 
