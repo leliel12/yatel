@@ -23,6 +23,7 @@ import jsonschema
 
 from yatel import qbj, stats, dom, typeconv
 from yatel.tests.core import YatelTestCase
+from yatel.tests import queries
 
 
 #===============================================================================
@@ -35,27 +36,8 @@ class _ValidateFunctionTest(YatelTestCase):
         pass
 
     def _test_validquery(self):
-        valid_query = {
-            "id": 1545454845,
-            "type": "ignore",
-            "function": {
-                "name": "haplotype_by_id",
-                "args": [
-                    {
-                        "type": "integer",
-                        "function": {
-                            "name": "slice",
-                            "kwargs": {
-                                "iterable": {"type": "string", "value": "id_21_"},
-                                "f": {"type": "integer", "value": "-1"},
-                                "t": {"type": "integer", "value": "-3"}
-                            }
-                        }
-                    }
-                ]
-            }
-        }
-        qbj.validate(valid_query)
+        for query in queries.VALID:
+            qbj.validate(query)
 
 
 #===============================================================================
@@ -238,38 +220,7 @@ class QBJEngineTest(YatelTestCase):
         self.jnw = qbj.QBJEngine(self.nw)
 
     def test_valid_queries(self):
-        queries = [
-            {'function': {'name': 'describe'}, 'id': 1, 'type': 'Descriptor'},
-            {
-                "id": 251255,
-                "function": {
-                    "name": "variable",
-                    "args": [
-                        {'type': 'dict', 'value': {'hola': {'type': 'literal', 'value': 1}}}
-                    ]
-                }
-            },
-            {
-                "id": 1545454845,
-                "function": {
-                    "name": "haplotype_by_id",
-                    "args": [
-                        {
-                            "type": "literal",
-                            "function": {
-                                "name": "slice",
-                                "kwargs": {
-                                    "iterable": {"type": "unicode", "value": "id_01_"},
-                                    "f": {"type": "int", "value": "-3"},
-                                    "t": {"type": "int", "value": "-1"}
-                                }
-                            }
-                        }
-                    ]
-                }
-            }
-        ]
-        for dictionary in queries:
+        for dictionary in queries.VALID:
             string = json.dumps(dictionary)
             stream = StringIO.StringIO(string)
             for q in [dictionary, string, stream]:

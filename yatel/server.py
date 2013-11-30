@@ -51,8 +51,9 @@ class YatelHttpServer(flask.Flask):
 
     def _qbj(self, nw):
         jnw = self._nws[nw]["qbj"]
-
-
+        response = jnw.execute(flask.request.data,
+                               stack_trace_on_error=self.config["DEBUG"])
+        return flask.jsonify(response)
 
 
 #===============================================================================

@@ -17,10 +17,11 @@
 # IMPORTS
 #===============================================================================
 
-import random
+import random, json
 
 from yatel import server
 from yatel.tests.core import YatelTestCase
+from yatel.tests import queries
 
 
 #===============================================================================
@@ -31,12 +32,20 @@ class TestYatelHttpServer(YatelTestCase):
 
     def setUp(self):
         super(TestYatelHttpServer, self).setUp()
-        self.server = server.YatelHttpServer()
+        self.testnw = "testnw"
+        self.server = server.YatelHttpServer(DEBUG=True)
+        self.server.add_nw(self.testnw, self.nw, enable_qbj=True)
         self.client = self.server.test_client()
-        self.server.add_nw("testnw", self.nw, enable_qbj=True)
 
-    def test_query(self):
-        pass
+    def test_ping(self):
+        response = self.client.get("/")
+        self.assertEquals(response.status_code, 200)
+
+    def test_qbj(self):
+        for query in queries.VALID:
+            data = json.dumps(query)
+            response = self.client.get('/qbj/{}'.format(self.testnw), data=data)
+
 
 
 
