@@ -130,8 +130,12 @@ class YatelHttpServer(flask.Flask):
 # FUNCTIONS
 #===============================================================================
 
+def validate_conf(confdata):
+    return jsonschema.validate(confdata, CONF_SCHEMA)
+
+
 def from_dict(data):
-    jsonschema.validate(data, CONF_SCHEMA)
+    validate_conf(data)
     config = data["CONFIG"]
     server = YatelHttpServer(**config)
     for nwname, nwdata in data["NETWORKS"].items():
