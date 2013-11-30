@@ -77,6 +77,13 @@ class TestYatelHttpServerFromDict(TestYatelHttpServer):
         self.client = self.server.test_client()
 
 
+class TestFunctions(YatelTestCase):
+
+    def setUp(self): pass
+
+    def test_get_template(self):
+        tpl = server.get_template()
+        self.assertEquals(json.loads(tpl), server.CONF_BASE)
 
 
 

@@ -19,9 +19,29 @@
 # IMPORTS
 #===============================================================================
 
+import json
+
 import flask
 
 from yatel import db, qbj
+
+
+#===============================================================================
+# CONSTANTS
+#===============================================================================
+
+CONF_BASE = {
+    "CONFIG": {
+        "DEBUG": True
+    },
+    "NETWORKS": {
+        "network-name": {
+            "uri": "uri",
+            "qbj": True,
+        }
+    }
+}
+
 
 
 #===============================================================================
@@ -68,6 +88,11 @@ def from_dict(data):
         qbj = nwdata.get("qbj", False)
         server.add_nw(nwname, nw, qbj)
     return server
+
+
+def get_template():
+    return json.dumps(CONF_BASE, indent=2)
+
 
 
 #===============================================================================

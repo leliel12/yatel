@@ -273,8 +273,20 @@ def copy(flags, returns):
     to_nw.confirm_changes()
 
 
+@parser.callback("--create-server-conf", exclusive=GROUP_OP, action="store",
+                 metavar="conf.json", type=argparse.FileType('w'), exit=0)
+def create_server_conf(flags, returns):
+    """Create a new configuration file for runserver"""
+    ext = flags.create_server_conf.name.rsplit(".", 1)[-1].lower()
+    if ext != "json":
+        raise ValueError("Invalid extension '{}'. must be 'json'".format(ext))
+    tpl = server.get_template()
+    fp = flags.create_server_conf
+    fp.write(tpl)
+
+
 @parser.callback("--runserver", exclusive=GROUP_OP, action="store", nargs=2,
-                 metavar=("CONF.json", "HOST:PORT"), exit=0)
+                 metavar=("conf.json", "HOST:PORT"), exit=0)
 def runserver(flags, returns):
     """Run yatel as http server with a given config file"""
     confpath, hostport = flags.runserver
@@ -282,7 +294,7 @@ def runserver(flags, returns):
     with open(confpath) as fp:
         data = json.load(fp)
     srv = server.from_dict(data)
-    srv.app_run(host=host, port=int(port), debug=data["CONFIG"]["DEBUG"])
+    srv.run(host=host, port=int(port), debug=data["CONFIG"]["DEBUG"])
 
 
 @parser.callback("--create-etl", exclusive=GROUP_OP, action="store",
