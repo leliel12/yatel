@@ -67,7 +67,7 @@ class TestYatelHttpServerFromDict(TestYatelHttpServer):
             "CONFIG": {"DEBUG": True},
             "NETWORKS": {
                 self.testnw: {
-                    "uri": self.nw.describe()["uri"],
+                    "uri": self.nw.uri,
                     "qbj": True,
                     "algo": "asi"
                 }
