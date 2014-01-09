@@ -205,6 +205,8 @@ class YatelNetwork(object):
         """
         self._uri = to_uri(engine, **kwargs)
 
+        self._engine_name = engine
+
         self._engine = sa.create_engine(self._uri, echo=bool(log))
         self._metadata = sa.MetaData(self._engine)
 
@@ -757,7 +759,6 @@ class YatelNetwork(object):
             ).scalar()
             return  {"haplotypes": hapn, "facts": factn, "edges": edgen}
 
-        descriptor_data[u"uri"] = self._uri
         descriptor_data[u"mode"] = self.mode
         descriptor_data[u"haplotype_attributes"] = hap_attributes()
         descriptor_data[u"fact_attributes"] = fact_attributes()
@@ -774,6 +775,10 @@ class YatelNetwork(object):
     @property
     def mode(self):
         return self._mode
+
+    @property
+    def uri(self):
+        return self._uri
 
 
 #===============================================================================

@@ -172,10 +172,10 @@ class Enviroment(YatelDOM):
 
 class Descriptor(YatelDOM):
 
-    def __init__(self, uri, mode, fact_attributes,
+    def __init__(self, mode, fact_attributes,
                  haplotype_attributes, edge_attributes, size):
         super(Descriptor, self).__init__(
-            uri=uri, mode=mode, fact_attributes=fact_attributes,
+            mode=mode, fact_attributes=fact_attributes,
             haplotype_attributes=haplotype_attributes,
             edge_attributes=edge_attributes, size=size
         )
