@@ -224,7 +224,9 @@ class QBJEngineTest(YatelTestCase):
             string = json.dumps(dictionary)
             stream = StringIO.StringIO(string)
             for q in [dictionary, string, stream]:
-                result = self.jnw.execute(q, True)
+                #~ result = self.jnw.execute(q, True)
+                #~ if isinstance(q, dict) and q["function"]["name"] == "ping":
+                    #~ print result
                 if result["error"]:
                     self.fail("\n".join(
                         [result["error_msg"], result["stack_trace"]])

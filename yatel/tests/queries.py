@@ -28,7 +28,10 @@ VALID.append({
     "function": {
         "name": "variable",
         "args": [
-            {'type': 'dict', 'value': {'hola': {'type': 'literal', 'value': 1}}}
+            {'type': 'dict', 'value': {
+                    'hola': {'type': 'literal', 'value': 1}
+                }
+            }
         ]
     }
 })
@@ -50,5 +53,14 @@ VALID.append({
                 }
             }
         ]
+    }
+})
+
+VALID.append({
+    "id": "123",
+    "function": {
+        "name": "ping",
+        "args": [],
+        "kargs": {}
     }
 })

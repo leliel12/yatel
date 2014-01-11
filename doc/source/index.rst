@@ -16,6 +16,7 @@ Contents:
 
    install.rst
    manual.rst
+   qbj.rst
    etl.rst
    apidoc/modules.rst
 

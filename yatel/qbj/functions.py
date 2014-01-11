@@ -147,9 +147,8 @@ class QBJContext(dict):
 def slice(iterable, f, t=None):
     """Split the an iterable from Fth element to Tth element"""
     if t is None:
-        return iterable[f]
+        return iterable[f:]
     return iterable[f:t]
-
 
 @register_func(wrap=True, sendnw=False)
 def ping():
