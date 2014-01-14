@@ -24,7 +24,6 @@ import numpy as np
 from scipy import stats
 
 from yatel import db
-from yatel.libs import cead
 
 
 #===============================================================================
@@ -68,30 +67,15 @@ def amax(nw, env=None, **kwargs):
 
 def sum(nw, env=None, **kwargs):
     arr = env2weightarray(nw, env=env, **kwargs)
-    return float(np.sum(arr))
+    return np.sum(arr)
 
 
 def mode(nw, env=None, **kwargs):
     arr = env2weightarray(nw, env=env, **kwargs)
-    return cead.mode(arr)
-
-
-def Q(nw, env=None, **kwargs):
-    """Quartile average"""
-    arr = env2weightarray(nw, env=env, **kwargs)
-    return cead.Q(arr)
-
-
-def TRI(nw, env=None, **kwargs):
-    """Trimedian"""
-    arr = env2weightarray(nw, env=env, **kwargs)
-    return cead.TRI(arr)
-
-
-def MID(nw, env=None, **kwargs):
-    """Inter quartile average"""
-    arr = env2weightarray(nw, env=env, **kwargs)
-    return cead.MID(arr)
+    cnt = collections.Counter(arr)
+    value = np.max(cnt.values())
+    n = cnt.values().count(value)
+    return np.array(tuple(v[0] for v in cnt.most_common(n)))
 
 
 #===============================================================================
@@ -112,59 +96,10 @@ def variation(nw, env=None, **kwargs):
     arr = env2weightarray(nw, env=env, **kwargs)
     return stats.variation(arr)
 
-
-def MD(nw, env=None, **kwargs):
-    """Average deviation"""
-    arr = env2weightarray(nw, env=env, **kwargs)
-    return cead.MD(arr)
-
-
-def MeD(nw, env=None, **kwargs):
-    """Median deviation"""
-    arr = env2weightarray(nw, env=env, **kwargs)
-    return cead.MeD(arr)
-
-
 def range(nw, env=None, **kwargs):
     """Range"""
     arr = env2weightarray(nw, env=env, **kwargs)
-    return cead.range(arr)
-
-
-def varQ(nw, env=None, **kwargs):
-    """Quartile variation
-
-    """
-    arr = env2weightarray(nw, env=env, **kwargs)
-    return cead.varQ(arr)
-
-
-def MAD(nw, env=None, **kwargs):
-    """Mediana of absolute observations"""
-    arr = env2weightarray(nw, env=env, **kwargs)
-    return cead.MAD(arr)
-
-
-#===============================================================================
-# SYMETRY
-#===============================================================================
-
-def Sp_pearson(nw, env=None, **kwargs):
-    """Pearson symetry indicator"""
-    arr = env2weightarray(nw, env=env, **kwargs)
-    return cead.Sp_pearson(arr)
-
-
-def H1_yule(nw, env=None, **kwargs):
-    """Yule symetry indicator"""
-    arr = env2weightarray(nw, env=env, **kwargs)
-    return cead.H1_yule(arr)
-
-
-def H3_kelly(nw, env=None, **kwargs):
-    """Kelly symetry indicator"""
-    arr = env2weightarray(nw, env=env, **kwargs)
-    return cead.H3_kelly(arr)
+    return np.amax(arr) - np.amin(arr)
 
 
 #===============================================================================
@@ -174,12 +109,6 @@ def H3_kelly(nw, env=None, **kwargs):
 def kurtosis(nw, env=None, **kwargs):
     arr = env2weightarray(nw, env=env, **kwargs)
     return stats.kurtosis(arr)
-
-
-def K1_kurtosis(nw, env=None, **kwargs):
-    """Robust kurtosis coeficient"""
-    arr = env2weightarray(nw, env=env, **kwargs)
-    return cead.K1_kurtosis(arr)
 
 
 #===============================================================================

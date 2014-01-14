@@ -70,18 +70,7 @@ FUNCTIONS = {
     "std": {'wrap': True,  'func': stats.std},
     "sum": {'wrap': True,  'func': stats.sum},
     "var": {'wrap': True,  'func': stats.var},
-    "varQ": {'wrap': True,  'func': stats.varQ},
     "variation": {'wrap': True,  'func': stats.variation},
-    "Q": {'wrap': True,  'func': stats.Q},
-    "TRI": {'wrap': True,  'func': stats.TRI},
-    "MID": {'wrap': True,  'func': stats.MID},
-    "MD": {'wrap': True,  'func': stats.MD},
-    "MeD": {'wrap': True,  'func': stats.MeD},
-    "MAD": {'wrap': True,  'func': stats.MAD},
-    "H3_kelly": {'wrap': True,  'func': stats.H3_kelly},
-    "H1_yule": {'wrap': True,  'func': stats.H1_yule},
-    "Sp_pearson": {'wrap': True,  'func': stats.Sp_pearson},
-    "K1_kurtosis": {'wrap': True,  'func': stats.K1_kurtosis},
 }
 
 
@@ -151,10 +140,6 @@ def slice(iterable, f, t=None):
 def ping():
     "Return always True"
     return True
-
-@register_func(wrap=True, sendnw=False)
-def variable(value):
-    return value
 
 
 #===============================================================================
