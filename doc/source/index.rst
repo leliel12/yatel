@@ -6,7 +6,7 @@
 Welcome to Yatel's documentation!
 =================================
 
-.. image:: _static/splash.png
+.. image:: _static/web_logo.png
     :align: center
 
 Contents:
@@ -18,7 +18,7 @@ Contents:
    manual.rst
    qbj.rst
    etl.rst
-   apidoc/modules.rst
+
 
 
 
