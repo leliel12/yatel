@@ -77,7 +77,7 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
             'id': '123',
             'error': false,
             'error_msg': '',
-            'stack_trace': None,
+            'stack_trace': null,
             'result': {
                 'type': 'bool',
                 'value': true
@@ -176,12 +176,12 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
             'id': null,
             'error': false,
             'error_msg': '',
-            'stack_trace': None,
+            'stack_trace': null,
             'result': {
                 'type': 'Haplotype',
                 'value': {
                     'hap_id': {'type': 'int', 'value': 1},
-                    'name': {'type': 'unicode', 'value': u'Amet'},
+                    'name': {'type': 'unicode', 'value': 'Amet'},
                     'special': {'type': 'bool', 'value': false}
                 }
             }
@@ -197,36 +197,126 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
     La siguiente consulta es una consulta ``sum`` que suma dos o mas valores
     cualesquiera se los pase.
 
-.. code-block:: javascript
+    .. code-block:: javascript
 
-    {
-        "id": "someid",
-        "function": {
-            "name": "sum",
-            "kwargs": {
-                "nw": {
-                    "type": "literal",
-                    "value": [
-                        {"type": "literal", "value": 1},
-                        {"type": "int", "value": "2"}
-                    ]
+        {
+            "id": "someid",
+            "function": {
+                "name": "sum",
+                "kwargs": {
+                    "nw": {
+                        "type": "list",
+                        "value": [
+                            {"type": "literal", "value": 1},
+                            {"type": "int", "value": "2"}
+                        ]
+                    }
                 }
             }
         }
-    }
+
+    Como vemos en esta consulta el parametro ``nw`` es una lista que contiene
+    los valores 1 (definido como literal, asi que Yatel toma el valor json)
+    y el segundo *int* con el valor representado con un string "2". Yatel con
+    esto convierte automáticamnte el segundo elemento al tipo entero
+
+    Una version mas corta de la misma consulta seria:
+
+    .. code-block:: javascript
+
+        {
+            "id": "someid",
+            "function": {
+                "name": "sum",
+                "kwargs": {
+                    "nw": {"type": "literal", "value": [1, 2]}
+                }
+            }
+        }
 
 
-El resultado tiene la forma
+    El resultado tiene la forma
 
-.. code-block:: javascript
+    .. code-block:: javascript
 
         {
             'id': "someid",
             'error': false,
             'error_msg': '',
-            'stack_trace': None,
+            'stack_trace': null,
             'result': {'type': 'float', 'value': 3.0}
         }
+
+#. **Consultas anidadas**
+
+    .. code-block:: javascript
+
+        {
+            "id": 1545454845,
+            "function": {
+                "name": "haplotype_by_id",
+                "args": [
+                    {
+                        "type": "unicode",
+                        "function": {
+                            "name": "slice",
+                            "kwargs": {
+                                "iterable": {"type": "unicode",
+                                             "value": "id_01_"},
+                                "f": {"type": "int", "value": "-3"},
+                                "t": {"type": "int", "value": "-1"}
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+
+    Esta consulta muesta realmente la potencia de QBJ. La primero que hay que
+    notar es que la funcion principal, *haplotype_by_id*, recibe como primer
+    argumento la resolucion de la función *slice*.
+    El valor de la llave type dentro del argumento indica que el resultado de
+    la funcion interna si no es un texto debe convertirse a el.
+
+    *slice*, por otra parte, lo que hace es recortar el texto *id_01_* desde
+    su posicion *-3* hasta la *-1*.
+
+    si esto lo imaginaramos como codigo Python la funcion seria algo similar a
+
+    .. code-block:: python
+
+        haplotype_by_id(
+            unicode(slice(iterable="id_01_", f=int("-3"), t=int("-1")))
+        )
+
+    o lo que es lo mismo
+
+    .. code-block:: python
+
+        haplotype_by_id("01")
+
+    El resultado de esta consulta devolveria un *haplotipo* de la DB de la
+    siguiente forma:
+
+    .. code-block:: javascript
+
+        {
+            'id': "someid",
+            'error': false,
+            'error_msg': '',
+            'stack_trace': null,
+            'result': {
+                'type': 'Haplotype',
+                'value': {
+                    'hap_id': {'type': 'int', 'value': 1},
+                    'color': {'type': 'unicode', 'value': 'y'},
+                    'description': {'type': 'unicode', 'value': '...'},
+                    'height': {'type': 'float', 'value': 92.00891409813752},
+                    'number': {'type': 'int', 'value': 16}
+                }
+            }
+        }
+
 
 
 Funciones

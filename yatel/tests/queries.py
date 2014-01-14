@@ -23,18 +23,6 @@ VALID.append(
     {'function': {'name': 'describe'}, 'id': 1}
 )
 
-VALID.append({
-    "id": 251255,
-    "function": {
-        "name": "variable",
-        "args": [
-            {'type': 'dict', 'value': {
-                    'hola': {'type': 'literal', 'value': 1}
-                }
-            }
-        ]
-    }
-})
 
 VALID.append({
     "id": 1545454845,
@@ -42,7 +30,7 @@ VALID.append({
         "name": "haplotype_by_id",
         "args": [
             {
-                "type": "literal",
+                "type": "unicode",
                 "function": {
                     "name": "slice",
                     "kwargs": {
