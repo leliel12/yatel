@@ -20,7 +20,7 @@ INVALID = []
 #===============================================================================
 
 VALID.append(
-    {'function': {'name': 'describe'}, 'id': 1, 'type': 'Descriptor'}
+    {'function': {'name': 'describe'}, 'id': 1}
 )
 
 VALID.append({
@@ -62,5 +62,35 @@ VALID.append({
         "name": "ping",
         "args": [],
         "kargs": {}
+    }
+})
+
+
+VALID.append({
+    "id": None,
+    "function": {
+        "name": "haplotype_by_id",
+        "args": [
+            {
+                "type": "literal",
+                "value": "01"
+            }
+        ]
+    }
+})
+
+VALID.append({
+    "id": "someid",
+    "function": {
+        "name": "sum",
+        "kwargs": {
+            "nw": {
+                "type": "list",
+                "value": [
+                    {"type": "literal", "value": 1},
+                    {"type": "int", "value": "2"}
+                ]
+            }
+        }
     }
 })

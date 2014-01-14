@@ -112,15 +112,12 @@ class WrappedCallable(object):
             raise TypeError("'func' must be callable")
         self._func = func
         self._params = params
-        self._banned_params = set(params)
         self._fname = fname
 
     def __call__(self, *args, **kwargs):
-        banned = self._banned_params.intersection(kwargs)
-        if banned:
-            msg = "{}() got multiple values for keyword argument '{}'"
-            raise TypeError(msg.format(self._fname, ",".join(banned)))
-        kwargs.update(self._params)
+        for k, v in self._params.items():
+            if k not in kwargs:
+                kwargs[k] = v
         return self._func(*args, **kwargs)
 
 

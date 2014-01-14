@@ -10,6 +10,7 @@ Características
 ---------------
 
 - Declarativo.
+- Tipado.
 - Diseñado basandose en JSON dada su ampla difusion en Python_ (lenguaje
   utilizado para implementar Yatel).
 - Para el parseo de tipos de datos se utiliza el modulo ``yatel.typeconv``
@@ -28,71 +29,204 @@ Partamos de un ejemplo con la función mas simple que posee QBJ, *ping*
 El objetivo de la funcion *ping* es simplemente recibir una respuesta sin
 contenido que indique que Yatel esta escuchando nuestras consultas.
 
-**Ejemplo 1**
+#. **Consulta simple**
+
+    .. code-block:: javascript
+
+        {
+            "id": "123",
+            "function": {
+                "name": "ping",
+                "args": [],
+                "kwargs": {}
+            }
+        }
+
+    - ``id`` es un identificador de la consulta. Puede ser un valor numérico
+      entero un string o ``null``. Este valor sera retornado en la respuesta de
+      la consulta.Si usted esta procesando esto asincronamente puede utilizar
+      este campo para discriminar su procesamiento.
+    - ``function`` es la segunda, y ultima, llave obligatoria en la consulta.
+      Consiste en la consulta en sí que va a ser validada y ejecutada, la cual
+      tiene a su ves varias llaves.
+
+        - ``name`` es el nombre de la función a ser ejecutada, en este caso
+          *ping*
+        - ``args`` son los argumentos posicionales de la función. En este caso
+           *ping* no posee ningun parámetro con lo cual la totalidad de la llave
+           y el valor pueden ser oviados.
+        - ``kwargs`` son los parametros nombrados de la funcion y al estar vacio
+          pueden oviarse de la declaración total.
+
+    Quitando los parametros inecesarios la funcion completa podria escribirse
+
+    .. code-block:: javascript
+
+        {
+            'id': '123',
+            'function': {
+                'name': 'ping'
+            }
+        }
+
+    La respuesta de esta consulta tiene la forma:
+
+    .. code-block:: javascript
+
+        {
+            'id': '123',
+            'error': false,
+            'error_msg': '',
+            'stack_trace': None,
+            'result': {
+                'type': 'bool',
+                'value': true
+            }
+        }
+
+    Donde:
+
+    - ``id`` es el mismo id de la consulta.
+    - ``error`` es un valor booleanno que se ra falso mientras la consulta se
+      haya procesado con éxito.
+    - ``error_msg`` Si el valor de ``error`` es *true* esta llave contendra una
+      descripción del error ocurrido.
+    - ``stack_trace`` si el valor de ``error`` es *true* y la consulta se
+      ejecuto en modo debug, contiene toda la  secuencias de llamadas de cuando
+      sucedio el error.
+    - ``result`` siempre vale *null* si el valor de ``error`` es *true*. Por
+      otro lado si no sucedio ningun error result posee el valor resultante de
+      la funcion (en nuestro *ping*) el cual esta en formato de
+      ``yatel.typeconv`` e indica que el resultado es del tipo boleano y su
+      valor es verdadero.
+
+    En resumen nuestro ejemplo simplemente dice que no sucedio ningun error y
+    como resultado se devuelve un valor de verdad boleano.
+
+#. **Una consulta con errores**
+
+    Supongamos la llamada a una funcion inexistente para ver un resultado de una
+    consulta con errores.
+
+    .. code-block:: javascript
+
+        {
+            "id": 31221220,
+            "function": {
+                "name": "fail!",
+            }
+        }
+
+    En qbj la funcion *fail!* no existe por lo tanto el resultado seria si lo
+    ejecutamos en modo debug el siguiente
+
+    .. code-block:: javascript
+
+        {
+            'id': 31221220,
+            'error': true,
+            'error_msg': "'fail!'",
+            'stack_trace': "Traceback (most recent call last):...",
+            'result': null
+        }
+
+    Donde:
+
+    - El ``id`` es el mismo de la consulta.
+    - ``error`` es *true*.
+    - ``error_msg`` nor informa que algo que enviamos con el valor *fail* es
+      producto del error.
+    - ``stack_trace`` contiene toda la sucecion de llamadas donde sucedio el
+      error dentro de Yatel (cortado para el ejemplo)
+    - ``result`` regresa vacio ya que sucedio un error durante el procesamiento
+      de la consulta.
+
+
+#. **Consulta tipica de Yatel**
+
+
+    Veremos ahora un ejemplo con una funcion mas tipica del dominio de Yatel
+    como la consulta de obtener un haplotypo por su id.
+
+    .. code-block:: javascript
+
+        {
+            "id": null,
+            "function": {
+                "name": "haplotype_by_id",
+                "args": [
+                    {
+                        "type": "literal",
+                        "value": "01"
+                    }
+                ]
+            }
+        }
+
+    En este caso la funcion *haplotype_by_id* recibe un parametro con el valor
+    *01* que sera el id del haplotypo a buscar. El valor de ``type`` es
+    *literal* con lo cual el valor no sera transformado del tipo de dato json
+    (en este caso string) antes de ser enviado a la función. Si pensamos esto
+    como en un llamado a una funcion Python podria imaginarse como
+    ``haplotype_by_id("01")``
+
+    .. code-block:: javascript
+
+        {
+            'id': null,
+            'error': false,
+            'error_msg': '',
+            'stack_trace': None,
+            'result': {
+                'type': 'Haplotype',
+                'value': {
+                    'hap_id': {'type': 'int', 'value': 1},
+                    'name': {'type': 'unicode', 'value': u'Amet'},
+                    'special': {'type': 'bool', 'value': false}
+                }
+            }
+        }
+
+    El resultado entrega  un valor del tipo *Haplotype* cuyos atributos son:
+    ``hap_id`` entero de valor *1*, ``name`` unicode de valor *Amet* y un *bool*
+    llamado ``special`` con el valor *false*
+
+
+#. **Consulta con un manejo mas avanzado de tipos**
+
+    La siguiente consulta es una consulta ``sum`` que suma dos o mas valores
+    cualesquiera se los pase.
 
 .. code-block:: javascript
-    :linenos:
 
     {
-        "id": "123",
+        "id": "someid",
         "function": {
-            "name": "ping",
-            "args": [],
-            "kwargs": {}
+            "name": "sum",
+            "kwargs": {
+                "nw": {
+                    "type": "literal",
+                    "value": [
+                        {"type": "literal", "value": 1},
+                        {"type": "int", "value": "2"}
+                    ]
+                }
+            }
         }
     }
 
-- ``id`` es un identificador de la consulta. Puede ser un valor numérico entero
-  un string o ``null``. Este valor sera retornado en la respuesta de la
-  consulta.Si usted esta procesando esto asincronamente puede utilizar este
-  campo para discriminar su procesamiento.
-- ``function`` es la segunda, y ultima, llave obligatoria en la consulta.
-  Consiste en la consulta en sí que va a ser validada y ejecutada, la cual
-  tiene a su ves varias llaves.
 
-    - ``name`` es el nombre de la función a ser ejecutada, en este caso *ping*
-    - ``args`` son los argumentos posicionales de la función. En este caso
-       *ping* no posee ningun parámetro con lo cual la totalidad de la llave
-       y el valor pueden ser oviados.
-    - ``kwargs`` son los parametros nombrados de la funcion y al estar vacio
-      pueden oviarse de la declaración total.
-
-Quitando los parametros inecesarios la funcion completa podria escribirse
+El resultado tiene la forma
 
 .. code-block:: javascript
 
-    {
-        'id': '123',
-        'function': {
-            'name': 'ping'
+        {
+            'id': "someid",
+            'error': false,
+            'error_msg': '',
+            'stack_trace': None,
+            'result': {'type': 'float', 'value': 3.0}
         }
-    }
-
-La respuesta de esta consulta tiene la forma:
-
-.. code-block:: javascript
-    :linenos:
-
-    {
-        'id': '123',
-        'error': false,
-        'error_msg': '',
-        'stack_trace': None,
-        'result': {
-            'type': 'bool',
-            'value': true
-        }
-    }
-
-Donde:
-
-- ``id`` es el mismo id de la consulta.
-- ``error`` es un valor booleanno que se ra falso mientras la consulta se haya
-  procesado con éxito.
-- ``error_msg`` Si el valor de ``error`` es *true* esta llave contendra una
-  descripción del error ocurrido.
-- ````
-
 
 
 Funciones

@@ -45,9 +45,9 @@ TO_SIMPLE_TYPES = {
     int: lambda x: x,
     long: lambda x: x,
     float: lambda x: x,
-    str: lambda x: x,
+    str: unicode,
     unicode: lambda x: x,
-    decimal.Decimal: lambda x: str(x),
+    decimal.Decimal: lambda x: unicode(x),
     type(None): lambda x: None,
     complex: lambda x: unicode(x)
 }
@@ -64,11 +64,11 @@ TO_PYTHON_TYPES = {
     long: long,
     int: int,
     float: float,
-    str: str,
+    str: unicode,
     unicode: unicode,
-    decimal.Decimal: lambda x: decimal.Decimal(x),
+    decimal.Decimal: decimal.Decimal,
     type(None): lambda x: None,
-    complex: lambda x: complex(x)
+    complex: complex
 }
 
 TYPES_TO_NAMES = dict(
@@ -77,6 +77,8 @@ TYPES_TO_NAMES = dict(
              list(CONTAINER_TYPES) +
              list(HASHED_TYPES) + [type]
 )
+TYPES_TO_NAMES[str] = unicode.__name__
+
 
 NAMES_TO_TYPES = dict((v, k) for k, v in TYPES_TO_NAMES.items())
 

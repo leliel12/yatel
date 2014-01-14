@@ -68,7 +68,7 @@ def amax(nw, env=None, **kwargs):
 
 def sum(nw, env=None, **kwargs):
     arr = env2weightarray(nw, env=env, **kwargs)
-    return np.sum(arr)
+    return float(np.sum(arr))
 
 
 def mode(nw, env=None, **kwargs):
