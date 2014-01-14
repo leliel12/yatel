@@ -24,6 +24,8 @@ import decimal
 import datetime
 import inspect
 
+import numpy as np
+
 from yatel import dom
 
 
@@ -87,7 +89,28 @@ NAMES_TO_TYPES = dict((v, k) for k, v in TYPES_TO_NAMES.items())
 # FUNCTIONS
 #===============================================================================
 
+def np2py(obj):
+    """Convert a numpy number to a closest respresentation of Python traditional
+    objects
+
+    """
+    if isinstance(obj, np.number):
+        for scls in type(obj).__mro__:
+            if scls in TO_SIMPLE_TYPES:
+                return scls(obj)
+    elif isinstance(obj, np.bool_):
+        return bool(obj)
+    return obj
+
+
 def simplifier(obj):
+
+    # nupy simplifier
+    if isinstance(obj, np.generic):
+        obj = np2py(obj)
+    elif isinstance(obj, np.ndarray):
+        obj = obj.tolist()
+
     typename = TYPES_TO_NAMES[type(obj)]
     value = ""
     if isinstance(obj, CONTAINER_TYPES):

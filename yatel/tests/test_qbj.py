@@ -181,16 +181,10 @@ class QBJEngineTest(YatelTestCase):
             stream = StringIO.StringIO(string)
             for q in [dictionary, string, stream]:
                 result = self.jnw.execute(q, True)
-                if isinstance(q, dict) and q["id"] == 1545454845:
-                    import pprint;pprint.pprint(result)
                 if result["error"]:
                     self.fail("\n".join(
                         [result["error_msg"], result["stack_trace"]])
                     )
-                    print("\n".join(
-                        [result["error_msg"], result["stack_trace"]])
-                    )
-
 
 
 #===============================================================================

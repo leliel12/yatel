@@ -126,7 +126,7 @@ class QBJContext(dict):
         return self[name].func(*args, **kwargs)
 
 #===============================================================================
-# NATIVE QBX FUNCTIONS
+# NATIVE QBJ FUNCTIONS
 #===============================================================================
 
 @register_func(wrap=True, sendnw=False)
