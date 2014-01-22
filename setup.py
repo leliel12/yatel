@@ -61,6 +61,6 @@ setup(
     packages=[pkg for pkg in find_packages() if pkg.startswith("yatel")],
     include_package_data=True,
     py_modules=["ez_setup"],
-    #entry_points={'console_scripts': ['yatel = yatel.cli:main']},
+    entry_points={'console_scripts': ['yatel = yatel.cli:main']},
     install_requires=PYPI_REQUIRE,
 )
