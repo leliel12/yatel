@@ -36,7 +36,8 @@ import yatel
 
 PYPI_REQUIRE = [
     "sqlalchemy",
-    "PyYAML",
+    "jsonschema",
+    "flask",
     "numpy",
     "scipy",
     "caipyrinha",
