@@ -20,7 +20,7 @@
 # IMPORTS
 #===============================================================================
 
-import sys
+import sys, os
 
 from ez_setup import use_setuptools
 use_setuptools()
