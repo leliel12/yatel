@@ -26,7 +26,11 @@ import collections
 # BASE CLASS
 #===============================================================================
 
-class YatelDOM(collections.Mapping):
+class YatelDOM(object):
+
+    #~ class __metaclass__(type):
+       #~ def __getattr__(cls, attr):
+           #~ return ExpressionFactory(attr)
 
     def __init__(self, **attrs):
         if "id" in attrs:
