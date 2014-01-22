@@ -34,14 +34,12 @@ import yatel
 # CONSTANTS
 #===============================================================================
 
-PYPI_REQUIRE = [
-    "sqlalchemy",
-    "jsonschema",
-    "flask",
-    "numpy",
-    "scipy",
-    "caipyrinha",
-]
+PATH = os.path.abspath(os.path.dirname(__file__))
+
+REQUIREMENTS_PATH = os.path.join(PATH, "requirements.txt")
+
+with open(REQUIREMENTS_PATH) as fp:
+    REQUIREMENTS =  fp.read().splitlines()
 
 
 #===============================================================================
@@ -63,5 +61,5 @@ setup(
     include_package_data=True,
     py_modules=["ez_setup"],
     entry_points={'console_scripts': ['yatel = yatel.cli:main']},
-    install_requires=PYPI_REQUIRE,
+    install_requires=REQUIREMENTS,
 )

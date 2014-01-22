@@ -1,0 +1,6 @@
+sqlalchemy
+jsonschema
+flask
+numpy
+scipy
+caipyrinha
