@@ -41,12 +41,12 @@ def kmeans(nw, fact_attrs, k_or_guess,
            whiten=False, coordc=None, *args, **kwargs):
     """Performs k-means on a set of all enviroments defined by ``fact_attrs``
     of a network.
-    
+
     Parameters
     ----------
-    nw : yatel.db.YatelNetwork 
+    nw : yatel.db.YatelNetwork
         Network source of enviroments to classify.
-    fact_attrs : iterable os strings        
+    fact_attrs : iterable os strings
         A collection of fact attributes names existing in ``nw``.
         which generates all posible combinations of values of
         the given attributes.
@@ -59,10 +59,10 @@ def kmeans(nw, fact_attrs, k_or_guess,
         selecting observations from the observation matrix.
         Alternatively, passing a k by N array specifies the
         initial k centroids.
-    whiten : bool 
+    whiten : bool
         execute ``scipy.cluster.vq.whiten`` function over the
         observation array before executing subjacent *scipy kmeans*.
-    coordc : None or callable 
+    coordc : None or callable
         If coordc is None generates use ``hap_in_env_coords``
         function. Otherwise ``coordc`` must be a callable with
         2 arguments:
@@ -84,10 +84,10 @@ def kmeans(nw, fact_attrs, k_or_guess,
         The centroids and codes generated represent
         the lowest distortion seen, not necessarily
         the globally minimal distortion.
-    distortion : the value of the distortion 
+    distortion : the value of the distortion
         The distortion between the observations
         passed and the centroids generated.
-    clustenv : an array of env 
+    clustenv : an array of env
         An array with the same length as ``coodebook``.
         The i'th element of ``clustenv`` contains all
         the enviroments of the i'th centroid of
@@ -137,23 +137,22 @@ def hap_in_env_coords(nw, env):
     """Generates the coordinates for the kmeans algorithm
     with the existences of haplotypes in the environment.
 
-    The returned coordinates has M elements
-    (M is the number of haplotypes in the network)
-    with same order of ``yatel.db.YatelNetwork.haplotypes_ids`` function
-    with 2 posible values:
-
-        - **0** if the haplotype not exist in the enviroment.
-        - **0** if the haplotype exist in the enviroment.
-    
     Parameters
     ----------
     nw : yatel.db.YatelNetwork
-    env : a collection of dict     
+    env : a collection of dict
 
     Returns
     -------
-        
-    
+    array: arrays of arrays
+        The returned coordinates has M elements
+        (M is the number of haplotypes in the network)
+        with same order of ``yatel.db.YatelNetwork.haplotypes_ids`` function
+        with 2 posible values:
+
+        - **0** if the haplotype not exist in the enviroment.
+        - **0** if the haplotype exist in the enviroment.
+
     """
     haps_id = tuple(nw.haplotypes_ids())
     ehid = tuple(nw.haplotypes_ids_enviroment(env=env))
@@ -166,7 +165,7 @@ def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
 
     Parameters
     ----------
-    nw : yatel.db.YatelNetwork 
+    nw : yatel.db.YatelNetwork
         Network source of enviroments to classify.
     fact_attrs : iterable os strings
         A collection of fact attributes names existing in ``nw``.
@@ -175,7 +174,7 @@ def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
     whiten : bool
         execute ``scipy.cluster.vq.whiten`` function over the
         observation array before executing subjacent *scipy kmeans*.
-    coordc : None or callable 
+    coordc : None or callable
         If coordc is None generates use ``hap_in_env_coords``
         function. Otherwise ``coordc`` must be a callable with
         2 arguments:
@@ -186,12 +185,12 @@ def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
         and must must return an array of coordinates for the given
         network enviroment.
 
-    Returns 
+    Returns
     -------
-    obs : a vector of envs 
+    obs : a vector of envs
         Each I'th row of the M by N array is an observation
         vector of the I'th enviroment of ``envs``.
-    envs : an array envs 
+    envs : an array envs
           M array of all posible enviroments of the ``nw``
           by the given ``facts_attrs``
 
@@ -237,7 +236,7 @@ def cluster_enviroments(envs, obs, codebook):
     observation coordinates to the codebook centroids.
 
     Parameters
-    ---------- 
+    ----------
     envs : a collection of dict
         M array of all posible enviroments of the ``nw``
         by the given ``facts_attrs``.
@@ -249,7 +248,7 @@ def cluster_enviroments(envs, obs, codebook):
 
     Returns
     -------
-    array : array 
+    array : array
         An array with the same length as ``coodebook``.
         The i'th element of ``clustenv`` contains all
         the enviroments of the i'th centroid of coodebook

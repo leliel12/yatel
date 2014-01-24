@@ -16,9 +16,9 @@ Contents:
 
    install.rst
    manual.rst
+   contribute.rst
    qbj.rst
    etl.rst
-
 
 
 
