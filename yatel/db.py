@@ -299,11 +299,13 @@ class YatelNetwork(object):
         """Add multiple instaces of ``yatel.dom.[Haplotype|Fact|Edge]``
         instance. The network must be in *w* or *a* mode.
 
-        **REQUIRE MODE:** w|a
+        Params
+        ------
 
-        :param elems: Elements to add
-        :type elems: iterable of yatel.dom.[Haplotype|Fact|Edge] instances.
+        elems :  iterable of yatel.dom.[Haplotype|Fact|Edge] instances.
 
+        Examples
+        --------
         >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
         >>> nw.add_element([dom.Haplotype(3), dom.Fact(3, att0="foo")])
 
