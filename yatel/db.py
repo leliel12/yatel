@@ -41,7 +41,7 @@ from yatel import dom
 
 
 #===============================================================================
-# EXCEPTIONS
+# CONSTANTS
 #===============================================================================
 
 #: Available engines
@@ -154,7 +154,7 @@ class YatelNetwork(object):
 
     def __init__(self, engine, mode=MODE_READ, log=None, **kwargs):
         """Creates a new instance
-        
+
         Parameters
         ----------
         engine : str
@@ -167,9 +167,9 @@ class YatelNetwork(object):
                 collections.
                 - If mode is *a* all the elements are copied to a temporal
                 table and the network is ready to accept more elements
-        log : None or bool  
+        log : None or bool
             Print the log of th backend to de std output
-        kwargs : a dict of arguments for the ``engine``.  
+        kwargs : a dict of arguments for the ``engine``.
                 Extra arguments for a given ``engine`` (see ``ENGINE_VARS``)
 
         Examples
@@ -322,12 +322,12 @@ class YatelNetwork(object):
         instance. The network must be in *w* or *a* mode.
 
         **REQUIRE MODE:** w|a
-        
+
         Parameters
         ----------
         elems : instance of yatel.dom.[Haplotype|Fact|Edge].
             Element to add
-        
+
         Examples
         --------
         >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
@@ -486,7 +486,7 @@ class YatelNetwork(object):
         """Raise a ``YatelNetworkError`` if the network is not in read mode
         Raises
         ------
-        ``YatelNetworkError`` 
+        ``YatelNetworkError``
             if the network is not in read mode
         """
         if not getattr(self, "_creation_append", None):
@@ -516,7 +516,7 @@ class YatelNetwork(object):
         ----------
         fact_attrs : iterable
             collection of existing fact attribute names
-        
+
         Returns
         -------
         iterator : Iterator of dictionaries with all valid combinations of
@@ -599,10 +599,10 @@ class YatelNetwork(object):
 
         Parameters
         ----------
-        env : dict 
+        env : dict
             Keys are ``dom.Fact`` attribute name and value a posible
                     value of the given attribte.
-        kwargs : a dict of keywords arguments 
+        kwargs : a dict of keywords arguments
             Keys are ``dom.Fact`` attribute name and value a posible
             value of the given attribte.
 
@@ -611,7 +611,7 @@ class YatelNetwork(object):
         iterator : ``iterator`` of ``dom.Haplotype``.
 
         Examples
-        -------- 
+        --------
         >>> from yatel import db, dom
         >>> nw = db.YatelNetwork("sqlite", mode=db.MODE_WRITE, database="nw.db")
         >>> nw.add_elements([dom.Haplotype("hap1"),
@@ -665,11 +665,20 @@ class YatelNetwork(object):
         documentation about enviroment.
 
         **REQUIRE MODE:** r
-        
+
         Parameters
         ----------
-        env : a ``yatel.deb.YatelNetwork.haplotypes_environment``.
-        kwargs : a dict of 
+        env : dict
+            Keys are ``dom.Fact`` attribute name and value a posible
+                    value of the given attribte.
+        kwargs : a dict of keywords arguments
+            Keys are ``dom.Fact`` attribute name and value a posible
+            value of the given attribte.
+
+        Returns
+        -------
+        iterator : ``iterator`` of ``dom.Edge``.
+
         """
         env = dict(env) if env else {}
         env.update(kwargs)
@@ -690,10 +699,15 @@ class YatelNetwork(object):
         """Iterates over all the edges of a given ``dom.Haplotype``.
 
         **REQUIRE MODE:** r
-        
+
         Parameters
         ----------
         hap : a ``dom.Haplotype``
+
+        Returns
+        -------
+        iterator : ``iterator`` of ``dom.Edge``.
+
 
         """
         where = sql.or_(*[v == hap.hap_id
@@ -715,7 +729,7 @@ class YatelNetwork(object):
 
     def facts_by_haplotype(self, hap):
         """Return a ``iterator`` of all facts of a given ``dom.Haplotype``
-        
+
         Parameters
         ----------
         hap : a ``dom.Haplotype``
@@ -740,8 +754,17 @@ class YatelNetwork(object):
 
         Parameters
         ----------
-        env : a ``yatel.deb.YatelNetwork.haplotypes_environment``.
-        kwargs : a dict of 
+        env : dict
+            Keys are ``dom.Fact`` attribute name and value a posible
+                    value of the given attribte.
+        kwargs : a dict of keywords arguments
+            Keys are ``dom.Fact`` attribute name and value a posible
+            value of the given attribte.
+
+        Returns
+        -------
+        iterator : ``iterator`` of ``dom.Fact``.
+
         """
         env = dict(env) if env else {}
         env.update(kwargs)
@@ -752,11 +775,51 @@ class YatelNetwork(object):
             yield self._row2fact(row)
 
     #===========================================================================
-    #
+    # DESCRIPTOR
     #===========================================================================
 
     def describe(self):
+        """Returns a descript object with all the information about the network
 
+        The descriptor object is a dictionary like with keys:
+            - The *edges_attributes* keys contains always 2 keys:
+                - *max_nodes*: How many nodes connect the edge with maximun
+                  number of connections.
+                - *weight*: the time od weight attribute
+            - *fact_attributes* and *haplotype_atributes* keys contains an
+              arbitrary number of keys, with keys as attribute name and value
+              as attribute type.
+            - *mode* is the actual mode of the network
+            - *size* has the number of elements in the network discrimined by
+              type.
+
+        Example
+        -------
+
+        >>> nw = db.YatelNetwork(...)
+        >>> nw.describe()
+        ... {
+        ...     u'edge_attributes': {
+        ...         u'max_nodes': 2,
+        ...         u'weight': <type 'float'>
+        ...     },
+        ...     u'fact_attributes': {
+        ...         u'align': <type 'int'>,
+        ...         u'category': <type 'str'>,
+        ...         u'coso': <type 'str'>,
+        ...         u'hap_id': <type 'int'>,
+        ...     }
+        ...     u'haplotype_attributes': {
+        ...         u'color': <type 'str'>,
+        ...         u'description': <type 'str'>,
+        ...         u'hap_id': <type 'int'>,
+        ...     }
+        ...     u'mode': 'r',
+        ...     u'size': {u'edges': 10, u'facts': 20, u'haplotypes': 5}
+        ... }
+
+
+        """
         if self._descriptor:
             return self._descriptor
 
@@ -814,7 +877,7 @@ class YatelNetwork(object):
             edgen = self.execute(
                 sql.select([self.edges_table]).alias("edgen").count()
             ).scalar()
-            return  {"haplotypes": hapn, "facts": factn, "edges": edgen}
+            return  {u"haplotypes": hapn, u"facts": factn, u"edges": edgen}
 
         descriptor_data[u"mode"] = self.mode
         descriptor_data[u"haplotype_attributes"] = hap_attributes()
@@ -868,10 +931,10 @@ def parse_uri(uri, mode=MODE_READ, log=None):
 
 def to_uri(engine, **kwargs):
     """Create a correct uri for a given engine ignoring all unused parameters
-    
+
     Parameters
     ----------
-    engine: str 
+    engine: str
         The engine name
     kwargs : a dict variables for the engine.
 
@@ -893,7 +956,7 @@ def to_uri(engine, **kwargs):
 
 def exists(engine, **kwargs):
     """Returns ``True`` if exists a db.YatelNetwork database in that connection.
-    
+
     Parameters
     ----------
     engine : a value of the current engine used (see valid ENGINES)
@@ -952,7 +1015,7 @@ def copy(from_nw, to_nw):
     ----------
     from_nw : a ``yatel.db.YatelNetwork``
         Network in *r* mode.
-    to_nw : a``yatel.db.YatelNetwork`` 
+    to_nw : a``yatel.db.YatelNetwork``
         Network in *w* or *a* mode.
 
     Examples

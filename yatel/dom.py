@@ -26,7 +26,7 @@ import collections
 # BASE CLASS
 #===============================================================================
 
-class YatelDOM(object):
+class YatelDOM(collections.Mapping):
 
     #~ class __metaclass__(type):
        #~ def __getattr__(cls, attr):
