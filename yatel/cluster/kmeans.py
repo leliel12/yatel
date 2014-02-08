@@ -144,7 +144,7 @@ def hap_in_env_coords(nw, env):
 
     Returns
     -------
-    array: arrays of arrays
+    array : arrays of arrays
         The returned coordinates has M elements
         (M is the number of haplotypes in the network)
         with same order of ``yatel.db.YatelNetwork.haplotypes_ids`` function
