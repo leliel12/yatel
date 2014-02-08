@@ -154,21 +154,26 @@ class YatelNetwork(object):
 
     def __init__(self, engine, mode=MODE_READ, log=None, **kwargs):
         """Creates a new instance
+        
+        Parameters
+        ----------
+        engine : str
+            pick one of the yatel.db.ENGINES
+        mode : str
+            The mode to open the database.
+                - If mode is *r* the network will reflect all the
+                existing yatel collections in the database.
+                - If mode is *w* yatell will destroy all the
+                collections.
+                - If mode is *a* all the elements are copied to a temporal
+                table and the network is ready to accept more elements
+        log : None or bool  
+            Print the log of th backend to de std output
+        kwargs : a dict of arguments for the ``engine``.  
+                Extra arguments for a given ``engine`` (see ``ENGINE_VARS``)
 
-        :param engine: pick one of the yatel.db.ENGINES
-        :type engine: str
-        :param mode: The mode to open the database.
-                     - If mode is *r* the network will reflect all the
-                       existing yatel collections in the database.
-                     - If mode is *w* yatell will destroy all the
-                       collections
-                     - If mode is *a* all the elements are copied to a temporal
-                       table and the network is ready to accept more elements
-        :type mode: str
-        :param log: Print the log of th backend to de std output
-        :type log: None or bool
-        :kwargs: Extra arguments for a given ``engine`` (see ``ENGINE_VARS``)
-
+        Examples
+        --------
         **Log enabled**
 
         >>> from yatel import db, dom
@@ -194,7 +199,7 @@ class YatelNetwork(object):
         2
 
 
-        **Detroy previous data**
+        **Destroy previous data**
 
         >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
         >>> nw.add_element(dom.Haplotype(3))
@@ -299,10 +304,10 @@ class YatelNetwork(object):
         """Add multiple instaces of ``yatel.dom.[Haplotype|Fact|Edge]``
         instance. The network must be in *w* or *a* mode.
 
-        Params
-        ------
+        Parameters
+        ----------
 
-        elems :  iterable of yatel.dom.[Haplotype|Fact|Edge] instances.
+        elems : iterable of yatel.dom.[Haplotype|Fact|Edge] instances.
 
         Examples
         --------
@@ -317,10 +322,14 @@ class YatelNetwork(object):
         instance. The network must be in *w* or *a* mode.
 
         **REQUIRE MODE:** w|a
-
-        :param elems: Element to add
-        :type elems: instance of yatel.dom.[Haplotype|Fact|Edge].
-
+        
+        Parameters
+        ----------
+        elems : instance of yatel.dom.[Haplotype|Fact|Edge].
+            Element to add
+        
+        Examples
+        --------
         >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
         >>> nw.add_element(dom.Fact(3, att0="foo"))
 
@@ -395,8 +404,8 @@ class YatelNetwork(object):
         """Creates the subjacent structures for store the elements added
         and change to the ``read`` mode.
 
-        **Examples**
-
+        Examples
+        --------
         >>> from yatel import db, dom
         >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
         >>> nw.add_element(dom.Haplotype(3, att0="foo"))
@@ -474,7 +483,12 @@ class YatelNetwork(object):
     #===========================================================================
 
     def validate_read(self):
-        """Raise a ``YatelNetworkError`` if the network is not in read mode"""
+        """Raise a ``YatelNetworkError`` if the network is not in read mode
+        Raises
+        ------
+        ``YatelNetworkError`` 
+            if the network is not in read mode
+        """
         if not getattr(self, "_creation_append", None):
             if self.mode != MODE_READ:
                 raise YatelNetworkError("Network in {} mode".format(self.mode))
@@ -484,7 +498,10 @@ class YatelNetwork(object):
 
         **REQUIRE MODE:** r
 
-        :param query: A valid query to for the backend
+        Parameters
+        ----------
+        query : a query for the backend
+            A valid query for the backend
 
         """
         self.validate_read()
@@ -495,13 +512,18 @@ class YatelNetwork(object):
 
         **REQUIRE MODE:** r
 
-        :param fact_attrs: collection of existing fact attribute names
-        :type fact_attr: iterable
-        :return: Iterator of dictionaries with all valid combinations of
-                 values of a given fact_attrs names
+        Parameters
+        ----------
+        fact_attrs : iterable
+            collection of existing fact attribute names
+        
+        Returns
+        -------
+        iterator : Iterator of dictionaries with all valid combinations of
+            values of a given fact_attrs names
 
-        **Examples**
-
+        Examples
+        --------
         >>> for env in nw.enviroments(["native", "place"]):
         ···     print env
         {u'place': None, u'native': True}
@@ -539,7 +561,9 @@ class YatelNetwork(object):
 
         **REQUIRE MODE:** r
 
-        :return: iterator of ``yatel.dom.Haplotypes`` instances
+        Returns
+        -------
+        iterator : iterator of ``yatel.dom.Haplotypes`` instances
 
         """
         query = sql.select([self.haplotypes_table])
@@ -552,11 +576,13 @@ class YatelNetwork(object):
 
         **REQUIRE MODE:** r
 
-        **Params**
-            :hap_id: An existing id of the ``haplotypes`` type table.
+        Parameters
+        ----------
+        hap_id : An existing id of the ``haplotypes`` type table.
 
-        **Return**
-            ``dom.Haplotype`` instance.
+        Returns
+        -------
+        ``dom.Haplotype`` : ``dom.Haplotype`` instance.
 
         """
         query = sql.select([self.haplotypes_table]).where(
@@ -571,16 +597,21 @@ class YatelNetwork(object):
 
         **REQUIRE MODE:** r
 
-        :param env: Keys are ``dom.Fact`` attribute name and value a posible
+        Parameters
+        ----------
+        env : dict 
+            Keys are ``dom.Fact`` attribute name and value a posible
                     value of the given attribte.
-        :type env: dict
-        :param kwargs: Keys are ``dom.Fact`` attribute name and value a posible
-                       value of the given attribte.
+        kwargs : a dict of keywords arguments 
+            Keys are ``dom.Fact`` attribute name and value a posible
+            value of the given attribte.
 
-        :return: ``iterator`` of ``dom.Haplotype``.
+        Returns
+        -------
+        iterator : ``iterator`` of ``dom.Haplotype``.
 
-        **Example**
-
+        Examples
+        -------- 
         >>> from yatel import db, dom
         >>> nw = db.YatelNetwork("sqlite", mode=db.MODE_WRITE, database="nw.db")
         >>> nw.add_elements([dom.Haplotype("hap1"),
@@ -619,7 +650,9 @@ class YatelNetwork(object):
 
         **REQUIRE MODE:** r
 
-        :return: iterator of ``yatel.dom.Edge`` isntances
+        Returns
+        -------
+        iterator : iterator of ``yatel.dom.Edge`` instances
 
         """
         query = sql.select([self.edges_table])
@@ -632,7 +665,11 @@ class YatelNetwork(object):
         documentation about enviroment.
 
         **REQUIRE MODE:** r
-
+        
+        Parameters
+        ----------
+        env : a ``yatel.deb.YatelNetwork.haplotypes_environment``.
+        kwargs : a dict of 
         """
         env = dict(env) if env else {}
         env.update(kwargs)
@@ -650,9 +687,13 @@ class YatelNetwork(object):
             yield self._row2edge(row)
 
     def edges_by_haplotype(self, hap):
-        """Iterates over all the edges of a given dom.Haplotype.
+        """Iterates over all the edges of a given ``dom.Haplotype``.
 
         **REQUIRE MODE:** r
+        
+        Parameters
+        ----------
+        hap : a ``dom.Haplotype``
 
         """
         where = sql.or_(*[v == hap.hap_id
@@ -673,7 +714,17 @@ class YatelNetwork(object):
             yield self._row2fact(row)
 
     def facts_by_haplotype(self, hap):
-        """Return a ``iterator`` of all facts of a given ``dom.Haplotype``"""
+        """Return a ``iterator`` of all facts of a given ``dom.Haplotype``
+        
+        Parameters
+        ----------
+        hap : a ``dom.Haplotype``
+
+        Returns
+        -------
+        iterator : a ``iterator`` of all facts.
+
+        """
         query = sql.select([self.facts_table]).where(
             self.facts_table.c.hap_id == hap.hap_id
         ).distinct()
@@ -687,6 +738,10 @@ class YatelNetwork(object):
 
         **REQUIRE MODE:** r
 
+        Parameters
+        ----------
+        env : a ``yatel.deb.YatelNetwork.haplotypes_environment``.
+        kwargs : a dict of 
         """
         env = dict(env) if env else {}
         env.update(kwargs)
@@ -813,13 +868,15 @@ def parse_uri(uri, mode=MODE_READ, log=None):
 
 def to_uri(engine, **kwargs):
     """Create a correct uri for a given engine ignoring all unused parameters
+    
+    Parameters
+    ----------
+    engine: str 
+        The engine name
+    kwargs : a dict variables for the engine.
 
-    :param engine: The engine name
-    :type engine: str
-    :param kwargs: variables of the engine
-
-    **Example**
-
+    Examples
+    --------
     >>> from yatel import db
     >>> db.to_uri("sqlite", database="nw.db")
     'sqlite:///nw.db'
@@ -836,16 +893,23 @@ def to_uri(engine, **kwargs):
 
 def exists(engine, **kwargs):
     """Returns ``True`` if exists a db.YatelNetwork database in that connection.
+    
+    Parameters
+    ----------
+    engine : a value of the current engine used (see valid ENGINES)
+    kwargs : a dict of variables for the engine.
 
-    This function return ``False`` if:
+    Returns
+    -------
+    existsdb : bool
+        This function return ``False`` if:
+            - The database no exists.
+            - The hap_id column has diferent types in ``haplotypes``, ``facts`` or
+            ``edges`` tables.
+            -The ``edges`` table hasn't a column ``weight`` with type float.
 
-        - The database no exsists.
-        - The hap_id column has diferent types in ``haplotypes``, ``facts`` or
-          ``edges`` tables.
-        - The ``edges`` table hasn't a column ``weight`` with type float.
-
-    **Example**
-
+    Examples
+    --------
     >>> from yatel import db, dom
     >>> db.exists("sqlite", mode="r", database="nw.db")
     False
@@ -884,13 +948,15 @@ def copy(from_nw, to_nw):
     ``from_nw`` must be in  read-only mode and ``to_nw`` in write or append mode.
     Is your responsability to call ``to_nw.confirm_changes()`` after the copy
 
-    :param from_nw: Network in *r* mode.
-    :type from_nw: yatel.db.YatelNetwork
-    :param to_nw: Network in *w* or *a* mode.
-    :type to_nw: yatel.db.YatelNetwork
+    Parameters
+    ----------
+    from_nw : a ``yatel.db.YatelNetwork``
+        Network in *r* mode.
+    to_nw : a``yatel.db.YatelNetwork`` 
+        Network in *w* or *a* mode.
 
-    **Example**
-
+    Examples
+    --------
     >>> from yatel import db, dom
     >>> from_nw = db.YatelNetwork("memory", mode=db.MODE_WRITE)
     >>> from_nw.add_elements([dom.Haplotype("hap1"),
