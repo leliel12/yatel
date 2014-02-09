@@ -12,13 +12,13 @@ Welcome to Yatel's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 4
+    :maxdepth: 4
 
-   install.rst
-   manual.rst
-   contribute.rst
-   qbj.rst
-   etl.rst
+    install.rst
+    manual.rst
+    qbj.rst
+    etl.rst
+    apidoc/modules.rst
 
 
 

@@ -484,10 +484,12 @@ class YatelNetwork(object):
 
     def validate_read(self):
         """Raise a ``YatelNetworkError`` if the network is not in read mode
+
         Raises
         ------
-        ``YatelNetworkError``
+        YatelNetworkError
             if the network is not in read mode
+
         """
         if not getattr(self, "_creation_append", None):
             if self.mode != MODE_READ:
@@ -793,8 +795,8 @@ class YatelNetwork(object):
             - *size* has the number of elements in the network discrimined by
               type.
 
-        Example
-        -------
+        Examples
+        --------
 
         >>> nw = db.YatelNetwork(...)
         >>> nw.describe()
@@ -967,9 +969,9 @@ def exists(engine, **kwargs):
     existsdb : bool
         This function return ``False`` if:
             - The database no exists.
-            - The hap_id column has diferent types in ``haplotypes``, ``facts`` or
-            ``edges`` tables.
-            -The ``edges`` table hasn't a column ``weight`` with type float.
+            - The hap_id column has diferent types in ``haplotypes``, ``facts``
+              or ``edges`` tables.
+            - The ``edges`` table hasn't a column ``weight`` with type float.
 
     Examples
     --------

@@ -325,3 +325,8 @@ Funciones
 
 El proceso de resolución
 ------------------------
+
+
+.. _Python: http://www.python.org/
+.. _olap: http://en.wikipedia.org/wiki/OLAP_cube
+.. _json-schema: http://json-schema.org/
