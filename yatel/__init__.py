@@ -11,17 +11,20 @@
 # DOCS
 #===============================================================================
 
-(u"Yatel allows the creation of user-profile-distance-based networks and "
-u"their multidimensional analysis through a process of exploration.\n"
-u"In the process of analyzing data from heterogeneous sources - like "
-u"data regarding biology, social studies, marketing, etc. -, it is "
-u"often possible to identify individuals or classes (groups of  "
-u"individuals that share some characteristic). This individuals or "
-u"groups are identified by attributes that were measured and stored in "
-u"the data data base. For instance, in a biological analysis, the "
-u"profile can be defined by some certain properties of the nucleic "
-u"acid, in a social  analysis by the data from people and in a sales "
-u"analysis by the data from sales point tickets.")
+u"""Yatel allows the creation of user-profile-distance-based of OLAP Network
+and their multidimensional analysis through a process of exploration.
+
+In the process of analyzing data from heterogeneous sources - like
+data regarding biology, social studies, marketing, etc. -, it is
+often possible to identify individuals or classes (groups of
+individuals that share some characteristic). This individuals or
+groups are identified by attributes that were measured and stored in
+the data data base. For instance, in a biological analysis, the
+profile can be defined by some certain properties of the nucleic
+acid, in a social  analysis by the data from people and in a sales
+analysis by the data from sales point tickets.
+
+"""
 
 
 #===============================================================================
@@ -51,7 +54,14 @@ __version__ = STR_VERSION
 DOC = __doc__
 
 # : The short description for pypi
-SHORT_DESCRIPTION = DOC.splitlines()[0]
+SHORT_DESCRIPTION = []
+for line in DOC.splitlines():
+    if not line.strip():
+        break
+    SHORT_DESCRIPTION.append(line)
+SHORT_DESCRIPTION = u" ".join(SHORT_DESCRIPTION)
+del line
+
 
 # : Clasifiers for optimize search in pypi
 CLASSIFIERS = (

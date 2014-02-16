@@ -193,6 +193,7 @@ def execute(nw, etl, *args):
         msg = "etl is not instance of a subclass of yatel.etl.ETL"
         raise TypeError(msg)
 
+    etl.nw = nw
     etl.setup(*args)
 
     etl.pre_haplotype_gen()
