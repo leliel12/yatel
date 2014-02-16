@@ -18,6 +18,11 @@
 # IMPORTS
 #===============================================================================
 
+try:
+    import cStringIO as StringIO
+except:
+    import StringIO
+
 import abc
 
 

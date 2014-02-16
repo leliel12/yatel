@@ -35,7 +35,7 @@ import caipyrinha
 
 import yatel
 from yatel import db, dom, etl, tests, server
-from yatel import yjf
+from yatel import io
 from yatel import stats
 from yatel import weight
 
@@ -216,21 +216,22 @@ def fake_network(flags, returns):
 
 
 @parser.callback(exclusive=GROUP_OP, action="store", type=argparse.FileType("w"),
-                 metavar="FILENAME.json", exit=0)
+                 metavar="FILENAME.EXT", exit=0)
 def dump(flags, returns):
-    """Export the given database to json format.
+    """Export the given database to EXT format.
 
     """
+    ext = flags.dump.name.rsplit(".", 1)[-1].lower()
     conn_data = returns.database
     nw = db.YatelNetwork(**conn_data)
-    yjf.dump(nw=nw, stream=flags.dump)
+    io.dump(ext=ext, nw=nw, stream=flags.dump)
 
 
 @parser.callback(exclusive=GROUP_OP, action="store",
                  metavar="FILENAME_TEMPLATE.json", exit=0)
 def backup(flags, returns):
     """Like dump but always create a new file with the format
-    'filename_template<TIMESTAMP>.json'.
+    'filename_template<TIMESTAMP>.EXT'.
 
     """
     fname, ext = flags.backup.rsplit(".", 1)
@@ -241,18 +242,19 @@ def backup(flags, returns):
     nw = db.YatelNetwork(**conn_data)
 
     with open(fpath, 'w') as fp:
-        yjf.dump(nw=nw, stream=fp)
+        io.dump(ext=ext.lower(), nw=nw, stream=fp)
 
 
 @parser.callback(exclusive=GROUP_OP, action="store", type=argparse.FileType(),
-                 metavar="FILENAME.json", exit=0)
+                 metavar="FILENAME.EXT", exit=0)
 def load(flags, returns):
     """Import the given file to the given database.
 
     """
+    ext = flags.load.name.rsplit(".", 1)[-1].lower()
     conn_data = returns.database
     nw = db.YatelNetwork(**conn_data)
-    yjf.load(nw=nw, stream=flags.load)
+    io.load(ext=ext, nw=nw, stream=flags.load)
     nw.confirm_changes()
 
 

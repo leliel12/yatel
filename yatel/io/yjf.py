@@ -20,13 +20,9 @@
 
 import json
 
-try:
-    import cStringIO as StringIO
-except:
-    import StringIO
-
 from yatel import typeconv
 from yatel.io import core
+
 
 #===============================================================================
 # CLASS
