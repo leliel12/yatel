@@ -26,20 +26,17 @@ except:
     import StringIO
 
 from yatel import typeconv
-
-#===============================================================================
-# CONSTANTS
-#===============================================================================
-
-YJF_VERSION = ("0", "5")
-YJF_STR_VERSION = ".".join(YJF_VERSION)
-
+from yatel.io import core
 
 #===============================================================================
 # CLASS
 #===============================================================================
 
-class JSONParser(object):
+class JSONParser(core.BaseParser):
+
+    @classmethod
+    def file_exts(cls):
+        return ("yjf", "json")
 
     def dump(self, nw, fp, *args, **kwargs):
         kwargs["ensure_ascii"] = kwargs.get("ensure_ascii", True)
@@ -48,7 +45,7 @@ class JSONParser(object):
             "haplotypes":  map(typeconv.simplifier, nw.haplotypes()),
             "facts": map(typeconv.simplifier, nw.facts()),
             "edges": map(typeconv.simplifier, nw.edges()),
-            "version": YJF_STR_VERSION,
+            "version": self.version(),
         }
         json.dump(data, fp, *args, **kwargs)
 
@@ -57,32 +54,6 @@ class JSONParser(object):
         nw.add_elements(map(typeconv.parse, data["haplotypes"]))
         nw.add_elements(map(typeconv.parse, data["facts"]))
         nw.add_elements(map(typeconv.parse, data["edges"]))
-
-    def dumps(self, nw, *args, **kwargs):
-        fp = StringIO.StringIO()
-        self.dump(nw, fp, *args, **kwargs)
-        return fp.getvalue()
-
-    def loads(self, nw, string, *args, **kwargs):
-        fp = StringIO.StringIO(string)
-        self.loads(nw, fp, *args, **kwargs)
-
-
-#===============================================================================
-# FUNCTIONS
-#===============================================================================
-
-def load(nw, stream, *args, **kwargs):
-    parser = JSONParser()
-    if isinstance(stream, basestring):
-        return parser.loads(nw, stream, *args, **kwargs)
-    return parser.load(nw, stream, *args, **kwargs)
-
-def dump(nw, stream=None, *args, **kwargs):
-    parser = JSONParser()
-    if stream is None:
-        return parser.dumps(nw, *args, **kwargs)
-    return parser.dump(nw, stream, *args, **kwargs)
 
 
 #===============================================================================
