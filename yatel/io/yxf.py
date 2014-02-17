@@ -88,7 +88,9 @@ class XMLParser(core.BaseParser):
             fp.write(self.to_content(attrs["weight"]["value"]))
             fp.write(self.end_elem(u"Attribute"))
 
-            fp.write(self.start_elem(u"Attribute", {u"name": u"haps_id"}))
+            fp.write(self.start_elem(u"Attribute",
+                {u"name": u"haps_id", u"type": attrs["haps_id"]["type"]}
+            ))
             for hap_id_data in attrs["haps_id"]["value"]:
                 xmlattrs = {"name": u"hap_id", u"type": hap_id_data["type"]}
                 fp.write(self.start_elem(u"Attribute", xmlattrs))
@@ -142,8 +144,18 @@ class XMLParser(core.BaseParser):
                     self.buff["last"] =  {"name": aname, "type": atype}
 
                 # edges
-                #~ elif self.stk == ["network", "edges", "edge"]:
-                    #~ self.buff = {"weight": None, "haps_id": []}
+                elif self.stk == ["Network", "Edges", "Edge"]:
+                    self.buff = {"weight": None, "haps_id": None}
+                elif self.stk == ["Network", "Edges", "Edge", "Attribute"]:
+                    aname = saxutils.unescape(attrs["name"])
+                    atype = saxutils.unescape(attrs["type"])
+                    if aname == "weight":
+                        self.buff["weight"] = {"type": atype}
+                    if aname == "haps_id":
+                        self.buff["haps_id"] = {"type": atype, "value": []}
+                elif self.stk == ["Network", "Edges", "Edge", "Attribute", "Attribute"]:
+                    atype = saxutils.unescape(attrs["type"])
+                    self.buff["haps_id"]["value"].append({"type": atype})
 
             def characters(self, content):
                 content = saxutils.unescape(content)
@@ -165,10 +177,10 @@ class XMLParser(core.BaseParser):
                     }
 
                 # edges
-                #~ elif self.stk == ["network", "edges", "edge", "weight"]:
-                    #~ self.buff["weight"] = float(content)
-                #~ elif self.stk == ["network", "edges", "edge", "haps_id", "hap_id"]:
-                    #~ self.buff["haps_id"].append(content)
+                elif self.stk == ["Network", "Edges", "Edge", "Attribute"]:
+                    self.buff["weight"]["value"] = content
+                elif self.stk == ["Network", "Edges", "Edge", "Attribute", "Attribute"]:
+                    self.buff["haps_id"]["value"][-1]["value"] = content
 
             def endElement(self, name):
                 if self.stk[-1] != name.title():
@@ -185,15 +197,18 @@ class XMLParser(core.BaseParser):
                 # facts
                 elif self.stk == ["Network", "Facts", "Fact"]:
                     data = {
-                        u"type": "Fact",
+                        u"type": u"Fact",
                         u"value": self.buff["attrs"]
                     }
                     nw.add_element(typeconv.parse(data))
 
                 # edges
-                #~ elif self.stk == ["network", "edges", "edge"]:
-                    #~ edge = self.parent.dict2edge(self.buff, self.hap_id_type)
-                    #~ nw.add_element(edge)
+                elif self.stk == ["Network", "Edges", "Edge"]:
+                    data = {
+                        u"type": u"Edge",
+                        u"value": self.buff
+                    }
+                    nw.add_element(typeconv.parse(data))
 
                 self.stk.pop()
 
