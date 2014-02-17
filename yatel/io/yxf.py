@@ -106,20 +106,12 @@ class XMLParser(core.BaseParser):
     # LOAD
     #===========================================================================
 
-    def load(self, nw, stream, **kwargs):
-        self.validate_write(nw)
-
-        fp = StringIO.StringIO(stream) \
-             if isinstance(stream, basestring) \
-             else stream
+    def load(self, nw, fp, *args, **kwargs):
 
         class YatelXMLHandler(sax.ContentHandler):
 
             def __init__(self, parent, *args, **kwargs):
 
-                self.hap_types = {}
-                self.fact_types = {}
-                self.hap_id_type = None
                 self.version = None
 
                 self.stk = []
@@ -127,98 +119,81 @@ class XMLParser(core.BaseParser):
                 self.parent = parent
 
             def startElement(self, name, attrs):
-                self.stk.append(name.lower())
+                self.stk.append(name.title())
 
                 # first element
-                if self.stk == ["network"]:
-                    self.version = saxutils.unescape(attrs["version"])
-
-                # types
-                elif self.stk == ["network", "types", "haplotypes", "type"]:
-                    name = saxutils.unescape(attrs["name"])
-                    self.buff = name
-                elif self.stk == ["network", "types", "facts", "type"]:
-                    name = saxutils.unescape(attrs["name"])
-                    self.buff = name
+                if self.stk == ["Network"]:
+                    self.version = saxutils.unescape(attrs[u"version"])
 
                 # haplotypes
-                elif self.stk == ["network", "haplotypes", "haplotype"]:
+                elif self.stk == ["Network", "Haplotypes", "Haplotype"]:
                     self.buff = {"last": None, "attrs": {}}
-                elif self.stk == ["network", "haplotypes", "haplotype", "attribute"]:
-                    name = saxutils.unescape(attrs["name"])
-                    self.buff["last"] =  name
+                elif self.stk == ["Network", "Haplotypes", "Haplotype", "Attribute"]:
+                    aname = saxutils.unescape(attrs["name"])
+                    atype = saxutils.unescape(attrs["type"])
+                    self.buff["last"] =  {"name": aname, "type": atype}
 
                 # facts
-                elif self.stk == ["network", "facts", "fact"]:
+                elif self.stk == ["Network", "Facts", "Fact"]:
                     self.buff = {"last": None, "attrs": {}}
-                elif self.stk == ["network", "facts", "fact", "attribute"]:
-                    name = saxutils.unescape(attrs["name"])
-                    self.buff["last"] =  name
+                elif self.stk == ["Network", "Facts", "Fact", "Attribute"]:
+                    aname = saxutils.unescape(attrs["name"])
+                    atype = saxutils.unescape(attrs["type"])
+                    self.buff["last"] =  {"name": aname, "type": atype}
 
                 # edges
-                elif self.stk == ["network", "edges", "edge"]:
-                    self.buff = {"weight": None, "haps_id": []}
+                #~ elif self.stk == ["network", "edges", "edge"]:
+                    #~ self.buff = {"weight": None, "haps_id": []}
 
             def characters(self, content):
                 content = saxutils.unescape(content)
 
-                # types
-                if self.stk == ["network", "types", "haplotypes", "type"]:
-                    self.buff = {self.buff: content}
-                elif self.stk == ["network", "types", "facts", "type"]:
-                    self.buff = {self.buff: content}
-
                 # haplotypes
-                elif self.stk == ["network", "haplotypes", "haplotype", "attribute"]:
-                    last = self.buff["last"]
-                    self.buff["attrs"][last] = content
+                if self.stk == ["Network", "Haplotypes", "Haplotype", "Attribute"]:
+                    aname = self.buff["last"]["name"]
+                    atype = self.buff["last"]["type"]
+                    self.buff["attrs"][aname] = {
+                        u"type": atype, u"value": content
+                    }
 
                 # facts
-                elif self.stk == ["network", "facts", "fact", "attribute"]:
-                    last = self.buff["last"]
-                    self.buff["attrs"][last] = content
+                elif self.stk == ["Network", "Facts", "Fact", "Attribute"]:
+                    aname = self.buff["last"]["name"]
+                    atype = self.buff["last"]["type"]
+                    self.buff["attrs"][aname] = {
+                        u"type": atype, u"value": content
+                    }
 
                 # edges
-                elif self.stk == ["network", "edges", "edge", "weight"]:
-                    self.buff["weight"] = float(content)
-                elif self.stk == ["network", "edges", "edge", "haps_id", "hap_id"]:
-                    self.buff["haps_id"].append(content)
+                #~ elif self.stk == ["network", "edges", "edge", "weight"]:
+                    #~ self.buff["weight"] = float(content)
+                #~ elif self.stk == ["network", "edges", "edge", "haps_id", "hap_id"]:
+                    #~ self.buff["haps_id"].append(content)
 
             def endElement(self, name):
-                if self.stk[-1] != name.lower():
+                if self.stk[-1] != name.title():
                     return
 
-                # types
-                if self.stk == ["network", "types", "haplotypes", "type"]:
-                    self.hap_types.update(self.buff)
-                elif self.stk == ["network", "types", "haplotypes"]:
-                    self.hap_types = self.parent.strdict2types(self.hap_types)
-                elif self.stk == ["network", "types", "facts", "type"]:
-                    self.fact_types.update(self.buff)
-                elif self.stk == ["network", "types", "facts"]:
-                    self.fact_types = self.parent.strdict2types(self.fact_types)
-                elif self.stk == ["network", "types"]:
-                    self.hap_id_type = self.hap_types["hap_id"]
-
                 # haplotypes
-                elif self.stk == ["network", "haplotypes", "haplotype"]:
-                    hapd = self.buff["attrs"]
-                    hap = self.parent.dict2hap(hapd,
-                                               self.hap_id_type, self.hap_types)
-                    nw.add_element(hap)
+                elif self.stk == ["Network", "Haplotypes", "Haplotype"]:
+                    data = {
+                        u"type": "Haplotype",
+                        u"value": self.buff["attrs"]
+                    }
+                    nw.add_element(typeconv.parse(data))
 
                 # facts
-                elif self.stk == ["network", "facts", "fact"]:
-                    factd = self.buff["attrs"]
-                    fact = self.parent.dict2fact(factd,
-                                                 self.hap_id_type,
-                                                 self.fact_types)
-                    nw.add_element(fact)
+                elif self.stk == ["Network", "Facts", "Fact"]:
+                    data = {
+                        u"type": "Fact",
+                        u"value": self.buff["attrs"]
+                    }
+                    nw.add_element(typeconv.parse(data))
 
                 # edges
-                elif self.stk == ["network", "edges", "edge"]:
-                    edge = self.parent.dict2edge(self.buff, self.hap_id_type)
-                    nw.add_element(edge)
+                #~ elif self.stk == ["network", "edges", "edge"]:
+                    #~ edge = self.parent.dict2edge(self.buff, self.hap_id_type)
+                    #~ nw.add_element(edge)
 
                 self.stk.pop()
 
