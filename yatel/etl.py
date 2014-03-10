@@ -53,7 +53,7 @@ from yatel import etl, dom
 # PUT YOUT ETLs HERE
 #===============================================================================
 
-class CustomETL(etl.ETL):
+class ETL(etl.BaseETL):
 
     # you can access the current network from the attribute 'self.nw'
 
@@ -89,7 +89,7 @@ class _ETLMeta(abc.ABCMeta):
 # CLASSES
 #===============================================================================
 
-class ETL(object):
+class BaseETL(object):
 
     __metaclass__ = _ETLMeta
 
@@ -149,7 +149,7 @@ def scan_dir(dirpath):
 
 
 def scan_file(filepath):
-    """Retrieve all yatel.etl.ETL subclass of a given file"""
+    """Retrieve all yatel.etl.BaseETL subclass of a given file"""
     dirname, filename = os.path.split(filepath)
     modname = os.path.splitext(filename)[0]
     etlmodule = None
@@ -160,7 +160,8 @@ def scan_file(filepath):
     else:
         etlmodule = sys.modules[modname]
     for k, v in vars(etlmodule).items():
-        if not k.startswith("_") and inspect.isclass(v) and issubclass(v, ETL):
+        if not k.startswith("_") \
+        and inspect.isclass(v) and issubclass(v, BaseETL):
             etlfound[k] = v
     if not etlfound:
         del sys.modules[modname]
@@ -176,7 +177,7 @@ def etlcls_from_module(filepath, clsname):
 
 def get_template():
     defs = []
-    for amethod in ETL.__abstractmethods__:
+    for amethod in BaseETL.__abstractmethods__:
         defd = ("    def {}(self):\n"
                 "        raise NotImplementedError()\n").format(amethod)
         defs.append(defd)
@@ -189,8 +190,8 @@ def execute(nw, etl, *args):
 
     etl_name = type(etl).__name__
 
-    if not isinstance(etl, ETL):
-        msg = "etl is not instance of a subclass of yatel.etl.ETL"
+    if not isinstance(etl, BaseETL):
+        msg = "etl is not instance of a subclass of yatel.etl.BaseETL"
         raise TypeError(msg)
 
     etl.nw = nw

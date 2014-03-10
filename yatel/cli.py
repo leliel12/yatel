@@ -326,16 +326,18 @@ def create_etl(flags, returns):
 
 
 @parser.callback("--desc-etl", exclusive=GROUP_INFO, action="store", nargs=1,
-                 metavar="PATH/TO/MODULE.py:ClassName", exit=0)
+                 metavar="PATH/TO/MODULE.py", exit=0)
 def desc_etl(flags, returns):
     """Return a list of parameters and documentataton about the etl
 
-    The argument is in the format path/to/module.py:ClassName
+    The argument is in the format path/to/module.py
+
+    The BaseETL subclass must be names after ETL
 
     """
-    filepath, clsname = flags.desc_etl[0].split(":", 1)
+    filepath = flags.desc_etl[0]
 
-    etl_cls = etl.etlcls_from_module(filepath, clsname)
+    etl_cls = etl.etlcls_from_module(filepath, "ETL")
     doc = etl_cls.__doc__ or "-"
     params = ", ".join(etl_cls.setup_args)
     print ("ETL CLASS: {cls}\n"
@@ -354,15 +356,15 @@ def desc_etl(flags, returns):
 def run_etl(flags, returns):
     """Run one or more etl inside of a given script.
 
-    The first argument is in the format path/to/module.py:ClassName
+    The first argument is in the format path/to/module.py
     the second onwards parameter are parameters of the setup method of the
     given class.
 
     """
-    filepath, clsname = flags.run_etl[0].split(":", 1)
+    filepath = flags.run_etl[0]
     params = flags.run_etl[1:]
 
-    etl_cls = etl.etlcls_from_module(filepath, clsname)
+    etl_cls = etl.etlcls_from_module(filepath, "ETL")
     etl_instance = etl_cls()
 
     conn_data = returns.database
