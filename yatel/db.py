@@ -49,7 +49,7 @@ ENGINES = (
     'sqlite',
     'memory',
     'mysql',
-    'postgresql',
+    'postgres',
 )
 
 
@@ -58,7 +58,7 @@ ENGINE_URIS = {
     'sqlite': "sqlite:///${database}",
     'memory': "sqlite://",
     'mysql': "mysql://${user}:${password}@${host}:${port}/${database}",
-    'postgresql': "postgresql://${user}:${password}@${host}:${port}/${database}"
+    'postgres': "postgres://${user}:${password}@${host}:${port}/${database}"
 }
 
 
