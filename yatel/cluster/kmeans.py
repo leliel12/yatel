@@ -27,7 +27,6 @@ For more information about kmeans:
 #===============================================================================
 
 import numpy as np
-from scipy.spatial import distance
 from scipy.cluster import vq
 
 from yatel import db
@@ -37,7 +36,7 @@ from yatel import db
 # KMEANS
 #===============================================================================
 
-def kmeans(nw, fact_attrs, k_or_guess,
+def kmeans(nw, envs, k_or_guess,
            whiten=False, coordc=None, *args, **kwargs):
     """Performs k-means on a set of all enviroments defined by ``fact_attrs``
     of a network.
@@ -46,10 +45,8 @@ def kmeans(nw, fact_attrs, k_or_guess,
     ----------
     nw : yatel.db.YatelNetwork
         Network source of enviroments to classify.
-    fact_attrs : iterable os strings
-        A collection of fact attributes names existing in ``nw``.
-        which generates all posible combinations of values of
-        the given attributes.
+    envs : iterable of yatel.dom.Enviroments or dicts
+        Represent all the enviroment to be clustered.
     k_or_guess : int or ndarray
         The number of centroids to generate. A code is assigned
         to each centroid, which is also the row index of the
@@ -87,11 +84,7 @@ def kmeans(nw, fact_attrs, k_or_guess,
     distortion : the value of the distortion
         The distortion between the observations
         passed and the centroids generated.
-    clustenv : an array of env
-        An array with the same length as ``coodebook``.
-        The i'th element of ``clustenv`` contains all
-        the enviroments of the i'th centroid of
-        coodebook
+
 
     Examples
     --------
@@ -106,7 +99,7 @@ def kmeans(nw, fact_attrs, k_or_guess,
     ...                  dom.Edge(34, 2, 3),
     ...                  dom.Edge(1.25, 3, 1)])
     >>> nw.confirm_changes()
-    >>> kmeans.kmeans(nw, ["att0", "att2"], 2)
+    >>> kmeans.kmeans(nw, nw.enviroments(["att0", "att2"]), 2)
     (array([[1, 0, 0],
            [0, 1, 0]]),
      0.0,
@@ -117,16 +110,13 @@ def kmeans(nw, fact_attrs, k_or_guess,
     >>> kmeans.kmeans(nw, ["att0", "att2"], 2, coordc=calc)
     (array([[ 23.   ,  11.   ],
            [  6.625,   5.375]]),
-     0.0,
-     (({u'att0': False, u'att2': None}, {u'att0': True, u'att2': u'foo'}),
-      ({u'att0': True, u'att2': None},)))
+     0.0)
 
     """
-    obs, envs = nw2obs(nw, fact_attrs, coordc=coordc)
+    obs = nw2obs(nw, envs, coordc=coordc)
     codebook, distortion = vq.kmeans(obs=obs, k_or_guess=k_or_guess,
                                      *args, **kwargs)
-    clustenv = cluster_enviroments(envs, obs, codebook)
-    return codebook, distortion, clustenv
+    return codebook, distortion
 
 
 #===============================================================================
@@ -140,7 +130,7 @@ def hap_in_env_coords(nw, env):
     Parameters
     ----------
     nw : yatel.db.YatelNetwork
-    env : a collection of dict
+    env : a collection of dict or yatel.dom.Enviroment
 
     Returns
     -------
@@ -154,23 +144,22 @@ def hap_in_env_coords(nw, env):
         - **0** if the haplotype exist in the enviroment.
 
     """
-    haps_id = tuple(nw.haplotypes_ids())
-    ehid = tuple(nw.haplotypes_ids_enviroment(env=env))
+    haps_id = tuple(hap.hap_id for hap in nw.haplotypes())
+    ehid = tuple(hap.hap_id for hap in nw.haplotypes_by_enviroment(env=env))
     return [int(hid in ehid) for hid in haps_id]
 
 
-def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
+def nw2obs(nw, envs, whiten=False, coordc=None):
     """Convert a given enviroments defined by ``fact_attrs``
     of a network to observation matrix to cluster with subjacent *scipy kmeans*
 
     Parameters
     ----------
+
     nw : yatel.db.YatelNetwork
         Network source of enviroments to classify.
-    fact_attrs : iterable os strings
-        A collection of fact attributes names existing in ``nw``.
-        which generates all posible combinations of values of
-        the given attributes.
+    envs : iterable of yatel.dom.Enviroment or dicts
+        Represent all the enviroment to be clustered.
     whiten : bool
         execute ``scipy.cluster.vq.whiten`` function over the
         observation array before executing subjacent *scipy kmeans*.
@@ -190,9 +179,6 @@ def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
     obs : a vector of envs
         Each I'th row of the M by N array is an observation
         vector of the I'th enviroment of ``envs``.
-    envs : an array envs
-          M array of all posible enviroments of the ``nw``
-          by the given ``facts_attrs``
 
     Examples
     --------
@@ -207,20 +193,17 @@ def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
     ...                  dom.Edge(34, 2, 3),
     ...                  dom.Edge(1.25, 3, 1)])
     >>> nw.confirm_changes()
-    >>> kmeans.nw2obs(nw, ["att0", "att2"])
-    (array([[1, 0, 0],
-        [0, 1, 0],
-        [0, 1, 0]]),
-     ({u'att0': True, u'att2': None},
-      {u'att0': False, u'att2': None},
-      {u'att0': True, u'att2': u'foo'}))
+    >>> kmeans.nw2obs(nw, nw.enviroments(["att0", "att2"]))
+    array([[1, 0, 0],
+           [0, 1, 0],
+           [0, 1, 0]])
+
 
     """
     if not isinstance(nw, db.YatelNetwork):
         msg = "nw must be 'yatel.db.YatelNetwork' instance"
         raise TypeError(ms)
     coordc = hap_in_env_coords if coordc is None else coordc
-    envs = tuple(nw.enviroments_iterator(fact_attrs))
     mtx = []
     for idx, env in enumerate(envs):
         row = coordc(nw, env)
@@ -228,42 +211,7 @@ def nw2obs(nw, fact_attrs, whiten=False, coordc=None):
     obs = np.array(mtx)
     if whiten:
         obs = vq.whiten(obs)
-    return obs, envs
-
-
-def cluster_enviroments(envs, obs, codebook):
-    """Sort a collection of enviroment by the minimun distance of their
-    observation coordinates to the codebook centroids.
-
-    Parameters
-    ----------
-    envs : a collection of dict
-        M array of all posible enviroments of the ``nw``
-        by the given ``facts_attrs``.
-    obs : M x N array of the I'th environment
-        Each I'th row of the M by N array is an observation
-        vector of the I'th enviroment of ``envs``
-    param coodebook : an array of centroids of clusters
-        K by N Array of centroids of clusters.
-
-    Returns
-    -------
-    array : array
-        An array with the same length as ``coodebook``.
-        The i'th element of ``clustenv`` contains all
-        the enviroments of the i'th centroid of coodebook
-
-    """
-    clustenv = [[] for _ in codebook]
-    for idx, env in enumerate(envs):
-        env_coords = obs[idx]
-        min_cluster = None
-        for cluster, centroid in enumerate(codebook):
-            dist = distance.euclidean(env_coords, centroid)
-            if min_cluster is None or min_cluster[1] > dist:
-                min_cluster = (cluster, dist)
-        clustenv[min_cluster[0]].append(env)
-    return tuple(map(tuple, clustenv))
+    return obs
 
 
 #===============================================================================
