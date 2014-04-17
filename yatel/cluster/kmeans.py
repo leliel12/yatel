@@ -7,9 +7,9 @@
 # think this stuff is worth it, you can buy us a WISKEY in return.
 
 
-#===============================================================================
+# =============================================================================
 # DOCS
-#===============================================================================
+# =============================================================================
 
 """The Yatel kmeans algorithm clusters a network's environments, using as
 dimensions the haplotypes which exists in each environment or arbitrary values
@@ -22,9 +22,9 @@ For more information about kmeans:
 
 """
 
-#===============================================================================
+# =============================================================================
 # IMPORTS
-#===============================================================================
+# =============================================================================
 
 import numpy as np
 from scipy.cluster import vq
@@ -32,9 +32,9 @@ from scipy.cluster import vq
 from yatel import db
 
 
-#===============================================================================
+# =============================================================================
 # KMEANS
-#===============================================================================
+# =============================================================================
 
 def kmeans(nw, envs, k_or_guess,
            whiten=False, coordc=None, *args, **kwargs):
@@ -119,9 +119,9 @@ def kmeans(nw, envs, k_or_guess,
     return codebook, distortion
 
 
-#===============================================================================
+# =============================================================================
 # SUPPORT
-#===============================================================================
+# =============================================================================
 
 def hap_in_env_coords(nw, env):
     """Generates the coordinates for the kmeans algorithm
@@ -150,7 +150,7 @@ def hap_in_env_coords(nw, env):
 
 
 def nw2obs(nw, envs, whiten=False, coordc=None):
-    """Convert a given enviroments defined by ``fact_attrs``
+    """Convert any given enviroments defined by ``fact_attrs``
     of a network to observation matrix to cluster with subjacent *scipy kmeans*
 
     Parameters
@@ -202,7 +202,7 @@ def nw2obs(nw, envs, whiten=False, coordc=None):
     """
     if not isinstance(nw, db.YatelNetwork):
         msg = "nw must be 'yatel.db.YatelNetwork' instance"
-        raise TypeError(ms)
+        raise TypeError(msg)
     coordc = hap_in_env_coords if coordc is None else coordc
     mtx = []
     for idx, env in enumerate(envs):
@@ -214,9 +214,9 @@ def nw2obs(nw, envs, whiten=False, coordc=None):
     return obs
 
 
-#===============================================================================
+# =============================================================================
 # MAIN
-#===============================================================================
+# =============================================================================
 
 if __name__ == "__main__":
     print(__doc__)
