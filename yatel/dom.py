@@ -187,7 +187,7 @@ class Descriptor(YatelDOM):
     def __repr__(self):
         """x.__repr__() <==> repr(x)"""
         cls = type(self).__name__
-        desc = self.uri
+        desc = super(Descriptor, self).__repr__()
         at = hex(id(self))
         return "<{cls} '{desc}' at {at}>".format(cls=cls, desc=desc, at=at)
 
