@@ -22,7 +22,6 @@ serializable types.
 
 import decimal
 import datetime
-import inspect
 
 import numpy as np
 
@@ -57,7 +56,7 @@ TO_PYTHON_TYPES = {
     datetime.datetime:
         lambda x: datetime.datetime.strptime(x, "%Y-%m-%dT%H:%M:%S.%f"),
     datetime.time:
-        lambda x: datetime.datetime.strptime(s, "%H:%M:%S.%f").time(),
+        lambda x: datetime.datetime.strptime(x, "%H:%M:%S.%f").time(),
     datetime.date:
         lambda x: datetime.datetime.strptime(x, "%Y-%m-%d").date(),
     bool:
@@ -75,8 +74,8 @@ TO_PYTHON_TYPES = {
 TYPES_TO_NAMES = dict(
     (k, k.__name__)
     for k in TO_SIMPLE_TYPES.keys() +
-             list(CONTAINER_TYPES) +
-             list(HASHED_TYPES) + [type]
+    list(CONTAINER_TYPES) +
+    list(HASHED_TYPES) + [type]
 )
 TYPES_TO_NAMES[str] = unicode.__name__
 
@@ -147,7 +146,3 @@ def parse(obj):
 
 if __name__ == "__main__":
     print(__doc__)
-
-
-
-
