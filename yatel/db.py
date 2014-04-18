@@ -689,8 +689,8 @@ class YatelNetwork(object):
             sql.and_(
                 *[self.facts_table.c[k] == v for k, v in env.items()]
             )
-        )
-        query = sql.select([self.edges_table])
+        ).distinct()
+        query = sql.select([self.edges_table]).distinct()
         for cnt in range(self.describe().edge_attributes["max_nodes"]):
             alias = subquery.alias("sub_{}".format(cnt))
             attr = "hap_{}".format(cnt)
