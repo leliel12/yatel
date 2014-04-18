@@ -73,6 +73,16 @@ def sum(nw, env=None, **kwargs):
 
 
 def mode(nw, env=None, **kwargs):
+    """Calcula la moda sobre una red
+
+    Parameters
+    ----------
+    nw : yatel.db.YatelNetwork
+        La red sobre la que se desea calcular la estadistica
+    env: yatel.dom.Enviroment or dict like
+        Enviroment de filtrado para calcular este coso
+
+    """
     arr = env2weightarray(nw, env=env, **kwargs)
     cnt = collections.Counter(arr)
     value = np.max(cnt.values())

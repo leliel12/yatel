@@ -109,6 +109,7 @@ def simplifier(obj):
         obj = np2py(obj)
     elif isinstance(obj, np.ndarray):
         obj = obj.tolist()
+    import ipdb; ipdb.set_trace()
 
     typename = TYPES_TO_NAMES[type(obj)]
     value = ""

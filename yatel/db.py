@@ -686,16 +686,13 @@ class YatelNetwork(object):
         env.update(kwargs)
         where = sql.and_(*[self.facts_table.c[k] == v
                            for k, v in env.items()])
+        query = sql.select([self.facts_table.c.hap_id]).where(where).distinct()
+        print tuple(self.execute(query))
 
-        joins = sql.or_(*[v == self.facts_table.c.hap_id
-                          for k, v in self.edges_table.c.items()
-                          if k.startswith("hap_")])
+        print query
 
-        query = sql.select([self.edges_table]).select_from(
-            self.edges_table.join(self.facts_table, joins)
-        ).where(where).distinct()
-        for row in self.execute(query):
-            yield self._row2edge(row)
+
+
 
     def edges_by_haplotype(self, hap):
         """Iterates over all the edges of a given ``dom.Haplotype``.
