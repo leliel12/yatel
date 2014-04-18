@@ -684,15 +684,21 @@ class YatelNetwork(object):
         """
         env = dict(env) if env else {}
         env.update(kwargs)
-        where = sql.and_(*[self.facts_table.c[k] == v
-                           for k, v in env.items()])
-        query = sql.select([self.facts_table.c.hap_id]).where(where).distinct()
-        print tuple(self.execute(query))
 
-        print query
-
-
-
+        subquery = sql.select([self.facts_table.c.hap_id]).where(
+            sql.and_(
+                *[self.facts_table.c[k] == v for k, v in env.items()]
+            )
+        )
+        query = sql.select([self.edges_table])
+        for cnt in range(self.describe().edge_attributes["max_nodes"]):
+            alias = subquery.alias("sub_{}".format(cnt))
+            attr = "hap_{}".format(cnt)
+            query = query.select_from(alias).where(
+                self.edges_table.c[attr] == alias.c.hap_id
+            )
+        for row in self.execute(query):
+            yield self._row2edge(row)
 
     def edges_by_haplotype(self, hap):
         """Iterates over all the edges of a given ``dom.Haplotype``.
