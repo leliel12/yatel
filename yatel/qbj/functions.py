@@ -474,6 +474,7 @@ def islower(nw, string):
 def swapcase(nw, string):
     return string.swapcase()
 
+
 @qbjfunction()
 def replace(nw, string, old, new, count=None):
     if count is None:
