@@ -218,7 +218,7 @@ def variation(nw, env=None, **kwargs):
 
 
 #===============================================================================
-# NATIVE QBJ FUNCTIONS
+# GENERIC ITERATION
 #===============================================================================
 
 @qbjfunction()
@@ -232,6 +232,43 @@ def slice(nw, iterable, f, t=None):
 @qbjfunction()
 def size(nw, iterable):
     return len(iterable)
+
+
+@qbjfunction()
+def sort(nw, iterable, key=None, default_key=None, reverse=False):
+    def keyextractor(elem):
+        if hasattr(elem, "__getitem__"):
+            return elem.get(key, default_key)
+        return getattr(elem, key, default_key)
+
+    if key is None:
+        return sorted(iterable, reverse=reverse)
+    if isinstance(key, int):
+        return sorted(iterable, key=keyextractor, sorted=sorted)
+
+
+@qbjfunction()
+def index(nw, iterable, value, start=None, end=None):
+    try:
+        if start is None and end is None:
+            return iterable.index(value)
+        if end is None:
+            return iterable.index(value, start)
+        return iterable.index(value, start, end)
+    except:
+        return -1
+
+
+@qbjfunction()
+def rindex(nw, iterable, value, start=None, end=None):
+    try:
+        if start is None and end is None:
+            return iterable.rindex(value)
+        if end is None:
+            return iterable.rindex(value, start)
+        return iterable.rindex(value, start, end)
+    except:
+        return -1
 
 
 #==============================================================================
@@ -310,6 +347,138 @@ def xroot(nw, radix, root):
 @qbjfunction()
 def count(nw, iterable, to_count):
     return collections.Counter(iterable)[to_count]
+
+
+#==============================================================================
+# STRING
+#==============================================================================
+
+@qbjfunction()
+def split(nw, string, s=None, maxsplit=None):
+    if s is None ans maxsplit is None:
+        return string.split()
+    elif maxsplit is None:
+        return string.split(s)
+    return string.split(s, maxsplit)
+
+
+@qbjfunction()
+def rsplit(nw, string, s=None, maxsplit=None):
+    if s is None ans maxsplit is None:
+        return string.rsplit()
+    elif maxsplit is None:
+        return string.rsplit(s)
+    return string.rsplit(s, maxsplit)
+
+
+@qbjfunciton()
+def strip(nw, string, chars=None):
+    if chars is None:
+        return string.strip()
+    return string.strip(chars)
+
+
+@qbjfunciton()
+def lstrip(nw, string, chars=None):
+    if chars is None:
+        return lstring.strip()
+    return lstring.strip(chars)
+
+
+@qbjfunciton()
+def rstrip(nw, string, chars=None):
+    if chars is None:
+        return rstring.strip()
+    return rstring.strip(chars)
+
+
+@qbjfunction()
+def join(nw, joiner, to_join):
+    return joiner.join(to_join)
+
+
+@qbjfunction()
+def upper(nw, string):
+    return string.upper()
+
+
+@qbjfunction()
+def lower(nw, string):
+    return string.lower()
+
+
+@qbjfunction()
+def title(nw, string):
+    return string.title()
+
+
+@qbjfunction()
+def capitalize(nw, string):
+    return string.capitalize()
+
+
+@qbjfunction()
+def isalnum(nw, string):
+    return string.isalnum()
+
+
+@qbjfunction()
+def isalpha(nw, string):
+    return string.isalpha()
+
+
+@qbjfunction()
+def isdigit(nw, string):
+    return string.isdigit()
+
+
+@qbjfunction()
+def startswith(nw, string, suffix, start=None, end=None):
+    if start is None and end is None:
+        return string.startswith(suffix)
+    if end is None:
+        return string.startswith(suffix, start)
+    return string.startsswith(suffix, start, end)
+
+
+@qbjfunction()
+def endswith(nw, string, suffix, start=None, end=None):
+    if start is None and end is None:
+        return string.endswith(suffix)
+    if end is None:
+        return string.endswith(suffix, start)
+    return string.endsswith(suffix, start, end)
+
+
+@qbjfunction()
+def istitle(nw, string):
+    return string.istitle()
+
+
+@qbjfunction()
+def isupper(nw, string):
+    return string.isupper()
+
+
+@qbjfunction()
+def isspace(nw, string):
+    return string.isspace()
+
+
+@qbjfunction()
+def islower(nw, string):
+    return string.islower()
+
+
+@qbjfunction()
+def swapcase(nw, string):
+    return string.swapcase()
+
+@qbjfunction()
+def replace(nw, string, old, new, count=None):
+    if count is None:
+        return string.replace(old, new)
+    return string.replace(old, new, count)
 
 
 #===============================================================================
