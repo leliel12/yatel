@@ -355,7 +355,7 @@ def count(nw, iterable, to_count):
 
 @qbjfunction()
 def split(nw, string, s=None, maxsplit=None):
-    if s is None ans maxsplit is None:
+    if s is None and maxsplit is None:
         return string.split()
     elif maxsplit is None:
         return string.split(s)
@@ -364,28 +364,28 @@ def split(nw, string, s=None, maxsplit=None):
 
 @qbjfunction()
 def rsplit(nw, string, s=None, maxsplit=None):
-    if s is None ans maxsplit is None:
+    if s is None and maxsplit is None:
         return string.rsplit()
     elif maxsplit is None:
         return string.rsplit(s)
     return string.rsplit(s, maxsplit)
 
 
-@qbjfunciton()
+@qbjfunction()
 def strip(nw, string, chars=None):
     if chars is None:
         return string.strip()
     return string.strip(chars)
 
 
-@qbjfunciton()
+@qbjfunction()
 def lstrip(nw, string, chars=None):
     if chars is None:
         return lstring.strip()
     return lstring.strip(chars)
 
 
-@qbjfunciton()
+@qbjfunction()
 def rstrip(nw, string, chars=None):
     if chars is None:
         return rstring.strip()
