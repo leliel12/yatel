@@ -17,7 +17,7 @@
 # IMPORTS
 #==============================================================================
 
-import hashlib, random, datetime
+import hashlib, random, datetime, collections
 
 from yatel import stats
 from yatel.qbj import functions
@@ -296,6 +296,12 @@ class FunctionTest(YatelTestCase):
             rs = self.execute("slice", iterable=iterable, f=il)
             self.assertEqual(orig, rs)
 
+    def test_size(self):
+        iterable = [idx for idx in self.rrange(1, 1000)]
+        orig = len(iterable)
+        rs = self.execute("size", iterable=iterable)
+        self.assertEqual(orig, rs)
+
     def test_utcnow(self):
         orig = datetime.datetime.utcnow()
         rs = self.execute("utcnow")
@@ -325,6 +331,52 @@ class FunctionTest(YatelTestCase):
         orig = datetime.datetime.now().time()
         rs = self.execute("time")
         self.assertAproxDatetime(orig, rs)
+
+    def test_minus(self):
+        a = random.randint(100, 1000)
+        b = random.randint(100, 1000)
+        orig = a - b
+        rs = self.execute("minus", minuend=a, sust=b)
+        self.assertEqual(orig, rs)
+
+    def test_times(self):
+        a = random.randint(100, 1000)
+        b = random.randint(100, 1000)
+        orig = a * b
+        rs = self.execute("times", t0=a, t1=b)
+        self.assertEqual(orig, rs)
+
+    def test_div(self):
+        a = random.randint(100, 1000)
+        b = float(random.randint(100, 1000))
+        orig = a / b
+        rs = self.execute("div", dividend=a, divider=b)
+        self.assertAlmostEqual(orig, rs, places=4)
+
+    def test_floor(self):
+        a = random.randint(100, 1000)
+        b = float(random.randint(100, 1000))
+        orig = a % b
+        rs = self.execute("floor", dividend=a, divider=b)
+        self.assertAlmostEqual(orig, rs, places=4)
+
+    def test_pow(self):
+        a = random.randint(100, 1000)
+        b = random.randint(100, 1000)
+        orig = a ** b
+        rs = self.execute("pow", radix=a, exp=b)
+        self.assertAlmostEqual(orig, rs, places=4)
+
+    def test_xroot(self):
+        rs = self.execute("xroot", radix=8, root=3)
+        self.assertAlmostEqual(2, rs, places=4)
+
+    def test_count(self):
+        iterable = [idx for idx in self.rrange(1, 100)]
+        counter = collections.Counter(iterable)
+        for elem, orig in counter.items():
+            rs = self.execute("count", iterable=iterable, to_count=elem)
+            self.assertEqual(orig, rs)
 
 
 #==============================================================================

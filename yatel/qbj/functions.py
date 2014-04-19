@@ -23,7 +23,7 @@ from yatel import stats, db
 # MAP
 #===============================================================================
 
-FUNCTIONS = {}
+FUNCTIONS = collections.OrderedDict()
 
 
 #==============================================================================
@@ -54,7 +54,7 @@ def qbjfunction(name=None, doc=None):
 
 
 def execute(name, nw, *args, **kwargs):
-    return FUNCTIONS[name].func(nw, *args, **kwargs)
+    return FUNCTIONS[name].func(nw=nw, *args, **kwargs)
 
 
 #==============================================================================
@@ -207,6 +207,11 @@ def slice(nw, iterable, f, t=None):
     return iterable[f:t]
 
 
+@qbjfunction()
+def size(nw, iterable):
+    return len(iterable)
+
+
 #==============================================================================
 # DATE AND TIME
 #==============================================================================
@@ -244,6 +249,45 @@ def utctime(nw, *args, **kwargs):
 @qbjfunction
 def get_from_time(nw, datetime_instance, dtformat, *args, **kwargs):
     return datetime_instance.strftime(dtformat)
+
+
+#==============================================================================
+# ARITMETICS
+#==============================================================================
+
+@qbjfunction()
+def minus(nw, minuend, sust):
+    return minuend - sust
+
+
+@qbjfunction()
+def times(nw, t0, t1):
+    return t0 * t1
+
+
+@qbjfunction()
+def div(nw, dividend, divider):
+    return dividend / float(divider)
+
+
+@qbjfunction()
+def floor(nw, dividend, divider):
+    return dividend % float(divider)
+
+
+@qbjfunction()
+def pow(nw, radix, exp):
+    return radix ** exp
+
+
+@qbjfunction()
+def xroot(nw, radix, root):
+    return radix ** (1/float(root))
+
+
+@qbjfunction()
+def count(nw, iterable, to_count):
+    return collections.Counter(iterable)[to_count]
 
 
 #===============================================================================
