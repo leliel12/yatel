@@ -45,6 +45,16 @@ class FunctionTest(YatelTestCase):
         nw = self.nw if nw is None else nw
         return functions.execute(name, nw, *args, **kwargs)
 
+    def test_help(self):
+        orig = list(functions.FUNCTIONS.keys())
+        rs = self.execute("help")
+        self.assertSameUnsortedContent(orig, rs)
+        for fname, fdata in functions.FUNCTIONS.items():
+            orig = functions.pformat_data(fname)
+            rs = self.execute("help", fname=fname)
+            self.assertEquals(orig, rs)
+
+
     def test_haplotypes(self):
         orig = tuple(self.nw.haplotypes())
         rs = tuple(self.execute("haplotypes"))

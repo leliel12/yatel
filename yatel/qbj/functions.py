@@ -25,6 +25,8 @@ from yatel import stats, db
 
 FUNCTIONS = collections.OrderedDict()
 
+PRIVATE_FUNC_DATA = ["func"]
+
 
 #==============================================================================
 # CLASS
@@ -53,8 +55,28 @@ def qbjfunction(name=None, doc=None):
     return _dec
 
 
+def pformat_data(fname):
+    fdata = FUNCTIONS[fname]
+    data = {}
+    for k, v in fdata._asdict().items():
+        if k not in PRIVATE_FUNC_DATA:
+            data[k] = v
+    return data
+
+
 def execute(name, nw, *args, **kwargs):
     return FUNCTIONS[name].func(nw=nw, *args, **kwargs)
+
+
+#==============================================================================
+# HELP FUNCTION
+#==============================================================================
+
+@qbjfunction()
+def help(nw, fname=None):
+    if fname is None:
+        return list(FUNCTIONS.keys())
+    return pformat_data(fname)
 
 
 #==============================================================================
