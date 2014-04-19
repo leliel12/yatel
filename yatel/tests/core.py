@@ -130,6 +130,13 @@ class YatelTestCase(unittest.TestCase):
         if self.conn()["engine"] == "sqlite":
             os.remove(self.conn()["database"])
 
+    def assertAproxDatetime(self, dt0, dt1):
+        self.assertEqual(
+            dt0.isoformat().rsplit(".", 1)[0],
+            dt1.isoformat().rsplit(".", 1)[0]
+        )
+
+
     def assertSameUnsortedContent(self, i0, i1):
         i0 = list(sorted(i0))
         i1 = list(i1)

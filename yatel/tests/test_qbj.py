@@ -17,7 +17,7 @@
 # IMPORTS
 #==============================================================================
 
-import hashlib, random
+import hashlib, random, datetime
 
 from yatel import stats
 from yatel.qbj import functions
@@ -295,6 +295,36 @@ class FunctionTest(YatelTestCase):
             orig = iterable[il:]
             rs = self.execute("slice", iterable=iterable, f=il)
             self.assertEqual(orig, rs)
+
+    def test_utcnow(self):
+        orig = datetime.datetime.utcnow()
+        rs = self.execute("utcnow")
+        self.assertAproxDatetime(orig, rs)
+
+    def test_utctime(self):
+        orig = datetime.datetime.utcnow().time()
+        rs = self.execute("utctime")
+        self.assertAproxDatetime(orig, rs)
+
+    def test_utctoday(self):
+        orig = datetime.datetime.utcnow().date()
+        rs = self.execute("utctoday")
+        self.assertAproxDatetime(orig, rs)
+
+    def test_today(self):
+        orig = datetime.date.today()
+        rs = self.execute("today")
+        self.assertAproxDatetime(orig, rs)
+
+    def test_now(self):
+        orig = datetime.datetime.now()
+        rs = self.execute("now")
+        self.assertAproxDatetime(orig, rs)
+
+    def test_time(self):
+        orig = datetime.datetime.now().time()
+        rs = self.execute("time")
+        self.assertAproxDatetime(orig, rs)
 
 
 #==============================================================================

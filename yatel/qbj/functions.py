@@ -14,6 +14,7 @@
 #===============================================================================
 
 import inspect, collections
+import datetime as dt
 
 from yatel import stats, db
 
@@ -205,6 +206,44 @@ def slice(nw, iterable, f, t=None):
         return iterable[f:]
     return iterable[f:t]
 
+
+#==============================================================================
+# DATE AND TIME
+#==============================================================================
+
+@qbjfunction()
+def now(nw, *args, **kwargs):
+    return dt.datetime.now()
+
+
+@qbjfunction()
+def utcnow(nw, *args, **kwargs):
+    return dt.datetime.utcnow()
+
+
+@qbjfunction()
+def today(nw, *args, **kwargs):
+    return dt.date.today()
+
+
+@qbjfunction()
+def utctoday(nw, *args, **kwargs):
+    return dt.datetime.utcnow().date()
+
+
+@qbjfunction()
+def time(nw, *args, **kwargs):
+    return dt.datetime.now().time()
+
+
+@qbjfunction()
+def utctime(nw, *args, **kwargs):
+    return dt.datetime.utcnow().time()
+
+
+@qbjfunction
+def get_from_time(nw, datetime_instance, dtformat, *args, **kwargs):
+    return datetime_instance.strftime(dtformat)
 
 
 #===============================================================================
