@@ -6,190 +6,322 @@
 # you can do whatever you want with this stuff. If we meet some day, and you
 # think this stuff is worth it, you can buy us a WISKEY in return.
 
-#===============================================================================
+#==============================================================================
 # DOC
-#===============================================================================
+#==============================================================================
 
 """yatel.qbj package tests"""
 
 
-#===============================================================================
+#==============================================================================
 # IMPORTS
-#===============================================================================
+#==============================================================================
 
-import random, datetime, json, StringIO
+import hashlib, random
 
-import jsonschema
+from yatel import stats
+from yatel.qbj import functions
 
-from yatel import qbj, stats, dom, typeconv
 from yatel.tests.core import YatelTestCase
-from yatel.tests import queries
 
 
-#===============================================================================
-# VALIDATE TESTS
-#===============================================================================
-
-class _ValidateFunctionTest(YatelTestCase):
-
-    def setUp(self):
-        pass
-
-    def _test_validquery(self):
-        for query in queries.VALID:
-            qbj.validate(query)
-
-
-#===============================================================================
-# QBJ TEST
-#===============================================================================
+#==============================================================================
+# FUNCTION_TESTS
+#==============================================================================
 
 class FunctionTest(YatelTestCase):
 
-    def setUp(self):
-        super(FunctionTest, self).setUp()
-        self.wrapped = qbj.wrap_network(self.nw)
+    _tested = set()
 
-    def test_all_functions(self):
-        comps = {
+    @classmethod
+    def tearDownClass(cls):
+        for k in functions.FUNCTIONS.keys():
+            if k not in cls._tested:
+                msg = "Please test QBJFunction '{}'".format(k)
+                raise AssertionError(msg)
 
-            # directly map to network
-            "describe": {"cto": self.nw.describe},
-            "enviroments": {"cto": self.nw.enviroments,
-                            "precmp": list, "args": [["place", "native"]]},
-            "haplotypes": {"cto": self.nw.haplotypes, "precmp": list},
-            "haplotype_by_id": {"cto": self.nw.haplotype_by_id,
-                                "args": [random.choice(self.haps_ids)]},
-            "haplotypes_by_enviroment": {
-                "cto": self.nw.haplotypes_by_enviroment, "precmp": list,
-                "kwargs": {"place": "Mordor", "native": True}
-            },
+    def execute(self, name, nw=None, *args, **kwargs):
+        self._tested.add(name)
+        nw = self.nw if nw is None else nw
+        return functions.execute(name, nw, *args, **kwargs)
 
-            "facts": {"cto": self.nw.facts, "precmp": list},
-            "facts_by_haplotype": {
-                "cto": self.nw.facts_by_haplotype, "precmp": list,
-                "args": [self.nw.haplotype_by_id(random.choice(self.haps_ids))]
-            },
-            "facts_by_enviroment": {
-                "cto": self.nw.facts_by_enviroment, "precmp": list,
-                "kwargs": {"place": "Mordor", "native": True}
-            },
+    def test_haplotypes(self):
+        orig = tuple(self.nw.haplotypes())
+        rs = tuple(self.execute("haplotypes"))
+        self.assertSameUnsortedContent(rs, orig)
 
-            "edges": {"cto": self.nw.edges, "precmp": list},
-            "edges_by_haplotype": {
-                "cto": self.nw.edges_by_haplotype, "precmp": list,
-                "args": [self.nw.haplotype_by_id(random.choice(self.haps_ids))]
-            },
-            "edges_by_enviroment": {
-                "cto": self.nw.edges_by_enviroment, "precmp": list,
-                "kwargs": {"place": "Mordor", "native": True}
-            },
+    def test_haplotype_by_id(self):
+        orig = self.rchoice(self.nw.haplotypes())
+        rs = self.execute("haplotype_by_id", hap_id=orig.hap_id)
+        self.assertEqual(rs, orig)
 
-            # stats
-            "amin": {
-                "cto": lambda *a, **k: stats.amin(self.nw, *a, **k),
-                "kwargs": {"place": "Mordor", "native": True}
-            },
-            "amax": {
-                "cto": lambda *a, **k: stats.amax(self.nw, *a, **k),
-                "kwargs": {"place": "Mordor", "native": True}
-            },
-            "average": {
-                "cto": lambda *a, **k: stats.average(self.nw, *a, **k),
-                "kwargs": {"place": "Mordor", "native": True}
-            },
-            "env2weightarray": {
-                "cto": lambda *a, **k: stats.env2weightarray(self.nw, *a, **k),
-                "precmp": list, "kwargs": {"place": "Mordor", "native": True}
-            },
-            "kurtosis": {
-                "cto": lambda *a, **k: stats.kurtosis(self.nw, *a, **k),
-                "kwargs": {"place": "Mordor", "native": True}
-            },
-            "min": {
-                "cto": lambda *a, **k: stats.min(self.nw, *a, **k),
-                "kwargs": {"place": "Mordor", "native": True}
-            },
-            "median": {
-                "cto": lambda *a, **k: stats.median(self.nw, *a, **k),
-                "kwargs": {"place": "Mordor", "native": True}
-            },
-            "max": {
-                "cto": lambda *a, **k: stats.max(self.nw, *a, **k),
-                "kwargs": {"place": "Mordor", "native": True}
-            },
-            "mode": {
-                "cto": lambda *a, **k: stats.mode(self.nw, *a, **k),
-                "precmp": list, "kwargs": {"place": "Mordor", "native": True}
-            },
-            "percentile": {
-                "cto": lambda *a, **k: stats.percentile(self.nw, *a, **k),
-                "kwargs": {"place": "Mordor", "native": True, "q": (25, 55, 60)}
-            },
-            "range": {
-                "cto": lambda *a, **k: stats.range(self.nw, *a, **k),
-                "kwargs": {"place": "Mordor", "native": True}
-            },
-            "std": {
-                "cto": lambda *a, **k: stats.std(self.nw, *a, **k),
-                "kwargs": {"place": "Mordor", "native": True}
-            },
-            "sum": {
-                "cto": lambda *a, **k: stats.sum(self.nw, *a, **k),
-                "kwargs": {"place": "Mordor", "native": True}
-            },
-            "var": {
-                "cto": lambda *a, **k: stats.var(self.nw, *a, **k),
-                "kwargs": {"place": "Mordor", "native": True}
-            },
-            "variation": {
-                "cto": lambda *a, **k: stats.variation(self.nw, *a, **k),
-                "kwargs": {"place": "Mordor", "native": True}
-            },
+    def test_haplotypes_by_enviroment(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            orig = tuple(self.nw.haplotypes_by_enviroment(env))
+            rs = tuple(self.execute("haplotypes_by_enviroment", env=env))
+            self.assertSameUnsortedContent(rs, orig)
+
+    def test_edges(self):
+        orig = tuple(self.nw.edges())
+        rs = tuple(self.execute("edges"))
+        self.assertSameUnsortedContent(rs, orig)
+
+    def test_edges_by_haplotype(self):
+        hap = self.rchoice(self.nw.haplotypes())
+        orig = tuple(self.nw.edges_by_haplotype(hap))
+        rs = tuple(self.execute("edges_by_haplotype", hap=hap))
+        self.assertEqual(rs, orig)
+
+    def test_edges_by_enviroment(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            orig = tuple(self.nw.edges_by_enviroment(env))
+            rs = tuple(self.execute("edges_by_enviroment", env=env))
+            self.assertSameUnsortedContent(rs, orig)
+
+    def test_facts(self):
+        orig = tuple(self.nw.facts())
+        rs = tuple(self.execute("facts"))
+        self.assertSameUnsortedContent(rs, orig)
+
+    def test_facts_by_haplotype(self):
+        hap = self.rchoice(self.nw.haplotypes())
+        orig = tuple(self.nw.facts_by_haplotype(hap))
+        rs = tuple(self.execute("facts_by_haplotype", hap=hap))
+        self.assertEqual(rs, orig)
+
+    def test_facts_by_enviroment(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            orig = tuple(self.nw.facts_by_enviroment(env))
+            rs = tuple(self.execute("facts_by_enviroment", env=env))
+            self.assertSameUnsortedContent(rs, orig)
+
+    def test_describe(self):
+        orig = self.nw.describe()
+        rs = self.execute("describe")
+        self.assertEqual(rs, orig)
+
+    def test_enviroments(self):
+        orig = tuple(self.nw.enviroments())
+        rs = tuple(self.execute("enviroments"))
+        self.assertSameUnsortedContent(rs, orig)
+
+    def test_env2weightarray(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            orig = list(stats.env2weightarray(self.nw, env))
+            rs = list(self.execute("env2weightarray", env=env))
+            self.assertEqual(orig, rs)
+
+    def test_min(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            arr = stats.env2weightarray(self.nw, env)
+            if len(arr):
+                orig_nw = stats.min(self.nw, env)
+                rs_nw = self.execute("min", env=env)
+                orig_arr = stats.min(arr)
+                rs_arr = self.execute("min", nw=arr)
+                self.assertTrue(
+                    orig_nw == rs_nw and rs_nw == orig_arr and
+                    orig_arr == rs_arr and rs_arr == orig_nw
+                )
+
+    def test_sum(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            arr = stats.env2weightarray(self.nw, env)
+            if len(arr):
+                orig_nw = stats.sum(self.nw, env)
+                rs_nw = self.execute("sum", env=env)
+                orig_arr = stats.sum(arr)
+                rs_arr = self.execute("sum", nw=arr)
+                self.assertAlmostEqual(orig_nw, rs_nw, places=4)
+                self.assertAlmostEqual(orig_arr, rs_arr, places=4)
+                self.assertAlmostEqual(orig_nw, orig_arr, places=4)
+
+    def test_var(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            arr = stats.env2weightarray(self.nw, env)
+            if len(arr):
+                orig_nw = stats.var(self.nw, env)
+                rs_nw = self.execute("var", env=env)
+                orig_arr = stats.var(arr)
+                rs_arr = self.execute("var", nw=arr)
+                self.assertAlmostEqual(orig_nw, rs_nw, places=4)
+                self.assertAlmostEqual(orig_arr, rs_arr, places=4)
+                self.assertAlmostEqual(orig_nw, orig_arr, places=4)
+
+    def test_mode(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            arr = stats.env2weightarray(self.nw, env)
+            if len(arr):
+                orig_nw = list(stats.mode(self.nw, env))
+                rs_nw = list(self.execute("mode", env=env))
+                orig_arr = list(stats.mode(arr))
+                rs_arr = list(self.execute("mode", nw=arr))
+                self.assertEqual(orig_nw, rs_nw)
+                self.assertEqual(orig_arr, rs_arr)
+                self.assertEqual(orig_nw, orig_arr)
+
+    def test_max(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            arr = stats.env2weightarray(self.nw, env)
+            if len(arr):
+                orig_nw = stats.max(self.nw, env)
+                rs_nw = self.execute("max", env=env)
+                orig_arr = stats.max(arr)
+                rs_arr = self.execute("max", nw=arr)
+                self.assertAlmostEqual(orig_nw, rs_nw, places=4)
+                self.assertAlmostEqual(orig_arr, rs_arr, places=4)
+                self.assertAlmostEqual(orig_nw, orig_arr, places=4)
+
+    def test_variation(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            arr = stats.env2weightarray(self.nw, env)
+            if len(arr):
+                orig_nw = stats.variation(self.nw, env=env)
+                rs_nw = self.execute("variation", env)
+                orig_arr = stats.variation(arr)
+                rs_arr = self.execute("variation", nw=arr)
+                self.assertAlmostEqual(orig_nw, rs_nw, places=4)
+                self.assertAlmostEqual(orig_arr, rs_arr, places=4)
+                self.assertAlmostEqual(orig_nw, orig_arr, places=4)
+
+    def test_kurtosis(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            arr = stats.env2weightarray(self.nw, env)
+            if len(arr):
+                orig_nw = stats.kurtosis(self.nw, env)
+                rs_nw = self.execute("kurtosis", env=env)
+                orig_arr = stats.kurtosis(arr)
+                rs_arr = self.execute("kurtosis", nw=arr)
+                self.assertAlmostEqual(orig_nw, rs_nw, places=4)
+                self.assertAlmostEqual(orig_arr, rs_arr, places=4)
+                self.assertAlmostEqual(orig_nw, orig_arr, places=4)
+
+    def test_amax(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            arr = stats.env2weightarray(self.nw, env)
+            if len(arr):
+                orig_nw = stats.amax(self.nw, env)
+                rs_nw = self.execute("amax", env=env)
+                orig_arr = stats.amax(arr)
+                rs_arr = self.execute("amax", nw=arr)
+                self.assertAlmostEqual(orig_nw, rs_nw, places=4)
+                self.assertAlmostEqual(orig_arr, rs_arr, places=4)
+                self.assertAlmostEqual(orig_nw, orig_arr, places=4)
+
+    def test_std(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            arr = stats.env2weightarray(self.nw, env)
+            if len(arr):
+                orig_nw = stats.std(self.nw, env)
+                rs_nw = self.execute("std", env=env)
+                orig_arr = stats.std(arr)
+                rs_arr = self.execute("std", nw=arr)
+                self.assertAlmostEqual(orig_nw, rs_nw, places=4)
+                self.assertAlmostEqual(orig_arr, rs_arr, places=4)
+                self.assertAlmostEqual(orig_nw, orig_arr, places=4)
+
+    def test_amin(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            arr = stats.env2weightarray(self.nw, env)
+            if len(arr):
+                orig_nw = stats.amin(self.nw, env)
+                rs_nw = self.execute("amin", env=env)
+                orig_arr = stats.amin(arr)
+                rs_arr = self.execute("amin", nw=arr)
+                self.assertAlmostEqual(orig_nw, rs_nw, places=4)
+                self.assertAlmostEqual(orig_arr, rs_arr, places=4)
+                self.assertAlmostEqual(orig_nw, orig_arr, places=4)
+
+    def test_average(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            arr = stats.env2weightarray(self.nw, env)
+            if len(arr):
+                orig_nw = stats.average(self.nw, env)
+                rs_nw = self.execute("average", env=env)
+                orig_arr = stats.average(arr)
+                rs_arr = self.execute("average", nw=arr)
+                self.assertAlmostEqual(orig_nw, rs_nw, places=4)
+                self.assertAlmostEqual(orig_arr, rs_arr, places=4)
+                self.assertAlmostEqual(orig_nw, orig_arr, places=4)
+
+    def test_median(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            arr = stats.env2weightarray(self.nw, env)
+            if len(arr):
+                orig_nw = stats.median(self.nw, env)
+                rs_nw = self.execute("median", env=env)
+                orig_arr = stats.median(arr)
+                rs_arr = self.execute("median", nw=arr)
+                self.assertAlmostEqual(orig_nw, rs_nw, places=4)
+                self.assertAlmostEqual(orig_arr, rs_arr, places=4)
+                self.assertAlmostEqual(orig_nw, orig_arr, places=4)
+
+    def test_range(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            arr = stats.env2weightarray(self.nw, env)
+            if len(arr):
+                orig_nw = stats.range(self.nw, env)
+                rs_nw = self.execute("range", env=env)
+                orig_arr = stats.range(arr)
+                rs_arr = self.execute("range", nw=arr)
+                self.assertAlmostEqual(orig_nw, rs_nw, places=4)
+                self.assertAlmostEqual(orig_arr, rs_arr, places=4)
+                self.assertAlmostEqual(orig_nw, orig_arr, places=4)
+
+    def test_percentile(self):
+        for env in list(self.nw.enviroments()) + [None]:
+            arr = stats.env2weightarray(self.nw, env)
+            if len(arr):
+                for q in range(0, 100):
+                    orig_nw = stats.percentile(self.nw, q, env)
+                    rs_nw = self.execute("percentile", q=q, env=env)
+                    orig_arr = stats.percentile(arr, q)
+                    rs_arr = self.execute("percentile", q=q, nw=arr)
+                    self.assertAlmostEqual(orig_nw, rs_nw, places=4)
+                    self.assertAlmostEqual(orig_arr, rs_arr, places=4)
+                    self.assertAlmostEqual(orig_nw, orig_arr, places=4)
+
+    def test_slice(self):
+        iterables = [
+            list(range(1000)), hashlib.sha512(str(random.random())).hexdigest()
+        ]
+        for iterable in iterables:
+            il = int(len(iterable) - len(iterable) / 3)
+            sl  = int(len(iterable) - len(iterable) / 4)
+            orig = iterable[il:sl]
+            rs = self.execute("slice", iterable=iterable, f=il, t=sl)
+            self.assertEqual(orig, rs)
+
+            orig = iterable[il:]
+            rs = self.execute("slice", iterable=iterable, f=il)
+            self.assertEqual(orig, rs)
 
 
-            # natives from qbj
-            "slice": {"cto": lambda x, f, t: x[f:t],
-                      "args": ["guilkmnbhgfyuiooijhg", 5, 8]},
-            "ping": {"cto": lambda: True},
-        }
-        for impfunc in self.wrapped.keys():
-            self.assertIn(impfunc, comps,
-                          "QBJ Function '{}' not tested".format(impfunc))
-        for fname, cmpdata in comps.items():
-            cto = cmpdata["cto"]
-            precmp = cmpdata.get("precmp", lambda x: x)
-            args = cmpdata.get("args", ())
-            kwargs = cmpdata.get("kwargs", {})
-            qbjvalue = precmp(self.wrapped.evaluate(fname, args, kwargs))
-            ctovalue = precmp(cto(*args, **kwargs))
-            self.assertEquals(qbjvalue, ctovalue, "Failed '{}'".format(fname))
-
-#===============================================================================
+#==============================================================================
 # QBJ
-#===============================================================================
+#==============================================================================
 
-class QBJEngineTest(YatelTestCase):
+#~ class QBJEngineTest(YatelTestCase):
+#~
+    #~ def setUp(self):
+        #~ super(QBJEngineTest, self).setUp()
+        #~ self.jnw = qbj.QBJEngine(self.nw)
+#~
+    #~ def test_valid_queries(self):
+        #~ for dictionary in queries.VALID:
+            #~ string = json.dumps(dictionary)
+            #~ stream = StringIO.StringIO(string)
+            #~ for q in [dictionary, string, stream]:
+                #~ result = self.jnw.execute(q, True)
+                #~ if result["error"]:
+                    #~ self.fail("\n".join(
+                        #~ [result["error_msg"], result["stack_trace"]])
+                    #~ )
 
-    def setUp(self):
-        super(QBJEngineTest, self).setUp()
-        self.jnw = qbj.QBJEngine(self.nw)
 
-    def test_valid_queries(self):
-        for dictionary in queries.VALID:
-            string = json.dumps(dictionary)
-            stream = StringIO.StringIO(string)
-            for q in [dictionary, string, stream]:
-                result = self.jnw.execute(q, True)
-                if result["error"]:
-                    self.fail("\n".join(
-                        [result["error_msg"], result["stack_trace"]])
-                    )
-
-
-#===============================================================================
+#==============================================================================
 # MAIN
-#===============================================================================
+#==============================================================================
 
 if __name__ == "__main__":
     print(__doc__)

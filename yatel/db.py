@@ -509,7 +509,7 @@ class YatelNetwork(object):
         self.validate_read()
         return self._engine.execute(query)
 
-    def enviroments(self, facts_attrs=[]):
+    def enviroments(self, facts_attrs=None):
         """Iterates over all convinations of enviroments of the given attrs
 
         **REQUIRE MODE:** r
@@ -536,6 +536,7 @@ class YatelNetwork(object):
         ...
 
         """
+        facts_attrs = facts_attrs or ()
         if "hap_id" in facts_attrs:
             raise ValueError("Invalid fact attr: 'hap_id'")
         if "id" in facts_attrs:

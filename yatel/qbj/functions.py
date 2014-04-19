@@ -13,171 +13,198 @@
 # IMPORTS
 #===============================================================================
 
-import inspect
+import inspect, collections
 
-from yatel import stats
+from yatel import stats, db
 
 
 #===============================================================================
 # MAP
 #===============================================================================
 
-#: Este ``dict`` contiene las funciones principales que se mapearan desde
-#: yatel a posibles sentencias json. Cada llave representa el nombre de la
-#: función dentro de YQBJ, por su parte los valores son siempre ``dicts`` que
-#: tienen llaves siempre opcionales.
-#:
-#: Valores:
-#:      "func": ``callable`` que indica que sera llamado a bajo nivel por esta
-#:                función. De no estar presente se asume que la función que se
-#:                llamará es un método interno (con el mismo nombre que la llave)
-#:                a la instancia de ``yatel.db.YatelNetwork`` que este siendo
-#:                mapeada. Solo se toma en cuenta si wrap es true.
-#:      "wrap": ``bool`` si es ``True`` la función se enmascarara adentro de otro
-#:              ``callable`` al cual se le enviara la instancia de
-#:              ``yatel.db.YatelNetwork`` con el nombre definido en *nwparam*
-#:      "nwparam": String que indica con que nombre se enviará la instancia de
-#:                 ``yatel.db.YatelNetwork`` a la función si *wrap* es True.
-#:                 Por defecto el valor es ``nw``
-#:      "sendnw": ``bool`` No se ejecuta en el contexto de la intancia de
-#:                ``yatel.db.YatelNetwork``, por lo cual no se envia el *nwparam*.
-#:                 por defecto en True
-FUNCTIONS = {
-    "haplotypes": {},
-    "haplotype_by_id": {},
-    "haplotypes_by_enviroment": {},
-    "edges": {},
-    "edges_by_haplotype": {},
-    "edges_by_enviroment": {},
-    "facts": {},
-    "facts_by_haplotype": {},
-    "facts_by_enviroment": {},
-    "describe": {},
-    "enviroments": {},
+FUNCTIONS = {}
 
-    # stats
-    "amax": {'wrap': True,  'func': stats.amax},
-    "amin": {'wrap': True,  'func': stats.amin },
-    "average": {'wrap': True,  'func': stats.average},
-    "env2weightarray": {'wrap': True,  'func': stats.env2weightarray},
-    "kurtosis": {'wrap': True,  'func': stats.kurtosis},
-    "max": {'wrap': True,  'func': stats.max},
-    "median": {'wrap': True,  'func': stats.median},
-    "min": {'wrap': True,  'func': stats.min},
-    "mode": {'wrap': True,  'func': stats.mode},
-    "percentile": {'wrap': True,  'func': stats.percentile},
-    "range": {'wrap': True,  'func': stats.range},
-    "std": {'wrap': True,  'func': stats.std},
-    "sum": {'wrap': True,  'func': stats.sum},
-    "var": {'wrap': True,  'func': stats.var},
-    "variation": {'wrap': True,  'func': stats.variation},
-}
+
+#==============================================================================
+# CLASS
+#==============================================================================
+
+QBJFunction = collections.namedtuple(
+    "QBJFunction", ["name", "doc", "func"]
+)
 
 
 #===============================================================================
 # REGISTER FUNCTION
 #===============================================================================
 
-def register_func(**kwargs):
+def qbjfunction(name=None, doc=None):
 
-    def _wraps(func):
-        name = kwargs.pop("name", None) or func.__name__
-        kwargs["func"] = func
-        FUNCTIONS[name] = kwargs
+    def _dec(func):
+        qbjfunc = QBJFunction(
+            name=name or func.__name__,
+            doc=doc or func.__doc__,
+            func=func
+        )
+        FUNCTIONS[qbjfunc.name] = qbjfunc
         return func
 
-    return _wraps
+    return _dec
 
 
-#===============================================================================
-# CLASSES
-#===============================================================================
-
-class WrappedCallable(object):
-    """Lambda with steroids"""
-
-    def __init__(self, fname, func, params):
-        if not hasattr(func, "__call__"):
-            raise TypeError("'func' must be callable")
-        self._func = func
-        self._params = params
-        self._fname = fname
-
-    def __call__(self, *args, **kwargs):
-        for k, v in self._params.items():
-            if k not in kwargs:
-                kwargs[k] = v
-        return self._func(*args, **kwargs)
+def execute(name, nw, *args, **kwargs):
+    return FUNCTIONS[name].func(nw, *args, **kwargs)
 
 
-class QBJFunction(object):
+#==============================================================================
+# YATEL NETWORK
+#==============================================================================
 
-    def __init__(self, fname, func, parser, doc, argspec):
-        self.fname = fname
-        self.func = func
-        self.parser = parser
-        self.doc = doc
-        self.argspec = argspec
+@qbjfunction(doc=db.YatelNetwork.haplotypes.__doc__)
+def haplotypes(nw):
+    return nw.haplotypes()
 
 
-class QBJContext(dict):
+@qbjfunction(doc=db.YatelNetwork.haplotype_by_id.__doc__)
+def haplotype_by_id(nw, hap_id):
+    return nw.haplotype_by_id(hap_id)
 
-    def evaluate(self, name, args, kwargs):
-        return self[name].func(*args, **kwargs)
+
+@qbjfunction(doc=db.YatelNetwork.haplotypes_by_enviroment.__doc__)
+def haplotypes_by_enviroment(nw, env=None, **kwargs):
+    return nw.haplotypes_by_enviroment(env=env, **kwargs)
+
+
+@qbjfunction(doc=db.YatelNetwork.edges.__doc__)
+def edges(nw):
+    return nw.edges()
+
+
+@qbjfunction(doc=db.YatelNetwork.edges_by_haplotype.__doc__)
+def edges_by_haplotype(nw, hap):
+    return nw.edges_by_haplotype(hap)
+
+
+@qbjfunction(doc=db.YatelNetwork.edges_by_enviroment.__doc__)
+def edges_by_enviroment(nw, env=None, **kwargs):
+    return nw.edges_by_enviroment(env=env, **kwargs)
+
+
+@qbjfunction(doc=db.YatelNetwork.facts.__doc__)
+def facts(nw):
+    return nw.facts()
+
+
+@qbjfunction(doc=db.YatelNetwork.facts_by_haplotype.__doc__)
+def facts_by_haplotype(nw, hap):
+    return nw.facts_by_haplotype(hap)
+
+
+@qbjfunction(doc=db.YatelNetwork.facts_by_enviroment.__doc__)
+def facts_by_enviroment(nw, env=None, **kwargs):
+    return nw.facts_by_enviroment(env=env, **kwargs)
+
+
+@qbjfunction(doc=db.YatelNetwork.describe.__doc__)
+def describe(nw):
+    return nw.describe()
+
+
+@qbjfunction(doc=db.YatelNetwork.enviroments.__doc__)
+def enviroments(nw, facts_attrs=None):
+    return nw.enviroments(facts_attrs=facts_attrs)
+
+
+#==============================================================================
+# STATS
+#==============================================================================
+
+@qbjfunction(doc=stats.amax.__doc__)
+def amax(nw, env=None, **kwargs):
+    return stats.amax(nw, env=env, **kwargs)
+
+
+@qbjfunction(doc=stats.amin.__doc__)
+def amin(nw, env=None, **kwargs):
+    return stats.amin (nw, env=env, **kwargs)
+
+
+@qbjfunction(doc=stats.average.__doc__)
+def average(nw, env=None, **kwargs):
+    return stats.average(nw, env=env, **kwargs)
+
+
+@qbjfunction(doc=stats.env2weightarray.__doc__)
+def env2weightarray(nw, env=None, **kwargs):
+    return stats.env2weightarray(nw, env=env, **kwargs)
+
+
+@qbjfunction(doc=stats.kurtosis.__doc__)
+def kurtosis(nw, env=None, **kwargs):
+    return stats.kurtosis(nw, env=env, **kwargs)
+
+
+@qbjfunction(doc=stats.max.__doc__)
+def max(nw, env=None, **kwargs):
+    return stats.max(nw, env=env, **kwargs)
+
+
+@qbjfunction(doc=stats.median.__doc__)
+def median(nw, env=None, **kwargs):
+    return stats.median(nw, env=env, **kwargs)
+
+
+@qbjfunction(doc=stats.min.__doc__)
+def min(nw, env=None, **kwargs):
+    return stats.min(nw, env=env, **kwargs)
+
+
+@qbjfunction(doc=stats.mode.__doc__)
+def mode(nw, env=None, **kwargs):
+    return stats.mode(nw, env=env, **kwargs)
+
+
+@qbjfunction(doc=stats.percentile.__doc__)
+def percentile(nw, q, env=None, **kwargs):
+    return stats.percentile(nw, q, env=env, **kwargs)
+
+
+@qbjfunction(doc=stats.range.__doc__)
+def range(nw, env=None, **kwargs):
+    return stats.range(nw, env=env, **kwargs)
+
+
+@qbjfunction(doc=stats.env2weightarray.__doc__)
+def std(nw, env=None, **kwargs):
+    return stats.std(nw, env=env, **kwargs)
+
+
+@qbjfunction(doc=stats.sum.__doc__)
+def sum(nw, env=None, **kwargs):
+    return stats.sum(nw, env=env, **kwargs)
+
+
+@qbjfunction(doc=stats.var.__doc__)
+def var(nw, env=None, **kwargs):
+    return stats.var(nw, env=env, **kwargs)
+
+
+@qbjfunction(doc=stats.variation.__doc__)
+def variation(nw, env=None, **kwargs):
+    return stats.variation(nw, env=env, **kwargs)
+
 
 #===============================================================================
 # NATIVE QBJ FUNCTIONS
 #===============================================================================
 
-@register_func(wrap=True, sendnw=False)
-def slice(iterable, f, t=None):
+@qbjfunction()
+def slice(nw, iterable, f, t=None):
     """Split the an iterable from Fth element to Tth element"""
     if t is None:
         return iterable[f:]
     return iterable[f:t]
 
-@register_func(wrap=True, sendnw=False)
-def ping():
-    "Return always True"
-    return True
-
-
-#===============================================================================
-# NETWORK WRAPPER
-#===============================================================================
-
-def wrap_network(nw):
-    wrapped_network = QBJContext()
-    default_parser = lambda x: x
-    for fname, fdata in FUNCTIONS.items():
-
-        wrapped_network_data = {}
-
-        func = None
-        doc = None
-        argspec = None
-        parser = fdata.get("parser") or default_parser
-
-        if fdata.get("wrap"):
-            sendnw = fdata.get("sendnw", True)
-            nwparam = fdata.get("nwparam") or "nw"
-            internalfunc = fdata.get("func")
-            params = {nwparam: nw} if sendnw else {}
-            func = WrappedCallable(fname, internalfunc, params)
-            doc = fdata["func"].__doc__ or ""
-            argspec = dict(inspect.getargspec(internalfunc)._asdict())
-            if nwparam in argspec["args"]:
-                argspec["args"].remove(nwparam)
-        else:
-            func = getattr(nw, fname)
-            doc = func.__doc__ or ""
-            argspec = dict(inspect.getargspec(func)._asdict())
-            argspec["args"].pop(0)
-
-        argspec["defaults"] = [(repr(type(d)), str(d))
-                                for d in argspec["defaults"] or ()]
-        wrapped_network[fname] = QBJFunction(fname, func, parser, doc, argspec)
-    return wrapped_network
 
 
 #===============================================================================

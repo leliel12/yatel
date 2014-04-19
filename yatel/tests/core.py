@@ -95,8 +95,8 @@ class YatelTestCase(unittest.TestCase):
                 attrs[k] = v()
             return attrs
 
-        haps_n = 10
-        facts_n = 100
+        haps_n = 5
+        facts_n = 10
         weight_calc = "ham"
 
         haps = []
@@ -131,7 +131,7 @@ class YatelTestCase(unittest.TestCase):
             os.remove(self.conn()["database"])
 
     def assertSameUnsortedContent(self, i0, i1):
-        i0 = list(i0)
+        i0 = list(sorted(i0))
         i1 = list(i1)
         while i0:
             elem = i0.pop()
@@ -148,6 +148,9 @@ class YatelTestCase(unittest.TestCase):
     def rrange(self, li, ls):
         top = random.randint(li, ls)
         return xrange(top)
+
+    def rchoice(self, iterable):
+        return random.choice(tuple(iterable))
 
 #===============================================================================
 # MAIN
