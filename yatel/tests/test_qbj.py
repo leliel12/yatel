@@ -388,6 +388,54 @@ class FunctionTest(YatelTestCase):
             rs = self.execute("count", iterable=iterable, to_count=elem)
             self.assertEqual(orig, rs)
 
+    def test_sort(self):
+        iterable = [idx for idx in self.rrange(1, 100)]
+        orig = list(sorted(iterable))
+        rs = self.execute("sort", iterable=iterable)
+        self.assertEquals(orig, rs)
+        orig = list(sorted(iterable, reverse=True))
+        rs = self.execute("sort", iterable=iterable, reverse=True)
+        self.assertEquals(orig, rs)
+
+        iterable = [
+            {"a": random.randint(1, 200)},
+            {"a": random.randint(1, 200)}
+        ]
+        orig = list(sorted(iterable, key=lambda e: e["a"]))
+        rs = self.execute("sort", iterable=iterable, key="a")
+        self.assertEquals(orig, rs)
+        orig = list(sorted(iterable, key=lambda e: e["a"], reverse=True))
+        rs = self.execute("sort", iterable=iterable, key="a", reverse=True)
+        self.assertEquals(orig, rs)
+
+        dkey = random.randint(1, 300)
+        orig = list(sorted(iterable, key=lambda e: dkey))
+        rs = self.execute("sort", iterable=iterable, key="b", dkey=dkey)
+        self.assertEquals(orig, rs)
+
+        Mock = collections.namedtuple("Mock", ["x"])
+        iterable = [
+            Mock(x=random.randint(1, 800)), Mock(x=random.randint(1, 800))
+        ]
+        orig = list(sorted(iterable, key=lambda e: e.x))
+        rs = self.execute("sort", iterable=iterable, key="x")
+        self.assertEquals(orig, rs)
+        orig = list(sorted(iterable, key=lambda e: e.x, reverse=True))
+        rs = self.execute("sort", iterable=iterable, key="x", reverse=True)
+        self.assertEquals(orig, rs)
+
+        dkey = random.randint(1, 300)
+        orig = list(sorted(iterable, key=lambda e: dkey))
+        rs = self.execute("sort", iterable=iterable, key="b", dkey=dkey)
+        self.assertEquals(orig, rs)
+
+
+
+        orig = list(sorted(iterable, key=lambda e: dkey, reverse=True))
+        rs = self.execute(
+            "sort", iterable=iterable, key="b", dkey=dkey, reverse=True
+        )
+        self.assertEquals(orig, rs)
 
 #==============================================================================
 # QBJ

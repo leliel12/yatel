@@ -235,16 +235,16 @@ def size(nw, iterable):
 
 
 @qbjfunction()
-def sort(nw, iterable, key=None, default_key=None, reverse=False):
+def sort(nw, iterable, key=None, dkey=None, reverse=False):
+
     def keyextractor(elem):
-        if hasattr(elem, "__getitem__"):
-            return elem.get(key, default_key)
-        return getattr(elem, key, default_key)
+        if isinstance(elem, collections.Mapping):
+            return elem.get(key, dkey)
+        return getattr(elem, key, dkey)
 
     if key is None:
         return sorted(iterable, reverse=reverse)
-    if isinstance(key, int):
-        return sorted(iterable, key=keyextractor, sorted=sorted)
+    return sorted(iterable, key=keyextractor, reverse=reverse)
 
 
 @qbjfunction()
