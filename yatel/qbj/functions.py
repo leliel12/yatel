@@ -369,15 +369,15 @@ def strip(nw, string, chars=None):
 @qbjfunction()
 def lstrip(nw, string, chars=None):
     if chars is None:
-        return lstring.strip()
-    return lstring.strip(chars)
+        return string.lstrip()
+    return string.lstrip(chars)
 
 
 @qbjfunction()
 def rstrip(nw, string, chars=None):
     if chars is None:
-        return rstring.strip()
-    return rstring.strip(chars)
+        return string.rstrip()
+    return string.rstrip(chars)
 
 
 @qbjfunction()

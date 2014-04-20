@@ -495,6 +495,69 @@ class FunctionTest(YatelTestCase):
             rs = self.execute("rsplit", string=string, s=joiner, maxsplit=1)
             self.assertEquals(orig, rs)
 
+    def test_strip(self):
+        string = " !{}! \n\t".format(
+            hashlib.sha512(str(random.random())).hexdigest()
+        )
+        orig = string.strip()
+        rs = self.execute("strip", string=string)
+        self.assertEquals(orig, rs)
+        self.assertFalse(rs.endswith(string[-1]))
+        self.assertFalse(rs.startswith(string[0]))
+
+        tostrip = hashlib.sha512(str(random.random())).hexdigest()
+        string = "{} !{}! {}".format(
+            tostrip, hashlib.sha512(str(random.random())).hexdigest(), tostrip
+        )
+        orig = string.strip(tostrip)
+        rs = self.execute("strip", string=string, chars=tostrip)
+        self.assertEquals(orig, rs)
+        self.assertFalse(rs.endswith(string[-1]))
+        self.assertFalse(rs.startswith(string[0]))
+
+    def test_lstrip(self):
+        string = " !{}! \n\t".format(
+            hashlib.sha512(str(random.random())).hexdigest()
+        )
+        orig = string.lstrip()
+        rs = self.execute("lstrip", string=string)
+        self.assertEquals(orig, rs)
+        self.assertTrue(rs.endswith(string[-1]))
+        self.assertFalse(rs.startswith(string[0]))
+
+        tostrip = hashlib.sha512(str(random.random())).hexdigest()
+        string = "{} !{}! {}".format(
+            tostrip, hashlib.sha512(str(random.random())).hexdigest(), tostrip
+        )
+        orig = string.lstrip(tostrip)
+        rs = self.execute("lstrip", string=string, chars=tostrip)
+        self.assertEquals(orig, rs)
+        self.assertTrue(rs.endswith(string[-1]))
+        self.assertFalse(rs.startswith(string[0]))
+
+    def test_rstrip(self):
+        string = " !{}! \n\t".format(
+            hashlib.sha512(str(random.random())).hexdigest()
+        )
+        orig = string.rstrip()
+        rs = self.execute("rstrip", string=string)
+        self.assertEquals(orig, rs)
+        self.assertFalse(rs.endswith(string[-1]))
+        self.assertTrue(rs.startswith(string[0]))
+
+        tostrip = hashlib.sha512(str(random.random())).hexdigest()
+        string = "{} !{}! {}".format(
+            tostrip, hashlib.sha512(str(random.random())).hexdigest(), tostrip
+        )
+        orig = string.rstrip(tostrip)
+        rs = self.execute("rstrip", string=string, chars=tostrip)
+        self.assertEquals(orig, rs)
+        self.assertFalse(rs.endswith(string[-1]))
+        self.assertTrue(rs.startswith(string[0]))
+
+
+
+
 #==============================================================================
 # QBJ
 #==============================================================================
