@@ -259,18 +259,6 @@ def index(nw, iterable, value, start=None, end=None):
         return -1
 
 
-@qbjfunction()
-def rindex(nw, iterable, value, start=None, end=None):
-    try:
-        if start is None and end is None:
-            return iterable.rindex(value)
-        if end is None:
-            return iterable.rindex(value, start)
-        return iterable.rindex(value, start, end)
-    except:
-        return -1
-
-
 #==============================================================================
 # DATE AND TIME
 #==============================================================================
@@ -480,6 +468,30 @@ def replace(nw, string, old, new, count=None):
     if count is None:
         return string.replace(old, new)
     return string.replace(old, new, count)
+
+
+@qbjfunction()
+def find(nw, string, value, start=None, end=None):
+    try:
+        if start is None and end is None:
+            return string.find(value)
+        if end is None:
+            return string.find(value, start)
+        return string.find(value, start, end)
+    except:
+        return -1
+
+
+@qbjfunction()
+def rfind(nw, string, value, start=None, end=None):
+    try:
+        if start is None and end is None:
+            return string.rfind(value)
+        if end is None:
+            return string.rfind(value, start)
+        return string.rfind(value, start, end)
+    except:
+        return -1
 
 
 #===============================================================================

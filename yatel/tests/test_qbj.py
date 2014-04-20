@@ -459,8 +459,41 @@ class FunctionTest(YatelTestCase):
         )
         self.assertEqual(-1, rs)
 
+    def test_split(self):
+        string_s = (
+            hashlib.sha512(str(random.random())).hexdigest(),
+            hashlib.sha512(str(random.random())).hexdigest(),
+            hashlib.sha512(str(random.random())).hexdigest()
+        )
+        joiners = (
+            " ", hashlib.sha512(str(random.random())).hexdigest()
+        )
+        for joiner in joiners:
+            string = joiner.join(string_s)
+            orig = string.split(joiner)
+            rs = self.execute("split", string=string, s=joiner)
+            self.assertEquals(orig, rs)
+            orig = string.split(joiner, 1)
+            rs = self.execute("split", string=string, s=joiner, maxsplit=1)
+            self.assertEquals(orig, rs)
 
-
+    def test_rsplit(self):
+        string_s = (
+            hashlib.sha512(str(random.random())).hexdigest(),
+            hashlib.sha512(str(random.random())).hexdigest(),
+            hashlib.sha512(str(random.random())).hexdigest()
+        )
+        joiners = (
+            " ", hashlib.sha512(str(random.random())).hexdigest()
+        )
+        for joiner in joiners:
+            string = joiner.join(string_s)
+            orig = string.rsplit(joiner)
+            rs = self.execute("rsplit", string=string, s=joiner)
+            self.assertEquals(orig, rs)
+            orig = string.rsplit(joiner, 1)
+            rs = self.execute("rsplit", string=string, s=joiner, maxsplit=1)
+            self.assertEquals(orig, rs)
 
 #==============================================================================
 # QBJ
