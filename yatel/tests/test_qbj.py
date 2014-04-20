@@ -596,6 +596,36 @@ class FunctionTest(YatelTestCase):
         self.assertFalse(rs[-2].isupper())
         self.assertFalse(rs[-1].isupper())
 
+    def test_isalnum(self):
+        cases = (
+            hashlib.sha512(str(random.random())).hexdigest(),
+            str(random.randint(100, 1000)), "dhfuoucDSADFDSFsldfnkljsdfb", "!"
+        )
+        for case in cases:
+            orig = case.isalnum()
+            rs = self.execute("isalnum", string=case)
+            self.assertEqual(orig, rs)
+
+    def test_isalpha(self):
+        cases = (
+            hashlib.sha512(str(random.random())).hexdigest(),
+            str(random.randint(100, 1000)), "dhfuoucDSADFDSFsldfnkljsdfb", "!"
+        )
+        for case in cases:
+            orig = case.isalpha()
+            rs = self.execute("isalpha", string=case)
+            self.assertEqual(orig, rs)
+
+    def test_isdigit(self):
+        cases = (
+            hashlib.sha512(str(random.random())).hexdigest(),
+            str(random.randint(100, 1000)), "dhfuoucDSADFDSFsldfnkljsdfb", "!"
+        )
+        for case in cases:
+            orig = case.isdigit()
+            rs = self.execute("isdigit", string=case)
+            self.assertEqual(orig, rs)
+
 #==============================================================================
 # QBJ
 #==============================================================================
