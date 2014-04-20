@@ -626,6 +626,75 @@ class FunctionTest(YatelTestCase):
             rs = self.execute("isdigit", string=case)
             self.assertEqual(orig, rs)
 
+    def test_startswith(self):
+        one = hashlib.sha512(str(random.random())).hexdigest()
+        two = hashlib.sha512(str(random.random())).hexdigest()
+        three = hashlib.sha512(str(random.random())).hexdigest()
+        four = hashlib.sha512(str(random.random())).hexdigest()
+        string = "".join([one, two, three, four])
+
+        rs = self.execute("startswith", string=string, suffix=one)
+        self.assertTrue(rs)
+        rs = self.execute("startswith", string=string, suffix="ll" + one)
+        self.assertFalse(rs)
+
+        offset = len(one)
+        rs = self.execute(
+            "startswith", string=string, suffix=two, start=offset
+        )
+        self.assertTrue(rs)
+        rs = self.execute(
+            "startswith", string=string, suffix=two, start=offset + 1
+        )
+        self.assertFalse(rs)
+
+        rs = self.execute(
+            "startswith", string=string, suffix=two,
+            start=offset, end=offset * 2
+        )
+        self.assertTrue(rs)
+        rs = self.execute(
+            "startswith", string=string, suffix=two,
+            start=offset, end=offset * 2 - 1
+        )
+        self.assertFalse(rs)
+
+    def test_endswith(self):
+        one = hashlib.sha512(str(random.random())).hexdigest()
+        two = hashlib.sha512(str(random.random())).hexdigest()
+        three = hashlib.sha512(str(random.random())).hexdigest()
+        four = hashlib.sha512(str(random.random())).hexdigest()
+        string = "".join([one, two, three, four])
+
+        rs = self.execute("endswith", string=string, suffix=four)
+        self.assertTrue(rs)
+        rs = self.execute("endswith", string=string, suffix=four + "lll")
+        self.assertFalse(rs)
+
+        offset = len(one) * 3
+        rs = self.execute("endswith", string=string, suffix=four, start=offset)
+        self.assertTrue(rs)
+        rs = self.execute(
+            "endswith", string=string, suffix=four, start=offset + 1
+        )
+        self.assertFalse(rs)
+
+        offset = len(one) * 2
+        rs = self.execute(
+            "endswith", string=string, suffix=three,
+            start=offset, end=offset + len(one)
+        )
+        self.assertTrue(rs)
+        rs = self.execute(
+            "endswith", string=string, suffix=three,
+            start=offset, end=offset + len(one) + 1
+        )
+        self.assertFalse(rs)
+
+
+
+
+
 #==============================================================================
 # QBJ
 #==============================================================================

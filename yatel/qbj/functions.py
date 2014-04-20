@@ -426,7 +426,7 @@ def startswith(nw, string, suffix, start=None, end=None):
         return string.startswith(suffix)
     if end is None:
         return string.startswith(suffix, start)
-    return string.startsswith(suffix, start, end)
+    return string.startswith(suffix, start, end)
 
 
 @qbjfunction()
@@ -435,7 +435,7 @@ def endswith(nw, string, suffix, start=None, end=None):
         return string.endswith(suffix)
     if end is None:
         return string.endswith(suffix, start)
-    return string.endsswith(suffix, start, end)
+    return string.endswith(suffix, start, end)
 
 
 @qbjfunction()
