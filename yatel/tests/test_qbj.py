@@ -555,8 +555,46 @@ class FunctionTest(YatelTestCase):
         self.assertFalse(rs.endswith(string[-1]))
         self.assertTrue(rs.startswith(string[0]))
 
+    def test_join(self):
+        string_s = (
+            hashlib.sha512(str(random.random())).hexdigest(),
+            hashlib.sha512(str(random.random())).hexdigest(),
+            hashlib.sha512(str(random.random())).hexdigest()
+        )
+        joiner = hashlib.sha512(str(random.random())).hexdigest()
+        orig = joiner.join(string_s)
+        rs = self.execute("join", joiner=joiner, to_join=string_s)
+        self.assertEqual(orig, rs)
 
+    def test_upper(self):
+        string = hashlib.sha512(str(random.random())).hexdigest() + "zzz"
+        orig = string.upper()
+        rs = self.execute("upper", string=string)
+        self.assertEqual(orig, rs)
 
+    def test_lower(self):
+        string = hashlib.sha512(str(random.random())).hexdigest() + "QQQ"
+        orig = string.lower()
+        rs = self.execute("lower", string=string)
+        self.assertEqual(orig, rs)
+
+    def test_title(self):
+        string = "t" + hashlib.sha512(str(random.random())).hexdigest() + " QQ"
+        orig = string.title()
+        rs = self.execute("title", string=string)
+        self.assertEqual(orig, rs)
+        self.assertTrue(rs[0].isupper())
+        self.assertTrue(rs[-2].isupper())
+        self.assertFalse(rs[-1].isupper())
+
+    def test_capitalize(self):
+        string = "t" + hashlib.sha512(str(random.random())).hexdigest() + " QQ"
+        orig = string.capitalize()
+        rs = self.execute("capitalize", string=string)
+        self.assertEqual(orig, rs)
+        self.assertTrue(rs[0].isupper())
+        self.assertFalse(rs[-2].isupper())
+        self.assertFalse(rs[-1].isupper())
 
 #==============================================================================
 # QBJ
