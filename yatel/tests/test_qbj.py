@@ -429,13 +429,38 @@ class FunctionTest(YatelTestCase):
         rs = self.execute("sort", iterable=iterable, key="b", dkey=dkey)
         self.assertEquals(orig, rs)
 
-
-
         orig = list(sorted(iterable, key=lambda e: dkey, reverse=True))
         rs = self.execute(
             "sort", iterable=iterable, key="b", dkey=dkey, reverse=True
         )
         self.assertEquals(orig, rs)
+
+    def test_index(self):
+        iterable = list(set(idx for idx in self.rrange(100, 200)))
+        random.shuffle(iterable)
+
+        orig = len(iterable) / 2
+        elem = iterable[orig]
+
+        rs = self.execute("index", iterable=iterable, value=elem)
+        self.assertEqual(orig, rs)
+
+        rs = self.execute("index", iterable=iterable, value=elem, start=orig-1)
+        self.assertEqual(orig, rs)
+        rs = self.execute("index", iterable=iterable, value=elem, start=orig+1)
+        self.assertEqual(-1, rs)
+
+        rs = self.execute(
+            "index", iterable=iterable, value=elem, start=orig-1, end=orig+1
+        )
+        self.assertEqual(orig, rs)
+        rs = self.execute(
+            "index", iterable=iterable, value=elem, start=orig-2, end=orig-1
+        )
+        self.assertEqual(-1, rs)
+
+
+
 
 #==============================================================================
 # QBJ
