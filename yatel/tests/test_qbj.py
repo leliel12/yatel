@@ -844,9 +844,11 @@ class QBJEngineTest(YatelTestCase):
             self.fail(full_fail)
         return rs
 
-    #~ def test_describe(self):
-        #~ query = {'function': {'name': 'describe'}, 'id': 1}
-        #~ rs = self.execute(query)
+    def test_describe(self):
+        query = {"id": 1, "function": {"name": 'describe'}}
+        orig = self.nw.describe()
+        rs = typeconv.parse(self.execute(query)["result"])
+        self.assertEqual(orig, rs)
 
     def test_change_nw(self):
         query = {"id": 1, "function": {"name": 'average'}}
@@ -870,6 +872,69 @@ class QBJEngineTest(YatelTestCase):
         self.assertAlmostEqual(orig, rs, places=4)
 
 
+    def test_haplotype_by_id_with_slice(self):
+        query = {
+            "id": 1545454845,
+            "function": {
+                "name": 'haplotype_by_id',
+                "args": [
+                    {
+                        "type": 'unicode',
+                        "function": {
+                            "name": 'slice',
+                            "kwargs": {
+                                "iterable": {"type": 'unicode', "value": 'id_01_'},
+                                "f": {"type": 'int', "value": '-3'},
+                                "t": {"type": 'int', "value": '-1'}
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+        orig = self.nw.haplotype_by_id("01")
+        rs = typeconv.parse(self.execute(query)["result"])
+        self.assertEqual(orig, rs)
+
+
+    def test_haplotype_by_id(self):
+        hap_id = random.choice(self.haps_ids)
+        query = {
+            "id": None,
+            "function": {
+                "name": 'haplotype_by_id',
+                "args": [
+                    {
+                        "type": 'literal',
+                        "value": hap_id
+                    }
+                ]
+            }
+        }
+        orig = self.nw.haplotype_by_id(hap_id)
+        rs = typeconv.parse(self.execute(query)["result"])
+        self.assertEqual(orig, rs)
+
+    def test_sum(self):
+        s0 = random.randint(1, 1000)
+        s1 = random.randint(1, 1000)
+        query = {
+            "id": 'someid',
+            "function": {
+                "name": 'sum',
+                "kwargs": {
+                    "nw": {
+                        "type": 'list',
+                        "value": [
+                            {"type": 'literal', "value": s0},
+                            {"type": 'int', "value": str(s1)}
+                        ]
+                    }
+                }
+            }
+        }
+        rs = typeconv.parse(self.execute(query)["result"])
+        self.assertEqual(s0+s1, rs)
 
 #==============================================================================
 # MAIN

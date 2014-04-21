@@ -65,7 +65,7 @@ def pformat_data(fname):
 
 
 def execute(name, nw, *args, **kwargs):
-    return FUNCTIONS[name].func(nw=nw, *args, **kwargs)
+    return FUNCTIONS[name].func(nw, *args, **kwargs)
 
 
 #==============================================================================

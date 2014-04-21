@@ -67,7 +67,7 @@ class QBJResolver(object):
             kwargs[kw] = result
         if "nw" in kwargs:
             return functions.execute(name, *args, **kwargs)
-        return functions.execute(name, nw=self.context, *args, **kwargs)
+        return functions.execute(name, self.context, *args, **kwargs)
 
 
 #===============================================================================
