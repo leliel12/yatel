@@ -92,13 +92,20 @@ def np2py(obj):
     objects
 
     """
+    # http://stackoverflow.com/questions/9452775/converting-numpy-dtypes-to-native-python-types
     if isinstance(obj, np.number):
-        for scls in type(obj).__mro__:
-            if scls in TO_SIMPLE_TYPES:
-                return scls(obj)
+        obj = np.asscalar(obj)
+        if type(obj) in TO_SIMPLE_TYPES:
+            return obj
+        elif isinstance(obj, np.longdouble):
+            return float(obj)
+        elif "float" in pytype.__name__:
+            return float(obj)
+        elif "complex" in pytype.__name__:
+            return complex(obj)
     elif isinstance(obj, np.bool_):
         return bool(obj)
-    return obj
+    return str(obj)
 
 
 def simplifier(obj):
@@ -107,7 +114,7 @@ def simplifier(obj):
     if isinstance(obj, np.generic):
         obj = np2py(obj)
     elif isinstance(obj, np.ndarray):
-        obj = obj.tolist()
+        obj = [np2py(e) for e in obj]
 
     typename = TYPES_TO_NAMES[type(obj)]
     value = ""
