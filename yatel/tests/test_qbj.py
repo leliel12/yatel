@@ -691,8 +691,67 @@ class FunctionTest(YatelTestCase):
         )
         self.assertFalse(rs)
 
+    def test_istitle(self):
+        string = "a" + hashlib.sha512(str(random.random())).hexdigest() + " a"
+        rs = self.execute("istitle", string=string)
+        self.assertFalse(rs)
+        string = string.title() + " w"
+        rs = self.execute("istitle", string=string)
+        self.assertFalse(rs)
+        string = string.title() + " X"
+        rs = self.execute("istitle", string=string)
+        self.assertTrue(rs)
 
+    def test_isupper(self):
+        string = "a" + hashlib.sha512(str(random.random())).hexdigest() + " a"
+        rs = self.execute("isupper", string=string)
+        self.assertFalse(rs)
+        string = string.upper() + " w"
+        rs = self.execute("isupper", string=string)
+        self.assertFalse(rs)
+        string = string.upper() + " X"
+        rs = self.execute("isupper", string=string)
+        self.assertTrue(rs)
 
+    def test_isspace(self):
+        rs = self.execute("isspace", string=" 1\t\n")
+        self.assertFalse(rs)
+        rs = self.execute("isspace", string=" \t\n")
+        self.assertTrue(rs)
+
+    def test_islower(self):
+        string = "a" + hashlib.sha512(str(random.random())).hexdigest() + " a"
+        rs = self.execute("islower", string=string)
+        self.assertTrue(rs)
+        string = string.lower() + " w"
+        rs = self.execute("islower", string=string)
+        self.assertTrue(rs)
+        string = string.lower() + " X"
+        rs = self.execute("islower", string=string)
+        self.assertFalse(rs)
+
+    def test_swapcase(self):
+        string = "aBcDe"
+        rs = self.execute("swapcase", string=string)
+        self.assertEqual(rs, "AbCdE")
+
+    def test_replace(self):
+        string = hashlib.sha512(str(random.random())).hexdigest()
+        to_replace = random.choice(string)
+        to_count = string.count(to_replace)
+        new = "X"
+
+        orig = string.replace(to_replace, new)
+        rs = self.execute("replace", string=string, old=to_replace, new=new)
+        self.assertEqual(orig, rs)
+        self.assertNotIn(to_replace, rs)
+        self.assertEqual(rs.count(new), to_count)
+
+        count = to_count - 1
+        orig = string.replace(to_replace, new, count)
+        rs = self.execute("replace", string=string, old=to_replace, new=new, count=count)
+        self.assertEqual(orig, rs)
+        self.assertEqual(rs.count(new), count)
 
 
 #==============================================================================
