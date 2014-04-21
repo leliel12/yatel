@@ -783,7 +783,35 @@ class FunctionTest(YatelTestCase):
         )
         self.assertEqual(rs, -1)
 
+    def test_rfind(self):
+        one = hashlib.sha512(str(random.random())).hexdigest()
+        two = "XXX"
+        three = hashlib.sha512(str(random.random())).hexdigest()
+        four = "YYY"
+        string = "".join([one, two, three, four])
 
+        rs = self.execute("rfind", string=string, subs=two)
+        self.assertEqual(rs, len(one))
+        rs = self.execute("rfind", string=string, subs=four)
+        self.assertEqual(rs, len(one) + len(two) + len(three))
+        rs = self.execute("rfind", string=string, subs="WWW")
+        self.assertEqual(rs, -1)
+
+        rs = self.execute("rfind", string=string, subs=two, start=len(one) + 1)
+        self.assertEqual(rs, -1)
+        rs = self.execute("rfind", string=string, subs=four, start=len(one) + 1)
+        self.assertEqual(rs, len(one) + len(two) + len(three))
+
+        rs = self.execute(
+            "rfind", string=string, subs=two,
+            start=len(one), end=len(one) + len(two) + len(three)
+        )
+        self.assertEqual(rs, len(one))
+        rs = self.execute(
+            "rfind", string=string, subs=four,
+            start=len(one), end=len(one) + len(two) + len(three)
+        )
+        self.assertEqual(rs, -1)
 
 
 
