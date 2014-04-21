@@ -10,9 +10,9 @@ Se ejemplifican a continuación algunos casos de uso para su mejor comprensión.
 
 Yatel posee tres opciones globales:
 
-    #. ``-k``|``--ful-stack`` que indica que de fallar un comando se mostrará
+    #. ``-k`` | ``--ful-stack`` que indica que de fallar un comando se mostrará
        completa la salida de excepciones y no solo el mensaje de error.
-    #. ``-l``|``--log`` activara el logeo de la base de datos a en la salida
+    #. ``-l`` | ``--log`` activara el logeo de la base de datos a en la salida
        estandar.
 
 
@@ -94,7 +94,7 @@ Comandos
 
   Comando viejo::
 
-    yatel --database sqlite:///my_nwwharehouse.db --load backup.xml --mode a
+    yatel --database sqlite:///my_nwwharehouse.db --load backup.xml --mode a --force
 
 
 - ``copy``: Copia toda una nwolap a otra nwolap. El comando recibe como primer
@@ -105,12 +105,12 @@ Comandos
 
   ::
 
-    yatel copy sqlite:///my_nwwharehouse.db mysql://user:password@host:port/copy_nwwharehouse -f
+    yatel copy sqlite:///my_nwwharehouse.db w mysql://user:password@host:port/copy_nwwharehouse
 
 
   Comando viejo::
 
-    yatel --database sqlite:///my_nwwharehouse.db --copy mysql://user:password@host:port/copy_nwwharehouse --force
+    yatel --database sqlite:///my_nwwharehouse.db --copy mysql://user:password@host:port/copy_nwwharehouse --force --mode w
 
 
 - ``createconf``: crea una nueva configuración para correr yatel como servicio
@@ -199,80 +199,6 @@ Comandos
 
   Comando viejo::
 
-    yatel --database sqlite:///my_nwwharehouse.db --run-etl my_new_etl.py param param param --mode a
+    yatel --database sqlite:///my_nwwharehouse.db --run-etl my_new_etl.py param param param --mode a --force
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-::
-
-    usage: Yatel [-h] [--version] [-f] [--full-stack] [--log]
-             [--list-connection-strings] [--database CONNECTION_STRING]
-             [--test LEVEL] [--mode [r|w|a]] [--describe]
-             [--fake-network N_HAPLOTYPES APROX_N_FACTS WEIGHT_CALCULATOR]
-             [--dump FILENAME.EXT] [--backup FILENAME_TEMPLATE.json]
-             [--load FILENAME.EXT] [--copy CONNECTION_STRING]
-             [--create-wsgi FILE.wsgi CONF.json FILE.wsgi CONF.json]
-             [--create-server-conf CONF.json]
-             [--runserver CONF.json HOST:PORT] [--create-etl ETL_FILENAME.py]
-             [--desc-etl PATH/TO/MODULE.py] [--run-etl ARG [ARG ...]]
-
-    Yatel allows the creation of user-profile-distance-based of OLAP Network and
-    their multidimensional analysis through a process of exploration.
-
-    optional arguments:
-      -h, --help            show this help message and exit
-      --version             show program's version number and exit
-      -f, --force           If you perform some action like import orcopy this
-                            option destroya network in this connection
-      --full-stack          If yatel fails, show all the stack trace of the error
-      --log                 log all backend info to stdio
-      --list-connection-strings
-                            List all available connection strings in yatel
-      --database CONNECTION_STRING
-                            database to be open with yatel (see yatel --list-
-                            conection-strings)
-      --test LEVEL          Run all yatel test suites
-      --mode [r|w|a]        The mode to open the database [r|w|a]
-      --describe            Print information about the network
-      --fake-network N_HAPLOTYPES APROX_N_FACTS WEIGHT_CALCULATOR
-                            Create a new fake full conected network with on given
-                            connection string. The first parameter is the number
-                            of haplotypes, the second one is the number of maximun
-                            facts of every haplotype and the third is the algoritm
-                            to calculate the distance
-      --dump FILENAME.EXT   Export the given database to EXT format.
-      --backup FILENAME_TEMPLATE.json
-                            Like dump but always create a new file with the format
-                            'filename_template<TIMESTAMP>.EXT'.
-      --load FILENAME.EXT   Import the given file to the given database.
-      --copy CONNECTION_STRING
-                            Copy the database of `database` to this connection
-      --create-wsgi FILE.wsgi CONF.json FILE.wsgi CONF.json
-                            Create a new wsgi file for a given configuration
-      --create-server-conf CONF.json
-                            Create a new configuration file for runserver
-      --runserver CONF.json HOST:PORT
-                            Run yatel as http server with a given config file
-      --create-etl ETL_FILENAME.py
-                            Create a template file for write yout own etl
-      --desc-etl PATH/TO/MODULE.py
-                            Return a list of parameters and documentataton about
-                            the etl The argument is in the format
-                            path/to/module.py The BaseETL subclass must be names
-                            after ETL
-      --run-etl ARG [ARG ...]
-                            Run one or more etl inside of a given script. The
-                            first argument is in the format path/to/module.py the
-                            second onwards parameter are parameters of the setup
-                            method of the given class.
