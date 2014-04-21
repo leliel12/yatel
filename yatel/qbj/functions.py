@@ -471,25 +471,25 @@ def replace(nw, string, old, new, count=None):
 
 
 @qbjfunction()
-def find(nw, string, value, start=None, end=None):
+def find(nw, string, subs, start=None, end=None):
     try:
         if start is None and end is None:
-            return string.find(value)
+            return string.find(subs)
         if end is None:
-            return string.find(value, start)
-        return string.find(value, start, end)
+            return string.find(subs, start)
+        return string.find(subs, start, end)
     except:
         return -1
 
 
 @qbjfunction()
-def rfind(nw, string, value, start=None, end=None):
+def rfind(nw, string, subs, start=None, end=None):
     try:
         if start is None and end is None:
-            return string.rfind(value)
+            return string.rfind(subs)
         if end is None:
-            return string.rfind(value, start)
-        return string.rfind(value, start, end)
+            return string.rfind(subs, start)
+        return string.rfind(subs, start, end)
     except:
         return -1
 
