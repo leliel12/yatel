@@ -17,9 +17,20 @@
 # IMPORTS
 #==============================================================================
 
-import hashlib, random, datetime, collections
+import hashlib
+import random
+import datetime
+import collections
+import json
+
+try:
+    import cStringIO as StringIO
+except ImportError:
+    import StringIO
 
 from yatel import stats
+from yatel import typeconv
+from yatel import qbj
 from yatel.qbj import functions
 
 from yatel.tests.core import YatelTestCase
@@ -820,22 +831,44 @@ class FunctionTest(YatelTestCase):
 # QBJ
 #==============================================================================
 
-#~ class QBJEngineTest(YatelTestCase):
-#~
-    #~ def setUp(self):
-        #~ super(QBJEngineTest, self).setUp()
-        #~ self.jnw = qbj.QBJEngine(self.nw)
-#~
-    #~ def test_valid_queries(self):
-        #~ for dictionary in queries.VALID:
-            #~ string = json.dumps(dictionary)
-            #~ stream = StringIO.StringIO(string)
-            #~ for q in [dictionary, string, stream]:
-                #~ result = self.jnw.execute(q, True)
-                #~ if result["error"]:
-                    #~ self.fail("\n".join(
-                        #~ [result["error_msg"], result["stack_trace"]])
-                    #~ )
+class QBJEngineTest(YatelTestCase):
+
+    def setUp(self):
+        super(QBJEngineTest, self).setUp()
+        self.qbj = qbj.QBJEngine(self.nw)
+
+    def execute(self, query):
+        rs = self.qbj.execute(query, True)
+        if rs["error"]:
+            full_fail = "".join([rs["error_msg"], rs["stack_trace"]])
+            self.fail(full_fail)
+        return rs
+
+    #~ def test_describe(self):
+        #~ query = {'function': {'name': 'describe'}, 'id': 1}
+        #~ rs = self.execute(query)
+
+    def test_change_nw(self):
+        query = {"id": 1, "function": {"name": 'average'}}
+
+        orig = stats.average(self.nw)
+        rs = typeconv.parse(self.execute(query)["result"])
+        self.assertAlmostEqual(orig, rs, places=4)
+
+        nw = [random.randint(1, 1000) + r for r in self.rrange(100, 200)]
+        query = {
+            "id": 1,
+            "function": {
+                "name": 'average',
+                "kwargs": {
+                    "nw": {"type": 'literal', "value": nw}
+                }
+            }
+        }
+        orig = stats.average(nw)
+        rs = typeconv.parse(self.execute(query)["result"])
+        self.assertAlmostEqual(orig, rs, places=4)
+
 
 
 #==============================================================================

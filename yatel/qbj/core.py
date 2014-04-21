@@ -65,7 +65,9 @@ class QBJResolver(object):
         for kw, arg in self.function.get("kwargs", {}).items():
             result = self.argument_resolver(arg)
             kwargs[kw] = result
-        return self.context.evaluate(name, args, kwargs)
+        if "nw" in kwargs:
+            return functions.execute(name, *args, **kwargs)
+        return functions.execute(name, nw=self.context, *args, **kwargs)
 
 
 #===============================================================================
@@ -75,9 +77,9 @@ class QBJResolver(object):
 class QBJEngine(object):
 
     def __init__(self, nw):
-        self.context = functions.wrap_network(nw)
+        self.context = nw
 
-    def execute(self, querydict, stack_trace_on_error=False):
+    def execute(self, querydict, stacktrace=False):
         query_id = None
         function = None
         error = False
@@ -85,10 +87,6 @@ class QBJEngine(object):
         error_msg = ""
         result = None
         try:
-            if isinstance(querydict, basestring):
-                querydict = json.loads(querydict)
-            elif hasattr(querydict, "read"):
-                querydict = json.load(querydict)
             #schema.validate(querydict)
             query_id = querydict["id"]
             function = querydict["function"]
@@ -99,8 +97,8 @@ class QBJEngine(object):
                 query_id = querydict.get("id")
             error = True
             error_msg = unicode(err)
-            if stack_trace_on_error:
-                stack_trace = u"".join(
+            if stacktrace:
+                stack_trace = u"\n".join(
                     traceback.format_exception(*sys.exc_info())
                 )
         return {

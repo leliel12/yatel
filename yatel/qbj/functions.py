@@ -494,6 +494,8 @@ def rfind(nw, string, subs, start=None, end=None):
         return -1
 
 
+# TODO: Regex, trigonometric, and math contants SUPPORT
+
 #===============================================================================
 # MAIN
 #===============================================================================
