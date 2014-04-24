@@ -28,8 +28,11 @@ try:
 except ImportError:
     import StringIO
 
+import numpy as np
+
 from yatel import stats
 from yatel import typeconv
+from yatel.cluster import kmeans
 from yatel import qbj
 from yatel.qbj import functions
 
@@ -64,7 +67,6 @@ class FunctionTest(YatelTestCase):
             orig = functions.pformat_data(fname)
             rs = self.execute("help", fname=fname)
             self.assertEquals(orig, rs)
-
 
     def test_haplotypes(self):
         orig = tuple(self.nw.haplotypes())
@@ -824,6 +826,42 @@ class FunctionTest(YatelTestCase):
         )
         self.assertEqual(rs, -1)
 
+    def test_kmeans(self):
+
+        envs = tuple(self.nw.enviroments(["native", "place"]))
+
+        orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2)
+        rs = self.execute("kmeans", envs=envs, k_or_guess=2)
+        self.assertTrue(
+            np.all(orig[0][0] == rs[0][0]) or np.all(orig[0][0] == rs[0][1])
+        )
+        self.assertTrue(
+            np.all(orig[0][1] == rs[0][0]) or np.all(orig[0][1] == rs[0][1])
+        )
+        self.assertTrue(np.all(orig[1] == rs[1]))
+
+        coords = {}
+        def coordc(nw, env):
+            arr = stats.env2weightarray(nw, env)
+            if len(arr):
+                coords[env] = [stats.average(arr), stats.std(arr)]
+            else:
+                coords[env] = [-1, -1]
+            return coords[env]
+
+        orig = kmeans.kmeans(
+            self.nw, envs=envs, k_or_guess=2, coordc=coordc
+        )
+        rs = self.execute("kmeans", envs=envs, coords=coords, k_or_guess=2)
+        self.assertTrue(np.all(orig[1] == rs[1]))
+        self.assertTrue(
+            np.all(orig[0][0] == rs[0][0]) or np.all(orig[0][0] == rs[0][1])
+        )
+        self.assertTrue(
+            np.all(orig[0][1] == rs[0][0]) or np.all(orig[0][1] == rs[0][1])
+        )
+        self.assertTrue(np.all(orig[1] == rs[1]))
+
 
 
 
@@ -935,6 +973,21 @@ class QBJEngineTest(YatelTestCase):
         }
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertEqual(s0+s1, rs)
+
+    def test_kmeans(self):
+        envs = tuple(self.nw.enviroments(["native", "place"]))
+        query = {
+            "id": 1,
+            "function": {
+                "name": 'kmeans',
+                "args": [
+                    {"type": 'literal', "value": envs},
+                    {"type": 'literal', "value": 2}
+                ]
+            }
+        }
+        rs = typeconv.parse(self.execute(query)["result"])
+        import ipdb; ipdb.set_trace()
 
 #==============================================================================
 # MAIN

@@ -20,12 +20,13 @@
 import unittest
 
 from yatel.tests import (
-    core,
-    test_db,
-    test_dom,
-    test_typeconv,
-    test_qbj
-) #, test_server
+    #core,
+    #test_db,
+    #test_dom,
+    #test_typeconv,
+    test_qbj,
+    #test_server
+)
 
 
 #===============================================================================
