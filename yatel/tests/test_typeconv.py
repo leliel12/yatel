@@ -17,6 +17,8 @@
 # IMPORTS
 #===============================================================================
 
+import numpy as np
+
 import random
 
 from yatel import typeconv
@@ -77,6 +79,15 @@ class TestTypeConvFunctions(YatelTestCase):
                 regenerated = typeconv.parse(simplified)
                 self.assertNotEquals(thing, regenerated)
                 self.assertEquals(simplified["value"], regenerated)
+
+    def test_numpy_array(self):
+        as_list = [
+            random.random() + random.randint(1, 100)  + r
+            for r in self.rrange(100, 200)
+        ]
+        as_arr = np.array(as_list)
+        simp = typeconv.simplifier(as_arr)
+        self.assertEqual(typeconv.parse(simp), as_list)
 
 
 #===============================================================================

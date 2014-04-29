@@ -54,10 +54,10 @@ class FunctionTest(YatelTestCase):
                 msg = "Please test QBJFunction '{}'".format(k)
                 raise AssertionError(msg)
 
-    def execute(self, name, nw=None, *args, **kwargs):
+    def execute(self, name, nw=None, **kwargs):
         self._tested.add(name)
         nw = self.nw if nw is None else nw
-        return functions.execute(name, nw, *args, **kwargs)
+        return functions.execute(name, nw, **kwargs)
 
     def test_help(self):
         orig = list(functions.FUNCTIONS.keys())
@@ -200,9 +200,10 @@ class FunctionTest(YatelTestCase):
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = stats.variation(self.nw, env=env)
-                rs_nw = self.execute("variation", env)
+                rs_nw = self.execute("variation", env=env)
                 orig_arr = stats.variation(arr)
                 rs_arr = self.execute("variation", nw=arr)
+
                 self.assertAlmostEqual(orig_nw, rs_nw, places=4)
                 self.assertAlmostEqual(orig_arr, rs_arr, places=4)
                 self.assertAlmostEqual(orig_nw, orig_arr, places=4)
@@ -974,7 +975,7 @@ class QBJEngineTest(YatelTestCase):
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertEqual(s0+s1, rs)
 
-    def test_kmeans(self):
+    def _test_kmeans(self):
         envs = tuple(self.nw.enviroments(["native", "place"]))
         query = {
             "id": 1,
@@ -987,7 +988,7 @@ class QBJEngineTest(YatelTestCase):
             }
         }
         rs = typeconv.parse(self.execute(query)["result"])
-        import ipdb; ipdb.set_trace()
+
 
 #==============================================================================
 # MAIN
