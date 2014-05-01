@@ -828,7 +828,6 @@ class FunctionTest(YatelTestCase):
         self.assertEqual(rs, -1)
 
     def test_kmeans(self):
-
         envs = tuple(self.nw.enviroments(["native", "place"]))
 
         orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2)
@@ -854,14 +853,15 @@ class FunctionTest(YatelTestCase):
             self.nw, envs=envs, k_or_guess=2, coordc=coordc
         )
         rs = self.execute("kmeans", envs=envs, coords=coords, k_or_guess=2)
-        self.assertTrue(np.all(orig[1] == rs[1]))
+        self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
         self.assertTrue(
             np.all(orig[0][0] == rs[0][0]) or np.all(orig[0][0] == rs[0][1])
         )
         self.assertTrue(
             np.all(orig[0][1] == rs[0][0]) or np.all(orig[0][1] == rs[0][1])
         )
-        self.assertTrue(np.all(orig[1] == rs[1]))
+        self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
+
 
 
 
@@ -975,7 +975,7 @@ class QBJEngineTest(YatelTestCase):
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertEqual(s0+s1, rs)
 
-    def _test_kmeans(self):
+    def test_kmeans(self):
         envs = tuple(self.nw.enviroments(["native", "place"]))
         query = {
             "id": 1,
@@ -987,7 +987,10 @@ class QBJEngineTest(YatelTestCase):
                 ]
             }
         }
+        orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2)
         rs = typeconv.parse(self.execute(query)["result"])
+        self.assertTrue(np.all(orig[0] == rs[0], rtol=1e-01))
+
 
 
 #==============================================================================

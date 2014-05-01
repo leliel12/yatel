@@ -19,6 +19,7 @@
 
 import unittest
 import random
+import functools
 import tempfile
 
 from yatel import db, dom, weight
@@ -158,6 +159,7 @@ class YatelTestCase(unittest.TestCase):
 
     def rchoice(self, iterable):
         return random.choice(tuple(iterable))
+
 
 #===============================================================================
 # MAIN
