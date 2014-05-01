@@ -36,7 +36,21 @@ from yatel.cluster import kmeans
 from yatel import qbj
 from yatel.qbj import functions
 
-from yatel.tests.core import YatelTestCase
+from yatel.tests.core import YatelTestCase, multiple_runs
+
+#==============================================================================
+# HELPER FUNCTIONS
+#==============================================================================
+
+def multiple_kmeans_test(r, c):
+    """This function is used inside the decorator multiple runs for test 100
+    runs of kmeans
+
+    """
+    tolerance = 0.80
+    average = np.average(r)
+    msg = "Assert must be upper than {}. Found {}".format(tolerance, average)
+    return average >= tolerance, msg
 
 
 #==============================================================================
@@ -827,17 +841,14 @@ class FunctionTest(YatelTestCase):
         )
         self.assertEqual(rs, -1)
 
+
+    @multiple_runs(100, multiple_kmeans_test)
     def test_kmeans(self):
         envs = tuple(self.nw.enviroments(["native", "place"]))
 
         orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2)
         rs = self.execute("kmeans", envs=envs, k_or_guess=2)
-        self.assertTrue(
-            np.all(orig[0][0] == rs[0][0]) or np.all(orig[0][0] == rs[0][1])
-        )
-        self.assertTrue(
-            np.all(orig[0][1] == rs[0][0]) or np.all(orig[0][1] == rs[0][1])
-        )
+        self.assertUnsortedNDArray(orig[0], rs[0])
         self.assertTrue(np.all(orig[1] == rs[1]))
 
         coords = {}
@@ -853,17 +864,8 @@ class FunctionTest(YatelTestCase):
             self.nw, envs=envs, k_or_guess=2, coordc=coordc
         )
         rs = self.execute("kmeans", envs=envs, coords=coords, k_or_guess=2)
+        self.assertUnsortedNDArray(orig[0], rs[0])
         self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
-        self.assertTrue(
-            np.all(orig[0][0] == rs[0][0]) or np.all(orig[0][0] == rs[0][1])
-        )
-        self.assertTrue(
-            np.all(orig[0][1] == rs[0][0]) or np.all(orig[0][1] == rs[0][1])
-        )
-        self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
-
-
-
 
 
 #==============================================================================
@@ -975,6 +977,7 @@ class QBJEngineTest(YatelTestCase):
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertEqual(s0+s1, rs)
 
+    @multiple_runs(100, multiple_kmeans_test)
     def test_kmeans(self):
         envs = tuple(self.nw.enviroments(["native", "place"]))
         query = {
@@ -989,9 +992,7 @@ class QBJEngineTest(YatelTestCase):
         }
         orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2)
         rs = typeconv.parse(self.execute(query)["result"])
-        self.assertTrue(
-            np.all(orig[0][1] == rs[0][0]) or np.all(orig[0][1] == rs[0][1])
-        )
+        self.assertUnsortedNDArray(orig[0], rs[0])
         self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
 
         coords = {}
@@ -1014,9 +1015,10 @@ class QBJEngineTest(YatelTestCase):
                 }
             }
         }
-        self.assertTrue(
-            np.all(orig[0][1] == rs[0][0]) or np.all(orig[0][1] == rs[0][1])
-        )
+
+        orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2, coordc=coordc)
+        rs = typeconv.parse(self.execute(query)["result"])
+        self.assertUnsortedNDArray(orig[0], rs[0])
         self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
 
 
