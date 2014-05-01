@@ -2,5 +2,5 @@ sqlalchemy
 jsonschema
 flask
 numpy
-scipy
+scipy  #need libatlas-base-dev, gfortran installed on the system
 caipyrinha
