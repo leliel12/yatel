@@ -989,7 +989,36 @@ class QBJEngineTest(YatelTestCase):
         }
         orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2)
         rs = typeconv.parse(self.execute(query)["result"])
-        self.assertTrue(np.all(orig[0] == rs[0], rtol=1e-01))
+        self.assertTrue(
+            np.all(orig[0][1] == rs[0][0]) or np.all(orig[0][1] == rs[0][1])
+        )
+        self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
+
+        coords = {}
+        def coordc(nw, env):
+            arr = stats.env2weightarray(nw, env)
+            if len(arr):
+                coords[env] = [stats.average(arr), stats.std(arr)]
+            else:
+                coords[env] = [-1, -1]
+            return coords[env]
+
+        query = {
+            "id": 1,
+            "function": {
+                "name": 'kmeans',
+                "kwargs": {
+                    "envs": {"type": 'literal', "value": envs},
+                    "k_or_guess": {"type": 'literal', "value": 2},
+                    "coords": {"type": 'literal', "value": coords}
+                }
+            }
+        }
+        self.assertTrue(
+            np.all(orig[0][1] == rs[0][0]) or np.all(orig[0][1] == rs[0][1])
+        )
+        self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
+
 
 
 
