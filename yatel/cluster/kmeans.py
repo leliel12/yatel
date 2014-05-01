@@ -205,7 +205,7 @@ def nw2obs(nw, envs, whiten=False, coordc=None):
         raise TypeError(msg)
     coordc = hap_in_env_coords if coordc is None else coordc
     mtx = []
-    for idx, env in enumerate(envs):
+    for env in envs:
         row = coordc(nw, env)
         mtx.append(row)
     obs = np.array(mtx)

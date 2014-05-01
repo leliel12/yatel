@@ -28,8 +28,11 @@ try:
 except ImportError:
     import StringIO
 
+import numpy as np
+
 from yatel import stats
 from yatel import typeconv
+from yatel.cluster import kmeans
 from yatel import qbj
 from yatel.qbj import functions
 
@@ -51,10 +54,10 @@ class FunctionTest(YatelTestCase):
                 msg = "Please test QBJFunction '{}'".format(k)
                 raise AssertionError(msg)
 
-    def execute(self, name, nw=None, *args, **kwargs):
+    def execute(self, name, nw=None, **kwargs):
         self._tested.add(name)
         nw = self.nw if nw is None else nw
-        return functions.execute(name, nw, *args, **kwargs)
+        return functions.execute(name, nw, **kwargs)
 
     def test_help(self):
         orig = list(functions.FUNCTIONS.keys())
@@ -64,7 +67,6 @@ class FunctionTest(YatelTestCase):
             orig = functions.pformat_data(fname)
             rs = self.execute("help", fname=fname)
             self.assertEquals(orig, rs)
-
 
     def test_haplotypes(self):
         orig = tuple(self.nw.haplotypes())
@@ -198,9 +200,10 @@ class FunctionTest(YatelTestCase):
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = stats.variation(self.nw, env=env)
-                rs_nw = self.execute("variation", env)
+                rs_nw = self.execute("variation", env=env)
                 orig_arr = stats.variation(arr)
                 rs_arr = self.execute("variation", nw=arr)
+
                 self.assertAlmostEqual(orig_nw, rs_nw, places=4)
                 self.assertAlmostEqual(orig_arr, rs_arr, places=4)
                 self.assertAlmostEqual(orig_nw, orig_arr, places=4)
@@ -824,6 +827,42 @@ class FunctionTest(YatelTestCase):
         )
         self.assertEqual(rs, -1)
 
+    def test_kmeans(self):
+        envs = tuple(self.nw.enviroments(["native", "place"]))
+
+        orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2)
+        rs = self.execute("kmeans", envs=envs, k_or_guess=2)
+        self.assertTrue(
+            np.all(orig[0][0] == rs[0][0]) or np.all(orig[0][0] == rs[0][1])
+        )
+        self.assertTrue(
+            np.all(orig[0][1] == rs[0][0]) or np.all(orig[0][1] == rs[0][1])
+        )
+        self.assertTrue(np.all(orig[1] == rs[1]))
+
+        coords = {}
+        def coordc(nw, env):
+            arr = stats.env2weightarray(nw, env)
+            if len(arr):
+                coords[env] = [stats.average(arr), stats.std(arr)]
+            else:
+                coords[env] = [-1, -1]
+            return coords[env]
+
+        orig = kmeans.kmeans(
+            self.nw, envs=envs, k_or_guess=2, coordc=coordc
+        )
+        rs = self.execute("kmeans", envs=envs, coords=coords, k_or_guess=2)
+        self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
+        self.assertTrue(
+            np.all(orig[0][0] == rs[0][0]) or np.all(orig[0][0] == rs[0][1])
+        )
+        self.assertTrue(
+            np.all(orig[0][1] == rs[0][0]) or np.all(orig[0][1] == rs[0][1])
+        )
+        self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
+
+
 
 
 
@@ -935,6 +974,53 @@ class QBJEngineTest(YatelTestCase):
         }
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertEqual(s0+s1, rs)
+
+    def test_kmeans(self):
+        envs = tuple(self.nw.enviroments(["native", "place"]))
+        query = {
+            "id": 1,
+            "function": {
+                "name": 'kmeans',
+                "args": [
+                    {"type": 'literal', "value": envs},
+                    {"type": 'literal', "value": 2}
+                ]
+            }
+        }
+        orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2)
+        rs = typeconv.parse(self.execute(query)["result"])
+        self.assertTrue(
+            np.all(orig[0][1] == rs[0][0]) or np.all(orig[0][1] == rs[0][1])
+        )
+        self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
+
+        coords = {}
+        def coordc(nw, env):
+            arr = stats.env2weightarray(nw, env)
+            if len(arr):
+                coords[env] = [stats.average(arr), stats.std(arr)]
+            else:
+                coords[env] = [-1, -1]
+            return coords[env]
+
+        query = {
+            "id": 1,
+            "function": {
+                "name": 'kmeans',
+                "kwargs": {
+                    "envs": {"type": 'literal', "value": envs},
+                    "k_or_guess": {"type": 'literal', "value": 2},
+                    "coords": {"type": 'literal', "value": coords}
+                }
+            }
+        }
+        self.assertTrue(
+            np.all(orig[0][1] == rs[0][0]) or np.all(orig[0][1] == rs[0][1])
+        )
+        self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
+
+
+
 
 #==============================================================================
 # MAIN

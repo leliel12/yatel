@@ -16,7 +16,9 @@
 import inspect, collections
 import datetime as dt
 
-from yatel import stats, db
+from yatel import stats
+from yatel import db
+from yatel.cluster import kmeans as _kmeans
 
 
 #===============================================================================
@@ -215,6 +217,24 @@ def var(nw, env=None, **kwargs):
 @qbjfunction(doc=stats.variation.__doc__)
 def variation(nw, env=None, **kwargs):
     return stats.variation(nw, env=env, **kwargs)
+
+
+#==============================================================================
+# DM
+#==============================================================================
+
+@qbjfunction(doc=_kmeans.kmeans)
+def kmeans(nw, envs, k_or_guess, whiten=False, coords=None, *args, **kwargs):
+
+    def dcoords(nw, env):
+        return coords[env]
+
+    coordc = dcoords if coords else None
+
+    return _kmeans.kmeans(
+        nw=nw, envs=envs, k_or_guess=k_or_guess,
+        whiten=whiten, coordc=coordc, *args, **kwargs
+    )
 
 
 #===============================================================================
