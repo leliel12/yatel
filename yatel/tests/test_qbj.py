@@ -42,6 +42,8 @@ from yatel.tests.core import YatelTestCase, multiple_runs
 # HELPER FUNCTIONS
 #==============================================================================
 
+kmeans_n = 200
+
 def multiple_kmeans_test(r, c):
     """This function is used inside the decorator multiple runs for test 100
     runs of kmeans
@@ -842,7 +844,7 @@ class FunctionTest(YatelTestCase):
         self.assertEqual(rs, -1)
 
 
-    @multiple_runs(100, multiple_kmeans_test)
+    @multiple_runs(kmeans_n, multiple_kmeans_test)
     def test_kmeans(self):
         envs = tuple(self.nw.enviroments(["native", "place"]))
 
@@ -977,7 +979,7 @@ class QBJEngineTest(YatelTestCase):
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertEqual(s0+s1, rs)
 
-    @multiple_runs(100, multiple_kmeans_test)
+    @multiple_runs(kmeans_n, multiple_kmeans_test)
     def test_kmeans(self):
         envs = tuple(self.nw.enviroments(["native", "place"]))
         query = {
