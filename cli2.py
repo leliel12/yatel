@@ -15,7 +15,7 @@ from yatel import io
 
 #===============================================================================
 # MANAGER
-#===============================================================================ç
+#===============================================================================
 
 class _FlaskMock(object):
     """This class only mock the flask object to use flask script stand alone
@@ -33,41 +33,55 @@ class _FlaskMock(object):
     def __enter__(self, *a, **kw):
         return _FlaskMock()
 
-app = _FlaskMock()
-
-manager = Manager(app, with_default_commands=False)
+manager = Manager(_FlaskMock, with_default_commands=False)
 
 #===============================================================================
 # OPTIONS
 #===============================================================================
 
-# manager.add_option(
-#     "-k", "--full-stack", dest="full-stack", required=False, type=bool
-# )
+manager.add_option(
+    "-k", "--full-stack", dest="full-stack", required=False, action="store_true"
+)
 
-# manager.add_option(
-#     "-l", "--log", dest="log", required=False, type=bool
-# )
+manager.add_option(
+    "-l", "--log", dest="log", required=False, action="store_true"
+)
+
+#===============================================================================
+# CONSTANTS
+#===============================================================================
+RETURNS = ""                                                                    # what is returns?
+CONNECTION_STRING_HELP = """The given string is parsed according to the RFC 1738
+spec.
+
+"""
+
+FILENAME_HELP = """Path al archivo de los datos.
+
+El formato del contenido del archivo es determinado por la extension del mismo.
+Las extensiones pueden ser: {}
+
+""".format(", ".join(io.PARSERS.keys()))
+
+CONFIG_STRING_HELP = """"""
+WSGI_STRING_HELP = """"""
+HOSTNAME_STRING_HELP = """"""
+ETL_STRING_HELP = """ETL_FILENAME.py"""
+
+DEFAULT_CONFIG = "config.json"
+DEFAULT_WSGI = "filename.wsgi"
+DEFAULT_FILENAME = "FILENAME.EXT"
+DEFAULT_ETL = "ETL_FILENAME.py"
 
 #===============================================================================
 # COMMANDS
 #===============================================================================
-RETURNS = ""                                                                    # what is returns?
-
 
 @manager.command
 def list():
     """List all available connection strings in yatel"""
     for engine in db.ENGINES:
         print "{}: {}".format(engine, db.ENGINE_URIS[engine])
-
-
-@manager.option(dest="database", help="the database host")
-def database(database):
-    """Database to be open with yatel (see yatel list)
-
-    """
-    return db.parse_uri(database, log=log or None)                          # how to use log?
 
 
 @manager.option(dest="level", help="the test level")
@@ -78,78 +92,68 @@ def test(level):
     tests.run_tests(level)
 
 
-@manager.option(dest="mode", choices=("r", "w", "a"), help="the option to open database")
-def mode(mode):
-    """The mode to open the database [r|w|a]"""
-    if RETURNS.database:
-        RETURNS.database["mode"] = mode
-
-
-@manager.command
-def describe():
-    """Print information about the network"""
-    conn_data = RETURNS.database
-    nw = db.YatelNetwork(**conn_data)
+@manager.option(dest="database", help=CONNECTION_STRING_HELP)
+def describe(database):
+    """Print information about the network. Based """
+    nw = get_database(database)
     pprint.pprint(dict(nw.describe()))
 
     
-@manager.option(dest="filename", default="FILENAME.EXT", help="the filename", type=argparse.FileType("w"))
-def dump(dump_file):
+@manager.option(dest="dump_file", default=DEFAULT_FILENAME, help=FILENAME_HELP,
+                                                    type=argparse.FileType("w"))
+@manager.option(dest="database", help=CONNECTION_STRING_HELP)
+def dump(database, dump_file):
     """Export the given database to EXT format.
 
     """
     file_name, ext = dump_file.name.rsplit(".", 1)                              # it is mandatory to set them lower case?
-    conn_data = RETURNS.database
-    nw = db.YatelNetwork(**conn_data)
+    nw = get_database(database)
     io.dump(ext=ext, nw=nw, stream=dump_file)
 
 
-@manager.option(dest="filename", default="FILENAME.json", help="the filename")
-def backup(filename):
-    """Like dump but always create a new file with the format 'filename_template<TIMESTAMP>.EXT'.
+@manager.option(dest="backup_file", default=DEFAULT_FILENAME, help=FILENAME_HELP)
+@manager.option(dest="database", help=CONNECTION_STRING_HELP)
+def backup(database, backup_file):
+    """Like dump but always create a new file with the format
+    'filename_template<TIMESTAMP>.EXT'.
 
     """
-    fname, ext = filename.rsplit(".", 1)
+    fname, ext = backup_file.rsplit(".", 1)
 
     fpath = "{}{}.{}".format(fname, datetime.datetime.utcnow().isoformat(), ext)
 
-    conn_data = RETURNS.database
-    nw = db.YatelNetwork(**conn_data)
+    nw = get_database(database)
 
     with open(fpath, 'w') as fp:
         io.dump(ext=ext.lower(), nw=nw, stream=fp)
 
 
-@manager.option(dest="load_file", default="FILENAME.EXT", help="the filename", type=argparse.FileType())
-def load(load_file):
+@manager.option(dest="load_file", default=DEFAULT_FILENAME, help=FILENAME_HELP,
+                                                    type=argparse.FileType("r"))
+@manager.option(dest="database", help=CONNECTION_STRING_HELP)
+def load(database, load_file):
     """Import the given file to the given database.
 
     """
     ext = load_file.name.rsplit(".", 1)[-1].lower()
-    conn_data = RETURNS.database
-    nw = db.YatelNetwork(**conn_data)
-    io.load(ext=ext, nw=nw, stream=load_file)
+    nw = get_database(database)
+    io.load(ext=ext, nw=nw, stream=load_file)                                   # donde le pasamos el modo (reemplazar|agregar)?
     nw.confirm_changes()
 
-
-@manager.option(dest="database", default="database", help="the connection string")
-def copy(database):
+@manager.option(dest="database_orig", help=CONNECTION_STRING_HELP)
+@manager.option(dest="database_dest", help=CONNECTION_STRING_HELP)
+def copy(database_orig, database_dest):
     """Copy the database of `database` to this connection"""
 
-    to_conn_data = db.parse_uri(database, mode=db.MODE_WRITE, log=flags.log)    # how we use the flags.log?
-    _fail_if_no_force("--copy", to_conn_data)
-
-    to_nw = db.YatelNetwork(**to_conn_data)
-
-    conn_data = RETURNS.database
-    from_nw = db.YatelNetwork(**conn_data)
-
+    # _fail_if_no_force("--copy", to_conn_data)                                 # pasar esto a get_database
+    to_nw = get_database(database_dest)
+    from_nw = get_database(database_orig)
     db.copy(from_nw, to_nw)
     to_nw.confirm_changes()
 
 
-@manager.option(dest="config", default="config.json", help="the config file")
-@manager.option(dest="filename", default="filename.wsgi", help="the file name")
+@manager.option(dest="config", default=DEFAULT_CONFIG, help=CONFIG_STRING_HELP)
+@manager.option(dest="filename", default=DEFAULT_WSGI, help=WSGI_STRING_HELP)
 def createwsgi(config, filename):
     """Create a new wsgi file for a given configuration"""
     filename_ext = filename.rsplit(".", 1)[-1].lower()
@@ -160,7 +164,8 @@ def createwsgi(config, filename):
         fp.write(server.get_wsgi_template(config))
 
 
-@manager.option(dest="config_file", default="config.json", help="the file name", type=argparse.FileType('w'))
+@manager.option(dest="config_file", default=DEFAULT_CONFIG,
+                        help=CONFIG_STRING_HELP, type=argparse.FileType('w'))
 def createconf(config_file):
     """Create a new configuration file for runserver"""
     ext = config_file.name.rsplit(".", 1)[-1].lower()
@@ -171,8 +176,8 @@ def createconf(config_file):
     fp.write(tpl)
 
 
-@manager.option(dest="config", default="config.json", help="the config file")
-@manager.option(dest="host_port", help="the host:port")
+@manager.option(dest="config", default=DEFAULT_CONFIG, help=CONFIG_STRING_HELP)
+@manager.option(dest="host_port", help=HOSTNAME_STRING_HELP)
 def runserver(config, host_port):
     """Run yatel as http server with a given config file"""
     host, port = host_port.split(":", 1)
@@ -182,7 +187,8 @@ def runserver(config, host_port):
     srv.run(host=host, port=int(port), debug=data["CONFIG"]["DEBUG"])
 
 
-@manager.option(dest="etl_file", default="ETL_FILENAME.py", help="the file name", type=argparse.FileType('w'))
+@manager.option(dest="etl_file", default=DEFAULT_ETL, help=ETL_STRING_HELP,
+                                                    type=argparse.FileType('w'))
 def createetl(etl_file):
     """Create a template file for write yout own etl"""
     ext = etl_file.name.rsplit(".", 1)[-1].lower()
@@ -193,7 +199,7 @@ def createetl(etl_file):
     fp.write(tpl)
 
 
-@manager.option(dest="module_path_file", help="path/to/the/module.py")
+@manager.option(dest="module_path_file", help=ETL_STRING_HELP)
 def describeetl(module_path_file):
     """Return a list of parameters and documentataton about the etl
 
@@ -213,7 +219,7 @@ def describeetl(module_path_file):
 
 
 @manager.option(dest="args", help="Arguments for etl excecute", nargs="+")
-@manager.option(dest="module_path_file", help="path/to/the/module.py")
+@manager.option(dest="module_path_file", help=ETL_STRING_HELP)
 def runetl(module_path_file, args):
     """Run one or more etl inside of a given script.
 
@@ -245,13 +251,19 @@ def _fail_if_no_force(cmd, conn_data):
         print msg                                                               # this should be a logger
 
 
+def get_database(database):
+    log = manager.app.options['log']
+    #                                                                           # aca no se deberia comprobar con _fail_if_no_force?
+    return db.YatelNetwork(**db.parse_uri(database, log=log))
+
+
 #===============================================================================
 # MAIN FUNCTION
 #===============================================================================
 
 def main():
     args = sys.argv[1:] or ["--help"]
-    if "--full-stack" in args:
+    if set(args).intersection(["--full-stack", "-k"]):
         manager.run()
     else:
         try:
