@@ -136,7 +136,7 @@ def simplifier(obj):
 
 
 def parse(obj):
-    """Parses an objects type and value, according to dictionary maps
+    """Parses an objects type and value, according to the dictionary maps
     
     """
     
