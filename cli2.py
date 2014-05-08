@@ -1,13 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# "THE WISKEY-WARE LICENSE":
+# <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
+# you can do whatever you want with this stuff. If we meet some day, and you
+# think this stuff is worth it, you can buy us a WISKEY us return.
+
+
+#==============================================================================
+# DOCS
+#==============================================================================
+
+"""Launcher of yatel cli tools
+
+"""
+
+
+#==============================================================================
+# IMPORTS
+#==============================================================================
+
 import sys
 import pprint
 import datetime
 import argparse
 import json
 
-from flask.ext.script import Manager
+from flask.ext.script import Manager, Command, Option
 
 from yatel import db, tests, server, etl
 from yatel import io
@@ -22,205 +41,311 @@ class _FlaskMock(object):
 
     """
     def __init__(self, *a, **kw):
-        if kw:
-            self.options = kw
+        self.options = kw
     def __getattr__(self, *a, **kw):
         return _FlaskMock()
     def __call__(self, *a, **kw):
-        return _FlaskMock()
+        return _FlaskMock(*a, **kw)
     def __exit__(self, *a, **kw):
         return _FlaskMock()
     def __enter__(self, *a, **kw):
         return _FlaskMock()
 
-manager = Manager(_FlaskMock, with_default_commands=False)
+manager = Manager(_FlaskMock(), with_default_commands=False)
+
+
+#==============================================================================
+# DECOTATOR
+#==============================================================================
+
+def command(name):
+    """Clean way to register class based commands
+
+    """
+    def _dec(cls):
+        manager.add_command(name, cls())
+        return cls
+    return _dec
+
 
 #===============================================================================
 # OPTIONS
 #===============================================================================
 
 manager.add_option(
-    "-k", "--full-stack", dest="full-stack", required=False, action="store_true"
+    "-k", "--full-stack", dest="full-stack", required=False,
+    action="store_true", help="If the command fails print all Python stack"
 )
 
 manager.add_option(
-    "-l", "--log", dest="log", required=False, action="store_true"
+    "-l", "--log", dest="log", required=False,
+    action="store_true", help="Enable engine logger"
 )
 
-#===============================================================================
-# CONSTANTS
-#===============================================================================
-RETURNS = ""                                                                    # what is returns?
-CONNECTION_STRING_HELP = """The given string is parsed according to the RFC 1738
-spec.
+manager.add_option(
+    "-f", "--force", dest="log", required=False,
+    action="store_true",
+    help=("If a database is try to open in 'w' or 'a' and a Yatel Network "
+          "is discovered overwrite it")
+)
 
-"""
 
-FILENAME_HELP = """Path al archivo de los datos.
+#==============================================================================
+# CUSTOM TYPES
+#==============================================================================
 
-El formato del contenido del archivo es determinado por la extension del mismo.
-Las extensiones pueden ser: {}
+class Database(object):
+    """This class parse and validate the open mode of a databases"""
 
-""".format(", ".join(io.PARSERS.keys()))
+    def __init__(self, mode):
+        self.mode = mode
 
-CONFIG_STRING_HELP = """"""
-WSGI_STRING_HELP = """"""
-HOSTNAME_STRING_HELP = """"""
-ETL_STRING_HELP = """ETL_FILENAME.py"""
+    def __call__(self, toparse):
+        log = "--log" in sys.argv or "-l" in sys.argv
+        kwargs = db.parse_uri(toparse, log=log, mode=self.mode)
+        return db.YatelNetwork(**kwargs)
 
-DEFAULT_CONFIG = "config.json"
-DEFAULT_WSGI = "filename.wsgi"
-DEFAULT_FILENAME = "FILENAME.EXT"
-DEFAULT_ETL = "ETL_FILENAME.py"
 
 #===============================================================================
 # COMMANDS
 #===============================================================================
 
-@manager.command
-def list():
+@command("list")
+class List(Command):
     """List all available connection strings in yatel"""
-    for engine in db.ENGINES:
-        print "{}: {}".format(engine, db.ENGINE_URIS[engine])
+
+    def run(self):
+        for engine in db.ENGINES:
+            print "{}: {}".format(engine, db.ENGINE_URIS[engine])
 
 
-@manager.option(dest="level", help="the test level")
-def test(level):
+@command("test")
+class Test(Command):
     """Run all yatel test suites
 
     """
-    tests.run_tests(level)
+
+    option_list = [
+        Option(dest='level', type=int, help="Test level [0|1|2]")
+    ]
+
+    def run(self, level):
+        tests.run_tests(level)
 
 
-@manager.option(dest="database", help=CONNECTION_STRING_HELP)
-def describe(database):
-    """Print information about the network. Based """
-    nw = get_database(database)
-    pprint.pprint(dict(nw.describe()))
+@command("describe")
+class Describe(Command):
+    """Print information about the network"""
 
-    
-@manager.option(dest="dump_file", default=DEFAULT_FILENAME, help=FILENAME_HELP,
-                                                    type=argparse.FileType("w"))
-@manager.option(dest="database", help=CONNECTION_STRING_HELP)
-def dump(database, dump_file):
-    """Export the given database to EXT format.
+    option_list = [
+        Option(
+            dest='database', type=Database(db.MODE_READ),
+            help="Connection string to database according to the RFC 1738 spec."
+        ),
+    ]
+
+    def run(self, database):
+        pprint.pprint(dict(database.describe()))
+
+
+@command("dump")
+class Dump(Command):
+    """Export the given database to file.
+    The extension of a file determine the format
 
     """
-    file_name, ext = dump_file.name.rsplit(".", 1)                              # it is mandatory to set them lower case?
-    nw = get_database(database)
-    io.dump(ext=ext, nw=nw, stream=dump_file)
+
+    option_list = [
+        Option(
+            dest='database', type=Database(db.MODE_READ),
+            help="Connection string to database according to the RFC 1738 spec."
+        ),
+        Option(
+            dest='dumpfile', type=argparse.FileType("w"),
+            help=("File path to dump al the content of the database. "
+                  "Suported formats: {}".format(", ".join(io.PARSERS.keys())))
+        )
+    ]
+
+    def run(self, database, dumpfile):
+        ext = dumpfile.name.rsplit(".", 1)[-1]
+        io.dump(ext=ext.lower(), nw=database, stream=dumpfile)
 
 
-@manager.option(dest="backup_file", default=DEFAULT_FILENAME, help=FILENAME_HELP)
-@manager.option(dest="database", help=CONNECTION_STRING_HELP)
-def backup(database, backup_file):
+@command("backup")
+class Backup(Command):
     """Like dump but always create a new file with the format
-    'filename_template<TIMESTAMP>.EXT'.
+     'backup_file<TIMESTAMP>.EXT'.
 
-    """
-    fname, ext = backup_file.rsplit(".", 1)
+     """
 
-    fpath = "{}{}.{}".format(fname, datetime.datetime.utcnow().isoformat(), ext)
+    option_list = [
+        Option(
+            dest='database', type=Database(db.MODE_READ),
+            help="Connection string to database according to the RFC 1738 spec."
+        ),
+        Option(
+            dest='backupfile',
+            help=("File path template to dump al the content of the database. "
+                  "Suported formats: {}".format(", ".join(io.PARSERS.keys())))
+        )
+    ]
 
-    nw = get_database(database)
+    def run(self, database, backupfile):
+        fname, ext = backupfile.rsplit(".", 1)
+        fpath = "{}{}.{}".format(
+            fname, datetime.datetime.utcnow().isoformat(), ext
+        )
+        nw = get_database(database)
+        with open(fpath, 'w') as fp:
+            io.dump(ext=ext.lower(), nw=database, stream=fp)
 
-    with open(fpath, 'w') as fp:
-        io.dump(ext=ext.lower(), nw=nw, stream=fp)
 
-
-@manager.option(dest="load_file", default=DEFAULT_FILENAME, help=FILENAME_HELP,
-                                                    type=argparse.FileType("r"))
-@manager.option(dest="database", help=CONNECTION_STRING_HELP)
-def load(database, load_file):
+@command("load")
+class Load(Command):
     """Import the given file to the given database.
 
     """
-    ext = load_file.name.rsplit(".", 1)[-1].lower()
-    nw = get_database(database)
-    io.load(ext=ext, nw=nw, stream=load_file)                                   # donde le pasamos el modo (reemplazar|agregar)?
-    nw.confirm_changes()
 
-@manager.option(dest="database_orig", help=CONNECTION_STRING_HELP)
-@manager.option(dest="database_dest", help=CONNECTION_STRING_HELP)
-def copy(database_orig, database_dest):
-    """Copy the database of `database` to this connection"""
+    option_list = [
+        Option(
+            dest='database', type=Database(db.MODE_WRITE),
+            help="Connection string to database according to the RFC 1738 spec."
+        ),
+        Option(
+            dest='datafile',
+            help=("File path of the existing data file. "
+                  "Suported formats: {}".format(", ".join(io.PARSERS.keys())))
+        )
+    ]
 
-    # _fail_if_no_force("--copy", to_conn_data)                                 # pasar esto a get_database
-    to_nw = get_database(database_dest)
-    from_nw = get_database(database_orig)
-    db.copy(from_nw, to_nw)
-    to_nw.confirm_changes()
-
-
-@manager.option(dest="config", default=DEFAULT_CONFIG, help=CONFIG_STRING_HELP)
-@manager.option(dest="filename", default=DEFAULT_WSGI, help=WSGI_STRING_HELP)
-def createwsgi(config, filename):
-    """Create a new wsgi file for a given configuration"""
-    filename_ext = filename.rsplit(".", 1)[-1].lower()
-    if filename_ext != "wsgi":
-        msg = "Invalid extension '{}'. must be 'wsgi'".format(filename_ext)
-        raise ValueError(msg)
-    with open(filename, "w") as fp:
-        fp.write(server.get_wsgi_template(config))
+    def run(self, database, datafile):
+        ext = datafile.name.rsplit(".", 1)[-1]
+        io.load(ext=ext.lower(), nw=database, stream=datafile)
+        database.confirm_changes()
 
 
-@manager.option(dest="config_file", default=DEFAULT_CONFIG,
-                        help=CONFIG_STRING_HELP, type=argparse.FileType('w'))
-def createconf(config_file):
-    """Create a new configuration file for runserver"""
-    ext = config_file.name.rsplit(".", 1)[-1].lower()
-    if ext != "json":
-        raise ValueError("Invalid extension '{}'. must be 'json'".format(ext))
-    tpl = server.get_conf_template()
-    fp = config_file                                                                 # this must be a file?
-    fp.write(tpl)
-
-
-@manager.option(dest="config", default=DEFAULT_CONFIG, help=CONFIG_STRING_HELP)
-@manager.option(dest="host_port", help=HOSTNAME_STRING_HELP)
-def runserver(config, host_port):
-    """Run yatel as http server with a given config file"""
-    host, port = host_port.split(":", 1)
-    with open(config) as fp:
-        data = json.load(fp)
-    srv = server.from_dict(data)
-    srv.run(host=host, port=int(port), debug=data["CONFIG"]["DEBUG"])
-
-
-@manager.option(dest="etl_file", default=DEFAULT_ETL, help=ETL_STRING_HELP,
-                                                    type=argparse.FileType('w'))
-def createetl(etl_file):
-    """Create a template file for write yout own etl"""
-    ext = etl_file.name.rsplit(".", 1)[-1].lower()
-    if ext != "py":
-        raise ValueError("Invalid extension '{}'. must be 'py'".format(ext))
-    tpl = etl.get_template()
-    fp = etl_file
-    fp.write(tpl)
-
-
-@manager.option(dest="module_path_file", help=ETL_STRING_HELP)
-def describeetl(module_path_file):
-    """Return a list of parameters and documentataton about the etl
-
-    The argument is in the format path/to/module.py
-
-    The BaseETL subclass must be names after ETL
+@command("copy")
+class Copy(Command):
+    """Copy a yatel network to another database
 
     """
-    etl_cls = etl.etlcls_from_module(module_path_file, "ETL")
-    doc = etl_cls.__doc__ or "-"
-    params = ", ".join(etl_cls.setup_args)
-    print ("ETL CLASS: {cls}\n"
-           "FILE: {path}\n"
-           "DOC: {doc}\n"
-           "PARAMETERS: {params}\n").format(cls=clsname, path=module_path_file, # what is clsname???
-                                            doc=doc, params=params)
+
+    option_list = [
+        Option(
+            dest='database_from', type=Database(db.MODE_READ),
+            help="Connection string to database according to the RFC 1738 spec."
+        ),
+        Option(
+            dest='database_to', type=Database(db.MODE_WRITE),
+            help="Connection string to database according to the RFC 1738 spec."
+        )
+    ]
+
+    def run(self, database_from, database_to):
+        db.copy(database_from, database_to)
+        database_to.confirm_changes()
 
 
-@manager.option(dest="args", help="Arguments for etl excecute", nargs="+")
-@manager.option(dest="module_path_file", help=ETL_STRING_HELP)
-def runetl(module_path_file, args):
+@command("createconf")
+class CreateConf(Command):
+    """Create a new configuration file for yatel"""
+
+    option_list = [
+        Option(
+            dest='config', type=argparse.FileType("w"), help="Config filepath"
+        ),
+
+    ]
+
+    def run(self, config):
+       config.write(server.get_conf_template())
+
+
+@command("createwsgi")
+class CreateWSGI(Command):
+    """Create a new wsgi file for a given configuration"""
+
+    option_list = [
+        Option(dest='config',help="Config filepath"),
+        Option(
+            dest='filename', type=argparse.FileType("w"), help="WSGI filepath"
+        )
+    ]
+
+    def run(self, config, filename):
+        filename.write(server.get_wsgi_template(config))
+
+
+@command("runserver")
+class Runserver(Command):
+    """Run yatel as development http server with a given config file"""
+
+    option_list = [
+        Option(
+            dest='config',  type=argparse.FileType("r"),
+            help="Config filepath"
+        ),
+        Option(
+            dest='host_port',
+            help="Host and port to run yatel in format HOST:PORT"
+        )
+    ]
+
+    def run(self, config, host_port):
+        host, port = host_port.split(":", 1)
+        with open(config) as fp:
+            data = json.load(fp)
+        srv = server.from_dict(data)
+        srv.run(host=host, port=int(port), debug=data["CONFIG"]["DEBUG"])
+
+
+@command("createetl")
+class CreateETL(Command):
+    """Create a template file for write yout own etl"""
+
+    option_list = [
+        Option(
+            dest='etlfile', type=argparse.FileType("w"),
+            help="Python ETL filepath"
+        )
+    ]
+
+    def run(self, etlfile):
+        ext = etlfile.name.rsplit(".", 1)[-1].lower()
+        if ext != "py":
+            raise ValueError(
+                "Invalid extension '{}'. must be 'py'".format(ext)
+            )
+        tpl = etl.get_template()
+        fp = etlfile
+        fp.write(tpl)
+
+
+@command("describeetl")
+class DescribeETL(Command):
+    """Return a list of parameters and documentataton about the etl
+    The argument is in the format path/to/module.py
+    The BaseETL subclass must be named after ETL
+
+    """
+
+    option_list = [
+        Option(dest='etlfile', help="Python ETL filepath")
+    ]
+
+    def run(self, etlfile):
+        etl_cls = etl.etlcls_from_module(etlfile, "ETL")
+        doc = etl_cls.__doc__ or "-"
+        params = ", ".join(etl_cls.setup_args)
+        print ("FILE: {path}\n"
+               "DOC: {doc}\n"
+               "PARAMETERS: {params}\n"
+        ).format(path=etlfile,doc=doc, params=params)
+
+
+@command("runetl")
+class RunETL(Command):
     """Run one or more etl inside of a given script.
 
     The first argument is in the format path/to/module.py
@@ -228,33 +353,21 @@ def runetl(module_path_file, args):
     given class.
 
     """
-    etl_cls = etl.etlcls_from_module(module_path_file, "ETL")
-    etl_instance = etl_cls()
 
-    conn_data = RETURNS.database
+    option_list = [
+        Option(dest='etlfile', help="Python ETL filepath"),
+        Option(dest="args", help="Arguments for etl to excecute", nargs="+"),
+        Option(
+            dest='database', type=Database(db.MODE_WRITE),
+            help="Connection string to database according to the RFC 1738 spec."
+        )
+    ]
 
-    _fail_if_no_force("--run-etl", conn_data)
-
-    nw = db.YatelNetwork(**conn_data)
-
-    etl.execute(nw, etl_instance, *args)
-
-    nw.confirm_changes()
-
-
-def _fail_if_no_force(cmd, conn_data):
-    if db.exists(**conn_data):
-        msg = ("There is an existing 'YatelNetwork' in the conection '{}' and "
-               "the command '{}' will altered it. If you want to destroy it "
-               "anyway use the option '-f' or '--force' along with "
-               "the command '{}'").format(db.to_uri(**conn_data), cmd, cmd)
-        print msg                                                               # this should be a logger
-
-
-def get_database(database):
-    log = manager.app.options['log']
-    #                                                                           # aca no se deberia comprobar con _fail_if_no_force?
-    return db.YatelNetwork(**db.parse_uri(database, log=log))
+    def run(self, database, etlfile, args):
+        etl_cls = etl.etlcls_from_module(etlfile, "ETL")
+        etl_instance = etl_cls()
+        etl.execute(database, etl_instance, *args)
+        database.confirm_changes()
 
 
 #===============================================================================
