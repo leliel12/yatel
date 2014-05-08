@@ -31,6 +31,7 @@ from yatel import dom
 # CONSTANTS
 # =============================================================================
 
+#: Constant to retrieve  value as is
 LITERAL_TYPE = "literal"
 
 CONTAINER_TYPES = (tuple, set, list, frozenset)
@@ -135,6 +136,10 @@ def simplifier(obj):
 
 
 def parse(obj):
+    """Parses an objects type and value, according to dictionary maps
+    
+    """
+    
     typename = obj["type"]
     value = obj["value"]
     if typename == LITERAL_TYPE:
