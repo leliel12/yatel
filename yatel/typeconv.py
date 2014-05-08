@@ -11,7 +11,7 @@
 # DOCS
 # =============================================================================
 
-"""Contains functions for convert various support types of yatel to more easily
+"""Contains functions to convert various support types of yatel to more easily
 serializable types.
 
 """
@@ -35,8 +35,10 @@ LITERAL_TYPE = "literal"
 
 CONTAINER_TYPES = (tuple, set, list, frozenset)
 
+#: Dictionary of yatel domain object model
 HASHED_TYPES = tuple([dict] + dom.YatelDOM.__subclasses__())
 
+#: This dictionary maps types to it's most simple representation
 TO_SIMPLE_TYPES = {
     datetime.datetime: lambda x: x.isoformat(),
     datetime.time: lambda x: x.isoformat(),
@@ -52,6 +54,7 @@ TO_SIMPLE_TYPES = {
     complex: lambda x: unicode(x)
 }
 
+#: This dictionary maps types to python types
 TO_PYTHON_TYPES = {
     datetime.datetime:
         lambda x: datetime.datetime.strptime(x, "%Y-%m-%dT%H:%M:%S.%f"),
@@ -71,6 +74,7 @@ TO_PYTHON_TYPES = {
     complex: complex
 }
 
+#: This dictionary maps data types to their name
 TYPES_TO_NAMES = dict(
     (k, k.__name__)
     for k in TO_SIMPLE_TYPES.keys() +
@@ -79,7 +83,7 @@ TYPES_TO_NAMES = dict(
 )
 TYPES_TO_NAMES[str] = unicode.__name__
 
-
+#: This dictionary maps names to data type
 NAMES_TO_TYPES = dict((v, k) for k, v in TYPES_TO_NAMES.items())
 
 
@@ -88,8 +92,8 @@ NAMES_TO_TYPES = dict((v, k) for k, v in TYPES_TO_NAMES.items())
 # =============================================================================
 
 def np2py(obj):
-    """Convert a numpy number to a closest respresentation of Python traditional
-    objects
+    """Converts a numpy number to it´s closest respresentation of Python 
+    traditional objects
 
     """
     if isinstance(obj, np.number):
@@ -102,13 +106,20 @@ def np2py(obj):
 
 
 def simplifier(obj):
+    """Translates obj given to a python dictionary
+    
+    Returns
+    -------
+    dictionary: dict
+        a dictionary representation of obj
+    
+    """
 
-    # nupy simplifier
+    # numpy simplifier
     if isinstance(obj, np.generic):
         obj = np2py(obj)
     elif isinstance(obj, np.ndarray):
         obj = obj.tolist()
-    import ipdb; ipdb.set_trace()
 
     typename = TYPES_TO_NAMES[type(obj)]
     value = ""

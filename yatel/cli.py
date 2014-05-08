@@ -44,10 +44,10 @@ from yatel import weight
 # GROUPS
 #===============================================================================
 
-# this group represent an option to show information of something
+# this group represents an option to show information of something
 GROUP_INFO = 0
 
-# this group execute some operation over your network
+# this group executes some operation over your network
 GROUP_OP = GROUP_INFO  # information and operation is not allowed
 
 
@@ -230,7 +230,7 @@ def dump(flags, returns):
 @parser.callback(exclusive=GROUP_OP, action="store",
                  metavar="FILENAME_TEMPLATE.json", exit=0)
 def backup(flags, returns):
-    """Like dump but always create a new file with the format
+    """Like dump but always creates a new file with the format
     'filename_template<TIMESTAMP>.EXT'.
 
     """

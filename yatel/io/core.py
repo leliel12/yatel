@@ -7,16 +7,16 @@
 # think this stuff is worth it, you can buy us a WISKEY in return.
 
 
-#===============================================================================
+# =============================================================================
 # DOC
-#===============================================================================
+# =============================================================================
 
 """Base structure for yatel parsers"""
 
 
-#===============================================================================
+# =============================================================================
 # IMPORTS
-#===============================================================================
+# =============================================================================
 
 try:
     import cStringIO as StringIO
@@ -26,19 +26,20 @@ except:
 import abc
 
 
-#===============================================================================
+# =============================================================================
 # CONSTANTS
-#===============================================================================
+# =============================================================================
 
 YF_VERSION = ("0", "5")
 YF_STR_VERSION = ".".join(YF_VERSION)
 
 
-#===============================================================================
+# =============================================================================
 # CLASS
-#===============================================================================
+# =============================================================================
 
 class BaseParser(object):
+    """Base structure for yatel parsers"""
 
     __metaclass__ = abc.ABCMeta
 
@@ -51,25 +52,54 @@ class BaseParser(object):
         raise NotImplementedError()
 
     def dumps(self, nw, *args, **kwargs):
+        """Serialize a yatel db to a formatted string
+        
+        Parameters
+        ----------
+        nw : yatel.db.YatelNetwork
+            network source of data
+        
+        Returns
+        -------
+        string: str
+            json formatted string
+        
+        """
         fp = StringIO.StringIO()
         self.dump(nw, fp, *args, **kwargs)
         return fp.getvalue()
 
     def loads(self, nw, string, *args, **kwargs):
+        """Deserialize a formatted string to add it into the yatel db
+        
+        Parameters
+        ----------
+        nw : yatel.db.YatelNetwork
+            network destination for data
+        string: str
+            String to be deserialize
+        
+        """
         fp = StringIO.StringIO(string)
         self.loads(nw, fp, *args, **kwargs)
 
     @abc.abstractmethod
     def dump(self, nw, fp, *args, **kwargs):
+        """Serializes data from a yatel network to a file
+        
+        """
         raise NotImplementedError()
 
     @abc.abstractmethod
     def load(self, nw, fp, *args, **kwargs):
+        """Deserializes data from a file and adds it to the yatel network
+        
+        """
         raise NotImplementedError()
 
-#===============================================================================
+# =============================================================================
 # MAIN
-#===============================================================================
+# =============================================================================
 
 if __name__ == "__main__":
     print(__doc__)

@@ -7,17 +7,17 @@
 # think this stuff is worth it, you can buy me a WISKEY us return.
 
 
-#===============================================================================
+# =============================================================================
 # DOCS
-#===============================================================================
+# =============================================================================
 
 '''Persist yatel db in XML format
 
 '''
 
-#===============================================================================
+# =============================================================================
 # IMPORTS
-#===============================================================================
+# =============================================================================
 
 from xml import sax
 from xml.sax import saxutils
@@ -26,23 +26,28 @@ from yatel import typeconv
 from yatel.io import core
 
 
-#===============================================================================
+# =============================================================================
 # IO FUNCTIONS
-#===============================================================================
+# =============================================================================
 
 class XMLParser(core.BaseParser):
+    """A XML parser to serialize from a yatel networks to a XML formatted 
+    file or string, and deserialize to a yatel network from a XML formatted 
+    file or string.
+    
+    """
 
     @classmethod
     def file_exts(cls):
         return ("yxf", "xml")
 
-    #===========================================================================
+    # =========================================================================
     # DUMP
-    #===========================================================================
+    # =========================================================================
 
     def start_elem(self, tag, attrs={}):
         attrs = u' '.join([u'{}={}'.format(k, saxutils.quoteattr(v))
-                                           for k, v in attrs.items()])
+                          for k, v in attrs.items()])
         return u'<{tag} {attrs}>'.format(tag=tag, attrs=attrs)
 
     def end_elem(self, tag):
@@ -51,8 +56,17 @@ class XMLParser(core.BaseParser):
     def to_content(self, data):
         return saxutils.escape(str(data))
 
-
     def dump(self, nw, fp, *args, **kwargs):
+        """Serializes a yatel db in a XML format.
+        
+        Parameters
+        ----------
+        nw : yatel.db.YatelNetwork
+            network source of data
+        fp: file like object
+            Destination file
+        
+        """
 
         fp.write(self.start_elem(u"Network", {u"version": self.version()}))
 
@@ -89,7 +103,7 @@ class XMLParser(core.BaseParser):
             fp.write(self.end_elem(u"Attribute"))
 
             fp.write(self.start_elem(u"Attribute",
-                {u"name": u"haps_id", u"type": attrs["haps_id"]["type"]}
+                     {u"name": u"haps_id", u"type": attrs["haps_id"]["type"]}
             ))
             for hap_id_data in attrs["haps_id"]["value"]:
                 xmlattrs = {"name": u"hap_id", u"type": hap_id_data["type"]}
@@ -100,15 +114,23 @@ class XMLParser(core.BaseParser):
             fp.write(self.end_elem(u"Edge"))
         fp.write(self.end_elem(u"Edges"))
 
-
         fp.write(self.end_elem(u"Network"))
 
-
-    #===========================================================================
+    # =========================================================================
     # LOAD
-    #===========================================================================
+    # =========================================================================
 
     def load(self, nw, fp, *args, **kwargs):
+        """Deserializes data from a XML file and adds it to the yatel network
+        
+        Parameters
+        ----------
+        nw : yatel.db.YatelNetwork
+            destination network for data
+        fp: file like object
+            source file
+            
+        """
 
         class YatelXMLHandler(sax.ContentHandler):
 
@@ -133,7 +155,7 @@ class XMLParser(core.BaseParser):
                 elif self.stk == ["Network", "Haplotypes", "Haplotype", "Attribute"]:
                     aname = saxutils.unescape(attrs["name"])
                     atype = saxutils.unescape(attrs["type"])
-                    self.buff["last"] =  {"name": aname, "type": atype}
+                    self.buff["last"] = {"name": aname, "type": atype}
 
                 # facts
                 elif self.stk == ["Network", "Facts", "Fact"]:
@@ -141,7 +163,7 @@ class XMLParser(core.BaseParser):
                 elif self.stk == ["Network", "Facts", "Fact", "Attribute"]:
                     aname = saxutils.unescape(attrs["name"])
                     atype = saxutils.unescape(attrs["type"])
-                    self.buff["last"] =  {"name": aname, "type": atype}
+                    self.buff["last"] = {"name": aname, "type": atype}
 
                 # edges
                 elif self.stk == ["Network", "Edges", "Edge"]:
@@ -216,10 +238,9 @@ class XMLParser(core.BaseParser):
         sax.parse(fp, handler)
 
 
-#===============================================================================
+# =============================================================================
 # MAIN
-#===============================================================================
+# =============================================================================
 
 if __name__ == '__main__':
     print(__doc__)
-
