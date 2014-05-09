@@ -19,7 +19,10 @@
 
 import unittest
 import random
+import functools
 import tempfile
+
+import numpy as np
 
 from yatel import db, dom, weight
 
@@ -95,8 +98,8 @@ class YatelTestCase(unittest.TestCase):
                 attrs[k] = v()
             return attrs
 
-        haps_n = 10
-        facts_n = 100
+        haps_n = 5
+        facts_n = 10
         weight_calc = "ham"
 
         haps = []
@@ -130,8 +133,14 @@ class YatelTestCase(unittest.TestCase):
         if self.conn()["engine"] == "sqlite":
             os.remove(self.conn()["database"])
 
+    def assertAproxDatetime(self, dt0, dt1):
+        self.assertEqual(
+            dt0.isoformat().rsplit(".", 1)[0],
+            dt1.isoformat().rsplit(".", 1)[0]
+        )
+
     def assertSameUnsortedContent(self, i0, i1):
-        i0 = list(i0)
+        i0 = list(sorted(i0))
         i1 = list(i1)
         while i0:
             elem = i0.pop()
@@ -145,9 +154,55 @@ class YatelTestCase(unittest.TestCase):
             msg = "'{}' only in one collection".format(repr(elem))
             raise AssertionError(msg)
 
+    def assertUnsortedNDArray(self, arr0, arr1):
+        # happy to compare disorder floats in numpy...
+        used = set()
+        for idx, coordo in enumerate(arr0):
+            fail = True
+            for jdx, coordr in enumerate(arr1):
+                if np.allclose(coordo, coordr, rtol=1e-01) and jdx not in used:
+                    fail = False
+                    used.add(jdx)
+                    break
+            self.assertFalse(fail, "{} != {}".format(arr0, arr1))
+
     def rrange(self, li, ls):
         top = random.randint(li, ls)
         return xrange(top)
+
+    def rchoice(self, iterable):
+        return random.choice(tuple(iterable))
+
+
+#==============================================================================
+# DECORATORS
+#==============================================================================
+
+def multiple_runs(runs, validation_function=None):
+    if validation_function is None:
+        validation_function = lambda r, c: np.all(r), None
+    def _dec(func):
+        @functools.wraps(func)
+        def _wrap(self, **kw):
+            results = []
+            causes = []
+            for run in range(runs):
+                try:
+                    func(self, **kw)
+                    self.tearDown()
+                    self.setUp()
+                except AssertionError as err:
+                    results.append(False)
+                    causes.append(err)
+                else:
+                    results.append(True)
+                    causes.append(None)
+            resume, cause = validation_function(results, causes)
+            generic_cause = "Multiple runs fails in '{}' cases".format(runs)
+            self.assertTrue(resume, cause or generic_cause)
+        return _wrap
+    return _dec
+
 
 #===============================================================================
 # MAIN

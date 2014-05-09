@@ -19,7 +19,8 @@
 
 import random
 
-from yatel import db
+from yatel import db, dom
+
 from yatel.tests.core import YatelTestCase
 
 
@@ -49,6 +50,43 @@ class TestDBFunctions(YatelTestCase):
             anw_values = getattr(anw, method)()
             self.assertSameUnsortedContent(nw_values, anw_values)
         self.assertEquals(self.nw.describe(), anw.describe())
+
+#==============================================================================
+# NETWORK
+#==============================================================================
+
+class YatelNetwork(YatelTestCase):
+
+    def setUp(self):
+        self.haplotypes = [
+            dom.Haplotype(0, name="Cordoba", clima="calor", age=200),
+            dom.Haplotype(1, name="Cordoba", population=12),
+            dom.Haplotype(2, name="Cordoba")
+        ]
+        self.edges = [
+            dom.Edge(6599, (0, 1)),
+            dom.Edge(8924, (1, 2)),
+            dom.Edge(9871, (2, 0))
+        ]
+        self.facts = [
+            dom.Fact(0, name="Andalucia", lang="sp", timezone="utc-3"),
+            dom.Fact(1, lang="sp"),
+            dom.Fact(1, timezone="utc-6"),
+            dom.Fact(2, name="Andalucia", lang="sp", timezone="utc")
+        ]
+        self.nw = db.YatelNetwork("memory", mode="w")
+        self.nw.add_elements(self.haplotypes + self.edges + self.facts)
+        self.nw.confirm_changes()
+
+    def test_edges_by_enviroment(self):
+        rs = list(self.nw.edges_by_enviroment(name="Andalucia"))
+        self.assertEqual(len(rs), 1)
+        self.assertEqual(rs[0], self.edges[2])
+
+
+
+
+
 
 
 #===============================================================================

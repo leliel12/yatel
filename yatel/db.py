@@ -509,7 +509,7 @@ class YatelNetwork(object):
         self.validate_read()
         return self._engine.execute(query)
 
-    def enviroments(self, facts_attrs=[]):
+    def enviroments(self, facts_attrs=None):
         """Iterates over all convinations of enviroments of the given attrs
 
         **REQUIRE MODE:** r
@@ -536,6 +536,7 @@ class YatelNetwork(object):
         ...
 
         """
+        facts_attrs = facts_attrs or ()
         if "hap_id" in facts_attrs:
             raise ValueError("Invalid fact attr: 'hap_id'")
         if "id" in facts_attrs:
@@ -684,15 +685,21 @@ class YatelNetwork(object):
         """
         env = dict(env) if env else {}
         env.update(kwargs)
-        where = sql.and_(*[self.facts_table.c[k] == v
-                           for k, v in env.items()])
-        query = sql.select([self.facts_table.c.hap_id]).where(where).distinct()
-        print tuple(self.execute(query))
 
-        print query
-
-
-
+        subquery = sql.select([self.facts_table.c.hap_id]).where(
+            sql.and_(
+                *[self.facts_table.c[k] == v for k, v in env.items()]
+            )
+        ).distinct()
+        query = sql.select([self.edges_table]).distinct()
+        for cnt in range(self.describe().edge_attributes["max_nodes"]):
+            alias = subquery.alias("sub_{}".format(cnt))
+            attr = "hap_{}".format(cnt)
+            query = query.select_from(alias).where(
+                self.edges_table.c[attr] == alias.c.hap_id
+            )
+        for row in self.execute(query):
+            yield self._row2edge(row)
 
     def edges_by_haplotype(self, hap):
         """Iterates over all the edges of a given ``dom.Haplotype``.

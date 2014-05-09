@@ -38,6 +38,9 @@ class YatelDOM(collections.Mapping):
         self._data = attrs
         super(YatelDOM, self).__init__()
 
+    def __hash__(self):
+        return hash(tuple(self._data)) + 555
+
     def __getitem__(self, k):
         return self._data[k]
 
@@ -49,7 +52,7 @@ class YatelDOM(collections.Mapping):
 
     def __eq__(self, obj):
         """x.__eq__(y) <==> x==y"""
-        return isinstance(obj, type(self)) and super(YatelDOM, self).__eq__(obj)
+        return isinstance(obj, type(self)) and self._data == obj._data
 
     def __ne__(self, obj):
         """x.__ne__(y) <==> x!=y"""
@@ -145,13 +148,16 @@ class Edge(YatelDOM):
             :haps_id: The list of the related haplotypes.
 
         """
-        super(Edge, self).__init__(weight=float(weight), haps_id=haps_id)
+        super(Edge, self).__init__(
+            weight=float(weight), haps_id=tuple(haps_id)
+        )
 
     def __repr__(self):
         """x.__repr__() <==> repr(x)"""
         cls = type(self).__name__
-        desc = "[{weight} {haps_id}]  ".format(weight=self.weight,
-                                               haps_id=str(self.haps_id))
+        desc = "{weight} {haps_id}".format(
+            weight=self.weight, haps_id=str(self.haps_id)
+        )
         at = hex(id(self))
         return "<{cls} ({desc}) at {at}>".format(cls=cls, desc=desc, at=at)
 

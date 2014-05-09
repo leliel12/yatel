@@ -81,7 +81,7 @@ class BaseParser(object):
         
         """
         fp = StringIO.StringIO(string)
-        self.loads(nw, fp, *args, **kwargs)
+        self.load(nw, fp, *args, **kwargs)
 
     @abc.abstractmethod
     def dump(self, nw, fp, *args, **kwargs):

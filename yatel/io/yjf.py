@@ -52,7 +52,6 @@ class JSONParser(core.BaseParser):
         
         """
         kwargs["ensure_ascii"] = kwargs.get("ensure_ascii", True)
-        kwargs["indent"] = 2
         data = {
             "haplotypes":  map(typeconv.simplifier, nw.haplotypes()),
             "facts": map(typeconv.simplifier, nw.facts()),
