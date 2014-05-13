@@ -73,9 +73,78 @@ Las funciones de transformacion son dos:
     array([ 9871.0], dtype=float128)
 
 
+Funciones de Calculo
+--------------------
+
+Las funciones de calculo son las encargadas de calcular eficientemente
+estadisticas sobre la variabilidad de una red o ambiente de una red.
+El listado completo de funciones las puede encontrar en el la referencia
+del módulo stats.
+
+.. code-block:: python
+
+    # calulamos la media
+    >>> stats.average(nw)
+
+    # o de un ambiente
+    >>> stats.average(nw, , name="Andalucia")
 
 
+Por motivos de rendimiento muchas veces es conveniente extraer todos los pesos
+de un ambiente antes de realizar muchos calculos (esto puede acelerar varios
+cientos de veces los calculos sucesivos ya que obvia el acceso a a base de
+datos)
+
+.. code-block:: python
+
+    # extraemos el array con los valores
+    >>> arr = stats.env2weightarray(nw, name="Andalucia")
+
+    # calculamos la desviacion
+    >>> stats.std(arr)
 
 
+Las funciones tambien soportan iterables de python como pueden ser listas
+o tuplas
 
+.. code-block:: python
+
+    >>> stats.average([1, 2, 3])
+
+    # esto va a devolver no es un numero
+    >>> stats.average([])
+    nan
+
+
+Un ejemplo mas avanzado
+-----------------------
+
+Vamos a calcular un
+`One-Way ANOVA <http://en.wikipedia.org/wiki/Analysis_of_variance>`_ con
+dos ambientes de nuestra red.
+
+.. code-block:: python
+
+    # importamos el one-way anova
+    >>> from scipy.stats import f_oneway
+
+    # primera muestra
+    >>> arr0 = stats.env2weightarray(nw, lan="sp")
+
+    # segunda muestra
+    >>> arr1 = stats.env2weightarray(nw, name="Andalucia")
+
+    # tercera muestra
+    >>> arr2 = stats.env2weightarray(nw, timezone="utc")
+
+    >>> f, p = f_oneway(arr0, arr1, arr2)
+
+    # valor de F
+    >>> f
+
+    # valor de P
+    >>> p
+
+Se podria continuar el analisis viendo las medias y desviaciones de
+cada uno de los ambientes o realizando test a posteriori
 
