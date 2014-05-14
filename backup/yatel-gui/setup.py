@@ -20,26 +20,33 @@
 # IMPORTS
 #===============================================================================
 
-import sys, os
+import sys
+
+try:
+    import PyQt4
+except ImportError:
+    sys.stderr.write("PyQt4 not found: \n")
+    sys.exit(1)
 
 from ez_setup import use_setuptools
 use_setuptools()
 
 from setuptools import setup, find_packages
 
-import yatel
+import yatel_gui
 
 
 #===============================================================================
 # CONSTANTS
 #===============================================================================
 
-PATH = os.path.abspath(os.path.dirname(__file__))
-
-REQUIREMENTS_PATH = os.path.join(PATH, "requirements.txt")
-
-with open(REQUIREMENTS_PATH) as fp:
-    REQUIREMENTS =  fp.read().splitlines()
+PYPI_REQUIRE = [
+    "yatel",
+    "caipyrinha",
+    "Pygments",
+    "ipython",
+    "pyZMQ",
+]
 
 
 #===============================================================================
@@ -47,19 +54,18 @@ with open(REQUIREMENTS_PATH) as fp:
 #===============================================================================
 
 setup(
-    name=yatel.PRJ.lower(),
-    version=yatel.STR_VERSION,
-    description=yatel.SHORT_DESCRIPTION,
-    author=yatel.AUTHOR,
-    author_email=yatel.EMAIL,
-    url=yatel.URL,
-    download_url=yatel.DOWNLOAD_URL,
-    license=yatel.LICENSE,
-    keywords=yatel.KEYWORDS,
-    classifiers=yatel.CLASSIFIERS,
-    packages=[pkg for pkg in find_packages() if pkg.startswith("yatel")],
+    name=yatel_gui.PRJ.lower(),
+    version=yatel_gui.STR_VERSION,
+    description=yatel_gui.SHORT_DESCRIPTION,
+    author=yatel_gui.AUTHOR,
+    author_email=yatel_gui.EMAIL,
+    url=yatel_gui.URL,
+    download_url=yatel_gui.DOWNLOAD_URL,
+    license=yatel_gui.LICENSE,
+    keywords=yatel_gui.KEYWORDS,
+    classifiers=yatel_gui.CLASSIFIERS,
+    packages=[pkg for pkg in find_packages() if pkg.startswith("yatel_gui")],
     include_package_data=True,
     py_modules=["ez_setup"],
-    entry_points={'console_scripts': ['yatel = yatel.cli:main']},
-    install_requires=REQUIREMENTS,
+    install_requires=PYPI_REQUIRE,
 )

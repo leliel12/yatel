@@ -6,18 +6,21 @@
 Welcome to Yatel's documentation!
 =================================
 
-.. image:: _static/splash.png
+.. image:: _static/web_logo.png
     :align: center
 
 Contents:
 
 .. toctree::
-   :maxdepth: 4
+    :maxdepth: 2
 
-   install.rst
-   manual.rst
-   fileformats.rst
-   apidoc/modules.rst
+    install.rst
+    quickstart.rst
+    stats.rst
+    cli.rst
+    qbj.rst
+    etl.rst
+    apidoc/modules.rst
 
 
 

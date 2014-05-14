@@ -9,10 +9,10 @@ yatel Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`dom` Module
+:mod:`cli` Module
 -----------------
 
-.. automodule:: yatel.dom
+.. automodule:: yatel.cli
     :members:
     :undoc-members:
     :show-inheritance:
@@ -25,34 +25,50 @@ yatel Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`remote` Module
+:mod:`dom` Module
+-----------------
+
+.. automodule:: yatel.dom
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`etl` Module
+-----------------
+
+.. automodule:: yatel.etl
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`server` Module
 --------------------
 
-.. automodule:: yatel.remote
+.. automodule:: yatel.server
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`topsort` Module
----------------------
+:mod:`stats` Module
+-------------------
 
-.. automodule:: yatel.topsort
+.. automodule:: yatel.stats
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`util` Module
-------------------
+:mod:`typeconv` Module
+----------------------
 
-.. automodule:: yatel.util
+.. automodule:: yatel.typeconv
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`weight` Module
---------------------
+:mod:`yjf` Module
+-----------------
 
-.. automodule:: yatel.weight
+.. automodule:: yatel.yjf
     :members:
     :undoc-members:
     :show-inheritance:
@@ -62,5 +78,7 @@ Subpackages
 
 .. toctree::
 
-    yatel.conversors
+    yatel.cluster
+    yatel.qbj
+    yatel.weight
 

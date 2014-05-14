@@ -4,24 +4,27 @@
 # "THE WISKEY-WARE LICENSE":
 # <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
 # you can do whatever you want with this stuff. If we meet some day, and you
-# think this stuff is worth it, you can buy us a WISKEY us return.
+# think this stuff is worth it, you can buy us a WISKEY in return.
 
 
 #===============================================================================
 # DOCS
 #===============================================================================
 
-(u"Yatel allows the creation of user-profile-distance-based networks and "
-u"their multidimensional analysis through a process of exploration.\n"
-u"In the process of analyzing data from heterogeneous sources - like "
-u"data regarding biology, social studies, marketing, etc. -, it is "
-u"often possible to identify individuals or classes (groups of  "
-u"individuals that share some characteristic). This individuals or "
-u"groups are identified by attributes that were measured and stored in "
-u"the data data base. For instance, in a biological analysis, the "
-u"profile can be defined by some certain properties of the nucleic "
-u"acid, in a social  analysis by the data from people and in a sales "
-u"analysis by the data from sales point tickets.")
+u"""Yatel allows the creation of user-profile-distance-based of OLAP Network
+and their multidimensional analysis through a process of exploration.
+
+In the process of analyzing data from heterogeneous sources - like
+data regarding biology, social studies, marketing, etc. -, it is
+often possible to identify individuals or classes (groups of
+individuals that share some characteristic). This individuals or
+groups are identified by attributes that were measured and stored in
+the data data base. For instance, in a biological analysis, the
+profile can be defined by some certain properties of the nucleic
+acid, in a social  analysis by the data from people and in a sales
+analysis by the data from sales point tickets.
+
+"""
 
 
 #===============================================================================
@@ -51,7 +54,14 @@ __version__ = STR_VERSION
 DOC = __doc__
 
 # : The short description for pypi
-SHORT_DESCRIPTION = DOC.splitlines()[0]
+SHORT_DESCRIPTION = []
+for line in DOC.splitlines():
+    if not line.strip():
+        break
+    SHORT_DESCRIPTION.append(line)
+SHORT_DESCRIPTION = u" ".join(SHORT_DESCRIPTION)
+del line
+
 
 # : Clasifiers for optimize search in pypi
 CLASSIFIERS = (
@@ -61,7 +71,7 @@ CLASSIFIERS = (
 )
 
 # : Home Page of yatel
-URL = "http://bitbucket.org/leliel12/yatel"
+URL = "http://bitbucket.org/yatel/yatel"
 
 # : Download for pypi
 DOWNLOAD_URL = "{}/downloads/{}-{}.tar.gz".format(URL, PRJ.lower(),
@@ -76,9 +86,6 @@ AUTHOR = "Yatel Team"
 # : Email ot the autor
 EMAIL = "utn_kdd@googlegroups.com"
 
-# : The project root path
-PRJ_PATH = os.path.dirname(os.path.abspath(__file__))
-
 # : The license name
 LICENSE = "WISKEY-WARE"
 
@@ -86,35 +93,13 @@ LICENSE = "WISKEY-WARE"
 FULL_LICENSE = u""""THE WISKEY-WARE LICENSE":
 <utn_kdd@googlegroups.com> wrote this file. As long as you retain this notice
 you can do whatever you want with this stuff. If we meet some day, and you
-think this stuff is worth it, you can buy us a WISKEY us return.
+think this stuff is worth it, you can buy us a WISKEY in return.
 
 """
 
 # : Keywords for search of pypi
 KEYWORDS = """Yatel user-profile-distance-based networks  multidimensional
 exploration biology database kdd datamining"""
-
-# : The path to the puser home path
-HOME_PATH = os.path.expanduser("~")
-
-# : This is a folder where user put his data
-YATEL_USER_PATH = os.path.join(HOME_PATH, ".yatel")
-if not os.path.isdir(YATEL_USER_PATH):
-    os.makedirs(YATEL_USER_PATH)
-
-
-# : A Set containing all the encodings knowin by python
-ENCODINGS = tuple(sorted(set(encodings.aliases.aliases.values())))
-
-
-# : Determines the default encoding of the files (default utf-8)
-DEFAULT_FILE_ENCODING = encodings.aliases.aliases.get(
-    sys.getfilesystemencoding().lower().replace("-", ""),
-    "utf_8"
-)
-
-# : Format to represent the datetime
-DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 # : If the program is en debug mode
 DEBUG = __debug__

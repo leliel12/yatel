@@ -1,20 +1,14 @@
 
 syntax: regexp
 ^\.project$
-syntax: regexp
 ^\.pydevproject$
-syntax: regexp
 ^.*[.](pyc|pyo)$
-syntax: regexp
 ^python/dist$
-syntax: regexp
 ^python/build$
-syntax: regexp
 ^.*/?_ign_
-syntax: regexp
 ^.*(.)orig$
-syntax: regexp
 ^\.settings$
+^.*[.](db|sqlite|yyf|yjf|json|yaml|yml)$
 
 syntax: glob
 data/*.db
@@ -24,4 +18,5 @@ doc/build/*
 yatel.egg-info/*
 Sphinx_PyPI_upload*/*
 paper/*.pdf
+
 
