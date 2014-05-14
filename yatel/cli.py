@@ -7,353 +7,348 @@
 # think this stuff is worth it, you can buy us a WISKEY us return.
 
 
-#===============================================================================
+#==============================================================================
 # DOCS
-#===============================================================================
+#==============================================================================
 
 """Launcher of yatel cli tools
 
 """
 
 
-#===============================================================================
+#==============================================================================
 # IMPORTS
-#===============================================================================
+#==============================================================================
 
 import sys
-import os
-import random
-import imp
-import argparse
-import inspect
-import traceback
 import pprint
 import datetime
+import argparse
 import json
 
-import caipyrinha
+from flask.ext.script import Manager, Command, Option
 
-import yatel
-from yatel import db, dom, etl, tests, server
+from yatel import db, tests, server, etl
 from yatel import yio
-from yatel import stats
-from yatel import weight
 
 
 #===============================================================================
-# GROUPS
+# MANAGER
 #===============================================================================
 
-# this group represent an option to show information of something
-GROUP_INFO = 0
+class _FlaskMock(object):
+    """This class only mock the flask object to use flask script stand alone
 
-# this group execute some operation over your network
-GROUP_OP = GROUP_INFO  # information and operation is not allowed
+    """
+    def __init__(self, *a, **kw):
+        self.options = kw
+    def __getattr__(self, *a, **kw):
+        return _FlaskMock()
+    def __call__(self, *a, **kw):
+        return _FlaskMock(*a, **kw)
+    def __exit__(self, *a, **kw):
+        return _FlaskMock()
+    def __enter__(self, *a, **kw):
+        return _FlaskMock()
 
+manager = Manager(_FlaskMock(), with_default_commands=False)
+
+
+#==============================================================================
+# DECOTATOR
+#==============================================================================
+
+def command(name):
+    """Clean way to register class based commands
+
+    """
+    def _dec(cls):
+        manager.add_command(name, cls())
+        return cls
+    return _dec
 
 
 #===============================================================================
-# CLI parser
+# OPTIONS
 #===============================================================================
 
-parser = caipyrinha.Caipyrinha(prog=yatel.PRJ,
-                               description=yatel.SHORT_DESCRIPTION)
-parser.add_argument("--version", action='version',
-                    version="%(prog)s {}".format(yatel.STR_VERSION))
-parser.add_argument("-f", "--force", action="store_true",
-                    help=("If you perform some action like import or"
-                          "copy this option destroy"
-                          "a network in this connection"))
-parser.add_argument("--full-stack", action="store_true",
-                    help="If yatel fails, show all the stack trace of the error")
-parser.add_argument("--log", action="store_true",
-                    help="log all backend info to stdio")
+manager.add_option(
+    "-k", "--full-stack", dest="full-stack", required=False,
+    action="store_true", help="If the command fails print all Python stack"
+)
+
+manager.add_option(
+    "-l", "--log", dest="log", required=False,
+    action="store_true", help="Enable engine logger"
+)
+
+manager.add_option(
+    "-f", "--force", dest="log", required=False,
+    action="store_true",
+    help=("If a database is try to open in 'w' or 'a' and a Yatel Network "
+          "is discovered overwrite it")
+)
 
 
-@parser.callback("--list-connection-strings", action="store_true",
-                 exclusive=GROUP_INFO, exit=0)
-def list_connection_strings(flags, returns):
+#==============================================================================
+# CUSTOM TYPES
+#==============================================================================
+
+class Database(object):
+    """This class parse and validate the open mode of a databases"""
+
+    def __init__(self, mode):
+        self.mode = mode
+
+    def __call__(self, toparse):
+        log = "--log" in sys.argv or "-l" in sys.argv
+        kwargs = db.parse_uri(toparse, log=log, mode=self.mode)
+        return db.YatelNetwork(**kwargs)
+
+
+#===============================================================================
+# COMMANDS
+#===============================================================================
+
+@command("list")
+class List(Command):
     """List all available connection strings in yatel"""
-    for engine in db.ENGINES:
-        print "{}: {}".format(engine, db.ENGINE_URIS[engine])
-    print ""
+
+    def run(self):
+        for engine in db.ENGINES:
+            print "{}: {}".format(engine, db.ENGINE_URIS[engine])
 
 
-@parser.callback(action="store", metavar="CONNECTION_STRING")
-def database(flags, returns):
-        """database to be open with yatel (see yatel --list-conection-strings)
-
-        """
-        return db.parse_uri(flags.database, log=flags.log or None)
-
-
-@parser.callback("--test", metavar="LEVEL", action="store", type=int,
-                 exclusive=GROUP_OP)
-def test(flags, returns):
-        """Run all yatel test suites
-
-        """
-        tests.run_tests(flags.test)
-
-
-@parser.callback(action="store", metavar="[r|w|a]", default=db.MODE_READ)
-def mode(flags, returns):
-    """The mode to open the database [r|w|a]"""
-    if flags.mode not in db.MODES:
-        parser.error("{} is not a valid mode use 'r' 'w' or 'a'")
-    if returns.database:
-        returns.database["mode"] = flags.mode
-
-
-@parser.callback("--describe", exclusive=GROUP_OP, action="store_true")
-def describe(flags, returns):
-    """Print information about the network"""
-    conn_data = returns.database
-    nw = db.YatelNetwork(**conn_data)
-    pprint.pprint(dict(nw.describe()))
-
-
-@parser.callback("--fake-network", exclusive=GROUP_OP, action="store", nargs=3,
-                 metavar=("N_HAPLOTYPES", "APROX_N_FACTS", "WEIGHT_CALCULATOR"))
-def fake_network(flags, returns):
-    """Create a new fake full conected network with on given connection string.
-
-    The first parameter is the number of haplotypes, the second one is
-    the number of maximun facts of every haplotype and the third is the
-    algoritm to calculate the distance
+@command("test")
+class Test(Command):
+    """Run all yatel test suites
 
     """
 
-    _fail_if_no_force("--fake-network", flags, returns.database)
-
-
-    lorem_ipsum = [
-        'takimata', 'sea', 'ametlorem', 'magna', 'ea', 'consetetur', 'sed',
-        'accusam', 'et', 'diamvoluptua', 'labore', 'diam', 'sit', 'dolores',
-        'sadipscing', 'aliquyam', 'dolore', 'stet', 'lorem', 'elitr',
-        'elitr', 'est', 'no', 'dolor', 'kasd', 'invidunt', 'amet', 'vero',
-        'ipsum', 'rebum', 'erat', 'gubergren', 'duo', 'justo', 'tempor',
-        'eos', 'sanctus', 'at', 'clita', 'ut', 'nonumyeirmod', 'amet'
+    option_list = [
+        Option(dest='level', type=int, help="Test level [0|1|2]")
     ]
 
-    def gime_fake_hap_attrs():
-
-        attrs_generator = {
-            "name": lambda: random.choice(lorem_ipsum).title(),
-            "number": lambda: random.choice(range(10, 100)),
-            "color": lambda: random.choice('rgbcmyk'),
-            "special": lambda: random.choice([True, False]),
-            "size": lambda: random.choice(range(10, 100)) + random.random(),
-            "height": lambda: random.choice(range(10, 100)) + random.random(),
-            "description": lambda: (
-                random.choice(lorem_ipsum).title() + " ".join(
-                    [random.choice(lorem_ipsum) for _
-                     in range(random.randint(10, 50))]
-                )
-            )
-
-        }
-
-        attrs = {}
-        for k, v in attrs_generator.items():
-            if random.choice([True, False]):
-                attrs[k] = v()
-        if not attrs:
-            k, v = random.choice(attrs_generator.items())
-            attrs[k] = v()
-        return attrs
-
-    def gimme_fake_fact_attrs():
-        attrs_generator = {
-            "place": lambda: random.choice(['Mordor', 'Ankh-Morpork', 'Genosha',
-                                            'Gotham City', 'Hogwarts', 'Heaven',
-                                            'Tatooine', 'Vulcan', 'Valhalla']),
-            "category": lambda: random.choice('SABCDEF'),
-            "native": lambda: random.choice([True, False]),
-            "align": lambda: random.choice([-1, 0, 1]),
-            "variance": lambda: random.choice(range(10, 100)) + random.random(),
-            "coso": lambda: random.choice(lorem_ipsum),
-        }
-        attrs = {}
-        for k, v in attrs_generator.items():
-            if random.choice([True, False]):
-                attrs[k] = v()
-        if not attrs:
-            k, v = random.choice(attrs_generator.items())
-            attrs[k] = v()
-        return attrs
-
-    haps_n = int(flags.fake_network[0])
-    facts_n = int(flags.fake_network[1])
-    weight_calc = flags.fake_network[2]
-
-    if weight_calc not in weight.calculators():
-        msg = "Invalid calculator '{}'. Please use one of: '{}'"
-        msg = msg.format(weight_calc, "|".join(weight.calculators()))
-        parser.error(msg)
-
-    conn_data = returns.database
-    nw = db.YatelNetwork(**conn_data)
-
-    haps = []
-    for hap_id in range(haps_n):
-        attrs = gime_fake_hap_attrs()
-        hap = dom.Haplotype(hap_id, **attrs)
-        nw.add_element(hap)
-        haps.append(hap)
-
-    for hap_id in range(haps_n):
-        for _ in range(random.randint(0, facts_n)):
-            attrs = gimme_fake_fact_attrs()
-            fact = dom.Fact(hap_id, **attrs)
-            nw.add_element(fact)
-
-    for hs, w in weight.weights(weight_calc, haps):
-        haps_id = map(lambda h: h.hap_id, hs)
-        edge = dom.Edge(w, haps_id)
-        nw.add_element(edge)
-    nw.confirm_changes()
+    def run(self, level):
+        tests.run_tests(level)
 
 
-@parser.callback(exclusive=GROUP_OP, action="store", type=argparse.FileType("w"),
-                 metavar="FILENAME.EXT", exit=0)
-def dump(flags, returns):
-    """Export the given database to EXT format.
+@command("describe")
+class Describe(Command):
+    """Print information about the network"""
+
+    option_list = [
+        Option(
+            dest='database', type=Database(db.MODE_READ),
+            help="Connection string to database according to the RFC 1738 spec."
+        ),
+    ]
+
+    def run(self, database):
+        pprint.pprint(dict(database.describe()))
+
+
+@command("dump")
+class Dump(Command):
+    """Export the given database to file.
+    The extension of a file determine the format
 
     """
-    ext = flags.dump.name.rsplit(".", 1)[-1].lower()
-    conn_data = returns.database
-    nw = db.YatelNetwork(**conn_data)
-    yio.dump(ext=ext, nw=nw, stream=flags.dump)
+
+    option_list = [
+        Option(
+            dest='database', type=Database(db.MODE_READ),
+            help="Connection string to database according to the RFC 1738 spec."
+        ),
+        Option(
+            dest='dumpfile', type=argparse.FileType("w"),
+            help=("File path to dump al the content of the database. "
+                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
+        )
+    ]
+
+    def run(self, database, dumpfile):
+        ext = dumpfile.name.rsplit(".", 1)[-1]
+        yio.dump(ext=ext.lower(), nw=database, stream=dumpfile)
 
 
-@parser.callback(exclusive=GROUP_OP, action="store",
-                 metavar="FILENAME_TEMPLATE.json", exit=0)
-def backup(flags, returns):
+@command("backup")
+class Backup(Command):
     """Like dump but always create a new file with the format
-    'filename_template<TIMESTAMP>.EXT'.
+     'backup_file<TIMESTAMP>.EXT'.
 
-    """
-    fname, ext = flags.backup.rsplit(".", 1)
+     """
 
-    fpath = "{}{}.{}".format(fname, datetime.datetime.utcnow().isoformat(), ext)
+    option_list = [
+        Option(
+            dest='database', type=Database(db.MODE_READ),
+            help="Connection string to database according to the RFC 1738 spec."
+        ),
+        Option(
+            dest='backupfile',
+            help=("File path template to dump al the content of the database. "
+                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
+        )
+    ]
 
-    conn_data = returns.database
-    nw = db.YatelNetwork(**conn_data)
+    def run(self, database, backupfile):
+        fname, ext = backupfile.rsplit(".", 1)
+        fpath = "{}{}.{}".format(
+            fname, datetime.datetime.utcnow().isoformat(), ext
+        )
+        with open(fpath, 'w') as fp:
+            yio.dump(ext=ext.lower(), nw=database, stream=fp)
 
-    with open(fpath, 'w') as fp:
-        yio.dump(ext=ext.lower(), nw=nw, stream=fp)
 
-
-@parser.callback(exclusive=GROUP_OP, action="store", type=argparse.FileType(),
-                 metavar="FILENAME.EXT", exit=0)
-def load(flags, returns):
+@command("load")
+class Load(Command):
     """Import the given file to the given database.
 
     """
-    ext = flags.load.name.rsplit(".", 1)[-1].lower()
-    conn_data = returns.database
-    nw = db.YatelNetwork(**conn_data)
-    yio.load(ext=ext, nw=nw, stream=flags.load)
-    nw.confirm_changes()
+
+    option_list = [
+        Option(
+            dest='database', type=Database(db.MODE_WRITE),
+            help="Connection string to database according to the RFC 1738 spec."
+        ),
+        Option(
+            dest='datafile', type=argparse.FileType("r"),
+            help=("File path of the existing data file. "
+                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
+        )
+    ]
+
+    def run(self, database, datafile):
+        ext = datafile.name.rsplit(".", 1)[-1]
+        yio.load(ext=ext.lower(), nw=database, stream=datafile)
+        database.confirm_changes()
 
 
-@parser.callback(exclusive=GROUP_OP, action="store",
-                 metavar="CONNECTION_STRING", exit=0)
-def copy(flags, returns):
-    """Copy the database of `database` to this connection"""
-
-    to_conn_data = db.parse_uri(flags.copy, mode=db.MODE_WRITE, log=flags.log)
-    _fail_if_no_force("--copy", flags, to_conn_data)
-
-    to_nw = db.YatelNetwork(**to_conn_data)
-
-    conn_data = returns.database
-    from_nw = db.YatelNetwork(**conn_data)
-
-    db.copy(from_nw, to_nw)
-    to_nw.confirm_changes()
-
-
-@parser.callback("--create-wsgi", exclusive=GROUP_OP, action="store",
-                 metavar="FILE.wsgi CONF.json", nargs=2, exit=0)
-def create_wsgi(flags, returns):
-    """Create a new wsgi file for a given configuration"""
-    wsgipath, confpath = flags.create_wsgi
-    wsgi_ext = wsgipath.rsplit(".", 1)[-1].lower()
-    if wsgi_ext != "wsgi":
-        msg = "Invalid extension '{}'. must be 'wsgi'".format(wsgi_ext)
-        raise ValueError(msg)
-    with open(wsgipath, "w") as fp:
-        fp.write(server.get_wsgi_template(confpath))
-
-
-@parser.callback("--create-server-conf", exclusive=GROUP_OP, action="store",
-                 metavar="CONF.json", type=argparse.FileType('w'), exit=0)
-def create_server_conf(flags, returns):
-    """Create a new configuration file for runserver"""
-    ext = flags.create_server_conf.name.rsplit(".", 1)[-1].lower()
-    if ext != "json":
-        raise ValueError("Invalid extension '{}'. must be 'json'".format(ext))
-    tpl = server.get_conf_template()
-    fp = flags.create_server_conf
-    fp.write(tpl)
-
-
-@parser.callback("--runserver", exclusive=GROUP_OP, action="store", nargs=2,
-                 metavar=("CONF.json", "HOST:PORT"), exit=0)
-def runserver(flags, returns):
-    """Run yatel as http server with a given config file"""
-    confpath, hostport = flags.runserver
-    host, port = hostport.split(":", 1)
-    with open(confpath) as fp:
-        data = json.load(fp)
-    srv = server.from_dict(data)
-    srv.run(host=host, port=int(port), debug=data["CONFIG"]["DEBUG"])
-
-
-@parser.callback("--create-etl", exclusive=GROUP_OP, action="store",
-                 metavar="ETL_FILENAME.py", type=argparse.FileType('w'),
-                 exit=0)
-def create_etl(flags, returns):
-    """Create a template file for write yout own etl"""
-    ext = flags.create_etl.name.rsplit(".", 1)[-1].lower()
-    if ext != "py":
-        raise ValueError("Invalid extension '{}'. must be 'py'".format(ext))
-    tpl = etl.get_template()
-    fp = flags.create_etl
-    fp.write(tpl)
-
-
-@parser.callback("--desc-etl", exclusive=GROUP_INFO, action="store", nargs=1,
-                 metavar="PATH/TO/MODULE.py", exit=0)
-def desc_etl(flags, returns):
-    """Return a list of parameters and documentataton about the etl
-
-    The argument is in the format path/to/module.py
-
-    The BaseETL subclass must be names after ETL
+@command("copy")
+class Copy(Command):
+    """Copy a yatel network to another database
 
     """
-    filepath = flags.desc_etl[0]
 
-    etl_cls = etl.etlcls_from_module(filepath, "ETL")
-    doc = etl_cls.__doc__ or "-"
-    params = ", ".join(etl_cls.setup_args)
-    print ("ETL CLASS: {cls}\n"
-           "FILE: {path}\n"
-           "DOC: {doc}\n"
-           "PARAMETERS: {params}\n").format(cls=clsname, path=filepath,
-                                            doc=doc, params=params)
+    option_list = [
+        Option(
+            dest='database_from', type=Database(db.MODE_READ),
+            help="Connection string to database according to the RFC 1738 spec."
+        ),
+        Option(
+            dest='database_to', type=Database(db.MODE_WRITE),
+            help="Connection string to database according to the RFC 1738 spec."
+        )
+    ]
+
+    def run(self, database_from, database_to):
+        db.copy(database_from, database_to)
+        database_to.confirm_changes()
 
 
-#=================================================
-# LAST ALWAYS!
-#=================================================
+@command("createconf")
+class CreateConf(Command):
+    """Create a new configuration file for yatel"""
 
-@parser.callback("--run-etl", exclusive=GROUP_OP, action="store", nargs="+",
-                 metavar="ARG", exit=0)
-def run_etl(flags, returns):
+    option_list = [
+        Option(
+            dest='config', type=argparse.FileType("w"),
+            help=("File path of the config file. ie: config.json. "
+                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
+        ),
+
+    ]
+
+    def run(self, config):
+       config.write(server.get_conf_template())
+
+
+@command("createwsgi")
+class CreateWSGI(Command):
+    """Create a new wsgi file for a given configuration"""
+
+    option_list = [
+        Option(dest='config',
+               help="File path of the config file. ie: config.json"),
+        Option(
+            dest='filename', type=argparse.FileType("w"),
+            help="WSGI filepath. ie: my_wsgi.py"
+        )
+    ]
+
+    def run(self, config, filename):
+        filename.write(server.get_wsgi_template(config))
+
+
+@command("runserver")
+class Runserver(Command):
+    """Run yatel as development http server with a given config file"""
+
+    option_list = [
+        Option(
+            dest='config',  type=argparse.FileType("r"),
+            help="File path of the config file. ie: config.json"
+        ),
+        Option(
+            dest='host_port',
+            help="Host and port to run yatel in format HOST:PORT"
+        )
+    ]
+
+    def run(self, config, host_port):
+        host, port = host_port.split(":", 1)
+        with open(config) as fp:
+            data = json.load(fp)
+        srv = server.from_dict(data)
+        srv.run(host=host, port=int(port), debug=data["CONFIG"]["DEBUG"])
+
+
+@command("createetl")
+class CreateETL(Command):
+    """Create a template file for write yout own etl"""
+
+    option_list = [
+        Option(
+            dest='etlfile', type=argparse.FileType("w"),
+            help="Python ETL filepath. ie: my_new_etl.py"
+        )
+    ]
+
+    def run(self, etlfile):
+        ext = etlfile.name.rsplit(".", 1)[-1].lower()
+        if ext != "py":
+            raise ValueError(
+                "Invalid extension '{}'. must be 'py'".format(ext)
+            )
+        tpl = etl.get_template()
+        fp = etlfile
+        fp.write(tpl)
+
+
+@command("describeetl")
+class DescribeETL(Command):
+    """Return a list of parameters and documentation about the etl
+    The argument is in the format path/to/module.py
+    The BaseETL subclass must be named after ETL
+
+    """
+
+    option_list = [
+        Option(dest='etlfile', help="Python ETL filepath. ie: my_new_etl.py")
+    ]
+
+    def run(self, etlfile):
+        etl_cls = etl.etlcls_from_module(etlfile, "ETL")
+        doc = etl_cls.__doc__ or "-"
+        params = ", ".join(etl_cls.setup_args)
+        print ("FILE: {path}\n"
+               "DOC: {doc}\n"
+               "PARAMETERS: {params}\n"
+        ).format(path=etlfile,doc=doc, params=params)
+
+
+@command("runetl")
+class RunETL(Command):
     """Run one or more etl inside of a given script.
 
     The first argument is in the format path/to/module.py
@@ -361,49 +356,37 @@ def run_etl(flags, returns):
     given class.
 
     """
-    filepath = flags.run_etl[0]
-    params = flags.run_etl[1:]
 
-    etl_cls = etl.etlcls_from_module(filepath, "ETL")
-    etl_instance = etl_cls()
+    option_list = [
+        Option(dest='etlfile', help="Python ETL filepath. ie: my_new_etl.py"),
+        Option(dest="args", help="Arguments for etl to excecute", nargs="+"),
+        Option(
+            dest='database', type=Database(db.MODE_WRITE),
+            help="Connection string to database according to the RFC 1738 spec."
+        )
+    ]
 
-    conn_data = returns.database
-
-    _fail_if_no_force("--run-etl", flags, conn_data)
-
-    nw = db.YatelNetwork(**conn_data)
-
-    etl.execute(nw, etl_instance, *params)
-
-    nw.confirm_changes()
+    def run(self, database, etlfile, args):
+        etl_cls = etl.etlcls_from_module(etlfile, "ETL")
+        etl_instance = etl_cls()
+        etl.execute(database, etl_instance, *args)
+        database.confirm_changes()
 
 
 #===============================================================================
-# FUNCTION
+# MAIN FUNCTION
 #===============================================================================
-
-def _fail_if_no_force(cmd, flags, conn_data):
-    if not flags.force and db.exists(**conn_data):
-        msg = ("There is an existing 'YatelNetwork' in the conection '{}' and "
-               "the command '{}' will altered it. If you want to destroy it "
-               "anyway use the option '-f' or '--force' along with "
-               "the command '{}'").format(db.to_uri(**conn_data), cmd, cmd)
-        parser.error(msg)
-
 
 def main():
-    """Run yatel cli tools
-
-    """
     args = sys.argv[1:] or ["--help"]
-    if "--full-stack" in args:
-        parser(args)
+    if set(args).intersection(["--full-stack", "-k"]):
+        manager.run()
     else:
         try:
-            parser(args)
+            manager.run()
         except Exception as err:
-            parser.error(str(err))
-            print_error()
+            print unicode(err)
+
 
 
 #===============================================================================
