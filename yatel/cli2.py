@@ -29,7 +29,7 @@ import json
 from flask.ext.script import Manager, Command, Option
 
 from yatel import db, tests, server, etl
-from yatel import io
+from yatel import yio
 
 
 #===============================================================================
@@ -163,13 +163,13 @@ class Dump(Command):
         Option(
             dest='dumpfile', type=argparse.FileType("w"),
             help=("File path to dump al the content of the database. "
-                  "Suported formats: {}".format(", ".join(io.PARSERS.keys())))
+                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
         )
     ]
 
     def run(self, database, dumpfile):
         ext = dumpfile.name.rsplit(".", 1)[-1]
-        io.dump(ext=ext.lower(), nw=database, stream=dumpfile)
+        yio.dump(ext=ext.lower(), nw=database, stream=dumpfile)
 
 
 @command("backup")
@@ -187,7 +187,7 @@ class Backup(Command):
         Option(
             dest='backupfile',
             help=("File path template to dump al the content of the database. "
-                  "Suported formats: {}".format(", ".join(io.PARSERS.keys())))
+                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
         )
     ]
 
@@ -197,7 +197,7 @@ class Backup(Command):
             fname, datetime.datetime.utcnow().isoformat(), ext
         )
         with open(fpath, 'w') as fp:
-            io.dump(ext=ext.lower(), nw=database, stream=fp)
+            yio.dump(ext=ext.lower(), nw=database, stream=fp)
 
 
 @command("load")
@@ -214,13 +214,13 @@ class Load(Command):
         Option(
             dest='datafile', type=argparse.FileType("r"),
             help=("File path of the existing data file. "
-                  "Suported formats: {}".format(", ".join(io.PARSERS.keys())))
+                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
         )
     ]
 
     def run(self, database, datafile):
         ext = datafile.name.rsplit(".", 1)[-1]
-        io.load(ext=ext.lower(), nw=database, stream=datafile)
+        yio.load(ext=ext.lower(), nw=database, stream=datafile)
         database.confirm_changes()
 
 
@@ -254,7 +254,7 @@ class CreateConf(Command):
         Option(
             dest='config', type=argparse.FileType("w"),
             help=("File path of the config file. ie: config.json. "
-                  "Suported formats: {}".format(", ".join(io.PARSERS.keys())))
+                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
         ),
 
     ]

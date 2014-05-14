@@ -11,49 +11,44 @@
 # DOC
 #===============================================================================
 
-"""Utilities for persist yatel into diferent filee formats"""
+"""Persist yatel db in json format"""
 
 
 #===============================================================================
 # IMPORTS
 #===============================================================================
 
-from yatel.io.core import BaseParser
-from yatel.io import yjf, yxf
+import json
+
+from yatel import typeconv
+from yatel.yio import core
 
 
 #===============================================================================
-# CONSTANTS
+# CLASS
 #===============================================================================
 
-PARSERS = {}
-SYNONYMS = []
-for p in BaseParser.__subclasses__():
-    syns = tuple(set(p.file_exts()))
-    for ext in syns:
-        PARSERS[ext] = p
-    SYNONYMS.append(syns)
-SYNONYMS = frozenset(SYNONYMS)
-del p
+class JSONParser(core.BaseParser):
 
+    @classmethod
+    def file_exts(cls):
+        return ("yjf", "json")
 
-#===============================================================================
-# FUNCTIONS
-#===============================================================================
+    def dump(self, nw, fp, *args, **kwargs):
+        kwargs["ensure_ascii"] = kwargs.get("ensure_ascii", True)
+        data = {
+            "haplotypes":  map(typeconv.simplifier, nw.haplotypes()),
+            "facts": map(typeconv.simplifier, nw.facts()),
+            "edges": map(typeconv.simplifier, nw.edges()),
+            "version": self.version(),
+        }
+        json.dump(data, fp, *args, **kwargs)
 
-def load(ext, nw, stream, *args, **kwargs):
-    parser = PARSERS[ext]()
-    if isinstance(stream, basestring):
-        return parser.loads(nw, stream, *args, **kwargs)
-    return parser.load(nw, stream, *args, **kwargs)
-
-
-def dump(ext, nw, stream=None, *args, **kwargs):
-    parser = PARSERS[ext]()
-    if stream is None:
-        return parser.dumps(nw, *args, **kwargs)
-    return parser.dump(nw, stream, *args, **kwargs)
-
+    def load(self, nw, fp, *args, **kwargs):
+        data = json.load(fp, *args, **kwargs)
+        nw.add_elements(map(typeconv.parse, data["haplotypes"]))
+        nw.add_elements(map(typeconv.parse, data["facts"]))
+        nw.add_elements(map(typeconv.parse, data["edges"]))
 
 
 #===============================================================================
