@@ -4,17 +4,30 @@ Quick Start
 ¿Que es Yatel?
 --------------
 
-**Pequeña descripcion de que es Yatel**
+Es una implementación de referencia de NW-OLAP
+
+- Wiskey-Ware License
+- Es la implementación en gran parte del proceso mencionado anteriormente.
+- Pronto a salir la primer versión usable 0.3
+
+`Leer más <http://getyatel.org/>`_
+
 
 Caso de estudio (ejemplo)
 -------------------------
 
 Supongamos que tenemos el siguiente problema:
 
-.. image:: imagen_al_grafico
+.. image:: _static/cba.png
 
 Tenemos tres lugares llamados Córdoba, cada uno separada de la otro
-por una determinada distancia.
+por una determinada distancia. Podemos usar Yatel para plantear el
+problema y hacer consultas:
+
+- quienes tienen una superficie entre 200km2 y 600km2
+- quienes hablan español
+- quienes tienen el uso horario utc-6
+- quien contiene en su nombre Andalucía
 
 Cargando el problema en Yatel
 -----------------------------
@@ -43,7 +56,11 @@ Cargamos el anterior modelo en yatel, de la siguiente manera::
     nw.add_elements(elems)
     nw.confirm_changes()
 
-**Descripción de que estamos haciendo en las lineas anteriores.**
+En el código anterior, creamos una base de datos en memoria y definimos:
+
+- Un haplotipo para cada Córdoba. *dom.Haplotype(0, name="Córdoba")*
+- Un arco para unir cada Córdoba por una distancia. *dom.Edge(6599, (0, 1))*
+- Hechos que nos dan datos sobre los haplotipos. *dom.Fact(0,name="Andalucía", lang="sp", timezone="utc-3"),*
 
 Modelos y atributos
 ^^^^^^^^^^^^^^^^^^^
@@ -138,7 +155,7 @@ Haplotipos por el ambiente name::
     <Haplotype (0) at 0x25c5350>
     <Haplotype (2) at 0x24eae50>
 
-Arcos por el ambiente Andalucia::
+Arcos por el ambiente Andalucía::
 
     for edge in nw.edges_by_enviroment(name="Andalucia"):
         print edge
@@ -155,10 +172,10 @@ Todos los ambientes::
     <Enviroment {u'lang': None, u'timezone': u'utc-6', u'name': None} at 0x24faad0>
     <Enviroment {u'lang': u'sp', u'timezone': u'utc', u'name': u'Andalucia'} at 0x24db490>
 
-Estadisticas
+Estadísticas
 ^^^^^^^^^^^^
 
-Veamos algunas estadisticas::
+Veamos algunas estadísticas::
 
     from yatel import stats
 
@@ -170,12 +187,12 @@ Promedio::
 Std::
 
     print stats.std(nw, name="Andalucia")
-    0.0                                                                         # Porque esto me da 0? esperaba 1374.70877724
+    0.0
 
-Mineria de datos
+Minería de datos
 ^^^^^^^^^^^^^^^^
 
-Pasemos a mineria de datos::
+Pasemos a minería de datos::
 
     from scipy.spatial.distance import euclidean
     from yatel.cluster import kmeans
