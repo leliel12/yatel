@@ -1,32 +1,34 @@
 Stats
 =====
 
-El modulo estadísticas una de las partes fundamentales de Yatel, ayuda a la
-toma de desiciones por medio de la extraccion de medidas de posicion,
-variacion, asimetria y puntiagudes de la variabilidad de un ambiente dado.
+El modulo estadísticas es una de las partes fundamentales de Yatel. Esta
+diseñado para dar soporte toma de desiciones por medio de la
+extracción de medidas de posición, variación, asimetría y puntiagudés de los
+pesos de los arcos en un ambiente dado.
 
 Las funcionalidades de este modulo se dividen en 2 grupos bien diferenciados:
 
-- *Transformacion:* Se encarga de convertir un ambiente de una red dada en un
-  array de numpy para acelerar el calculo de las estadísticas.
-- *Calculo:* Calcula las estadisticas propiamente dichas. Soportan como
-  parametro una red de haplotipos y filtros para determinar un ambiente o un
-  array-like con los valores ya precalculados del ambiente.
+- *Funciones de Transformación:* Se encarga de convertir un ambiente de
+  una red dada en un *array de numpy* para acelerar el calculo de las
+  estadísticas.
+- *Funciones de Cálculo:* Se utilizan para el calculo de las medidas
+  estadísticas propiamente dichas sobre un ambiente de una red de haplotipos.
 
 Si bien todas las funciones de cálculo utilizan internamente las de
-transformación, es muchas veces determinante para el rendimiento precalcular
-un array con los valores a utilizar.
+transformación, es muchas veces determinante para el rendimiento de un
+procesamiento precalcular en un array con los valores de las distancias de un
+ambiente.
+
 
 Funciones de Transformación
 ---------------------------
 
 Las funciones de transformacion son dos:
 
-- ``weights2array``: dado un iterable de instancias ``dom.Edges`` esta funcion
+- ``weights2array``: dado un iterable de instancias ``dom.Edges`` esta función
   devuelve un array de *numpy* con todos los valores de los pesos de dichos
   arcos. Los pesos se convierten (por cuestiones de rendimiento) en flotantes
   de 128 bytes (``numpy.float128``).
-  Por ejemplo:
 
 .. code-block:: python
 
@@ -40,14 +42,14 @@ Las funciones de transformacion son dos:
     ...     dom.Haplotype(1, name="Cordoba", poblacion=12), # right
     ...     dom.Haplotype(2, name="Cordoba"), # bottom
 
-    ... dom.Edge(6599, (0, 1)),
-    ... dom.Edge(8924, (1, 2)),
-    ... dom.Edge(9871, (2, 0)),
+    ...     dom.Edge(6599, (0, 1)),
+    ...     dom.Edge(8924, (1, 2)),
+    ...     dom.Edge(9871, (2, 0)),
 
-    ... dom.Fact(0, name="Andalucia", lang="sp", timezone="utc-3"),
-    ... dom.Fact(1, lang="sp"),
-    ... dom.Fact(1, timezone="utc-6"),
-    ... dom.Fact(2, name="Andalucia", lang="sp", timezone="utc")
+    ...     dom.Fact(0, name="Andalucia", lang="sp", timezone="utc-3"),
+    ...     dom.Fact(1, lang="sp"),
+    ...     dom.Fact(1, timezone="utc-6"),
+    ...     dom.Fact(2, name="Andalucia", lang="sp", timezone="utc")
     ... ])
     ... nw.confirm_changes()
 
@@ -57,7 +59,8 @@ Las funciones de transformacion son dos:
     array([ 6599.0,  8924.0,  9871.0], dtype=float128)
 
 
-- ``env2weightarray``: Esta funcion se encarga de convertir una red, en un
+- ``env2weightarray``: Esta función se encarga de convertir una instancia de
+  db.YatelNetwork*, en un
   array con todos los pesos de los arcos que contiene o alguno de ellos
   filtrados por ambientes. Tambien por motivos de implementacione puede recibir
   cualquier iterable y convertirlo en un array de numpy.
@@ -119,9 +122,14 @@ o tuplas
 Un ejemplo mas avanzado
 -----------------------
 
-Vamos a calcular un
+Si bien Yatel presenta facilidades para el cálculo de estadísticas comunes, el
+modulo ``stats`` por su arquitectura facilita el análisis de datos de ambientes
+de manera mas compleja integrandose de manera sencilla con la funcionalidad de
+SciPy.
+
+Por ejemplo si quisieramos calcular
 `One-Way ANOVA <http://en.wikipedia.org/wiki/Analysis_of_variance>`_ con
-dos ambientes de nuestra red.
+tres ambientes de nuestra red.
 
 .. code-block:: python
 
@@ -144,7 +152,4 @@ dos ambientes de nuestra red.
 
     # valor de P
     >>> p
-
-Se podria continuar el analisis viendo las medias y desviaciones de
-cada uno de los ambientes o realizando test a posteriori
 
