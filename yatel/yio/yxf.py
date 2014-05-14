@@ -23,7 +23,7 @@ from xml import sax
 from xml.sax import saxutils
 
 from yatel import typeconv
-from yatel.io import core
+from yatel.yio import core
 
 
 #===============================================================================

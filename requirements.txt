@@ -1,6 +1,7 @@
 sqlalchemy
 jsonschema
 flask
-numpy
-scipy
+numpy # need to install python-dev|python-devel
+scipy  #need to install libatlas-base-dev gfortran
 caipyrinha
+Flask-Script

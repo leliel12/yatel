@@ -35,7 +35,7 @@ import caipyrinha
 
 import yatel
 from yatel import db, dom, etl, tests, server
-from yatel import io
+from yatel import yio
 from yatel import stats
 from yatel import weight
 
@@ -224,7 +224,7 @@ def dump(flags, returns):
     ext = flags.dump.name.rsplit(".", 1)[-1].lower()
     conn_data = returns.database
     nw = db.YatelNetwork(**conn_data)
-    io.dump(ext=ext, nw=nw, stream=flags.dump)
+    yio.dump(ext=ext, nw=nw, stream=flags.dump)
 
 
 @parser.callback(exclusive=GROUP_OP, action="store",
@@ -242,7 +242,7 @@ def backup(flags, returns):
     nw = db.YatelNetwork(**conn_data)
 
     with open(fpath, 'w') as fp:
-        io.dump(ext=ext.lower(), nw=nw, stream=fp)
+        yio.dump(ext=ext.lower(), nw=nw, stream=fp)
 
 
 @parser.callback(exclusive=GROUP_OP, action="store", type=argparse.FileType(),
@@ -254,7 +254,7 @@ def load(flags, returns):
     ext = flags.load.name.rsplit(".", 1)[-1].lower()
     conn_data = returns.database
     nw = db.YatelNetwork(**conn_data)
-    io.load(ext=ext, nw=nw, stream=flags.load)
+    yio.load(ext=ext, nw=nw, stream=flags.load)
     nw.confirm_changes()
 
 
