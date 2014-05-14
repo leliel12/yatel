@@ -27,6 +27,7 @@ import argparse
 import json
 import functools
 
+import flask
 from flask.ext.script import Manager, Command, Option
 from flask.ext.script.commands import InvalidCommand
 
@@ -54,9 +55,12 @@ class _FlaskMock(object):
     def __enter__(self, *a, **kw):
         return _FlaskMock()
 
+app = flask.Flask(__name__)
+
 manager = Manager(
     _FlaskMock,
     description=yatel.SHORT_DESCRIPTION,
+        usage="yatel [OPTIONS, ...] COMMAND [ARGS, ...] ",
     with_default_commands=False
 )
 
@@ -404,12 +408,12 @@ class RunETL(Command):
     """
 
     option_list = [
-        Option(dest='etlfile', help="Python ETL filepath. ie: my_new_etl.py"),
-        Option(dest="args", help="Arguments for etl to excecute", nargs="+"),
         Option(
             dest='database', type=Database(db.MODE_WRITE),
             help="Connection string to database according to the RFC 1738 spec."
-        )
+        ),
+        Option(dest='etlfile', help="Python ETL filepath. ie: my_new_etl.py"),
+        Option(dest="args", help="Arguments for etl to excecute", nargs="+")
     ]
 
     def run(self, database, etlfile, args):
