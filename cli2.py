@@ -196,7 +196,6 @@ class Backup(Command):
         fpath = "{}{}.{}".format(
             fname, datetime.datetime.utcnow().isoformat(), ext
         )
-        nw = get_database(database)
         with open(fpath, 'w') as fp:
             io.dump(ext=ext.lower(), nw=database, stream=fp)
 
@@ -213,7 +212,7 @@ class Load(Command):
             help="Connection string to database according to the RFC 1738 spec."
         ),
         Option(
-            dest='datafile',
+            dest='datafile', type=argparse.FileType("r"),
             help=("File path of the existing data file. "
                   "Suported formats: {}".format(", ".join(io.PARSERS.keys())))
         )
@@ -253,7 +252,9 @@ class CreateConf(Command):
 
     option_list = [
         Option(
-            dest='config', type=argparse.FileType("w"), help="Config filepath"
+            dest='config', type=argparse.FileType("w"),
+            help=("File path of the config file. ie: config.json. "
+                  "Suported formats: {}".format(", ".join(io.PARSERS.keys())))
         ),
 
     ]
@@ -267,9 +268,11 @@ class CreateWSGI(Command):
     """Create a new wsgi file for a given configuration"""
 
     option_list = [
-        Option(dest='config',help="Config filepath"),
+        Option(dest='config',
+               help="File path of the config file. ie: config.json"),
         Option(
-            dest='filename', type=argparse.FileType("w"), help="WSGI filepath"
+            dest='filename', type=argparse.FileType("w"),
+            help="WSGI filepath. ie: my_wsgi.py"
         )
     ]
 
@@ -284,7 +287,7 @@ class Runserver(Command):
     option_list = [
         Option(
             dest='config',  type=argparse.FileType("r"),
-            help="Config filepath"
+            help="File path of the config file. ie: config.json"
         ),
         Option(
             dest='host_port',
@@ -307,7 +310,7 @@ class CreateETL(Command):
     option_list = [
         Option(
             dest='etlfile', type=argparse.FileType("w"),
-            help="Python ETL filepath"
+            help="Python ETL filepath. ie: my_new_etl.py"
         )
     ]
 
@@ -324,14 +327,14 @@ class CreateETL(Command):
 
 @command("describeetl")
 class DescribeETL(Command):
-    """Return a list of parameters and documentataton about the etl
+    """Return a list of parameters and documentation about the etl
     The argument is in the format path/to/module.py
     The BaseETL subclass must be named after ETL
 
     """
 
     option_list = [
-        Option(dest='etlfile', help="Python ETL filepath")
+        Option(dest='etlfile', help="Python ETL filepath. ie: my_new_etl.py")
     ]
 
     def run(self, etlfile):
@@ -355,7 +358,7 @@ class RunETL(Command):
     """
 
     option_list = [
-        Option(dest='etlfile', help="Python ETL filepath"),
+        Option(dest='etlfile', help="Python ETL filepath. ie: my_new_etl.py"),
         Option(dest="args", help="Arguments for etl to excecute", nargs="+"),
         Option(
             dest='database', type=Database(db.MODE_WRITE),
