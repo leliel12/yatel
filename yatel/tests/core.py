@@ -174,36 +174,6 @@ class YatelTestCase(unittest.TestCase):
         return random.choice(tuple(iterable))
 
 
-#==============================================================================
-# DECORATORS
-#==============================================================================
-
-def multiple_runs(runs, validation_function=None):
-    if validation_function is None:
-        validation_function = lambda r, c: np.all(r), None
-    def _dec(func):
-        @functools.wraps(func)
-        def _wrap(self, **kw):
-            results = []
-            causes = []
-            for run in range(runs):
-                try:
-                    func(self, **kw)
-                    self.tearDown()
-                    self.setUp()
-                except AssertionError as err:
-                    results.append(False)
-                    causes.append(err)
-                else:
-                    results.append(True)
-                    causes.append(None)
-            resume, cause = validation_function(results, causes)
-            generic_cause = "Multiple runs fails in '{}' cases".format(runs)
-            self.assertTrue(resume, cause or generic_cause)
-        return _wrap
-    return _dec
-
-
 #===============================================================================
 # MAIN
 #===============================================================================

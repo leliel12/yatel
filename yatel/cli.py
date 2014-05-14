@@ -25,9 +25,12 @@ import pprint
 import datetime
 import argparse
 import json
+import functools
 
 from flask.ext.script import Manager, Command, Option
+from flask.ext.script.commands import InvalidCommand
 
+import yatel
 from yatel import db, tests, server, etl
 from yatel import yio
 
@@ -51,19 +54,38 @@ class _FlaskMock(object):
     def __enter__(self, *a, **kw):
         return _FlaskMock()
 
-manager = Manager(_FlaskMock(), with_default_commands=False)
+manager = Manager(
+    _FlaskMock,
+    description=yatel.SHORT_DESCRIPTION,
+    with_default_commands=False
+)
 
 
 #==============================================================================
 # DECOTATOR
 #==============================================================================
 
+def run_wrapper(func):
+    """Convert any exception inside tun into flask script exception
+
+    """
+    @functools.wraps(func)
+    def _dec(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as err:
+            raise InvalidCommand(str(err))
+    return _dec
+
+
 def command(name):
     """Clean way to register class based commands
 
     """
     def _dec(cls):
-        manager.add_command(name, cls())
+        instance = cls()
+        instance.run = run_wrapper(instance.run)
+        manager.add_command(name, instance)
         return cls
     return _dec
 
@@ -102,8 +124,20 @@ class Database(object):
 
     def __call__(self, toparse):
         log = "--log" in sys.argv or "-l" in sys.argv
-        kwargs = db.parse_uri(toparse, log=log, mode=self.mode)
-        return db.YatelNetwork(**kwargs)
+        force = "--force" in sys.argv or "-f" in sys.argv
+        data = db.parse_uri(toparse)
+        if self.mode in (db.MODE_WRITE, db.MODE_APPEND) and db.exists(**data):
+            if not force:
+                msg = (
+                    "You are trying to open the db '{}' in '{}' mode, but "
+                    "it contains a already existing network. Please use "
+                    "-f/--force for ignore this warning and destroy the "
+                    "existing data"
+                ).format(toparse, self.mode)
+                raise InvalidCommand(msg)
+
+        data.update(log=log, mode=self.mode)
+        return db.YatelNetwork(**data)
 
 
 #===============================================================================
@@ -145,7 +179,20 @@ class Describe(Command):
     ]
 
     def run(self, database):
-        pprint.pprint(dict(database.describe()))
+        lines = []
+        desc = database.describe()
+        lines.append(u"Haplotypes:")
+        for k, v in desc.haplotype_attributes.items():
+            lines.append(u"\t{}: {}".format(unicode(k), unicode(v)))
+        lines.append(u"Edges:")
+        for k, v in desc.edge_attributes.items():
+            lines.append(u"\t{}: {}".format(unicode(k), unicode(v)))
+        lines.append(u"Facts:")
+        for k, v in desc.fact_attributes.items():
+            lines.append(u"\t{}: {}".format(unicode(k), unicode(v)))
+        lines.append("")
+
+        print u"\n".join(lines)
 
 
 @command("dump")
@@ -297,8 +344,7 @@ class Runserver(Command):
 
     def run(self, config, host_port):
         host, port = host_port.split(":", 1)
-        with open(config) as fp:
-            data = json.load(fp)
+        data = json.load(config)
         srv = server.from_dict(data)
         srv.run(host=host, port=int(port), debug=data["CONFIG"]["DEBUG"])
 
@@ -378,14 +424,11 @@ class RunETL(Command):
 #===============================================================================
 
 def main():
-    args = sys.argv[1:] or ["--help"]
-    if set(args).intersection(["--full-stack", "-k"]):
+    try:
         manager.run()
-    else:
-        try:
-            manager.run()
-        except Exception as err:
-            print unicode(err)
+    except InvalidCommand as err:
+        print(err)
+        sys.exit(1)
 
 
 
