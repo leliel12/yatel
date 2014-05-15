@@ -2,7 +2,7 @@ Stats
 =====
 
 El modulo estadísticas es una de las partes fundamentales de Yatel. Esta
-diseñado para dar soporte toma de desiciones por medio de la
+diseñado para dar soporte toma de decisiones por medio de la
 extracción de medidas de posición, variación, asimetría y puntiagudés de los
 pesos de los arcos en un ambiente dado.
 
@@ -23,12 +23,11 @@ ambiente.
 Funciones de Transformación
 ---------------------------
 
-Las funciones de transformacion son dos:
+Las funciones de transformación son dos:
 
 - ``weights2array``: dado un iterable de instancias ``dom.Edges`` esta función
   devuelve un array de *numpy* con todos los valores de los pesos de dichos
-  arcos. Los pesos se convierten (por cuestiones de rendimiento) en flotantes
-  de 128 bytes (``numpy.float128``).
+  arcos.
 
 .. code-block:: python
 
@@ -38,7 +37,7 @@ Las funciones de transformacion son dos:
     >>> nw = db.YatelNetwork("memory", mode="w")
 
     >>> nw.add_elements([
-    ... dom.Haplotype(0, name="Cordoba", clima="calor", edad=200, frio=True), # left
+    ...     dom.Haplotype(0, name="Cordoba", clima="calor", edad=200, frio=True), # left
     ...     dom.Haplotype(1, name="Cordoba", poblacion=12), # right
     ...     dom.Haplotype(2, name="Cordoba"), # bottom
 
@@ -56,63 +55,66 @@ Las funciones de transformacion son dos:
     # extraemos todos los arcos
     edges = nw.edges()
     stats.weights2array(edges)
-    array([ 6599.0,  8924.0,  9871.0], dtype=float128)
+    array([ 6599.,  8924.,  9871.])
 
 
 - ``env2weightarray``: Esta función se encarga de convertir una instancia de
-  db.YatelNetwork*, en un
-  array con todos los pesos de los arcos que contiene o alguno de ellos
-  filtrados por ambientes. Tambien por motivos de implementacione puede recibir
-  cualquier iterable y convertirlo en un array de numpy.
+  *db.YatelNetwork*, en un array con todos los pesos de los arcos que contiene;
+  o alguno de ellos filtrados por ambientes. También por motivos de
+  implementaciones puede recibir cualquier iterable y convertirlo en un array
+  de numpy.
 
 
 .. code-block:: python
 
     >>> stats.env2weightarray(nw)
-    array([ 6599.0,  8924.0,  9871.0], dtype=float128)
+    array([ 6599.,  8924.,  9871.])
 
     # con un ambiente
     >>> stats.env2weightarray(nw, name="Andalucia")
-    array([ 9871.0], dtype=float128)
+    array([ 9871.])
 
 
-Funciones de Calculo
+Funciones de Cálculo
 --------------------
 
 Las funciones de calculo son las encargadas de calcular eficientemente
-estadisticas sobre la variabilidad de una red o ambiente de una red.
+estadísticas sobre la variabilidad de una red o ambiente de una red.
 El listado completo de funciones las puede encontrar en el la referencia
-del módulo stats.
+del módulo stats aquí.
 
 .. code-block:: python
 
-    # calulamos la media
+    # podríamos calular, por ejemplo, la media
     >>> stats.average(nw)
+    8464.666666666666667
 
     # o de un ambiente
-    >>> stats.average(nw, , name="Andalucia")
+    >>> stats.average(nw, name="Andalucia")
+    9871.0
 
 
 Por motivos de rendimiento muchas veces es conveniente extraer todos los pesos
-de un ambiente antes de realizar muchos calculos (esto puede acelerar varios
-cientos de veces los calculos sucesivos ya que obvia el acceso a a base de
-datos)
+de un ambiente antes de realizar muchos cálculos (esto puede acelerar varios
+cientos de un análisis del mismo ambiente datos)
 
 .. code-block:: python
 
     # extraemos el array con los valores
-    >>> arr = stats.env2weightarray(nw, name="Andalucia")
+    >>> arr = stats.env2weightarray(nw, lang="sp")
 
     # calculamos la desviacion
     >>> stats.std(arr)
+    1374.7087772405551286
 
 
-Las funciones tambien soportan iterables de python como pueden ser listas
+Las funciones también soportan iterables de Python como pueden ser listas
 o tuplas
 
 .. code-block:: python
 
     >>> stats.average([1, 2, 3])
+    0.81649658092772603
 
     # esto va a devolver no es un numero
     >>> stats.average([])
@@ -124,12 +126,12 @@ Un ejemplo mas avanzado
 
 Si bien Yatel presenta facilidades para el cálculo de estadísticas comunes, el
 modulo ``stats`` por su arquitectura facilita el análisis de datos de ambientes
-de manera mas compleja integrandose de manera sencilla con la funcionalidad de
+de manera mas compleja integrándose de manera sencilla con la funcionalidad de
 SciPy.
 
-Por ejemplo si quisieramos calcular
+Por ejemplo si quisiéramos calcular
 `One-Way ANOVA <http://en.wikipedia.org/wiki/Analysis_of_variance>`_ con
-tres ambientes de nuestra red.
+do ambientes de nuestra red.
 
 .. code-block:: python
 
@@ -137,19 +139,19 @@ tres ambientes de nuestra red.
     >>> from scipy.stats import f_oneway
 
     # primera muestra
-    >>> arr0 = stats.env2weightarray(nw, lan="sp")
+    >>> arr0 = stats.env2weightarray(nw, lang="sp")
 
     # segunda muestra
     >>> arr1 = stats.env2weightarray(nw, name="Andalucia")
 
-    # tercera muestra
-    >>> arr2 = stats.env2weightarray(nw, timezone="utc")
-
-    >>> f, p = f_oneway(arr0, arr1, arr2)
+    >>> f, p = f_oneway(arr0, arr1)
 
     # valor de F
     >>> f
+    0.5232691541329888
 
     # valor de P
     >>> p
+    0.54461284339730176
+
 
