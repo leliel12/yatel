@@ -1,7 +1,17 @@
-sqlalchemy
-jsonschema
-flask
-numpy # need to install python-dev|python-devel
-scipy  #need to install libatlas-base-dev gfortran
-caipyrinha
-Flask-Script
+Flask==0.10.1
+Flask-Script==0.6.7
+Jinja2==2.7.2
+MarkupSafe==0.19
+SQLAlchemy==0.9.3
+Werkzeug==0.9.4
+argparse==1.2.1
+caipyrinha==0.2.2
+ipdb==0.8
+ipython==2.0.0
+itsdangerous==0.23
+jsonschema==2.3.0
+mock==1.0.1
+numpy==1.8.0
+scipy==0.13.3
+wsgiref==0.1.2
+-e hg+ssh://hg@bitbucket.org/yatel/yatel@69f4c9df3ecf65da931ce6cba5bdfec3e3f2244f#egg=yatel-juanbc
