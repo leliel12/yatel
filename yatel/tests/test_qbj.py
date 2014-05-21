@@ -21,14 +21,6 @@ import hashlib
 import random
 import datetime
 import collections
-import json
-
-try:
-    import cStringIO as StringIO
-except ImportError:
-    import StringIO
-
-import numpy as np
 
 from yatel import stats
 from yatel import typeconv
@@ -37,23 +29,6 @@ from yatel import qbj
 from yatel.qbj import functions
 
 from yatel.tests.core import YatelTestCase
-
-
-#==============================================================================
-# HELPER FUNCTIONS
-#==============================================================================
-
-kmeans_n = 200
-
-def multiple_kmeans_test(r, c):
-    """This function is used inside the decorator multiple runs for test 100
-    runs of kmeans
-
-    """
-    tolerance = 0.80
-    average = np.average(r)
-    msg = "Assert must be upper than {}. Found {}".format(tolerance, average)
-    return average >= tolerance, msg
 
 
 #==============================================================================
@@ -328,7 +303,7 @@ class FunctionTest(YatelTestCase):
         ]
         for iterable in iterables:
             il = int(len(iterable) - len(iterable) / 3)
-            sl  = int(len(iterable) - len(iterable) / 4)
+            sl = int(len(iterable) - len(iterable) / 4)
             orig = iterable[il:sl]
             rs = self.execute("slice", iterable=iterable, f=il, t=sl)
             self.assertEqual(orig, rs)
@@ -780,7 +755,9 @@ class FunctionTest(YatelTestCase):
 
         count = to_count - 1
         orig = string.replace(to_replace, new, count)
-        rs = self.execute("replace", string=string, old=to_replace, new=new, count=count)
+        rs = self.execute(
+            "replace", string=string, old=to_replace, new=new, count=count
+        )
         self.assertEqual(orig, rs)
         self.assertEqual(rs.count(new), count)
 
@@ -830,7 +807,9 @@ class FunctionTest(YatelTestCase):
 
         rs = self.execute("rfind", string=string, subs=two, start=len(one) + 1)
         self.assertEqual(rs, -1)
-        rs = self.execute("rfind", string=string, subs=four, start=len(one) + 1)
+        rs = self.execute(
+            "rfind", string=string, subs=four, start=len(one) + 1
+        )
         self.assertEqual(rs, len(one) + len(two) + len(three))
 
         rs = self.execute(
@@ -849,24 +828,26 @@ class FunctionTest(YatelTestCase):
 
         orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2)
         rs = self.execute("kmeans", envs=envs, k_or_guess=2)
-        #~ self.assertUnsortedNDArray(orig[0], rs[0])
-        #~ self.assertTrue(np.all(orig[1] == rs[1]))
-#~
-        #~ coords = {}
-        #~ def coordc(nw, env):
-            #~ arr = stats.env2weightarray(nw, env)
-            #~ if len(arr):
-                #~ coords[env] = [stats.average(arr), stats.std(arr)]
-            #~ else:
-                #~ coords[env] = [-1, -1]
-            #~ return coords[env]
-#~
-        #~ orig = kmeans.kmeans(
-            #~ self.nw, envs=envs, k_or_guess=2, coordc=coordc
-        #~ )
-        #~ rs = self.execute("kmeans", envs=envs, coords=coords, k_or_guess=2)
-        #~ self.assertUnsortedNDArray(orig[0], rs[0])
-        #~ self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
+
+        self.assertEquals(orig[0], rs[0])
+        self.assertEquals(orig[1], rs[1])
+
+        coords = {}
+
+        def coordc(nw, env):
+            arr = stats.env2weightarray(nw, env)
+            if len(arr):
+                coords[env] = [stats.average(arr), stats.std(arr)]
+            else:
+                coords[env] = [-1, -1]
+            return coords[env]
+
+        orig = kmeans.kmeans(
+            self.nw, envs=envs, k_or_guess=2, coordc=coordc
+        )
+        rs = self.execute("kmeans", envs=envs, coords=coords, k_or_guess=2)
+        self.assertEquals(orig[0], rs[0])
+        self.assertEquals(orig[1], rs[1])
 
 
 #==============================================================================
@@ -913,7 +894,6 @@ class QBJEngineTest(YatelTestCase):
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertAlmostEqual(orig, rs, places=4)
 
-
     def test_haplotype_by_id_with_slice(self):
         query = {
             "id": 1545454845,
@@ -925,7 +905,9 @@ class QBJEngineTest(YatelTestCase):
                         "function": {
                             "name": 'slice',
                             "kwargs": {
-                                "iterable": {"type": 'unicode', "value": 'id_01_'},
+                                "iterable": {
+                                    "type": 'unicode', "value": 'id_01_'
+                                },
                                 "f": {"type": 'int', "value": '-3'},
                                 "t": {"type": 'int', "value": '-1'}
                             }
@@ -937,7 +919,6 @@ class QBJEngineTest(YatelTestCase):
         orig = self.nw.haplotype_by_id("01")
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertEqual(orig, rs)
-
 
     def test_haplotype_by_id(self):
         hap_id = random.choice(self.haps_ids)
@@ -978,7 +959,7 @@ class QBJEngineTest(YatelTestCase):
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertEqual(s0+s1, rs)
 
-    def _test_kmeans(self):
+    def test_kmeans(self):
         envs = tuple(self.nw.enviroments(["native", "place"]))
         query = {
             "id": 1,
@@ -992,10 +973,11 @@ class QBJEngineTest(YatelTestCase):
         }
         orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2)
         rs = typeconv.parse(self.execute(query)["result"])
-        self.assertUnsortedNDArray(orig[0], rs[0])
-        self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
+        self.assertEquals(orig[0], rs[0])
+        self.assertEquals(orig[1], rs[1])
 
         coords = {}
+
         def coordc(nw, env):
             arr = stats.env2weightarray(nw, env)
             if len(arr):
@@ -1018,10 +1000,8 @@ class QBJEngineTest(YatelTestCase):
 
         orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2, coordc=coordc)
         rs = typeconv.parse(self.execute(query)["result"])
-        self.assertUnsortedNDArray(orig[0], rs[0])
-        self.assertTrue(np.allclose(orig[1], rs[1], rtol=1e-01))
-
-
+        self.assertEquals(orig[0], rs[0])
+        self.assertEquals(orig[1], rs[1])
 
 
 #==============================================================================

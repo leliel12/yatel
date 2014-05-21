@@ -1,7 +1,8 @@
-sqlalchemy
-jsonschema
-flask
-numpy # need to install python-dev|python-devel
-scipy  #need to install libatlas-base-dev gfortran
-caipyrinha
-Flask-Script
+Flask==0.10.1
+Flask-Script==0.6.7
+SQLAlchemy==0.9.3
+jsonschema==2.3.0
+mock==1.0.1
+numpy==1.8.0
+scipy==0.13.3
+

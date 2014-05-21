@@ -51,6 +51,7 @@ class TestDBFunctions(YatelTestCase):
             self.assertSameUnsortedContent(nw_values, anw_values)
         self.assertEquals(self.nw.describe(), anw.describe())
 
+
 #==============================================================================
 # NETWORK
 #==============================================================================

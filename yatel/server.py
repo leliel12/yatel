@@ -120,6 +120,7 @@ class YatelHttpServer(flask.Flask):
         return "{} works!".format(type(self).__name__)
 
     def _qbj(self, nw):
+        import ipdb; ipdb.set_trace()
         jnw = self._nws[nw]["qbj"]
         response = jnw.execute(flask.request.data,
                                stack_trace_on_error=self.config["DEBUG"])
