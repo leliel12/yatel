@@ -1,25 +1,39 @@
 Quick Start
 ===========
 
-¿Que es Yatel?
+What is Yatel?
 --------------
 
-**Pequeña descripcion de que es Yatel**
+It's a reference implementation of NW-OLAP
 
-Caso de estudio (ejemplo)
+- Wiskey-Ware License
+- It is largely implementing the aforementioned process.
+- Soon to arrive it's first usable version 0.3
+
+`Read more <http://getyatel.org/>`_
+
+
+
+Case study (example)
 -------------------------
 
-Supongamos que tenemos el siguiente problema:
+Suppose we have the following problem:
 
-.. image:: imagen_al_grafico
+.. image:: _static/cba.png
 
-Tenemos tres lugares llamados Córdoba, cada uno separada de la otro
-por una determinada distancia.
+We have three places called Cordoba, each separated one from the other
+by a certain distance. We can use Yatel to state the
+problem and make queries:
 
-Cargando el problema en Yatel
+- Which ones have an area between 200km2 and 600km2?
+- Which ones speak Spanish?
+- Those with the time zone utc-6?
+- Who has in his name Andalucía?
+
+Loading problem into Yatel
 -----------------------------
 
-Cargamos el anterior modelo en yatel, de la siguiente manera::
+We load the previous model into Yatel, as follows::
 
     from yatel import dom, db
     from pprint import pprint
@@ -43,12 +57,16 @@ Cargamos el anterior modelo en yatel, de la siguiente manera::
     nw.add_elements(elems)
     nw.confirm_changes()
 
-**Descripción de que estamos haciendo en las lineas anteriores.**
+In the above code, we create a database in memory and define::
 
-Modelos y atributos
+- A haplotype for each Córdoba. *dom.Haplotype (0, name="Cordoba")*
+- An edge to match each Córdoba by a distance. *dom.Edge(6599, (0, 1))*
+- Facts that give us information about the haplotypes. *dom.Fact(0, name="Andalucía", lang="sp", timezone="utc-3"),*
+
+Models and Attributes
 ^^^^^^^^^^^^^^^^^^^
 
-Mostramos la descripción::
+Showing the description::
 
     descriptor =  nw.describe()
     
@@ -64,7 +82,7 @@ Mostramos la descripción::
      'size': {u'edges': 3, u'facts': 4, u'haplotypes': 3}
     }
 
-Mostramos los haplotipos::
+Showing Haplotypes::
 
     for hap in nw.haplotypes():
         print hap
@@ -73,7 +91,7 @@ Mostramos los haplotipos::
     <Haplotype (1) at 0x24eae50>
     <Haplotype (2) at 0x24fa990>
 
-Mostramos los arcos::
+Showing Edges::
 
     for edge in nw.edges():
         print edge
@@ -82,7 +100,7 @@ Mostramos los arcos::
     <Edge ([8924.0 [1, 2]]  ) at 0x24fa0d0>
     <Edge ([9871.0 [2, 0]]  ) at 0x1f64c50>
 
-Mostramos los hechos::
+Showing Facts::
 
     for fact in nw.facts():
         print fact
@@ -92,14 +110,14 @@ Mostramos los hechos::
     <Fact (of Haplotype '1') at 0x24eae50>
     <Fact (of Haplotype '2') at 0x24fad10>
 
-Consultas
+Query
 ^^^^^^^^^
 
-Ahora pasemos a las consultas::
+Now for the queries::
 
     hap = nw.haplotype_by_id(2)
-    
-Arcos por haplotipo::
+
+Edges by haplotype::    
 
     for edge in nw.edges_by_haplotype(hap):
         print edge
@@ -107,14 +125,14 @@ Arcos por haplotipo::
     <Edge ([9871.0 [2, 0]]  ) at 0x24fa710>
     <Edge ([8924.0 [1, 2]]  ) at 0x1f64c50>
 
-Hechos por haplotipo::
+Facts by haplotype::
 
     for fact in nw.facts_by_haplotype(hap):
         print dict(fact)
 
     {u'lang': u'sp', u'timezone': u'utc', 'hap_id': 2, u'name': u'Andalucia'}
 
-Haplotipos por el ambiente lang::
+Haplotypes by lang enviroment::
 
     for hap in nw.haplotypes_by_enviroment(lang="sp"):
         print hap
@@ -123,14 +141,14 @@ Haplotipos por el ambiente lang::
     <Haplotype (1) at 0x25c5350>
     <Haplotype (2) at 0x24fa2d0>
 
-Haplotipos por el ambiente timezone::
+Haplotypes by timezone enviroment::
 
     for hap in nw.haplotypes_by_enviroment(timezone="utc-6"):
         print hap
 
     <Haplotype (1) at 0x24eae50>
 
-Haplotipos por el ambiente name::
+Haplotypes by name enviroment::
 
     for hap in nw.haplotypes_by_enviroment(name="Andalucia"):
         print hap
@@ -138,14 +156,14 @@ Haplotipos por el ambiente name::
     <Haplotype (0) at 0x25c5350>
     <Haplotype (2) at 0x24eae50>
 
-Arcos por el ambiente Andalucia::
+Edges by Andalucia environment::
 
     for edge in nw.edges_by_enviroment(name="Andalucia"):
         print edge
 
     <Edge ([9871.0 [2, 0]]  ) at 0x24fa7d0>
 
-Todos los ambientes::
+All environments::
 
     for env in nw.enviroments():
         print env
@@ -155,14 +173,14 @@ Todos los ambientes::
     <Enviroment {u'lang': None, u'timezone': u'utc-6', u'name': None} at 0x24faad0>
     <Enviroment {u'lang': u'sp', u'timezone': u'utc', u'name': u'Andalucia'} at 0x24db490>
 
-Estadisticas
+Statistics
 ^^^^^^^^^^^^
 
-Veamos algunas estadisticas::
+Here are some statistics::
 
     from yatel import stats
 
-Promedio::
+Average::
 
     print stats.average(nw)
     8464.66666667
@@ -170,12 +188,12 @@ Promedio::
 Std::
 
     print stats.std(nw, name="Andalucia")
-    0.0                                                                         # Porque esto me da 0? esperaba 1374.70877724
+    0.0
 
-Mineria de datos
+Data Mining
 ^^^^^^^^^^^^^^^^
 
-Pasemos a mineria de datos::
+Now to some data mining::
 
     from scipy.spatial.distance import euclidean
     from yatel.cluster import kmeans
