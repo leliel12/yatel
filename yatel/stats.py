@@ -130,7 +130,7 @@ def kurtosis(nw, env=None, **kwargs):
 def weights2array(edges):
     """Create a *numpy.ndarray* with all the weights of ``dom.Edges``"""
     generator = (e.weight for e in edges)
-    return np.fromiter(generator, np.float128)
+    return np.fromiter(generator, float)
 
 
 def env2weightarray(nw, env=None, **kwargs):

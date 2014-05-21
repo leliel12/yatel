@@ -995,16 +995,13 @@ def exists(engine, **kwargs):
     """
     kwargs.pop("mode", None)
     try:
-
         nw = YatelNetwork(engine, mode=MODE_READ, **kwargs)
-
-        hap_types = nw.describe()["haplotype_attributes"]
-        fact_types = nw.describe()["fact_attributes"]
-        edges_types = nw.describe()["edges_attributes"]
-
+        desc = nw.describe()
+        hap_types = desc["haplotype_attributes"]
+        fact_types = desc["fact_attributes"]
+        edges_types = desc["edge_attributes"]
         if hap_types["hap_id"] != fact_types["hap_id"]:
             raise Exception()
-
     except Exception as err:
         return False
     else:

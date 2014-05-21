@@ -16,6 +16,7 @@ Contents:
 
     install.rst
     quickstart.rst
+    stats.rst
     cli.rst
     qbj.rst
     etl.rst
