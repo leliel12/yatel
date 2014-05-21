@@ -24,7 +24,23 @@ import tempfile
 
 import numpy as np
 
+from mock import patch
+
 from yatel import db, dom, weight
+
+
+#==============================================================================
+# MOCKS
+#==============================================================================
+
+TO_MOCK = {
+    "yatel.cluster.kmeans.vq.kmeans": {
+        "patch": {},
+        "mock": {
+            "return_value": [None, None]
+        }
+    }
+}
 
 
 #===============================================================================
@@ -128,10 +144,18 @@ class YatelTestCase(unittest.TestCase):
         self.nw = db.YatelNetwork(**conn)
         self.haps_ids = self.add_elements(self.nw)
         self.nw.confirm_changes()
+        for target, options in TO_MOCK.items():
+            mock = patch(target, **options["patch"]).start()
+            mock.configure_mock(**options["mock"])
 
     def tearDown(self):
+        patch.stopall()
         if self.conn()["engine"] == "sqlite":
             os.remove(self.conn()["database"])
+
+    #==========================================================================
+    # CUSTOM ASSERTS
+    #==========================================================================
 
     def assertAproxDatetime(self, dt0, dt1):
         self.assertEqual(
@@ -166,6 +190,10 @@ class YatelTestCase(unittest.TestCase):
                     break
             self.assertFalse(fail, "{} != {}".format(arr0, arr1))
 
+    #==========================================================================
+    # UTILS
+    #==========================================================================
+
     def rrange(self, li, ls):
         top = random.randint(li, ls)
         return xrange(top)
@@ -174,9 +202,9 @@ class YatelTestCase(unittest.TestCase):
         return random.choice(tuple(iterable))
 
 
-#===============================================================================
+#==============================================================================
 # MAIN
-#===============================================================================
+#==============================================================================
 
 if __name__ == "__main__":
     print(__doc__)
