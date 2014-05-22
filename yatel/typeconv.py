@@ -22,6 +22,7 @@ serializable types.
 
 import decimal
 import datetime
+import types
 
 import numpy as np
 
@@ -34,7 +35,7 @@ from yatel import dom
 #: Constant to retrieve  value as is
 LITERAL_TYPE = "literal"
 
-CONTAINER_TYPES = (tuple, set, list, frozenset)
+CONTAINER_TYPES = (tuple, set, list, frozenset, types.GeneratorType)
 
 #: Dictionary of yatel domain object model
 HASHED_TYPES = tuple([dict] + dom.YatelDOM.__subclasses__())
@@ -51,7 +52,7 @@ TO_SIMPLE_TYPES = {
     str: unicode,
     unicode: lambda x: x,
     decimal.Decimal: lambda x: unicode(x),
-    type(None): lambda x: None,
+    types.NoneType: lambda x: None,
     complex: lambda x: unicode(x)
 }
 
@@ -93,7 +94,7 @@ NAMES_TO_TYPES = dict((v, k) for k, v in TYPES_TO_NAMES.items())
 # =============================================================================
 
 def np2py(obj):
-    """Converts a numpy number to it´s closest respresentation of Python 
+    """Converts a numpy number to it´s closest respresentation of Python
     traditional objects
 
     """
@@ -117,12 +118,12 @@ def np2py(obj):
 
 def simplifier(obj):
     """Translates obj given to a python dictionary
-    
+
     Returns
     -------
     dictionary: dict
         a dictionary representation of obj
-    
+
     """
 
     # numpy simplifier
@@ -144,9 +145,9 @@ def simplifier(obj):
 
 def parse(obj):
     """Parses an objects type and value, according to the dictionary maps
-    
+
     """
-    
+
     typename = obj["type"]
     value = obj["value"]
     if typename == LITERAL_TYPE:
