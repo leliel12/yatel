@@ -911,6 +911,15 @@ class YatelNetwork(object):
 # FUNCTIONS
 #===============================================================================
 
+def qfilter(query, flt):
+    """Filter a yatel query by a given flt function
+
+    """
+    for elem in query:
+        if flt(elem):
+            yield elem
+
+
 def parse_uri(uri, mode=MODE_READ, log=None):
     """Create a dictionary for use in creation of YatelNetwork
 
