@@ -19,7 +19,7 @@
 
 import random
 
-from yatel import db, dom, typeconv
+from yatel import dom
 from yatel.tests.core import YatelTestCase
 
 
@@ -27,8 +27,12 @@ from yatel.tests.core import YatelTestCase
 # VALIDATE TESTS
 #===============================================================================
 
-class TestFunctions(YatelTestCase):
-    pass
+class TestHaplatoypes(YatelTestCase):
+
+    def test_equals(self):
+        hap0 = dom.Haplotype(1)
+        hap1 = dom.Haplotype(1, arg="foo")
+        self.assertEquals(hap0, hap1)
 
 
 
