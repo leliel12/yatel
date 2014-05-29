@@ -1,39 +1,37 @@
 Stats
 =====
 
-El modulo estadísticas es una de las partes fundamentales de Yatel. Esta
-diseñado para dar soporte toma de decisiones por medio de la
-extracción de medidas de posición, variación, asimetría y puntiagudés de los
-pesos de los arcos en un ambiente dado.
+The statistics module is one of the fundamental parts of Yatel. It's
+designed to support decision making through
+extraction of measure of positions, variation, skewness and peak analysis of
+arc weights in a given environment.
 
-Las funcionalidades de este modulo se dividen en 2 grupos bien diferenciados:
+The features of this module are divided into 2 distinct groups:
 
-- *Funciones de Transformación:* Se encarga de convertir un ambiente de
-  una red dada en un *array de numpy* para acelerar el calculo de las
-  estadísticas.
-- *Funciones de Cálculo:* Se utilizan para el calculo de las medidas
-  estadísticas propiamente dichas sobre un ambiente de una red de haplotipos.
+- *Transformation Functions:* Is responsible for converting an environment of
+  a given network into a *numpy array* to accelerate the calculation 
+  of statistics.
+- *Calculation Functions:* Are used for calculating statistical measures
+  on a haplotypes environment.
 
-Si bien todas las funciones de cálculo utilizan internamente las de
-transformación, es muchas veces determinante para el rendimiento de un
-procesamiento precalcular en un array con los valores de las distancias de un
-ambiente.
+While all calculation functions use internally the transformation functions, 
+it is often critical to the performance of processing to precalculate in an 
+array with the values ​​of the distances of an environment.
 
 
-Funciones de Transformación
----------------------------
+Transformation Functions
+------------------------
 
-Las funciones de transformación son dos:
+The transformation functions are two:
 
-- ``weights2array``: dado un iterable de instancias ``dom.Edges`` esta función
-  devuelve un array de *numpy* con todos los valores de los pesos de dichos
-  arcos.
+- ``weights2array``: given a ``dom.Edges`` iterable this function returns a 
+  *numpy* array with all weight values ​​of said arcs.
 
 .. code-block:: python
 
     >>> from yatel import dom, db, stats
 
-    # Nuestra red de ejemplo clasica
+    # Our classic network example
     >>> nw = db.YatelNetwork("memory", mode="w")
 
     >>> nw.add_elements([
@@ -52,17 +50,16 @@ Las funciones de transformación son dos:
     ... ])
     ... nw.confirm_changes()
 
-    # extraemos todos los arcos
+    # we extract all edges
     edges = nw.edges()
     stats.weights2array(edges)
     array([ 6599.,  8924.,  9871.])
 
 
-- ``env2weightarray``: Esta función se encarga de convertir una instancia de
-  *db.YatelNetwork*, en un array con todos los pesos de los arcos que contiene;
-  o alguno de ellos filtrados por ambientes. También por motivos de
-  implementaciones puede recibir cualquier iterable y convertirlo en un array
-  de numpy.
+- ``env2weightarray``: This function is responsible for converting a 
+  *db.YatelNetwork* instance into an array with all weights of the edges 
+  contained; or any of them filtered by environments. Also for reasons of 
+  implementations can receive any iterable and turn it into a numpy array.
 
 
 .. code-block:: python
@@ -70,87 +67,84 @@ Las funciones de transformación son dos:
     >>> stats.env2weightarray(nw)
     array([ 6599.,  8924.,  9871.])
 
-    # con un ambiente
+    # with an environment
     >>> stats.env2weightarray(nw, name="Andalucia")
     array([ 9871.])
 
 
-Funciones de Cálculo
---------------------
+Calculation Functions
+---------------------
 
-Las funciones de calculo son las encargadas de calcular eficientemente
-estadísticas sobre la variabilidad de una red o ambiente de una red.
-El listado completo de funciones las puede encontrar en el la referencia
-del módulo stats aquí.
+Calculation functions are responsible for efficiently calculate statistics 
+on the variability of a network or a network environment.
+The full list of functions can be found on the reference module stats here.
 
 .. code-block:: python
 
-    # podríamos calular, por ejemplo, la media
+    # we could calculate for example, the mean (or average) in a network
     >>> stats.average(nw)
     8464.666666666666667
 
-    # o de un ambiente
+    # or in a environment
     >>> stats.average(nw, name="Andalucia")
     9871.0
 
 
-Por motivos de rendimiento muchas veces es conveniente extraer todos los pesos
-de un ambiente antes de realizar muchos cálculos (esto puede acelerar varios
-cientos de un análisis del mismo ambiente datos)
+For performance reasons is desirable to calculate all weights from an 
+environment before before making many calculations (this can speed up to 
+several hundred times the data analysis)
 
 .. code-block:: python
 
-    # extraemos el array con los valores
+    # we get the array with it's values
     >>> arr = stats.env2weightarray(nw, lang="sp")
 
-    # calculamos la desviacion
+    # calculate the deviation
     >>> stats.std(arr)
     1374.7087772405551286
 
 
-Las funciones también soportan iterables de Python como pueden ser listas
-o tuplas
+The functions also support python iterables such as lists or tuples
 
 .. code-block:: python
 
     >>> stats.average([1, 2, 3])
     0.81649658092772603
 
-    # esto va a devolver no es un numero
+    # this wont return a number
     >>> stats.average([])
     nan
 
 
-Un ejemplo mas avanzado
+A more advanced example
 -----------------------
 
-Si bien Yatel presenta facilidades para el cálculo de estadísticas comunes, el
-modulo ``stats`` por su arquitectura facilita el análisis de datos de ambientes
-de manera mas compleja integrándose de manera sencilla con la funcionalidad de
-SciPy.
+While Yatel it provides for the calculation of common statistics, ``stats`` 
+module for its architecture facilitates data analysis of more complex 
+environments easily integrating itself with the functionality of SciPy.
 
-Por ejemplo si quisiéramos calcular
-`One-Way ANOVA <http://en.wikipedia.org/wiki/Analysis_of_variance>`_ con
-do ambientes de nuestra red.
+For example if we wanted to calculate
+`One-Way ANOVA <http://en.wikipedia.org/wiki/Analysis_of_variance>`_ with two 
+environments of our netword
 
 .. code-block:: python
 
-    # importamos el one-way anova
+    # import the one-way ANOVA
     >>> from scipy.stats import f_oneway
 
-    # primera muestra
+    # first sample
     >>> arr0 = stats.env2weightarray(nw, lang="sp")
 
-    # segunda muestra
+    # second sample
     >>> arr1 = stats.env2weightarray(nw, name="Andalucia")
 
     >>> f, p = f_oneway(arr0, arr1)
 
-    # valor de F
+    # value of F
     >>> f
     0.5232691541329888
 
-    # valor de P
+    # value of P
     >>> p
     0.54461284339730176
 

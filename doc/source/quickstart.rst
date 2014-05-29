@@ -15,7 +15,7 @@ It's a reference implementation of NW-OLAP
 
 
 Case study (example)
--------------------------
+--------------------
 
 Suppose we have the following problem:
 
@@ -31,7 +31,7 @@ problem and make queries:
 - Who has in his name Andalucía?
 
 Loading problem into Yatel
------------------------------
+--------------------------
 
 We load the previous model into Yatel, as follows::
 
@@ -64,7 +64,7 @@ In the above code, we create a database in memory and define::
 - Facts that give us information about the haplotypes. *dom.Fact(0, name="Andalucía", lang="sp", timezone="utc-3"),*
 
 Models and Attributes
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
 
 Showing the description::
 
@@ -111,7 +111,7 @@ Showing Facts::
     <Fact (of Haplotype '2') at 0x24fad10>
 
 Query
-^^^^^^^^^
+^^^^^
 
 Now for the queries::
 
@@ -174,7 +174,7 @@ All environments::
     <Enviroment {u'lang': u'sp', u'timezone': u'utc', u'name': u'Andalucia'} at 0x24db490>
 
 Statistics
-^^^^^^^^^^^^
+^^^^^^^^^^
 
 Here are some statistics::
 
@@ -191,7 +191,7 @@ Std::
     0.0
 
 Data Mining
-^^^^^^^^^^^^^^^^
+^^^^^^^^^^^
 
 Now to some data mining::
 

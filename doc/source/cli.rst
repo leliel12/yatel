@@ -1,26 +1,25 @@
 Command Line Interface
 ======================
 
-Para tareas comunes de mantenimiento, puesta en marcha y configuración general
-Yatel posee una cómoda serie de comandos para utilizarlo desde consola.
+For common maintenance, startup and general configuration Yatel has a 
+comfortable set of commands for use from console.
 
 
-Se ejemplifican a continuación algunos casos de uso para su mejor comprensión.
+Some use cases for better understanding exemplified below.
 
 
-Yatel posee tres opciones globales:
+Yatel has three global options:
 
-    #. ``-k`` | ``--ful-stack`` que indica que de fallar un comando se mostrará
-       completa la salida de excepciones y no solo el mensaje de error.
-    #. ``-l`` | ``--log`` activara el logeo de la base de datos a en la salida
-       estandar.
+    #. ``-k`` | ``--ful-stack`` indicates that if a command fails, show full 
+       exception output and not just the error message.
+    #. ``-l`` | ``--log`` enables log of the database to standard output.
 
 
-Comandos
+Commands
 --------
 
-- ``describe``: Recibe un único parámetro que es el string de conexión a la
-  base de datos e imprime por pantalla la descripción de dicha red.
+- ``describe``: Receives a single parameter that is the connection string to 
+  the database and prints on the screen description of the network.
 
   ::
 
@@ -28,110 +27,109 @@ Comandos
 
     {description}
 
-  Comando viejo::
+  Old command::
 
     yatel --database sqlite:///my_nwwharehouse.db --describe
 
-- ``test``: Ejecuta todos los test de yatel. Recibe un único parámetero que
-  se refiere al nivel de verborragia de los test.
+- ``test``: Runs all tests of Yatel. Receives a single parameter that refers 
+  to the level of verbosity of the tests.
 
   ::
 
     yatel test 1
     ....
 
-  Comando viejo::
+  Old command::
 
     yatel --test 1
 
-- ``dump``: Persiste toda los datos de una nwolap en un archivo en formato
-  *JSON* o *XML*. Es importante aclarar que *JSON* es muy rápido pero consume
-  mucha memoria en redes grandes; por lo cual se recomienda *JSON* para redes
-  pequeñas y *XML* para redes grandes. Dump recibe dos parámetros:
+- ``dump``: Persists all data from a nwolap to a file in *JSON* 
+  or *XML* format. It is important to note that *JSON* is very fast but 
+  memory intensive for large networks; so *JSON* is recommended for small 
+  networks to large networks *XML*. Dump receives two parameters:
 
-    #. La URI de la base de datos a volcar
-    #. El nombre del archivo donde se volcará la información. El formato de
-       persistencia esta dado por la extensión de dicho archivo. Si desea usar
-       el formato *JSON* la extensión debe ser ``.json`` o ``.yjf`` mientras
-       que para *XML* las alternativas son ``.xml`` o ``.yxf``
+    #. URI of the database to dump
+    #. The name of the file where the information will be dumped.
+       The persistence format is given by the extension of the file. To use 
+       the *JSON* extension must be ``.json`` or ``.yjf`` and for XML 
+       extensions are ``.xml`` or ``.yxf``
 
   ::
 
     yatel dump sqlite:///my_nwwharehouse.db dump.xml
 
 
-  Comando viejo::
+  Old command::
 
     yatel --database sqlite:///my_nwwharehouse.db --dump dump.xml
 
 
-- ``backup``: Es similar a dump y cumple su misma función. La única diferencia
-  que el nombre del archivo que se le parametriza como destino no es el nombre
-  final sino una plantilla, Donde entre el nombre la extensión SIEMPRE se agrega
-  una marca de fecha y hora para crear siempre un archivo nuevo. Es útil para
-  tareas de de backup automatizado.
+- ``backup``: Similar to dump and it does the same function. The only 
+  difference that the file name to be parameterized as target is not the 
+  final name but a template, between the name and the extension ALWAYS a 
+  timestamps is added to always create a new file. It is useful for automated 
+  backup tasks.
 
   ::
 
     yatel backup sqlite:///my_nwwharehouse.db backup.xml
 
 
-  Comando viejo::
+  Old command::
 
     yatel --database sqlite:///my_nwwharehouse.db --backup backup.xml
 
 
-- ``load``: Restaura los datos de una archivo creado con el comando ``dump``
-  o ``backup`` a una base de datos. El primer parámetro del comando es la
-  base de datos destino, el segundo parámetro es el modo de apertura de la db
-  que pueder *w* (pisa todo el contenido) o *a* (agrega el nuevo contenido a la red)
-  y el tercero el path al archivo con los datos.
+- ``load``: Restores data from a file created by the ``dump`` or ``backup`` 
+  command. The first parameter of the command is the target database. The 
+  second parameter is the open mode of the db, *w* (erases previous contents) 
+  or *a* (adds new content to the network) and the third it's a path to 
+  the file with the data.
 
   ::
 
     yatel load sqlite:///my_nwwharehouse.db a backup.xml
 
 
-  Comando viejo::
+  Old command::
 
     yatel --database sqlite:///my_nwwharehouse.db --load backup.xml --mode a --force
 
 
-- ``copy``: Copia toda una nwolap a otra nwolap. El comando recibe como primer
-  parámetro la URI de origen de datos, cel segundo parámetro es el
-  modo de apertura de la db que pueder *w* (pisa todo el contenido) o
-  *a* (agrega el nuevo contenido a la red) y como tercero la URI a donde se
-  copiaran los datos.
+- ``copy``: Copy an entire nwolap into another nwolap. The command takes as 
+  first parameter the URI of the source network, the second parameter is the 
+  open mode of the db that can be *w* (erases previous content) or *a* (adds 
+  new content to the network) and the third one it is the URI of 
+  destination network.
 
   ::
 
     yatel copy sqlite:///my_nwwharehouse.db w mysql://user:password@host:port/copy_nwwharehouse
 
 
-  Comando viejo::
+  Old command::
 
     yatel --database sqlite:///my_nwwharehouse.db --copy mysql://user:password@host:port/copy_nwwharehouse --force --mode w
 
 
-- ``createconf``: crea una nueva configuración para correr yatel como servicio
-  en formato *JSON*. Recibe como parámetro el nombre del archivo a crear.
-  (Para ver la sintaxis de dicho archivo ver: )
+- ``createconf``: create a new configuration to run Yatel as a service in 
+  *JSON* format. Receives as a parameter the name of the file to create. 
+  (For the syntax of this file see: )
 
   ::
 
     yatel createconf my_new_conf.json
 
 
-  Comando viejo::
+  Old command::
 
     yatel --create-server-conf my_new_conf.json
 
 
-- ``createwsgi``: Crea un nuevo archivo wsgi para desplegar yatel contra un
-  servidor en modo producción. Recibe dos parámetros: El primero debe ser
-  un path, de preferencia, absoluto al lugar donde esta la configuración creada
-  con el comando ``createconf`` y el segundo el nombre del archivo wsgi a
-  crear.
+- ``createwsgi``: Create a new wsgi file to deploy Yatel to a server in 
+  production mode. Receives two parameters: The first should be an absolute 
+  path (preferably), to where the configuration file was created with the 
+  command ``createconf`` and second the name of the wsgi file.
 
 
   ::
@@ -139,65 +137,65 @@ Comandos
     yatel createwsgi my_new_conf.json my_new_wsgi.py
 
 
-  Comando viejo::
+  Old command::
 
     yatel --create-wsgi my_new_conf.json my_new_wsgi.py
 
 
-- ``runserver``: Pone a correr Yatel como un servicio *HTTP*. Recibe dos
-  parámetros: El primero es el path al archivo de configuración creado con el
-  comando ``createconf`` y el segundo la IP y el puerto donde quedara escuchando
-  el servicio separado por un ``:``
+- ``runserver``: Runs Yatel as an HTTP service. Receives two parameters: 
+  The first is the path to the configuration file created with ``createconf`` 
+  command and the second IP and port where the service will be listening 
+  separated by a ``:``
 
   ::
 
     yatel runserver my_new_conf.json localhost:8080
 
 
-  Comando viejo::
+  Old command::
 
     yatel --runserver my_new_conf.json localhost:8080
 
 
-- ``createetle``: Crea un nuevo archivo de lectura, transformación y carga de
-  datos (ETL) en un path especificado como parámetro.
+- ``createetle``: Create a new file to extract, transform, and load data (ETL) 
+  in a path specified as a parameter.
 
   ::
 
     yatel createetl my_new_etl.py
 
-  Comando viejo::
+  Old command::
 
     yatel --create-etl my_new_etl.py
 
 
-- ``describeetl``: Describe la documentación y los parámetros del constructor
-  del ETL que se pasa como parámetro.
+- ``describeetl``: Describe the documentation and parameters of the ETL 
+  constructor passed as a parameter.
 
   ::
 
     yatel describeetl my_new_etl.py
 
-  Comando viejo::
+  Old command::
 
     yatel --desc-etl my_new_etl.py
 
 
-- ``runetl``: Corre un ETL. Recibe tres parámetros.
+- ``runetl``: Runs an ETL. Receives three parameters.
 
-    #. La la base de datos destino
-    #. El modo de apertura de la base de datos (*w* o *a*)
-    #. El path al ETL
+    #. Destination database
+    #. Open mode of the databse (*w* o *a*)
+    #. ETL path
 
-  Hay que tener en cuenta que el ETL puede recibir mas parámetros en su constructor;
-  que se deben pasarse luego del parámetro con el path al ETL en sí.
+  Keep in mind that the ETL may receive more parameters in its constructor; to 
+  be passed after the path to the ETL.
 
   ::
 
     yatel runetl sqlite:///my_nwwharehouse.db a my_new_etl.py param param param
 
 
-  Comando viejo::
+  Old command::
 
     yatel --database sqlite:///my_nwwharehouse.db --run-etl my_new_etl.py param param param --mode a --force
 
