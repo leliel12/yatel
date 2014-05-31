@@ -49,7 +49,7 @@ def run_tests(verbosity=1):
         tests = loader.loadTestsFromTestCase(testcase)
         if tests.countTestCases():
                 suite.addTests(tests)
-    runner.run(suite)
+    return runner.run(suite)
 
 
 #===============================================================================
