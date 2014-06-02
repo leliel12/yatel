@@ -13,6 +13,8 @@ Yatel has three global options:
     #. ``-k`` | ``--ful-stack`` indicates that if a command fails, show full
        exception output and not just the error message.
     #. ``-l`` | ``--log`` enables log of the database to standard output.
+    #. ``-f`` | ``--force`` if a database is try to open in 'w' or 'a'
+       and a Yatel Network is discovered overwrite it
 
 
 Commands

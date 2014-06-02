@@ -27,13 +27,30 @@ from yatel.tests.core import YatelTestCase
 # VALIDATE TESTS
 #===============================================================================
 
-class TestHaplatoypes(YatelTestCase):
+class TestHaplatoype(YatelTestCase):
 
-    def test_equals(self):
+    def test_getattr(self):
+        pass
+
+    def test_eq(self):
         hap0 = dom.Haplotype(1)
         hap1 = dom.Haplotype(1, arg="foo")
         self.assertEquals(hap0, hap1)
 
+    def test_ne(self):
+        pass
+
+    def test_hash(self):
+        pass
+
+    def test_is(self):
+        pass
+
+    def test_in(self):
+        pass
+
+    def test_none_values(self):
+        pass
 
 
 #===============================================================================
