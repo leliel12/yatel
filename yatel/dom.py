@@ -28,6 +28,8 @@ import collections
 
 class YatelDOM(collections.Mapping):
 
+    CLEAN_NULL = True
+
     #~ class __metaclass__(type):
        #~ def __getattr__(cls, attr):
            #~ return ExpressionFactory(attr)
@@ -35,24 +37,30 @@ class YatelDOM(collections.Mapping):
     def __init__(self, **attrs):
         if "id" in attrs:
             raise ValueError("'id' is not valid attribute name")
-        self._data = attrs
+        self._data = dict([
+            [k, v] for k, v in attrs.items() if v is not None
+        ]) if self.CLEAN_NULL else attrs
         super(YatelDOM, self).__init__()
 
-    def __hash__(self):
-        return hash(tuple(self._data)) + 555
-
     def __getitem__(self, k):
+        """x.__getitem__(k) <==> x[k]"""
         return self._data[k]
 
     def __iter__(self):
+        """x.__iter__() <==> iter(x)"""
         return iter(self._data)
 
     def __len__(self):
+        """x.__len__() <==> len(x)"""
         return len(self._data)
 
     def __eq__(self, obj):
         """x.__eq__(y) <==> x==y"""
         return isinstance(obj, type(self)) and self._data == obj._data
+
+    def __hash__(self):
+        """x.__hash__() <==> hash(x)"""
+        return hash(tuple(self._data.items()))
 
     def __ne__(self, obj):
         """x.__ne__(y) <==> x!=y"""
@@ -88,8 +96,23 @@ class Haplotype(YatelDOM):
             :attrs: Different attributes of this haplotype.
 
         """
+        if hap_id is None:
+            raise ValueError("'hap_id' can't be None")
         attrs["hap_id"] = hap_id
         super(Haplotype, self).__init__(**attrs)
+
+
+    def __eq__(self, obj):
+        """x.__eq__(y) <==> x==y"""
+        return isinstance(obj, Haplotype) and self.hap_id == obj.hap_id
+
+    def __hash__(self):
+        """x.__hash__() <==> hash(x)"""
+        return hash(self.hap_id)
+
+    def __ne__(self, obj):
+        """x.__ne__(y) <==> x!=y"""
+        return not (self == obj)
 
     def __repr__(self):
         """x.__repr__() <==> repr(x)"""
@@ -120,6 +143,8 @@ class Fact(YatelDOM):
             :attrs: Different attributes of this fact.
 
         """
+        if hap_id is None:
+            raise ValueError("'hap_id' can't be None")
         attrs["hap_id"] = hap_id
         super(Fact, self).__init__(**attrs)
 
@@ -139,6 +164,7 @@ class Edge(YatelDOM):
     """Represents a relation between 2 or more *haplotypes*
 
     """
+    CLEAN_NULL = False
 
     def __init__(self, weight, haps_id):
         """Creates a new instance.
@@ -168,6 +194,8 @@ class Edge(YatelDOM):
 
 class Enviroment(YatelDOM):
 
+    CLEAN_NULL = False
+
     def __repr__(self):
         """x.__repr__() <==> repr(x)"""
         cls = type(self).__name__
@@ -181,6 +209,8 @@ class Enviroment(YatelDOM):
 #===============================================================================
 
 class Descriptor(YatelDOM):
+
+    CLEAN_NULL = False
 
     def __init__(self, mode, fact_attributes,
                  haplotype_attributes, edge_attributes, size):
