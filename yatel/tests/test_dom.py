@@ -30,7 +30,10 @@ from yatel.tests.core import YatelTestCase
 class TestHaplatoype(YatelTestCase):
 
     def test_getattr(self):
-        pass
+        hap1 = dom.Haplotype(1, arg="fa")
+        self.assertEquals("fa", hap1.arg)
+        self.assertEquals("fa", hap1["arg"])
+        self.assertEquals(hap1.arg, hap1["arg"])
 
     def test_eq(self):
         hap0 = dom.Haplotype(1)
@@ -38,20 +41,40 @@ class TestHaplatoype(YatelTestCase):
         self.assertEquals(hap0, hap1)
 
     def test_ne(self):
-        pass
+        hap0 = dom.Haplotype(1)
+        hap1 = dom.Haplotype(2)
+        self.assertNotEqual(hap0, hap1)
 
     def test_hash(self):
-        pass
+        hap0 = dom.Haplotype(1)
+        hap1 = dom.Haplotype(1, arg="foo")
+        self.assertEquals(hash(hap0),hash(hap1))
 
     def test_is(self):
-        pass
+        hap0 = dom.Haplotype(1)
+        hap1 = dom.Haplotype(1, arg="foo")
+        self.assertFalse(hap0 is hap1)
+        self.assertTrue(hap0 is hap0)
+        self.assertTrue(hap1 is hap1)
 
     def test_in(self):
-        pass
+        hap0 = dom.Haplotype(1)
+        hap1 = dom.Haplotype(1, attr="foo")
+        hap2 = dom.Haplotype(2)
+        d = {hap0: "foo"}
+        self.assertIn(hap0, d)
+        self.assertIn(hap1, d)
+        self.assertNotIn(hap2, d)
+        d.update({hap1: "faa", hap2: "fee"})
+        self.assertEquals(d[hap0], "faa")
+        self.assertEquals(d[hap1], "faa")
+        self.assertEquals(d[hap2], "fee")
+        self.assertEquals(len(d), 2)
+
 
     def test_none_values(self):
-        pass
-
+        hap0 = dom.Haplotype(1, attr=None)
+        self.assertRaises(AttributeError, lambda: hap0.attr)
 
 #===============================================================================
 # MAIN
