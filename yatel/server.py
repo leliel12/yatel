@@ -103,11 +103,9 @@ class YatelHttpServer(flask.Flask):
     def __init__(self, **config):
         super(YatelHttpServer, self).__init__(__name__)
         self.config.from_object(config)
-
         self._nws = {}
-
-        self.route("/")(self._its_works)
-        self.route("/qbj/<nw>")(self._qbj)
+        self.route("/", methods=["POST", "GET"])(self.its_works)
+        self.route("/qbj/<nwname>", methods=["POST", "GET"])(self.qbj)
 
     def add_nw(self, nwname, nw, enable_qbj):
         if not isinstance(nw, db.YatelNetwork):
@@ -116,20 +114,20 @@ class YatelHttpServer(flask.Flask):
         if enable_qbj:
             self._nws[nwname]["qbj"] = qbj.QBJEngine(nw)
 
-    def _its_works(self):
-        return "{} works!".format(type(self).__name__)
+    def its_works(self):
+        return flask.jsonify({type(self).__name__: "Works"})
 
-    def _qbj(self, nw):
-        import ipdb; ipdb.set_trace()
-        jnw = self._nws[nw]["qbj"]
-        response = jnw.execute(flask.request.data,
-                               stack_trace_on_error=self.config["DEBUG"])
+    def qbj(self, nwname):
+        qbj_nw = self._nws[nwname]["qbj"]
+        response = qbj_nw.execute(
+            flask.request.json, stacktrace=self.config["DEBUG"]
+        )
         return flask.jsonify(response)
 
 
-#===============================================================================
+#==============================================================================
 # FUNCTIONS
-#===============================================================================
+#==============================================================================
 
 def validate_conf(confdata):
     return jsonschema.validate(confdata, CONF_SCHEMA)

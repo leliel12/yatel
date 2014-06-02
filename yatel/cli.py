@@ -27,7 +27,6 @@ import argparse
 import json
 import functools
 
-import flask
 from flask.ext.script import Manager, Command, Option
 from flask.ext.script.commands import InvalidCommand
 
@@ -55,7 +54,6 @@ class _FlaskMock(object):
     def __enter__(self, *a, **kw):
         return _FlaskMock()
 
-app = flask.Flask(__name__)
 
 manager = Manager(
     _FlaskMock,

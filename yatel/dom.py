@@ -85,7 +85,7 @@ class Haplotype(YatelDOM):
 
         **Params**
             :hap_id: Unique id of this haplotype.
-            :attrs: Diferents attributes of this haplotype.
+            :attrs: Different attributes of this haplotype.
 
         """
         attrs["hap_id"] = hap_id
@@ -117,7 +117,7 @@ class Fact(YatelDOM):
 
         **Params**
             :hap_id: The ``dom.Haplotype`` id of this fact.
-            :attrs: Diferents attributes of this fact.
+            :attrs: Different attributes of this fact.
 
         """
         attrs["hap_id"] = hap_id
@@ -136,7 +136,7 @@ class Fact(YatelDOM):
 #===============================================================================
 
 class Edge(YatelDOM):
-    """Represent a relation between 2 or more *haplotypes*
+    """Represents a relation between 2 or more *haplotypes*
 
     """
 
