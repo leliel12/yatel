@@ -166,6 +166,52 @@ class TestFact(YatelTestCase):
         fact1 = dom.Fact(1, attr0="foo", attr1=None)
         self.assertRaises(AttributeError, lambda: fact1.attr1)
 
+
+class TestEnviroment(YatelTestCase):
+
+    def test_getattr(self):
+        enviroment1 = dom.Enviroment(attr0="env")
+        self.assertEquals("env", enviroment1.attr0)
+        self.assertEquals("env", enviroment1["attr0"])
+        self.assertEquals(enviroment1.attr0, enviroment1["attr0"])
+
+    def test_eq(self):
+        enviroment0 = dom.Enviroment(attr0="fac")
+        enviroment1 = dom.Enviroment(attr0="fac")
+        self.assertEquals(enviroment0, enviroment1)
+
+    def test_ne(self):
+        enviroment0 = dom.Enviroment(attr0="fac")
+        enviroment1 = dom.Enviroment()
+        self.assertNotEqual(enviroment0, enviroment1)
+
+    def test_hash(self):
+        enviroment0 = dom.Enviroment()
+        enviroment1 = dom.Enviroment()
+        self.assertEquals(hash(enviroment0), hash(enviroment1))
+
+    def test_is(self):
+        enviroment0 = dom.Enviroment(attr0="fac")
+        enviroment1 = dom.Enviroment()
+        self.assertFalse(enviroment0 is enviroment1)
+        self.assertTrue(enviroment0 is enviroment0)
+        self.assertTrue(enviroment1 is enviroment1)
+
+    def test_in(self):
+        enviroment0 = dom.Enviroment(attr0="fac")
+        enviroment1 = dom.Enviroment()
+        enviroment2 = dom.Enviroment()
+        d = {enviroment0}
+        self.assertIn(enviroment0, d)
+        self.assertNotIn(enviroment1, d)
+        self.assertNotIn(enviroment2, d)
+        self.assertEquals(len(d), 1)
+
+    def test_none_values(self):
+        enviroment1 = dom.Enviroment(attr0=None)
+        self.assertEquals(enviroment1.attr0, None)
+
+
 # ===============================================================================
 # MAIN
 # ===============================================================================
