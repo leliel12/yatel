@@ -144,8 +144,10 @@ def hap_in_env_coords(nw, env):
         - **0** if the haplotype exist in the environment.
 
     """
-    haps_id = tuple(hap.hap_id for hap in nw.haplotypes())
-    ehid = tuple(hap.hap_id for hap in nw.haplotypes_by_enviroment(env=env))
+    haps_id = [hap.hap_id for hap in nw.haplotypes()]
+    ehid = [hap.hap_id for hap in nw.haplotypes_by_enviroment(env=env)]
+    haps_id.sort()
+    ehid.sort()
     return [int(hid in ehid) for hid in haps_id]
 
 
