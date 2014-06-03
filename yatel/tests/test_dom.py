@@ -74,6 +74,51 @@ class TestHaplatoype(YatelTestCase):
         self.assertRaises(AttributeError, lambda: hap0.attr)
 
 
+class TestEdge(YatelTestCase):
+
+    def test_getattr(self):
+        edge0 = dom.Edge(1, (1, 2))
+        self.assertEquals((1, 2), edge0.haps_id)
+        self.assertEquals((1, 2), edge0["haps_id"])
+        self.assertEquals(edge0.haps_id, edge0["haps_id"])
+
+    def test_eq(self):
+        edge0 = dom.Edge(1, [1, 2])
+        edge1 = dom.Edge(1, [1, 2])
+        self.assertEquals(edge0, edge1)
+
+    def test_ne(self):
+        edge0 = dom.Edge(1, [1, 2])
+        edge1 = dom.Edge(2, [1, 3])
+        self.assertNotEqual(edge0, edge1)
+
+    def test_hash(self):
+        edge0 = dom.Edge(1, [1, 2])
+        edge1 = dom.Edge(1, [1, 2])
+        self.assertEquals(hash(edge0), hash(edge1))
+
+    def test_is(self):
+        edge0 = dom.Edge(1, [1, 2])
+        edge1 = dom.Edge(2, [1, 3])
+        self.assertFalse(edge0 is edge1)
+        self.assertTrue(edge0 is edge0)
+        self.assertTrue(edge1 is edge1)
+
+    def test_in(self):
+        edge0 = dom.Edge(1, [1, 2])
+        edge1 = dom.Edge(1, [1, 4])
+        edge2 = dom.Edge(2, [1, 3])
+        d = {edge0: [1, 4]}
+        self.assertIn(edge0, d)
+        self.assertNotIn(edge1, d)
+        self.assertNotIn(edge2, d)
+        d.update({edge1: [1, 3], edge2: [1, 2]})
+        self.assertEquals(d[edge0], [1, 4])
+        self.assertEquals(d[edge1], [1, 3])
+        self.assertEquals(d[edge2], [1, 2])
+        self.assertEquals(len(d), 3)
+
+
 class TestFact(YatelTestCase):
     def test_getattr(self):
         fact1 = dom.Fact(1, attr0="fac")
