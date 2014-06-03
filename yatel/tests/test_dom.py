@@ -212,6 +212,47 @@ class TestEnviroment(YatelTestCase):
         self.assertEquals(enviroment1.attr0, None)
 
 
+class TestDescriptor(YatelTestCase):
+
+    def test_getattr(self):
+        descriptor1 = dom.Descriptor("env", None, None, None, None)
+        self.assertEquals("env", descriptor1.mode)
+
+    def test_eq(self):
+        descriptor0 = dom.Descriptor(None, None, None, None, 3)
+        descriptor1 = dom.Descriptor(None, None, None, None, 3)
+        self.assertEquals(descriptor0, descriptor1)
+
+    def test_ne(self):
+        descriptor0 = dom.Descriptor("env", None, None, None, None)
+        descriptor1 = dom.Descriptor(None, None, None, None, None)
+        self.assertNotEqual(descriptor0, descriptor1)
+
+    def test_hash(self):
+        descriptor0 = dom.Descriptor(None, None, None, None, None)
+        descriptor1 = dom.Descriptor(None, None, None, None, None)
+        self.assertEquals(hash(descriptor0), hash(descriptor1))
+
+    def test_is(self):
+        descriptor0 = dom.Descriptor("env", None, None, None, None)
+        descriptor1 = dom.Descriptor(None, None, None, None, None)
+        self.assertFalse(descriptor0 is descriptor1)
+        self.assertTrue(descriptor0 is descriptor0)
+        self.assertTrue(descriptor1 is descriptor1)
+
+    def test_in(self):
+        descriptor0 = dom.Descriptor(None, None, None, None, None)
+        descriptor1 = dom.Descriptor(None, None, None, None, 4)
+        d = {descriptor0}
+        self.assertIn(descriptor0, d)
+        self.assertNotIn(descriptor1, d)
+        self.assertEquals(len(d), 1)
+
+    def test_none_values(self):
+        descriptor1 = dom.Descriptor(None, None, None, None, None)
+        self.assertEquals(descriptor1.mode, None)
+
+
 # ===============================================================================
 # MAIN
 # ===============================================================================
