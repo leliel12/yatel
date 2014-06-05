@@ -18,6 +18,10 @@
 #===============================================================================
 
 import itertools
+try:
+    import cStringIO as StringIO
+except ImportError:
+    import StringIO
 
 from yatel import yio, db
 from yatel.tests.core import YatelTestCase
@@ -52,7 +56,7 @@ class TestYio(YatelTestCase):
                 self.assertEquals(self.nw.describe(), nw1.describe())
                 self.assertEquals(nw0.describe(), nw1.describe())
 
-    def test_crossed_formats(self):
+    def test_mixed_formats(self):
         for parser0 in yio.PARSERS.keys():
             for parser1 in yio.PARSERS.keys():
                 dump0 = yio.dump(parser0, self.nw)
@@ -70,6 +74,27 @@ class TestYio(YatelTestCase):
                 self.assertEquals(self.nw.describe(), nw1.describe())
                 self.assertEquals(nw0.describe(), nw1.describe())
 
+    def test_stream(self):
+        for parser in yio.PARSERS.keys():
+            dump1 = StringIO.StringIO()
+
+            dump0 = yio.dump(parser, self.nw)
+            yio.dump(parser, self.nw, dump1)
+
+            dump1.seek(0)
+            self.assertEquals(dump0, dump1.getvalue())
+
+            nw0 = self.get_new_nw()
+            nw1 = self.get_new_nw()
+            yio.load(parser, nw0, dump0)
+            yio.load(parser, nw1, dump1)
+
+            nw0.confirm_changes()
+            nw1.confirm_changes()
+
+            self.assertEquals(self.nw.describe(), nw0.describe())
+            self.assertEquals(self.nw.describe(), nw1.describe())
+            self.assertEquals(nw0.describe(), nw1.describe())
 
 
 #===============================================================================
