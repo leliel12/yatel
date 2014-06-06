@@ -157,6 +157,10 @@ class YatelTestCase(unittest.TestCase):
     # CUSTOM ASSERTS
     #==========================================================================
 
+    def assertAllTheSame(self, iterable, *args, **kwargs):
+        result = all(x == iterable[0] for x in iterable)
+        self.assertTrue(result, *args, **kwargs)
+
     def assertAproxDatetime(self, dt0, dt1):
         self.assertEqual(
             dt0.isoformat().rsplit(".", 1)[0],
