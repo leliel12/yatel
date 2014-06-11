@@ -21,7 +21,6 @@
 #==============================================================================
 
 import sys
-import pprint
 import datetime
 import argparse
 import json
@@ -419,6 +418,23 @@ class RunETL(Command):
         etl_instance = etl_cls()
         etl.execute(database, etl_instance, *args)
         database.confirm_changes()
+
+
+@manager.shell
+def _make_context():
+    MESSAGE = """
+    Welcome to Yatel Interactive mode.
+    Yatel is ready to use. You only need worry about your project.
+    If you install IPython, the shell will use it.
+    For more info, visit http://getyatel.org/
+    Available modules:
+        from yatel: db, dom, stats
+        from pprint: pprint
+    """
+    print MESSAGE
+    from yatel import db, dom, stats
+    from pprint import pprint
+    return dict(db=db, dom=dom, stats=stats, pprint=pprint)
 
 
 #===============================================================================
