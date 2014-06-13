@@ -26,7 +26,7 @@ import argparse
 import json
 import functools
 
-from flask.ext.script import Manager, Command, Option
+from flask.ext.script import Manager, Command, Option, Shell
 from flask.ext.script.commands import InvalidCommand
 
 import yatel
@@ -420,26 +420,48 @@ class RunETL(Command):
         database.confirm_changes()
 
 
-@manager.shell
-def _make_context():
-    MESSAGE = """
+@command("shell")
+class PyShell(Shell):
+    """Run a python shell with a Yatel network context.
+
+    """
+
+    banner = """
     Welcome to Yatel Interactive mode.
     Yatel is ready to use. You only need worry about your project.
     If you install IPython, the shell will use it.
     For more info, visit http://getyatel.org/
     Available modules:
+        Your NW-OLAP: nw
         from yatel: db, dom, stats
         from pprint: pprint
     """
-    print MESSAGE
-    from yatel import db, dom, stats
-    from pprint import pprint
-    return dict(db=db, dom=dom, stats=stats, pprint=pprint)
+    help = __doc__
+    option_list = [
+        Option(
+            dest='database', type=Database(db.MODE_READ),
+            help="Connection string to database according to the RFC 1738 spec."
+        )
+    ]
+
+    def get_context(self):
+        from yatel import db, dom, stats
+        from pprint import pprint
+        return dict(db=db, dom=dom, stats=stats, pprint=pprint, nw=self.nw)
+
+    def get_options(self):
+        return list(super(type(self), self).get_options()) + self.option_list
+
+    def run(self, database, no_ipython, no_bpython):
+        self.nw = database
+        super(type(self), self).run(no_ipython, no_bpython)
 
 
-#===============================================================================
+
+
+#==============================================================================
 # MAIN FUNCTION
-#===============================================================================
+#==============================================================================
 
 def main():
     try:
