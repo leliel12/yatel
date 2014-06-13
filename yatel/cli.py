@@ -462,8 +462,7 @@ def main():
     except Exception as err:
         if "--full-stack" in sys.argv or "-k" in sys.argv:
             traceback.print_exc()
-        else:
-            print unicode(err)
+        print unicode(err)
         sys.exit(1)
 
 
