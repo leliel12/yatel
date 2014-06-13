@@ -42,17 +42,23 @@ class _FlaskMock(object):
     """This class only mock the flask object to use flask script stand alone
 
     """
+
     def __init__(self, *a, **kw):
         self.options = kw
+
     def __getattr__(self, *a, **kw):
         return _FlaskMock()
+
     def __call__(self, *a, **kw):
         return _FlaskMock(*a, **kw)
-    def __exit__(self, *a, **kw):
-        return _FlaskMock()
+
     def __enter__(self, *a, **kw):
         return _FlaskMock()
 
+    def __exit__(self, etype, evalue, etrace):
+        if etype or evalue or etrace:
+            return False
+        return _FlaskMock()
 
 manager = Manager(
     _FlaskMock,
@@ -66,26 +72,12 @@ manager = Manager(
 # DECOTATOR
 #==============================================================================
 
-def run_wrapper(func):
-    """Convert any exception inside tun into flask script exception
-
-    """
-    @functools.wraps(func)
-    def _dec(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as err:
-            raise InvalidCommand(str(err))
-    return _dec
-
-
 def command(name):
     """Clean way to register class based commands
 
     """
     def _dec(cls):
         instance = cls()
-        instance.run = run_wrapper(instance.run)
         manager.add_command(name, instance)
         return cls
     return _dec
@@ -466,8 +458,12 @@ class PyShell(Shell):
 def main():
     try:
         manager.run()
-    except InvalidCommand as err:
-        print(err)
+    except Exception as err:
+        if manager.app.options["full-stack"]:
+            import traceback
+            traceback.print_exc()
+        else:
+            print unicode(err)
         sys.exit(1)
 
 
