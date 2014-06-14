@@ -27,8 +27,8 @@ from yatel.tests import (
     test_qbj,
     test_cluster,
     test_yio,
+    test_weight,
     test_server,
-    test_weight
 )
 
 
