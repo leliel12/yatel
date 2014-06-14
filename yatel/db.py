@@ -219,7 +219,10 @@ class YatelNetwork(object):
         self._descriptor = None
 
         if mode == MODE_READ:
-            self._metadata.reflect(only=TABLES)
+            try:
+                self._metadata.reflect(only=TABLES)
+            except sa.exc.InvalidRequestError:
+                raise YatelNetworkError("Invalid database")
             self.haplotypes_table = self._metadata.tables[HAPLOTYPES]
             self.facts_table = self._metadata.tables[FACTS]
             self.edges_table = self._metadata.tables[EDGES]

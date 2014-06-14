@@ -21,6 +21,7 @@ import unittest
 import random
 import functools
 import tempfile
+import os
 
 import numpy as np
 
@@ -138,12 +139,15 @@ class YatelTestCase(unittest.TestCase):
 
         return [h.hap_id for h in haps]
 
-    def setUp(self):
-        conn = self.conn()
+    def get_random_nw(self, conn):
         conn["mode"] = db.MODE_WRITE
-        self.nw = db.YatelNetwork(**conn)
-        self.haps_ids = self.add_elements(self.nw)
-        self.nw.confirm_changes()
+        nw = db.YatelNetwork(**conn)
+        haps_ids = self.add_elements(nw)
+        nw.confirm_changes()
+        return nw, haps_ids
+
+    def setUp(self):
+        self.nw, self.haps_ids = self.get_random_nw(self.conn())
         for target, options in TO_MOCK.items():
             mock = patch(target, **options["patch"]).start()
             mock.configure_mock(**options["mock"])
