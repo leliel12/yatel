@@ -298,7 +298,48 @@ class YatelNetwork(YatelTestCase):
                     self.assertEquals(v, None)
 
     def test_mode(self):
-        pass
+        haplotypes = [
+            dom.Haplotype(0, name="Cordoba", clima="calor", age=200),
+            dom.Haplotype(1, name="Cordoba", population=12),
+            dom.Haplotype(2, name="Cordoba")
+        ]
+        edges = [
+            dom.Edge(6599, (0, 1)),
+            dom.Edge(8924, (1, 2)),
+            dom.Edge(9871, (2, 0))
+        ]
+        facts = [
+            dom.Fact(0, name="Andalucia", lang="sp", timezone="utc-3"),
+            dom.Fact(1, lang="sp"),
+            dom.Fact(1, timezone="utc-6"),
+            dom.Fact(2, name="Andalucia", lang="sp", timezone="utc")
+        ]
+        nw = db.YatelNetwork("memory", mode="w")
+        nw.add_elements(self.haplotypes + self.edges + self.facts)
+        self.assertEquals(nw.mode, db.MODE_WRITE)
+        nw.confirm_changes()
+        self.assertEquals(nw.mode, db.MODE_READ)
+
+        try:
+            fd, ftemp = tempfile.mkstemp()
+            nw, haps = self.get_random_nw(
+                {"engine": "sqlite", "database": ftemp}
+            )
+            nw = db.YatelNetwork(
+                mode="a", **{"engine": "sqlite", "database": ftemp}
+            )
+            self.assertEquals(nw.mode, db.MODE_APPEND)
+            nw.confirm_changes()
+            self.assertEquals(nw.mode, db.MODE_READ)
+        except:
+            raise
+        finally:
+            os.close(fd)
+
+        self.assertRaises(
+            db.YatelNetworkError, lambda: db.YatelNetwork("memory", mode="a")
+        )
+
 
     def test_uri(self):
         pass
