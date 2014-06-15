@@ -216,6 +216,15 @@ class YatelNetwork(YatelTestCase):
         self.assertSameUnsortedContent(nw.edges(), self.nw.edges())
         self.assertSameUnsortedContent(nw.enviroments(), self.nw.enviroments())
 
+    def test_edges(self):
+        self.assertSameUnsortedContent(self.nw.edges(), self.edges)
+
+    def test_haplotypes(self):
+        self.assertSameUnsortedContent(self.nw.haplotypes(), self.haplotypes)
+
+    def test_facts(self):
+        self.assertSameUnsortedContent(self.nw.facts(), self.facts)
+
     def test_describe(self):
         desc = self.nw.describe()
         self.assertEquals(desc["mode"], db.MODE_READ)
