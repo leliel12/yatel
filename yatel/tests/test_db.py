@@ -148,7 +148,7 @@ class YatelNetwork(YatelTestCase):
         self.nw.add_elements(self.haplotypes + self.edges + self.facts)
         self.nw.confirm_changes()
 
-    def add_element(self):
+    def add_element_elements(self):
         haplotypes = [
             dom.Haplotype(0, name="Cordoba", clima="calor", age=200),
             dom.Haplotype(1, name="Cordoba", population=12),
@@ -169,20 +169,53 @@ class YatelNetwork(YatelTestCase):
         for cont in [haplotypes, edges, facts]:
             for elem in cont:
                 self.nw.add_element(elem)
-        self.nw.confirm_changes()
+        nw.confirm_changes()
         self.assertEquals(nw.describe(), self.nw.describe())
         self.assertSameUnsortedContent(nw.haplotypes(), self.nw.haplotypes())
         self.assertSameUnsortedContent(nw.facts(), self.nw.facts())
         self.assertSameUnsortedContent(nw.edges(), self.nw.edges())
         self.assertSameUnsortedContent(nw.enviroments(), self.nw.enviroments())
 
-    def test_add_elements(self):
-        # indirectly tested
-        pass
 
     def test_confirm_changes(self):
-        # indirectly tested
-        pass
+        haplotypes = [
+            dom.Haplotype(0, name="Cordoba", clima="calor", age=200),
+            dom.Haplotype(1, name="Cordoba", population=12),
+            dom.Haplotype(2, name="Cordoba")
+        ]
+        edges = [
+            dom.Edge(6599, (0, 1)),
+            dom.Edge(8924, (1, 2)),
+            dom.Edge(9871, (2, 0))
+        ]
+        facts = [
+            dom.Fact(0, name="Andalucia", lang="sp", timezone="utc-3"),
+            dom.Fact(1, lang="sp"),
+            dom.Fact(1, timezone="utc-6"),
+            dom.Fact(2, name="Andalucia", lang="sp", timezone="utc")
+        ]
+        nw = db.YatelNetwork("memory", mode="w")
+        nw.add_elements(self.haplotypes + self.edges + self.facts)
+        try:
+            self.assertEquals(nw.describe(), self.nw.describe())
+            self.assertSameUnsortedContent(
+                nw.haplotypes(), self.nw.haplotypes()
+            )
+            self.assertSameUnsortedContent(nw.facts(), self.nw.facts())
+            self.assertSameUnsortedContent(nw.edges(), self.nw.edges())
+            self.assertSameUnsortedContent(
+                nw.enviroments(), self.nw.enviroments()
+            )
+        except AttributeError:
+            pass
+        else:
+            self.fail("No AttributeError in no confirmed networ")
+        nw.confirm_changes()
+        self.assertEquals(nw.describe(), self.nw.describe())
+        self.assertSameUnsortedContent(nw.haplotypes(), self.nw.haplotypes())
+        self.assertSameUnsortedContent(nw.facts(), self.nw.facts())
+        self.assertSameUnsortedContent(nw.edges(), self.nw.edges())
+        self.assertSameUnsortedContent(nw.enviroments(), self.nw.enviroments())
 
     def test_edges_by_enviroment(self):
         rs = list(self.nw.edges_by_enviroment(name="Andalucia"))
