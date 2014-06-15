@@ -287,7 +287,24 @@ class YatelNetwork(YatelTestCase):
         for hap in self.haplotypes:
             self.assertEquals(hap, self.nw.haplotype_by_id(hap.hap_id))
 
+    def test_execute(self):
+        rs = self.nw.execute("select * from {}".format(db.HAPLOTYPES))
+        for row in rs:
+            hap = self.nw.haplotype_by_id(row.hap_id)
+            for k, v in row.items():
+                if k in hap:
+                    self.assertEquals(v, hap[k])
+                else:
+                    self.assertEquals(v, None)
 
+    def test_mode(self):
+        pass
+
+    def test_uri(self):
+        pass
+
+    def test_validate_read(self):
+        pass
 
 
 
