@@ -273,6 +273,16 @@ class YatelNetwork(YatelTestCase):
                     filters.add(f)
             list(self.nw.enviroments(list(filters)))
 
+    def test_edges_by_haplotype(self):
+        for hap in self.haplotypes:
+            for edge in self.nw.edges_by_haplotype(hap):
+                self.assertIn(hap.hap_id, edge.haps_id)
+
+    def test_facts_by_haplotype(self):
+        for hap in self.haplotypes:
+            for fact in self.nw.facts_by_haplotype(hap):
+                self.assertEquals(hap.hap_id, fact.hap_id)
+
 
 
 
