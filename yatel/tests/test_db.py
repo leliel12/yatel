@@ -250,6 +250,18 @@ class YatelNetwork(YatelTestCase):
         self.assertEqual(len(rs), 1)
         self.assertEqual(rs[0], self.edges[2])
 
+    def test_facts_by_enviroment(self):
+        rs = list(self.nw.facts_by_enviroment(name="Andalucia"))
+        self.assertEqual(len(rs), 2)
+        self.assertEqual(rs[0], self.facts[0])
+        self.assertEqual(rs[1], self.facts[3])
+
+    def test_haplotypes_by_enviroment(self):
+        rs = list(self.nw.haplotypes_by_enviroment(name="Andalucia"))
+        self.assertEqual(len(rs), 2)
+        self.assertEqual(rs[0], self.haplotypes[0])
+        self.assertEqual(rs[1], self.haplotypes[2])
+
     def test_enviroments(self):
         desc = self.nw.describe()
         fact_attrs = desc["fact_attributes"].keys()
