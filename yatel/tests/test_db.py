@@ -6,28 +6,30 @@
 # you can do whatever you want with this stuff. If we meet some day, and you
 # think this stuff is worth it, you can buy us a WISKEY in return.
 
-#===============================================================================
+#==============================================================================
 # DOC
-#===============================================================================
+#==============================================================================
 
 """yatel.db module tests"""
 
 
-#===============================================================================
+#==============================================================================
 # IMPORTS
-#===============================================================================
+#==============================================================================
 
+import os
 import random
 import string
+import tempfile
 
 from yatel import db, dom
 
 from yatel.tests.core import YatelTestCase
 
 
-#===============================================================================
+#==============================================================================
 # VALIDATE TESTS
-#===============================================================================
+#==============================================================================
 
 class TestDBFunctions(YatelTestCase):
 
@@ -72,6 +74,23 @@ class TestDBFunctions(YatelTestCase):
                     ).safe_substitute(engine=eng, **conf)
                     uri = db.to_uri(engine=eng, **conf)
                     self.assertEquals(orig, uri)
+
+    def test_exists(self):
+        try:
+            fd, ftemp = tempfile.mkstemp()
+            self.assertFalse(db.exists("sqlite", database=ftemp))
+        except:
+            raise
+        finally:
+            os.close(fd)
+        try:
+            fd, ftemp = tempfile.mkstemp()
+            self.get_random_nw({"engine": "sqlite", "database": ftemp})
+            self.assertTrue(db.exists("sqlite", database=ftemp))
+        except:
+            raise
+        finally:
+            os.close(fd)
 
 
 #==============================================================================
