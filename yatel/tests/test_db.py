@@ -18,6 +18,7 @@
 #===============================================================================
 
 import random
+import string
 
 from yatel import db, dom
 
@@ -53,6 +54,24 @@ class TestDBFunctions(YatelTestCase):
                 self.assertEquals(parsed["password"], "password")
                 self.assertEquals(parsed["mode"], mode)
                 self.assertEquals(parsed["log"], log)
+
+    def test_to_uri(self):
+        for eng in db.ENGINES:
+            for mode in db.MODES:
+                for log in [True, False]:
+                    conf = dict(
+                        (k, "foo") for k in db.ENGINE_VARS[eng]
+                    )
+                    conf["mode"] = mode
+                    conf["log"] = log
+                    if "port" in conf:
+                        conf["port"] = 666
+
+                    orig = string.Template(
+                        db.ENGINE_URIS[eng]
+                    ).safe_substitute(engine=eng, **conf)
+                    uri = db.to_uri(engine=eng, **conf)
+                    self.assertEquals(orig, uri)
 
 
 #==============================================================================
