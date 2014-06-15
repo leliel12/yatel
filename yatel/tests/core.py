@@ -25,7 +25,7 @@ import os
 
 import numpy as np
 
-from mock import patch
+from mock import patch, Mock
 
 from yatel import db, dom, weight
 
@@ -39,6 +39,18 @@ TO_MOCK = {
         "patch": {},
         "mock": {
             "return_value": [None, None]
+        }
+    },
+    "requests.post": {
+        "patch": {},
+        "mock": {
+            "return_value": Mock(json=lambda: {
+                "error": False,
+                "result": {"type": "literal", "value": None},
+                "id": None,
+                "error_msg": "",
+                "stack_trace": "",
+            })
         }
     }
 }

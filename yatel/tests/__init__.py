@@ -29,6 +29,7 @@ from yatel.tests import (
     test_yio,
     test_weight,
     test_server,
+    test_client
 )
 
 
