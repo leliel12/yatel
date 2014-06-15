@@ -96,7 +96,7 @@ class TestDBFunctions(YatelTestCase):
                     uri = db.to_uri(engine=eng, **conf)
                     self.assertEquals(orig, uri)
 
-    def _test_exists(self):
+    def test_exists(self):
         try:
             fd, ftemp = tempfile.mkstemp()
             self.assertFalse(db.exists("sqlite", database=ftemp))
@@ -340,12 +340,59 @@ class YatelNetwork(YatelTestCase):
             db.YatelNetworkError, lambda: db.YatelNetwork("memory", mode="a")
         )
 
-
     def test_uri(self):
-        pass
+        try:
+            fd, ftemp = tempfile.mkstemp()
+            nw, haps = self.get_random_nw(
+                {"engine": "sqlite", "database": ftemp}
+            )
+            self.assertEquals(
+                nw.uri, db.to_uri(**{"engine": "sqlite", "database": ftemp})
+            )
+        except:
+            raise
+        finally:
+            os.close(fd)
 
     def test_validate_read(self):
-        pass
+        haplotypes = [
+            dom.Haplotype(0, name="Cordoba", clima="calor", age=200),
+            dom.Haplotype(1, name="Cordoba", population=12),
+            dom.Haplotype(2, name="Cordoba")
+        ]
+        edges = [
+            dom.Edge(6599, (0, 1)),
+            dom.Edge(8924, (1, 2)),
+            dom.Edge(9871, (2, 0))
+        ]
+        facts = [
+            dom.Fact(0, name="Andalucia", lang="sp", timezone="utc-3"),
+            dom.Fact(1, lang="sp"),
+            dom.Fact(1, timezone="utc-6"),
+            dom.Fact(2, name="Andalucia", lang="sp", timezone="utc")
+        ]
+        nw = db.YatelNetwork("memory", mode="w")
+        nw.add_elements(self.haplotypes + self.edges + self.facts)
+        self.assertRaises(db.YatelNetworkError, nw.validate_read)
+        nw.confirm_changes()
+        self.assertEquals(nw.validate_read(), None)
+
+        try:
+            fd, ftemp = tempfile.mkstemp()
+            nw, haps = self.get_random_nw(
+                {"engine": "sqlite", "database": ftemp}
+            )
+            nw = db.YatelNetwork(
+                mode="a", **{"engine": "sqlite", "database": ftemp}
+            )
+            self.assertRaises(db.YatelNetworkError, nw.validate_read)
+            nw.confirm_changes()
+            self.assertEquals(nw.validate_read(), None)
+        except:
+            raise
+        finally:
+            os.close(fd)
+
 
 
 

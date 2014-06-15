@@ -127,8 +127,8 @@ class YatelTestCase(unittest.TestCase):
                 attrs[k] = v()
             return attrs
 
-        haps_n = 3
-        facts_n = 4
+        haps_n = 5
+        facts_n = 10
         weight_calc = "ham"
 
         haps = []
