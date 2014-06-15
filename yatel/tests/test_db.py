@@ -283,6 +283,10 @@ class YatelNetwork(YatelTestCase):
             for fact in self.nw.facts_by_haplotype(hap):
                 self.assertEquals(hap.hap_id, fact.hap_id)
 
+    def test_haplotype_by_id(self):
+        for hap in self.haplotypes:
+            self.assertEquals(hap, self.nw.haplotype_by_id(hap.hap_id))
+
 
 
 
