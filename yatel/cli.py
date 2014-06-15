@@ -413,7 +413,7 @@ class RunETL(Command):
         database.confirm_changes()
 
 
-@command("shell")
+@command("pyshell")
 class PyShell(Shell):
     """Run a python shell with a Yatel network context.
 
