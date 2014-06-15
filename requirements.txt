@@ -5,4 +5,6 @@ jsonschema==2.3.0
 mock==1.0.1
 numpy==1.8.0
 scipy==0.13.3
+requests==2.3.0
+
 
