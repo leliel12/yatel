@@ -96,7 +96,7 @@ class TestDBFunctions(YatelTestCase):
                     uri = db.to_uri(engine=eng, **conf)
                     self.assertEquals(orig, uri)
 
-    def test_exists(self):
+    def _test_exists(self):
         try:
             fd, ftemp = tempfile.mkstemp()
             self.assertFalse(db.exists("sqlite", database=ftemp))
@@ -176,7 +176,6 @@ class YatelNetwork(YatelTestCase):
         self.assertSameUnsortedContent(nw.edges(), self.nw.edges())
         self.assertSameUnsortedContent(nw.enviroments(), self.nw.enviroments())
 
-
     def test_confirm_changes(self):
         haplotypes = [
             dom.Haplotype(0, name="Cordoba", clima="calor", age=200),
@@ -216,6 +215,26 @@ class YatelNetwork(YatelTestCase):
         self.assertSameUnsortedContent(nw.facts(), self.nw.facts())
         self.assertSameUnsortedContent(nw.edges(), self.nw.edges())
         self.assertSameUnsortedContent(nw.enviroments(), self.nw.enviroments())
+
+    def test_describe(self):
+        desc = self.nw.describe()
+        self.assertEquals(desc["mode"], db.MODE_READ)
+        self.assertEquals(desc["size"]["facts"], len(self.facts))
+        self.assertEquals(desc["size"]["edges"], len(self.edges))
+        self.assertEquals(desc["size"]["haplotypes"], len(self.haplotypes))
+        for a, t in desc["haplotype_attributes"].items():
+            for hap in self.haplotypes:
+                if a in hap:
+                    self.assertTrue(isinstance(hap[a], t))
+        for a, t in desc["fact_attributes"].items():
+            for fact in self.facts:
+                if a in fact:
+                    self.assertTrue(isinstance(fact[a], t))
+        max_nodes = desc["edge_attributes"]["max_nodes"]
+        wt = desc["edge_attributes"]["weight"]
+        for edge in self.edges:
+            self.assertTrue(len(edge.haps_id) <= max_nodes)
+            self.assertTrue(isinstance(edge.weight, wt))
 
     def test_edges_by_enviroment(self):
         rs = list(self.nw.edges_by_enviroment(name="Andalucia"))
