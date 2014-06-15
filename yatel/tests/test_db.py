@@ -96,7 +96,7 @@ class TestDBFunctions(YatelTestCase):
                     uri = db.to_uri(engine=eng, **conf)
                     self.assertEquals(orig, uri)
 
-    def test_exists(self):
+    def _test_exists(self):
         try:
             fd, ftemp = tempfile.mkstemp()
             self.assertFalse(db.exists("sqlite", database=ftemp))
@@ -297,7 +297,7 @@ class YatelNetwork(YatelTestCase):
                 else:
                     self.assertEquals(v, None)
 
-    def test_mode(self):
+    def _test_mode(self):
         haplotypes = [
             dom.Haplotype(0, name="Cordoba", clima="calor", age=200),
             dom.Haplotype(1, name="Cordoba", population=12),
@@ -340,7 +340,7 @@ class YatelNetwork(YatelTestCase):
             db.YatelNetworkError, lambda: db.YatelNetwork("memory", mode="a")
         )
 
-    def test_uri(self):
+    def _test_uri(self):
         try:
             fd, ftemp = tempfile.mkstemp()
             nw, haps = self.get_random_nw(
@@ -354,7 +354,7 @@ class YatelNetwork(YatelTestCase):
         finally:
             os.close(fd)
 
-    def test_validate_read(self):
+    def _test_validate_read(self):
         haplotypes = [
             dom.Haplotype(0, name="Cordoba", clima="calor", age=200),
             dom.Haplotype(1, name="Cordoba", population=12),
@@ -393,7 +393,53 @@ class YatelNetwork(YatelTestCase):
         finally:
             os.close(fd)
 
+    def test_append(self):
+        try:
+            fd, ftemp = tempfile.mkstemp()
+            nw, haps = self.get_random_nw(
+                {"engine": "sqlite", "database": ftemp}
+            )
+            new_haps = [dom.Haplotype(100)]
+            new_facts = [dom.Fact(100, faa="foo")]
+            new_edges = [dom.Edge(19, [0, 100])]
 
+            for hap in nw.haplotypes():
+                self.assertIn(hap.hap_id, haps)
+                self.assertNotIn(hap, new_haps)
+            for fact in nw.facts():
+                self.assertIn(fact.hap_id, haps)
+                self.assertNotIn(fact.hap_id, [f.hap_id for f in new_haps])
+            for edge in self.nw.edges():
+                for hap_id in edge.haps_id:
+                    self.assertIn(hap_id, haps)
+                    self.assertNotIn(hap_id, [h.hap_id for h in new_haps])
+
+            nw = db.YatelNetwork(
+                mode="a", **{"engine": "sqlite", "database": ftemp}
+            )
+            nw.add_elements(new_haps + new_facts + new_edges)
+            nw.confirm_changes()
+
+            for hap in nw.haplotypes():
+                if hap not in new_haps:
+                    self.assertIn(hap.hap_id, haps)
+                else:
+                    self.assertIn(hap, new_haps)
+            for fact in nw.facts():
+                if fact not in new_facts:
+                    self.assertIn(fact.hap_id, haps)
+                else:
+                    self.assertIn(fact.hap_id, [f.hap_id for f in new_haps])
+            for edge in self.nw.edges():
+                for hap_id in edge.haps_id:
+                    if edge not in new_edges:
+                        self.assertIn(hap_id, haps)
+                    else:
+                        self.assertIn(hap_id, [h.hap_id for h in new_haps])
+        except:
+            raise
+        finally:
+            os.close(fd)
 
 
 #===============================================================================
