@@ -33,6 +33,27 @@ from yatel.tests.core import YatelTestCase
 
 class TestDBFunctions(YatelTestCase):
 
+    def setUp(self):
+        self.haplotypes = [
+            dom.Haplotype(0, name="Cordoba", clima="calor", age=200),
+            dom.Haplotype(1, name="Cordoba", population=12),
+            dom.Haplotype(2, name="Cordoba")
+        ]
+        self.edges = [
+            dom.Edge(6599, (0, 1)),
+            dom.Edge(8924, (1, 2)),
+            dom.Edge(9871, (2, 0))
+        ]
+        self.facts = [
+            dom.Fact(0, name="Andalucia", lang="sp", timezone="utc-3"),
+            dom.Fact(1, lang="sp"),
+            dom.Fact(1, timezone="utc-6"),
+            dom.Fact(2, name="Andalucia", lang="sp", timezone="utc")
+        ]
+        self.nw = db.YatelNetwork("memory", mode="w")
+        self.nw.add_elements(self.haplotypes + self.edges + self.facts)
+        self.nw.confirm_changes()
+
     def test_copy(self):
         anw = db.YatelNetwork(engine="memory", mode=db.MODE_WRITE)
         db.copy(self.nw, anw)
@@ -91,6 +112,13 @@ class TestDBFunctions(YatelTestCase):
             raise
         finally:
             os.close(fd)
+
+    def test_qfilter(self):
+        query = list(
+            db.qfilter(self.nw.haplotypes(), lambda hap: hap.get("age") == 200)
+        )
+        self.assertEquals(len(query), 1)
+        self.assertEquals(query[0].hap_id, 0)
 
 
 #==============================================================================
