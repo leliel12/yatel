@@ -158,7 +158,9 @@ class Test(Command):
     ]
 
     def run(self, level):
-        tests.run_tests(level)
+        response = tests.run_tests(level)
+        if response.failures or response.errors:
+            sys.exit(2)
 
 
 @command("describe")
