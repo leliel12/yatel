@@ -31,7 +31,7 @@ from flask.ext.script import Manager, Command, Option, Shell
 from flask.ext.script.commands import InvalidCommand
 
 import yatel
-from yatel import db, tests, server, etl
+from yatel import db, tests, server, etl, qbj
 from yatel import yio
 
 
@@ -452,6 +452,23 @@ class PyShell(Shell):
         super(type(self), self).run(no_ipython, no_bpython)
 
 
+@command("qbjshell")
+class QBJShell(Command):
+    """Run interactive console for execute QBJ queries
+
+    """
+
+    option_list = [
+        Option(
+            dest='database', type=Database(db.MODE_READ),
+            help="Connection string to database according to the RFC 1738 spec."
+        ),
+    ]
+
+    def run(self, database):
+        debug = manager.app.options["full-stack"]
+        shell = qbj.QBJShell(database, debug)
+        shell.cmdloop()
 
 
 #==============================================================================
