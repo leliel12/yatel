@@ -72,8 +72,7 @@ class TestStats(YatelTestCase):
         rs = stats.min(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
         for env in self.nw.enviroments():
-            arr = len(self.warrenv[env])
-            if arr != 0:
+            if self.warrenv[env]:
                 orig = np.min(self.warrenv[env])
                 rs = stats.min(self.nw, env)
                 if np.isnan(orig) or np.isnan(rs):
@@ -81,15 +80,16 @@ class TestStats(YatelTestCase):
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
             else:
-                print "El array es de longitud cero"
+                with self.assertRaises (ValueError):
+                      rs = stats.min(self.nw, env)
+
 
     def test_max(self):
         orig = np.max(self.warr)
         rs = stats.max(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
         for env in self.nw.enviroments():
-            arr = len(self.warrenv[env])
-            if arr != 0:
+            if self.warrenv[env]:
                 orig = np.max(self.warrenv[env])
                 rs = stats.max(self.nw, env)
                 if np.isnan(orig) or np.isnan(rs):
@@ -97,15 +97,15 @@ class TestStats(YatelTestCase):
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
             else:
-                print "El array es de longitud cero"
+                with self.assertRaises (ValueError):
+                      rs = stats.max(self.nw, env)
 
     def test_amin(self):
         orig = np.amin(self.warr)
         rs = stats.amin(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
         for env in self.nw.enviroments():
-            arr = len(self.warrenv[env])
-            if arr != 0:
+            if self.warrenv[env]:
                 orig = np.amin(self.warrenv[env])
                 rs = stats.amin(self.nw, env)
                 if np.isnan(orig) or np.isnan(rs):
@@ -113,15 +113,15 @@ class TestStats(YatelTestCase):
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
             else:
-                print "El array es de longitud cero"
+                with self.assertRaises (ValueError):
+                      rs = stats.amin(self.nw, env)
 
     def test_amax(self):
         orig = np.amax(self.warr)
         rs = stats.amax(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
         for env in self.nw.enviroments():
-            arr = len(self.warrenv[env])
-            if arr != 0:
+            if self.warrenv[env]:
                 orig = np.amax(self.warrenv[env])
                 rs = stats.amax(self.nw, env)
                 if np.isnan(orig) or np.isnan(rs):
@@ -129,7 +129,8 @@ class TestStats(YatelTestCase):
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
             else:
-                print "El array es de longitud cero"
+                with self.assertRaises (ValueError):
+                      rs = stats.amax(self.nw, env)
 
     def test_sum(self):
         orig = np.sum(self.warr)
@@ -184,8 +185,7 @@ class TestStats(YatelTestCase):
         rs = stats.range(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
         for env in self.nw.enviroments():
-            arr = len(self.warrenv[env])
-            if arr != 0:
+            if self.warrenv[env]:
                 orig = np.amax(self.warrenv[env]) - np.amin(self.warrenv[env])
                 rs = stats.range(self.nw, env)
                 if np.isnan(orig) or np.isnan(rs):
@@ -193,7 +193,8 @@ class TestStats(YatelTestCase):
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
             else:
-                print "El array es de longitud cero"
+                with self.assertRaises (ValueError):
+                      rs = stats.range(self.nw, env)
 
     def test_kurtosis(self):
         orig = statsbis.kurtosis(self.warr)
@@ -212,8 +213,7 @@ class TestStats(YatelTestCase):
         rs = stats.percentile(self.nw, 25)
         self.assertAlmostEqual(orig, rs, self.places)
         for env in self.nw.enviroments():
-            arr = len(self.warrenv[env])
-            if arr != 0:
+            if self.warrenv[env]:
                 orig = np.percentile(self.warrenv[env], 25)
                 rs = stats.percentile(self.nw, 25, env)
                 if np.isnan(orig) or np.isnan(rs):
@@ -221,7 +221,8 @@ class TestStats(YatelTestCase):
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
             else:
-                print "El array es de longitud cero"
+                with self.assertRaises (ValueError):
+                      rs = stats.percentile(self.nw, 25, env)
 
     def test_mode(self):
         rs = stats.mode(self.nw)
@@ -237,25 +238,26 @@ class TestStats(YatelTestCase):
                     moda = self.warr[i]
             else:
                 cont = 0
-        self.assertAlmostEqual(moda, rs, self.places)
+        print moda, rs
+        self.assertEqual(moda.all(), rs.all())
         for env in self.nw.enviroments():
-            arr = len(self.warrenv[env])
-            if arr != 0:
-                for i in range(0, len(self.warrenv[env])-1):
-                    if (self.warr[i] == self.warrenv[i+1]):
-                        cont = cont + 1
-                        if cont >= aux:
-                            aux = cont
-                            moda = self.warr[i]
-                    else:
-                        cont = 0
-                rs = stats.mode(self.nw, env)
-                if np.isnan(moda) or np.isnan(rs):
-                    self.assertTrue(np.isnan(moda) and np.isnan(rs))
-                else:
-                    self.assertAlmostEqual(moda, rs, self.places)
+            if self.warrenv[env]:
+               for i in range(0, len(self.warrenv[env])-1):
+                   if (self.warr[i] == self.warrenv[i+1]):
+                      cont = cont + 1
+                      if cont >= aux:
+                         aux = cont
+                         moda = self.warr[i]
+                      else:
+                          cont = 0
+               rs = stats.mode(self.nw, env)
+               if np.isnan(moda) or np.isnan(rs):
+                  self.assertTrue(np.isnan(moda) and np.isnan(rs))
+               else:
+                self.assertAlmostEqual(moda, rs, self.places)
             else:
-                print "El array es de longitud cero"
+               with self.assertRaises (ValueError):
+                      rs = stats.mode(self.nw, env)
 
     def test_weights2array(self):
         orig = self.warr
@@ -269,15 +271,16 @@ class TestStats(YatelTestCase):
         for env in self.nw.enviroments():
             orig = self.warrenv[env]
             rs = stats.env2weightarray(self.nw, env)
-            arr = len(self.warrenv[env])
-            if arr != 0:
+            if self.warrenv[env]:
                 orig = self.warrenv[env]
                 rs = stats.env2weightarray(self.nw, env)
                 if np.isnan(orig) or np.isnan(rs):
                     self.assertTrue(np.isnan(orig) and np.isnan(rs))
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
-            print "El array es de longitud cero"
+            with self.assertRaises (TypeError):
+                      self.assertAlmostEqual(orig, rs, self.places)
+
 
 
 # ===============================================================================
