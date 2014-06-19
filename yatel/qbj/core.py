@@ -87,7 +87,7 @@ class QBJEngine(object):
         error_msg = ""
         result = None
         try:
-            #schema.validate(querydict)
+            schema.validate(querydict)
             query_id = querydict["id"]
             function = querydict["function"]
             main_resolver = QBJResolver(function, self.context)

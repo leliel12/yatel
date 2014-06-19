@@ -33,8 +33,6 @@ DEFINITIONS = {
     },
 
     "TYPE_ARRAY_DEF" : {
-        "type": "array",
-        "items": {"$ref": "#/definitions/TYPE_DEF"},
     },
 
     "TYPE_OBJECT_DEF" : {
@@ -63,13 +61,6 @@ DEFINITIONS = {
     },
 
     "ARGUMENT_FUNCTION_DEF": {
-        "type": "object",
-        "properties": {
-            "type": {"$ref": "#/definitions/TYPE_DEF"},
-            "function": {"$ref": "#/definitions/FUNCTION_DEF"}
-        },
-        "additionalProperties": False,
-        "required": ["type", "function"]
     },
 
     "FUNCTION_DEF": {
@@ -79,10 +70,6 @@ DEFINITIONS = {
             "args": {
                 "type": "array",
                 "items": {
-                    "oneOf": [
-                        {"$ref": "#/definitions/ARGUMENT_STATIC_DEF"},
-                        {"$ref": "#/definitions/ARGUMENT_FUNCTION_DEF"}
-                    ]
                 }
             },
             "kwargs": {
@@ -113,10 +100,9 @@ QBJ_SCHEMA = {
     "definitions" : DEFINITIONS,
     "properties": {
         "id": {"type": ["string", "number", "boolean", "null"]},
-        "type": { "$ref": "#/definitions/TYPE_DEF" },
-    "function": { "$ref": "#/definitions/FUNCTION_DEF" }
+        "function": { "$ref": "#/definitions/FUNCTION_DEF" }
     },
-    "required": ["id", "function", "type"],
+    "required": ["id", "function"],
     "additionalProperties": False,
 }
 
