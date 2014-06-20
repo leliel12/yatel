@@ -124,6 +124,9 @@ class YatelHttpServer(flask.Flask):
         )
         return flask.jsonify(response)
 
+    def nw(self, name):
+        return self._nws[name]["nw"]
+
 
 #==============================================================================
 # FUNCTIONS

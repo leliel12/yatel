@@ -21,39 +21,45 @@
 #==============================================================================
 
 import sys
-import pprint
 import datetime
 import argparse
 import json
 import functools
+import traceback
 
-from flask.ext.script import Manager, Command, Option
+from flask.ext.script import Manager, Command, Option, Shell
 from flask.ext.script.commands import InvalidCommand
 
 import yatel
-from yatel import db, tests, server, etl
+from yatel import db, tests, server, etl, qbj
 from yatel import yio
 
 
-#===============================================================================
+#==============================================================================
 # MANAGER
-#===============================================================================
+#==============================================================================
 
 class _FlaskMock(object):
     """This class only mock the flask object to use flask script stand alone
 
     """
+
     def __init__(self, *a, **kw):
         self.options = kw
+
     def __getattr__(self, *a, **kw):
         return _FlaskMock()
+
     def __call__(self, *a, **kw):
         return _FlaskMock(*a, **kw)
-    def __exit__(self, *a, **kw):
-        return _FlaskMock()
+
     def __enter__(self, *a, **kw):
         return _FlaskMock()
 
+    def __exit__(self, etype, evalue, etrace):
+        if etype or evalue or etrace:
+            return False
+        return _FlaskMock()
 
 manager = Manager(
     _FlaskMock,
@@ -67,34 +73,20 @@ manager = Manager(
 # DECOTATOR
 #==============================================================================
 
-def run_wrapper(func):
-    """Convert any exception inside tun into flask script exception
-
-    """
-    @functools.wraps(func)
-    def _dec(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as err:
-            raise InvalidCommand(str(err))
-    return _dec
-
-
 def command(name):
     """Clean way to register class based commands
 
     """
     def _dec(cls):
         instance = cls()
-        instance.run = run_wrapper(instance.run)
         manager.add_command(name, instance)
         return cls
     return _dec
 
 
-#===============================================================================
+#==============================================================================
 # OPTIONS
-#===============================================================================
+#==============================================================================
 
 manager.add_option(
     "-k", "--full-stack", dest="full-stack", required=False,
@@ -142,9 +134,9 @@ class Database(object):
         return db.YatelNetwork(**data)
 
 
-#===============================================================================
+#==============================================================================
 # COMMANDS
-#===============================================================================
+#==============================================================================
 
 @command("list")
 class List(Command):
@@ -166,7 +158,9 @@ class Test(Command):
     ]
 
     def run(self, level):
-        tests.run_tests(level)
+        response = tests.run_tests(level)
+        if response.failures or response.errors:
+            sys.exit(2)
 
 
 @command("describe")
@@ -421,22 +415,79 @@ class RunETL(Command):
         database.confirm_changes()
 
 
-#===============================================================================
+@command("pyshell")
+class PyShell(Shell):
+    """Run a python shell with a Yatel network context.
+
+    """
+
+    banner = """
+    Welcome to Yatel Interactive mode.
+    Yatel is ready to use. You only need worry about your project.
+    If you install IPython, the shell will use it.
+    For more info, visit http://getyatel.org/
+    Available modules:
+        Your NW-OLAP: nw
+        from yatel: db, dom, stats
+        from pprint: pprint
+    """
+    help = __doc__
+    option_list = [
+        Option(
+            dest='database', type=Database(db.MODE_READ),
+            help="Connection string to database according to the RFC 1738 spec."
+        )
+    ]
+
+    def get_context(self):
+        from yatel import db, dom, stats
+        from pprint import pprint
+        return dict(db=db, dom=dom, stats=stats, pprint=pprint, nw=self.nw)
+
+    def get_options(self):
+        return list(super(type(self), self).get_options()) + self.option_list
+
+    def run(self, database, no_ipython, no_bpython):
+        self.nw = database
+        super(type(self), self).run(no_ipython, no_bpython)
+
+
+@command("qbjshell")
+class QBJShell(Command):
+    """Run interactive console for execute QBJ queries
+
+    """
+
+    option_list = [
+        Option(
+            dest='database', type=Database(db.MODE_READ),
+            help="Connection string to database according to the RFC 1738 spec."
+        ),
+    ]
+
+    def run(self, database):
+        debug = manager.app.options["full-stack"]
+        shell = qbj.QBJShell(database, debug)
+        shell.cmdloop()
+
+
+#==============================================================================
 # MAIN FUNCTION
-#===============================================================================
+#==============================================================================
 
 def main():
     try:
         manager.run()
-    except InvalidCommand as err:
-        print(err)
+    except Exception as err:
+        if "--full-stack" in sys.argv or "-k" in sys.argv:
+            traceback.print_exc()
+        print unicode(err)
         sys.exit(1)
 
 
-
-#===============================================================================
+#==============================================================================
 # MAIN
-#===============================================================================
+#==============================================================================
 
 if __name__ == "__main__":
     main()

@@ -7,9 +7,9 @@
 # think this stuff is worth it, you can buy me a WISKEY us return.
 
 
-#===============================================================================
+#==============================================================================
 # DOCS
-#===============================================================================
+#==============================================================================
 
 """This package contains several modules and functions for calculatte
 distances between haplotypes.
@@ -19,69 +19,29 @@ elements that can be used as edge weights.
 
 """
 
-#===============================================================================
+#==============================================================================
 # IMPORTS
-#===============================================================================
+#==============================================================================
 
 import inspect
 
-from yatel.weight.core import Weight
+from yatel.weight.core import BaseWeight
+from yatel.weight import euclidean, hamming, levenshtein
 
 
-#===============================================================================
-# FUNCTIONS
-#===============================================================================
+#==============================================================================
+# CONSTANTS
+#==============================================================================
 
-_weights = {}
-def register(cls, *names):
-    """Register a new weight calculator for yatel.
-
-    :param cls: Tha calculator class
-    :type nw: yatel.weight.Weight subclass
-    :param names: list of string for identify the calcularor
-
-    **Example**
-
-    >>> from yatel import weight
-    >>>
-    >>> Class MyHyperSuperCalculator(weight.Weight):
-    ...     def weight(self, hap0, hap1):
-    ...         return some_operation(hap0, hap1)
-    >>>
-    >>> weight.register(MyHyperSuperCalculator,
-    ...                 "my_hyper_super_calculator", "mhsc")
-    >>>
-    >>> weight.calculator("my_hyper_super_calculator")
-    __main__.MyHyperSuperCalculator
-    >>> weight.calculator("mhsc")
-    __main__.MyHyperSuperCalculator
-
-    """
-    if not inspect.isclass(cls) or not issubclass(cls, Weight):
-        raise TypeError("'cls' must be subclass of 'yatel.weight.Weight'")
-    for name in names:
-        if not isinstance(name, basestring):
-            msg = "'name' must be a string instance"
-            raise TypeError(msg)
-        _weights[name] = cls
-
-
-def calculators():
-    """Returns a list with all registered calculators
-
-    :returns: list of strings of registered calculator names
-
-    """
-    return _weights.keys()
-
-
-def calculator(name):
-    """Return a calculator class for a given calculator name
-
-    :return: ``yatel.weight.Weight`` subclass
-
-    """
-    return _weights[name]
+CALCULATORS = {}
+SYNONYMS = []
+for p in BaseWeight.__subclasses__():
+    syns = tuple(set(p.names()))
+    for ext in syns:
+        CALCULATORS[ext] = p
+    SYNONYMS.append(syns)
+SYNONYMS = frozenset(SYNONYMS)
+del p
 
 
 def weight(calcname, hap0, hap1):
@@ -106,7 +66,7 @@ def weight(calcname, hap0, hap1):
 
     """
 
-    cls = _weights[calcname]
+    cls = CALCULATORS[calcname]
     calculator = cls()
     return calculator.weight(hap0, hap1)
 
@@ -130,8 +90,8 @@ def weights(calcname, nw, to_same=False, env=None, **kwargs):
                    if nw is ``yatel.db.YatelNetwork`` instance.
 
     :returns: A iterator like like ``(hap_x, hap_y), float`` where hap_x is
-                  the origin node, hap_y is the end node and float is the weight
-                  of between them.
+              the origin node, hap_y is the end node and float is the weight
+              of between them.
 
     **Example**
 
@@ -156,32 +116,14 @@ def weights(calcname, nw, to_same=False, env=None, **kwargs):
     {(<Haplotype '2' at 0x1486c90>, <Haplotype '2' at 0x1486c90>): 0}
 
     """
-    cls = _weights[calcname]
+    cls = CALCULATORS[calcname]
     calculator = cls()
     return calculator.weights(nw=nw, to_same=to_same, env=env, **kwargs)
 
 
-#===============================================================================
-# REGISTERS!
-#===============================================================================
-
-from yatel.weight import hamming
-register(hamming.Hamming, "hamming", "ham")
-
-
-from yatel.weight import euclidean
-register(euclidean.Euclidean, "euclidean", "euc", "ordinary")
-
-
-from yatel.weight import levenshtein
-register(levenshtein.Levenshtein, "levenshtein", "lev")
-register(levenshtein.DamerauLevenshtein, "dameraulevenshtein", "damlev",
-         "damerau-levenshtein")
-
-
-#===============================================================================
+#==============================================================================
 # MAIN
-#===============================================================================
+#==============================================================================
 
 if __name__ == "__main__":
     print(__doc__)

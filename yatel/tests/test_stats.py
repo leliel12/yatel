@@ -228,7 +228,7 @@ class TestStats(YatelTestCase):
         rs = stats.mode(self.nw)
         aux = 0
         cont = 0
-        moda = -1
+        moda = []
         self.warr.sort()
         for i in range(0, len(self.warr)-1):
             if (self.warr[i] == self.warr[i+1]):
@@ -236,6 +236,7 @@ class TestStats(YatelTestCase):
                 if cont >= aux:
                     aux = cont
                     moda = self.warr[i]
+                    #moda = self.warr[i]
             else:
                 cont = 0
         print moda, rs
@@ -248,6 +249,7 @@ class TestStats(YatelTestCase):
                       if cont >= aux:
                          aux = cont
                          moda = self.warr[i]
+                         #moda = self.warr[i]
                       else:
                           cont = 0
                rs = stats.mode(self.nw, env)

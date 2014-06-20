@@ -82,6 +82,11 @@ class TestEdge(YatelTestCase):
         self.assertEquals((1, 2), edge0["haps_id"])
         self.assertEquals(edge0.haps_id, edge0["haps_id"])
 
+    def test_types(self):
+        edge = dom.Edge("1", [1, 2])
+        self.assertTrue(isinstance(edge.weight, float))
+        self.assertTrue(isinstance(edge.haps_id, tuple))
+
     def test_eq(self):
         edge0 = dom.Edge(1, [1, 2])
         edge1 = dom.Edge(1, [1, 2])
