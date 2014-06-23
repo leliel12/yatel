@@ -25,7 +25,11 @@ import os
 
 import numpy as np
 
-from mock import patch, Mock
+try:
+    from mock import patch, Mock
+    MOCK = True
+except ImportError:
+    MOCK = False
 
 from yatel import db, dom, weight
 
@@ -34,26 +38,29 @@ from yatel import db, dom, weight
 # MOCKS
 #==============================================================================
 
-TO_MOCK = {
-    "yatel.cluster.kmeans.vq.kmeans": {
-        "patch": {},
-        "mock": {
-            "return_value": [None, None]
+TO_MOCK = {}
+
+if MOCK:
+    TO_MOCK.update({
+        "yatel.cluster.kmeans.vq.kmeans": {
+            "patch": {},
+            "mock": {
+                "return_value": [None, None]
+            }
+        },
+        "requests.post": {
+            "patch": {},
+            "mock": {
+                "return_value": Mock(json=lambda: {
+                    "error": False,
+                    "result": {"type": "literal", "value": None},
+                    "id": None,
+                    "error_msg": "",
+                    "stack_trace": "",
+                })
+            }
         }
-    },
-    "requests.post": {
-        "patch": {},
-        "mock": {
-            "return_value": Mock(json=lambda: {
-                "error": False,
-                "result": {"type": "literal", "value": None},
-                "id": None,
-                "error_msg": "",
-                "stack_trace": "",
-            })
-        }
-    }
-}
+    })
 
 
 #===============================================================================
@@ -160,12 +167,14 @@ class YatelTestCase(unittest.TestCase):
 
     def setUp(self):
         self.nw, self.haps_ids = self.get_random_nw(self.conn())
-        for target, options in TO_MOCK.items():
-            mock = patch(target, **options["patch"]).start()
-            mock.configure_mock(**options["mock"])
+        if MOCK:
+            for target, options in TO_MOCK.items():
+                mock = patch(target, **options["patch"]).start()
+                mock.configure_mock(**options["mock"])
 
     def tearDown(self):
-        patch.stopall()
+        if MOCK:
+            patch.stopall()
         if self.conn()["engine"] == "sqlite":
             os.remove(self.conn()["database"])
 

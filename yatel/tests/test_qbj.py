@@ -21,6 +21,7 @@ import hashlib
 import random
 import datetime
 import collections
+import unittest
 
 from yatel import stats
 from yatel import typeconv
@@ -28,26 +29,16 @@ from yatel.cluster import kmeans
 from yatel import qbj
 from yatel.qbj import functions
 
-from yatel.tests.core import YatelTestCase
+from yatel.tests import core
 
 
 #==============================================================================
 # FUNCTION_TESTS
 #==============================================================================
 
-class FunctionTest(YatelTestCase):
-
-    _tested = set()
-
-    @classmethod
-    def tearDownClass(cls):
-        for k in functions.FUNCTIONS.keys():
-            if k not in cls._tested:
-                msg = "Please test QBJFunction '{}'".format(k)
-                raise AssertionError(msg)
+class FunctionTest(core.YatelTestCase):
 
     def execute(self, name, nw=None, **kwargs):
-        self._tested.add(name)
         nw = self.nw if nw is None else nw
         return functions.execute(name, nw, **kwargs)
 
@@ -823,6 +814,7 @@ class FunctionTest(YatelTestCase):
         )
         self.assertEqual(rs, -1)
 
+    @unittest.skipUnless(core.MOCK, "require mock")
     def test_kmeans(self):
         envs = tuple(self.nw.enviroments(["native", "place"]))
 
@@ -854,7 +846,7 @@ class FunctionTest(YatelTestCase):
 # QBJ
 #==============================================================================
 
-class QBJEngineTest(YatelTestCase):
+class QBJEngineTest(core.YatelTestCase):
 
     def setUp(self):
         super(QBJEngineTest, self).setUp()
@@ -959,6 +951,7 @@ class QBJEngineTest(YatelTestCase):
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertEqual(s0+s1, rs)
 
+    @unittest.skipUnless(core.MOCK, "require mock")
     def test_kmeans(self):
         envs = tuple(self.nw.enviroments(["native", "place"]))
         query = {

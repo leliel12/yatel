@@ -17,14 +17,14 @@
 # IMPORTS
 #===============================================================================
 
-import random, json, tempfile, os
+import random, json, tempfile, os, unittest
 
 from jsonschema import ValidationError
 
 from yatel import server, qbj, typeconv,db
 from yatel.cluster import kmeans
 from yatel.tests import test_qbj
-from yatel.tests.core import YatelTestCase
+from yatel.tests import core
 
 
 #===============================================================================
@@ -54,6 +54,7 @@ class TestYatelHttpServer(test_qbj.QBJEngineTest):
             self.fail(full_fail)
         return rs
 
+    @unittest.skipUnless(core.MOCK, "require mock")
     def test_kmeans(self):
         envs = map(dict, self.nw.enviroments(["native", "place"]))
         query = {
@@ -72,8 +73,7 @@ class TestYatelHttpServer(test_qbj.QBJEngineTest):
         self.assertEquals(orig[1], rs[1])
 
 
-class TestServerFunctions(YatelTestCase):
-
+class TestServerFunctions(core.YatelTestCase):
 
     def test_validate_conf(self):
         vconf = json.loads(server.get_conf_template())
