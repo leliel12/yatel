@@ -1,4 +1,5 @@
 pip install --upgrade -r requirements.txt;
+pip install --upgrade mock==1.0.1;
 python setup.py develop;
 yatel test 2;
 
