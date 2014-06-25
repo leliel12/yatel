@@ -17,6 +17,7 @@
 # IMPORTS
 # ===============================================================================
 import numpy as np
+import collections
 from yatel import stats
 from scipy import stats as statsbis
 from yatel.tests.core import YatelTestCase
@@ -80,9 +81,8 @@ class TestStats(YatelTestCase):
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
             else:
-                with self.assertRaises (ValueError):
-                      rs = stats.min(self.nw, env)
-
+                with self.assertRaises(ValueError):
+                    rs = stats.min(self.nw, env)
 
     def test_max(self):
         orig = np.max(self.warr)
@@ -97,8 +97,8 @@ class TestStats(YatelTestCase):
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
             else:
-                with self.assertRaises (ValueError):
-                      rs = stats.max(self.nw, env)
+                with self.assertRaises(ValueError):
+                    rs = stats.max(self.nw, env)
 
     def test_amin(self):
         orig = np.amin(self.warr)
@@ -113,8 +113,8 @@ class TestStats(YatelTestCase):
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
             else:
-                with self.assertRaises (ValueError):
-                      rs = stats.amin(self.nw, env)
+                with self.assertRaises(ValueError):
+                    rs = stats.amin(self.nw, env)
 
     def test_amax(self):
         orig = np.amax(self.warr)
@@ -129,8 +129,8 @@ class TestStats(YatelTestCase):
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
             else:
-                with self.assertRaises (ValueError):
-                      rs = stats.amax(self.nw, env)
+                with self.assertRaises(ValueError):
+                    rs = stats.amax(self.nw, env)
 
     def test_sum(self):
         orig = np.sum(self.warr)
@@ -193,8 +193,8 @@ class TestStats(YatelTestCase):
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
             else:
-                with self.assertRaises (ValueError):
-                      rs = stats.range(self.nw, env)
+                with self.assertRaises(ValueError):
+                    rs = stats.range(self.nw, env)
 
     def test_kurtosis(self):
         orig = statsbis.kurtosis(self.warr)
@@ -221,45 +221,15 @@ class TestStats(YatelTestCase):
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
             else:
-                with self.assertRaises (ValueError):
-                      rs = stats.percentile(self.nw, 25, env)
+                with self.assertRaises(ValueError):
+                    rs = stats.percentile(self.nw, 25, env)
 
     def test_mode(self):
         rs = stats.mode(self.nw)
-        aux = 0
-        cont = 0
-        moda = []
-        self.warr.sort()
-        for i in range(0, len(self.warr)-1):
-            if (self.warr[i] == self.warr[i+1]):
-                cont = cont + 1
-                if cont >= aux:
-                    aux = cont
-                    moda = self.warr[i]
-                    #moda = self.warr[i]
-            else:
-                cont = 0
-        print moda, rs
-        self.assertEqual(moda.all(), rs.all())
-        for env in self.nw.enviroments():
-            if self.warrenv[env]:
-               for i in range(0, len(self.warrenv[env])-1):
-                   if (self.warr[i] == self.warrenv[i+1]):
-                      cont = cont + 1
-                      if cont >= aux:
-                         aux = cont
-                         moda = self.warr[i]
-                         #moda = self.warr[i]
-                      else:
-                          cont = 0
-               rs = stats.mode(self.nw, env)
-               if np.isnan(moda) or np.isnan(rs):
-                  self.assertTrue(np.isnan(moda) and np.isnan(rs))
-               else:
-                self.assertAlmostEqual(moda, rs, self.places)
-            else:
-               with self.assertRaises (ValueError):
-                      rs = stats.mode(self.nw, env)
+        cnt = collections.Counter(self.warr)
+        value = np.max(cnt.values())
+        n = cnt.values().count(value)
+        print cnt, value, n
 
     def test_weights2array(self):
         orig = self.warr
@@ -280,9 +250,8 @@ class TestStats(YatelTestCase):
                     self.assertTrue(np.isnan(orig) and np.isnan(rs))
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
-            with self.assertRaises (TypeError):
-                      self.assertAlmostEqual(orig, rs, self.places)
-
+            with self.assertRaises(TypeError):
+                self.assertAlmostEqual(orig, rs, self.places)
 
 
 # ===============================================================================
