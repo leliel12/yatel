@@ -34,7 +34,7 @@ DEFINITIONS = {
 
     "TYPE_ARRAY_DEF" : {
         "type": "array",
-        "items": {"$ref": "#/definitions/TYPE_DEF"},
+        "items": {"$ref": "#/definitions/TYPE_DEF"}
     },
 
     "TYPE_OBJECT_DEF" : {
@@ -43,12 +43,13 @@ DEFINITIONS = {
             r".*": {"$ref": "#/definitions/TYPE_DEF"}
         },
     },
-
+    
     "TYPE_DEF" : {
         "oneOf": [
             {"$ref": "#/definitions/TYPE_SINGLE_DEF"},
             {"$ref": "#/definitions/TYPE_ARRAY_DEF"},
             {"$ref": "#/definitions/TYPE_OBJECT_DEF"},
+            {"type": "string", "enum": ["literal"]}
       ]
     },
 
@@ -62,15 +63,8 @@ DEFINITIONS = {
         "required": ["type", "value"]
     },
 
-    "ARGUMENT_FUNCTION_DEF": {
-        "type": "object",
-        "properties": {
-            "type": {"$ref": "#/definitions/TYPE_DEF"},
-            "function": {"$ref": "#/definitions/FUNCTION_DEF"}
-        },
-        "additionalProperties": False,
-        "required": ["type", "function"]
-    },
+    #~ "ARGUMENT_FUNCTION_DEF": {
+    #~ },
 
     "FUNCTION_DEF": {
         "type": "object",
@@ -79,10 +73,6 @@ DEFINITIONS = {
             "args": {
                 "type": "array",
                 "items": {
-                    "oneOf": [
-                        {"$ref": "#/definitions/ARGUMENT_STATIC_DEF"},
-                        {"$ref": "#/definitions/ARGUMENT_FUNCTION_DEF"}
-                    ]
                 }
             },
             "kwargs": {
@@ -91,7 +81,7 @@ DEFINITIONS = {
                     r".*": {
                         "oneOf": [
                             {"$ref": "#/definitions/ARGUMENT_STATIC_DEF"},
-                            {"$ref": "#/definitions/ARGUMENT_FUNCTION_DEF"}
+                            #~ {"$ref": "#/definitions/ARGUMENT_FUNCTION_DEF"}
                         ]
                     }
                 },
@@ -113,10 +103,9 @@ QBJ_SCHEMA = {
     "definitions" : DEFINITIONS,
     "properties": {
         "id": {"type": ["string", "number", "boolean", "null"]},
-        "type": { "$ref": "#/definitions/TYPE_DEF" },
-    "function": { "$ref": "#/definitions/FUNCTION_DEF" }
+        "function": { "$ref": "#/definitions/FUNCTION_DEF" }
     },
-    "required": ["id", "function", "type"],
+    "required": ["id", "function"],
     "additionalProperties": False,
 }
 
