@@ -17,18 +17,19 @@
 # IMPORTS
 #===============================================================================
 
-import random
+import random, unittest
 
 from yatel.cluster import kmeans
-from yatel.tests.core import YatelTestCase
+from yatel.tests import core
 
 
 #===============================================================================
 # VALIDATE TESTS
 #===============================================================================
 
-class TestKmeans(YatelTestCase):
+class TestKmeans(core.YatelTestCase):
 
+    @unittest.skipUnless(core.MOCK, "require mock")
     def test_kmeans(self):
         codebook, distortion = kmeans.kmeans(
             self.nw, self.nw.enviroments(), 2, whiten=False, coordc=None

@@ -33,6 +33,8 @@ DEFINITIONS = {
     },
 
     "TYPE_ARRAY_DEF" : {
+        "type": "array",
+        "items": {"$ref": "#/definitions/TYPE_DEF"},
     },
 
     "TYPE_OBJECT_DEF" : {
@@ -41,12 +43,13 @@ DEFINITIONS = {
             r".*": {"$ref": "#/definitions/TYPE_DEF"}
         },
     },
-
+    
     "TYPE_DEF" : {
         "oneOf": [
             {"$ref": "#/definitions/TYPE_SINGLE_DEF"},
             {"$ref": "#/definitions/TYPE_ARRAY_DEF"},
             {"$ref": "#/definitions/TYPE_OBJECT_DEF"},
+            {"type": "string", "enum": ["literal"]}
       ]
     },
 
@@ -60,8 +63,8 @@ DEFINITIONS = {
         "required": ["type", "value"]
     },
 
-    "ARGUMENT_FUNCTION_DEF": {
-    },
+    #~ "ARGUMENT_FUNCTION_DEF": {
+    #~ },
 
     "FUNCTION_DEF": {
         "type": "object",
@@ -78,7 +81,7 @@ DEFINITIONS = {
                     r".*": {
                         "oneOf": [
                             {"$ref": "#/definitions/ARGUMENT_STATIC_DEF"},
-                            {"$ref": "#/definitions/ARGUMENT_FUNCTION_DEF"}
+                            #~ {"$ref": "#/definitions/ARGUMENT_FUNCTION_DEF"}
                         ]
                     }
                 },

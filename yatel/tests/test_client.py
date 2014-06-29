@@ -17,20 +17,21 @@
 # IMPORTS
 #===============================================================================
 
-import random, json, tempfile, os
+import random, json, tempfile, os, unittest
 
 from jsonschema import ValidationError
 
 from yatel import client, qbj, typeconv, db
 from yatel.cluster import kmeans
 from yatel.tests import test_qbj
-from yatel.tests.core import YatelTestCase
+from yatel.tests import core
 
 
 #===============================================================================
 # VALIDATE TESTS
 #===============================================================================
 
+@unittest.skipUnless(core.MOCK, "require mock")
 class TestQBJClient(test_qbj.QBJEngineTest):
 
     def setUp(self):
