@@ -49,7 +49,7 @@ DEFINITIONS = {
             {"$ref": "#/definitions/TYPE_SINGLE_DEF"},
             {"$ref": "#/definitions/TYPE_ARRAY_DEF"},
             {"$ref": "#/definitions/TYPE_OBJECT_DEF"},
-            {"type": "string", "enum": ["literal"]}
+            {"type": "string", "enum": ["literal", "iterable"]}
       ]
     },
 
@@ -63,8 +63,15 @@ DEFINITIONS = {
         "required": ["type", "value"]
     },
 
-    #~ "ARGUMENT_FUNCTION_DEF": {
-    #~ },
+    "ARGUMENT_FUNCTION_DEF": {
+        "type": "object",
+        "properties": {
+            "type": {"$ref": "#/definitions/TYPE_DEF"},
+            "function": {"$ref": "#/definitions/FUNCTION_DEF"}
+        },
+        "additionalProperties": False,
+        "required": ["type", "function"]
+    },
 
     "FUNCTION_DEF": {
         "type": "object",
@@ -73,6 +80,10 @@ DEFINITIONS = {
             "args": {
                 "type": "array",
                 "items": {
+                    "oneOf": [
+                        {"$ref": "#/definitions/ARGUMENT_STATIC_DEF"},
+                        {"$ref": "#/definitions/ARGUMENT_FUNCTION_DEF"}
+                    ]
                 }
             },
             "kwargs": {
@@ -81,7 +92,7 @@ DEFINITIONS = {
                     r".*": {
                         "oneOf": [
                             {"$ref": "#/definitions/ARGUMENT_STATIC_DEF"},
-                            #~ {"$ref": "#/definitions/ARGUMENT_FUNCTION_DEF"}
+                            {"$ref": "#/definitions/ARGUMENT_FUNCTION_DEF"}
                         ]
                     }
                 },
