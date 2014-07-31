@@ -192,14 +192,14 @@ class Edge(YatelDOM):
 # ENVIROMENT
 #===============================================================================
 
-class Enviroment(YatelDOM):
+class Environment(YatelDOM):
 
     CLEAN_NULL = False
 
     def __repr__(self):
         """x.__repr__() <==> repr(x)"""
         cls = type(self).__name__
-        desc = super(Enviroment, self).__repr__()
+        desc = super(Environment, self).__repr__()
         at = hex(id(self))
         return "<{cls} {desc} at {at}>".format(cls=cls, desc=desc, at=at)
 

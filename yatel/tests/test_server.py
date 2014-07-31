@@ -56,7 +56,7 @@ class TestYatelHttpServer(test_qbj.QBJEngineTest):
 
     @unittest.skipUnless(core.MOCK, "require mock")
     def test_kmeans(self):
-        envs = map(dict, self.nw.enviroments(["native", "place"]))
+        envs = map(dict, self.nw.environments(["native", "place"]))
         query = {
             "id": 1,
             "function": {

@@ -64,7 +64,7 @@ class BaseWeight(object):
         haps = None
         if isinstance(nw, db.YatelNetwork):
             haps = (
-                nw.haplotypes_by_enviroment(env) if env else nw.haplotypes()
+                nw.haplotypes_by_environment(env) if env else nw.haplotypes()
             )
         elif env:
             msg = (

@@ -145,7 +145,7 @@ def hap_in_env_coords(nw, env):
 
     """
     haps_id = [hap.hap_id for hap in nw.haplotypes()]
-    ehid = [hap.hap_id for hap in nw.haplotypes_by_enviroment(env=env)]
+    ehid = [hap.hap_id for hap in nw.haplotypes_by_environment(env=env)]
     haps_id.sort()
     ehid.sort()
     return [int(hid in ehid) for hid in haps_id]

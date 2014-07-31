@@ -38,9 +38,9 @@ class TestStats(YatelTestCase):
         warnings.simplefilter("ignore", RuntimeWarning)
         self.warr = np.array([edge.weight for edge in self.nw.edges()])
         self.warrenv = {}
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             self.warrenv[env] = np.array([
-                edge.weight for edge in self.nw.edges_by_enviroment(env)
+                edge.weight for edge in self.nw.edges_by_environment(env)
             ])
         self.places = 2
 
@@ -54,7 +54,7 @@ class TestStats(YatelTestCase):
         orig = np.average(self.warr)
         rs = stats.average(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             orig = np.average(self.warrenv[env])
             rs = stats.average(self.nw, env)
             if np.isnan(orig) or np.isnan(rs):
@@ -66,7 +66,7 @@ class TestStats(YatelTestCase):
         orig = np.median(self.warr)
         rs = stats.median(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             orig = np.median(self.warrenv[env])
             rs = stats.median(self.nw, env)
             if np.isnan(orig) or np.isnan(rs):
@@ -78,7 +78,7 @@ class TestStats(YatelTestCase):
         orig = np.min(self.warr)
         rs = stats.min(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             if self.warrenv[env]:
                 orig = np.min(self.warrenv[env])
                 rs = stats.min(self.nw, env)
@@ -94,7 +94,7 @@ class TestStats(YatelTestCase):
         orig = np.max(self.warr)
         rs = stats.max(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             if self.warrenv[env]:
                 orig = np.max(self.warrenv[env])
                 rs = stats.max(self.nw, env)
@@ -110,7 +110,7 @@ class TestStats(YatelTestCase):
         orig = np.amin(self.warr)
         rs = stats.amin(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             if self.warrenv[env]:
                 orig = np.amin(self.warrenv[env])
                 rs = stats.amin(self.nw, env)
@@ -126,7 +126,7 @@ class TestStats(YatelTestCase):
         orig = np.amax(self.warr)
         rs = stats.amax(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             if self.warrenv[env]:
                 orig = np.amax(self.warrenv[env])
                 rs = stats.amax(self.nw, env)
@@ -142,7 +142,7 @@ class TestStats(YatelTestCase):
         orig = np.sum(self.warr)
         rs = stats.sum(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             orig = np.sum(self.warrenv[env])
             rs = stats.sum(self.nw, env)
             if np.isnan(orig) or np.isnan(rs):
@@ -154,7 +154,7 @@ class TestStats(YatelTestCase):
         orig = np.var(self.warr)
         rs = stats.var(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             orig = np.var(self.warrenv[env])
             rs = stats.var(self.nw, env)
             if np.isnan(orig) or np.isnan(rs):
@@ -166,7 +166,7 @@ class TestStats(YatelTestCase):
         orig = np.std(self.warr)
         rs = stats.std(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             orig = np.std(self.warrenv[env])
             rs = stats.std(self.nw, env)
             if np.isnan(orig) or np.isnan(rs):
@@ -178,7 +178,7 @@ class TestStats(YatelTestCase):
         orig = statsbis.variation(self.warr)
         rs = stats.variation(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             orig = statsbis.variation(self.warrenv[env])
             rs = stats.variation(self.nw, env)
             if np.isnan(orig) or np.isnan(rs):
@@ -190,7 +190,7 @@ class TestStats(YatelTestCase):
         orig = np.amax(self.warr) - np.amin(self.warr)
         rs = stats.range(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             if self.warrenv[env]:
                 orig = np.amax(self.warrenv[env]) - np.amin(self.warrenv[env])
                 rs = stats.range(self.nw, env)
@@ -206,7 +206,7 @@ class TestStats(YatelTestCase):
         orig = statsbis.kurtosis(self.warr)
         rs = stats.kurtosis(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             orig = statsbis.kurtosis(self.warrenv[env])
             rs = stats.kurtosis(self.nw, env)
             if np.isnan(orig) or np.isnan(rs):
@@ -218,7 +218,7 @@ class TestStats(YatelTestCase):
         orig = np.percentile(self.warr, 25)
         rs = stats.percentile(self.nw, 25)
         self.assertAlmostEqual(orig, rs, self.places)
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             if self.warrenv[env]:
                 orig = np.percentile(self.warrenv[env], 25)
                 rs = stats.percentile(self.nw, 25, env)
@@ -237,7 +237,7 @@ class TestStats(YatelTestCase):
         n = cnt.values().count(value)
         moda = np.array(tuple(v[0] for v in cnt.most_common(n)))
         self.assertEqual(moda, rs)
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             if self.warrenv[env]:
                 rs = stats.mode(self.nw, env)
                 orig = self.warrenv[env]
@@ -262,7 +262,7 @@ class TestStats(YatelTestCase):
         orig = self.warr
         rs = stats.env2weightarray(self.nw)
         self.assertEqual(orig.all(), rs.all())
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             orig = self.warrenv[env]
             rs = stats.env2weightarray(self.nw, env)
             if self.warrenv[env]:

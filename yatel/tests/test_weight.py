@@ -46,7 +46,7 @@ class TestWeights(YatelTestCase):
                     generator = weight.weights(calc, self.nw, to_same)
                     for key, w in generator:
                         wgths.setdefault(key,[]).append(w)
-                    for env in self.nw.enviroments():
+                    for env in self.nw.environments():
                         generator = weight.weights(calc, self.nw, to_same, env)
                         for key, w in generator:
                             wgths.setdefault(key,[]).append(w)

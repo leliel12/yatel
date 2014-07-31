@@ -515,7 +515,7 @@ class YatelNetwork(object):
         self.validate_read()
         return self._engine.execute(query)
 
-    def enviroments(self, facts_attrs=None):
+    def environments(self, facts_attrs=None):
         """Iterates over all convinations of enviroments of the given attrs
 
         **REQUIRE MODE:** r
@@ -559,7 +559,7 @@ class YatelNetwork(object):
             [self.facts_table.c[k] for k in attrs]
         ).distinct()
         for row in self.execute(query):
-            yield dom.Enviroment(**row)
+            yield dom.Environment(**row)
 
     #===========================================================================
     # HAPLOTYPE QUERIES
@@ -600,7 +600,7 @@ class YatelNetwork(object):
         row = self.execute(query).fetchone()
         return self._row2hap(row)
 
-    def haplotypes_by_enviroment(self, env=None, **kwargs):
+    def haplotypes_by_environment(self, env=None, **kwargs):
         """Return a iterator of ``dom.Haplotype`` related to a ``dom.Fact`` with
         attribute and value specified in env and ``kwargs``
 
@@ -668,7 +668,7 @@ class YatelNetwork(object):
         for row in self.execute(query):
             yield self._row2edge(row)
 
-    def edges_by_enviroment(self, env=None, **kwargs):
+    def edges_by_environment(self, env=None, **kwargs):
         """Iterates over all ``dom.Edge`` instances of a given enviroment
         please see ``yatel.db.YatelNetwork.haplotypes_enviroment`` for more
         documentation about enviroment.
@@ -757,7 +757,7 @@ class YatelNetwork(object):
         for row in self.execute(query):
             yield self._row2fact(row)
 
-    def facts_by_enviroment(self, env=None, **kwargs):
+    def facts_by_environment(self, env=None, **kwargs):
         """Iterates over all ``dom.Fact`` instances of a given enviroment
         please see ``yatel.db.YatelNetwork.haplotypes_enviroment`` for more
         documentation about enviroment.

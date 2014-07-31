@@ -32,12 +32,12 @@ class TestKmeans(core.YatelTestCase):
     @unittest.skipUnless(core.MOCK, "require mock")
     def test_kmeans(self):
         codebook, distortion = kmeans.kmeans(
-            self.nw, self.nw.enviroments(), 2, whiten=False, coordc=None
+            self.nw, self.nw.environments(), 2, whiten=False, coordc=None
         )
         self.assertEquals(codebook, None)
         self.assertEquals(distortion, None)
         codebook, distortion = kmeans.kmeans(
-            self.nw, self.nw.enviroments(), 1, whiten=True,
+            self.nw, self.nw.environments(), 1, whiten=True,
             coordc=lambda nw, env: [0,0]
         )
         self.assertEquals(codebook, None)
@@ -46,9 +46,9 @@ class TestKmeans(core.YatelTestCase):
     def test_hap_in_env_coords(self):
         haps_id = [hap.hap_id for hap in self.nw.haplotypes()]
         haps_id.sort()
-        for env in self.nw.enviroments():
+        for env in self.nw.environments():
             true_indexes = []
-            for hap in self.nw.haplotypes_by_enviroment(env):
+            for hap in self.nw.haplotypes_by_environment(env):
                 idx = haps_id.index(hap.hap_id)
                 true_indexes.append(idx)
             coords = kmeans.hap_in_env_coords(self.nw, env)
@@ -61,7 +61,7 @@ class TestKmeans(core.YatelTestCase):
     def test_nw2obs(self):
         haps_id = [hap.hap_id for hap in self.nw.haplotypes()]
         haps_id.sort()
-        envs = list(self.nw.enviroments())
+        envs = list(self.nw.environments())
         coords_iterator = enumerate(
             kmeans.nw2obs(self.nw, envs, whiten=False, coordc=None)
         )

@@ -43,7 +43,7 @@ class TestQBJClient(test_qbj.QBJEngineTest):
         return super(TestQBJClient, self).execute(query)
 
     def test_kmeans(self):
-        envs = map(dict, self.nw.enviroments(["native", "place"]))
+        envs = map(dict, self.nw.environments(["native", "place"]))
         query = {
             "id": 1,
             "function": {

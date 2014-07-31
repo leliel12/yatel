@@ -155,7 +155,7 @@ def env2weightarray(nw, env=None, **kwargs):
     elif isinstance(nw, db.YatelNetwork):
         if not env:
             return weights2array(nw.edges())
-        return weights2array(nw.edges_by_enviroment(env=env))
+        return weights2array(nw.edges_by_environment(env=env))
     else:
         return np.array(nw)
 

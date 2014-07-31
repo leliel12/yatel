@@ -61,10 +61,10 @@ class FunctionTest(core.YatelTestCase):
         rs = self.execute("haplotype_by_id", hap_id=orig.hap_id)
         self.assertEqual(rs, orig)
 
-    def test_haplotypes_by_enviroment(self):
-        for env in list(self.nw.enviroments()) + [None]:
-            orig = tuple(self.nw.haplotypes_by_enviroment(env))
-            rs = tuple(self.execute("haplotypes_by_enviroment", env=env))
+    def test_haplotypes_by_environment(self):
+        for env in list(self.nw.environments()) + [None]:
+            orig = tuple(self.nw.haplotypes_by_environment(env))
+            rs = tuple(self.execute("haplotypes_by_environment", env=env))
             self.assertSameUnsortedContent(rs, orig)
 
     def test_edges(self):
@@ -78,10 +78,10 @@ class FunctionTest(core.YatelTestCase):
         rs = tuple(self.execute("edges_by_haplotype", hap=hap))
         self.assertEqual(rs, orig)
 
-    def test_edges_by_enviroment(self):
-        for env in list(self.nw.enviroments()) + [None]:
-            orig = tuple(self.nw.edges_by_enviroment(env))
-            rs = tuple(self.execute("edges_by_enviroment", env=env))
+    def test_edges_by_environment(self):
+        for env in list(self.nw.environments()) + [None]:
+            orig = tuple(self.nw.edges_by_environment(env))
+            rs = tuple(self.execute("edges_by_environment", env=env))
             self.assertSameUnsortedContent(rs, orig)
 
     def test_facts(self):
@@ -95,10 +95,10 @@ class FunctionTest(core.YatelTestCase):
         rs = tuple(self.execute("facts_by_haplotype", hap=hap))
         self.assertEqual(rs, orig)
 
-    def test_facts_by_enviroment(self):
-        for env in list(self.nw.enviroments()) + [None]:
-            orig = tuple(self.nw.facts_by_enviroment(env))
-            rs = tuple(self.execute("facts_by_enviroment", env=env))
+    def test_facts_by_environment(self):
+        for env in list(self.nw.environments()) + [None]:
+            orig = tuple(self.nw.facts_by_environment(env))
+            rs = tuple(self.execute("facts_by_environment", env=env))
             self.assertSameUnsortedContent(rs, orig)
 
     def test_describe(self):
@@ -106,19 +106,19 @@ class FunctionTest(core.YatelTestCase):
         rs = self.execute("describe")
         self.assertEqual(rs, orig)
 
-    def test_enviroments(self):
-        orig = tuple(self.nw.enviroments())
-        rs = tuple(self.execute("enviroments"))
+    def test_environments(self):
+        orig = tuple(self.nw.environments())
+        rs = tuple(self.execute("environments"))
         self.assertSameUnsortedContent(rs, orig)
 
     def test_env2weightarray(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             orig = list(stats.env2weightarray(self.nw, env))
             rs = list(self.execute("env2weightarray", env=env))
             self.assertEqual(orig, rs)
 
     def test_min(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = stats.min(self.nw, env)
@@ -131,7 +131,7 @@ class FunctionTest(core.YatelTestCase):
                 )
 
     def test_sum(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = stats.sum(self.nw, env)
@@ -143,7 +143,7 @@ class FunctionTest(core.YatelTestCase):
                 self.assertAlmostEqual(orig_nw, orig_arr, places=4)
 
     def test_var(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = stats.var(self.nw, env)
@@ -155,7 +155,7 @@ class FunctionTest(core.YatelTestCase):
                 self.assertAlmostEqual(orig_nw, orig_arr, places=4)
 
     def test_mode(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = list(stats.mode(self.nw, env))
@@ -167,7 +167,7 @@ class FunctionTest(core.YatelTestCase):
                 self.assertEqual(orig_nw, orig_arr)
 
     def test_max(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = stats.max(self.nw, env)
@@ -179,7 +179,7 @@ class FunctionTest(core.YatelTestCase):
                 self.assertAlmostEqual(orig_nw, orig_arr, places=4)
 
     def test_variation(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = stats.variation(self.nw, env=env)
@@ -192,7 +192,7 @@ class FunctionTest(core.YatelTestCase):
                 self.assertAlmostEqual(orig_nw, orig_arr, places=4)
 
     def test_kurtosis(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = stats.kurtosis(self.nw, env)
@@ -204,7 +204,7 @@ class FunctionTest(core.YatelTestCase):
                 self.assertAlmostEqual(orig_nw, orig_arr, places=4)
 
     def test_amax(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = stats.amax(self.nw, env)
@@ -216,7 +216,7 @@ class FunctionTest(core.YatelTestCase):
                 self.assertAlmostEqual(orig_nw, orig_arr, places=4)
 
     def test_std(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = stats.std(self.nw, env)
@@ -228,7 +228,7 @@ class FunctionTest(core.YatelTestCase):
                 self.assertAlmostEqual(orig_nw, orig_arr, places=4)
 
     def test_amin(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = stats.amin(self.nw, env)
@@ -240,7 +240,7 @@ class FunctionTest(core.YatelTestCase):
                 self.assertAlmostEqual(orig_nw, orig_arr, places=4)
 
     def test_average(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = stats.average(self.nw, env)
@@ -252,7 +252,7 @@ class FunctionTest(core.YatelTestCase):
                 self.assertAlmostEqual(orig_nw, orig_arr, places=4)
 
     def test_median(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = stats.median(self.nw, env)
@@ -264,7 +264,7 @@ class FunctionTest(core.YatelTestCase):
                 self.assertAlmostEqual(orig_nw, orig_arr, places=4)
 
     def test_range(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 orig_nw = stats.range(self.nw, env)
@@ -276,7 +276,7 @@ class FunctionTest(core.YatelTestCase):
                 self.assertAlmostEqual(orig_nw, orig_arr, places=4)
 
     def test_percentile(self):
-        for env in list(self.nw.enviroments()) + [None]:
+        for env in list(self.nw.environments()) + [None]:
             arr = stats.env2weightarray(self.nw, env)
             if len(arr):
                 for q in range(0, 100):
@@ -816,7 +816,7 @@ class FunctionTest(core.YatelTestCase):
 
     @unittest.skipUnless(core.MOCK, "require mock")
     def test_kmeans(self):
-        envs = tuple(self.nw.enviroments(["native", "place"]))
+        envs = tuple(self.nw.environments(["native", "place"]))
 
         orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2)
         rs = self.execute("kmeans", envs=envs, k_or_guess=2)
@@ -953,7 +953,7 @@ class QBJEngineTest(core.YatelTestCase):
 
     @unittest.skipUnless(core.MOCK, "require mock")
     def test_kmeans(self):
-        envs = tuple(self.nw.enviroments(["native", "place"]))
+        envs = tuple(self.nw.environments(["native", "place"]))
         query = {
             "id": 1,
             "function": {

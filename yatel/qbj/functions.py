@@ -95,9 +95,9 @@ def haplotype_by_id(nw, hap_id):
     return nw.haplotype_by_id(hap_id)
 
 
-@qbjfunction(doc=db.YatelNetwork.haplotypes_by_enviroment.__doc__)
-def haplotypes_by_enviroment(nw, env=None, **kwargs):
-    return nw.haplotypes_by_enviroment(env=env, **kwargs)
+@qbjfunction(doc=db.YatelNetwork.haplotypes_by_environment.__doc__)
+def haplotypes_by_environment(nw, env=None, **kwargs):
+    return nw.haplotypes_by_environment(env=env, **kwargs)
 
 
 @qbjfunction(doc=db.YatelNetwork.edges.__doc__)
@@ -110,9 +110,9 @@ def edges_by_haplotype(nw, hap):
     return nw.edges_by_haplotype(hap)
 
 
-@qbjfunction(doc=db.YatelNetwork.edges_by_enviroment.__doc__)
-def edges_by_enviroment(nw, env=None, **kwargs):
-    return nw.edges_by_enviroment(env=env, **kwargs)
+@qbjfunction(doc=db.YatelNetwork.edges_by_environment.__doc__)
+def edges_by_environment(nw, env=None, **kwargs):
+    return nw.edges_by_environment(env=env, **kwargs)
 
 
 @qbjfunction(doc=db.YatelNetwork.facts.__doc__)
@@ -125,9 +125,9 @@ def facts_by_haplotype(nw, hap):
     return nw.facts_by_haplotype(hap)
 
 
-@qbjfunction(doc=db.YatelNetwork.facts_by_enviroment.__doc__)
-def facts_by_enviroment(nw, env=None, **kwargs):
-    return nw.facts_by_enviroment(env=env, **kwargs)
+@qbjfunction(doc=db.YatelNetwork.facts_by_environment.__doc__)
+def facts_by_environment(nw, env=None, **kwargs):
+    return nw.facts_by_environment(env=env, **kwargs)
 
 
 @qbjfunction(doc=db.YatelNetwork.describe.__doc__)
@@ -135,9 +135,9 @@ def describe(nw):
     return nw.describe()
 
 
-@qbjfunction(doc=db.YatelNetwork.enviroments.__doc__)
-def enviroments(nw, facts_attrs=None):
-    return nw.enviroments(facts_attrs=facts_attrs)
+@qbjfunction(doc=db.YatelNetwork.environments.__doc__)
+def environments(nw, facts_attrs=None):
+    return nw.environments(facts_attrs=facts_attrs)
 
 
 #==============================================================================

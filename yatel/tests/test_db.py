@@ -174,7 +174,7 @@ class YatelNetwork(YatelTestCase):
         self.assertSameUnsortedContent(nw.haplotypes(), self.nw.haplotypes())
         self.assertSameUnsortedContent(nw.facts(), self.nw.facts())
         self.assertSameUnsortedContent(nw.edges(), self.nw.edges())
-        self.assertSameUnsortedContent(nw.enviroments(), self.nw.enviroments())
+        self.assertSameUnsortedContent(nw.environments(), self.nw.environments())
 
     def test_confirm_changes(self):
         haplotypes = [
@@ -203,7 +203,7 @@ class YatelNetwork(YatelTestCase):
             self.assertSameUnsortedContent(nw.facts(), self.nw.facts())
             self.assertSameUnsortedContent(nw.edges(), self.nw.edges())
             self.assertSameUnsortedContent(
-                nw.enviroments(), self.nw.enviroments()
+                nw.environments(), self.nw.environments()
             )
         except AttributeError:
             pass
@@ -214,7 +214,7 @@ class YatelNetwork(YatelTestCase):
         self.assertSameUnsortedContent(nw.haplotypes(), self.nw.haplotypes())
         self.assertSameUnsortedContent(nw.facts(), self.nw.facts())
         self.assertSameUnsortedContent(nw.edges(), self.nw.edges())
-        self.assertSameUnsortedContent(nw.enviroments(), self.nw.enviroments())
+        self.assertSameUnsortedContent(nw.environments(), self.nw.environments())
 
     def test_edges(self):
         self.assertSameUnsortedContent(self.nw.edges(), self.edges)
@@ -245,24 +245,24 @@ class YatelNetwork(YatelTestCase):
             self.assertTrue(len(edge.haps_id) <= max_nodes)
             self.assertTrue(isinstance(edge.weight, wt))
 
-    def test_edges_by_enviroment(self):
-        rs = list(self.nw.edges_by_enviroment(name="Andalucia"))
+    def test_edges_by_environment(self):
+        rs = list(self.nw.edges_by_environment(name="Andalucia"))
         self.assertEqual(len(rs), 1)
         self.assertEqual(rs[0], self.edges[2])
 
-    def test_facts_by_enviroment(self):
-        rs = list(self.nw.facts_by_enviroment(name="Andalucia"))
+    def test_facts_by_environment(self):
+        rs = list(self.nw.facts_by_environment(name="Andalucia"))
         self.assertEqual(len(rs), 2)
         self.assertEqual(rs[0], self.facts[0])
         self.assertEqual(rs[1], self.facts[3])
 
-    def test_haplotypes_by_enviroment(self):
-        rs = list(self.nw.haplotypes_by_enviroment(name="Andalucia"))
+    def test_haplotypes_by_environment(self):
+        rs = list(self.nw.haplotypes_by_environment(name="Andalucia"))
         self.assertEqual(len(rs), 2)
         self.assertEqual(rs[0], self.haplotypes[0])
         self.assertEqual(rs[1], self.haplotypes[2])
 
-    def test_enviroments(self):
+    def test_environments(self):
         desc = self.nw.describe()
         fact_attrs = desc["fact_attributes"].keys()
         for size in xrange(0, len(fact_attrs)):
@@ -271,7 +271,7 @@ class YatelNetwork(YatelTestCase):
                 f = random.choice(fact_attrs)
                 if f != "hap_id":
                     filters.add(f)
-            list(self.nw.enviroments(list(filters)))
+            list(self.nw.environments(list(filters)))
 
     def test_edges_by_haplotype(self):
         for hap in self.haplotypes:
