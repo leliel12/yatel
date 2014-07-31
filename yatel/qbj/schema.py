@@ -43,12 +43,13 @@ DEFINITIONS = {
             r".*": {"$ref": "#/definitions/TYPE_DEF"}
         },
     },
-
+    
     "TYPE_DEF" : {
         "oneOf": [
             {"$ref": "#/definitions/TYPE_SINGLE_DEF"},
             {"$ref": "#/definitions/TYPE_ARRAY_DEF"},
             {"$ref": "#/definitions/TYPE_OBJECT_DEF"},
+            {"type": "string", "enum": ["literal", "iterable"]}
       ]
     },
 
@@ -113,10 +114,9 @@ QBJ_SCHEMA = {
     "definitions" : DEFINITIONS,
     "properties": {
         "id": {"type": ["string", "number", "boolean", "null"]},
-        "type": { "$ref": "#/definitions/TYPE_DEF" },
-    "function": { "$ref": "#/definitions/FUNCTION_DEF" }
+        "function": { "$ref": "#/definitions/FUNCTION_DEF" }
     },
-    "required": ["id", "function", "type"],
+    "required": ["id", "function"],
     "additionalProperties": False,
 }
 
