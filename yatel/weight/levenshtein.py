@@ -47,15 +47,18 @@ class Levenshtein(core.BaseWeight):
 
     def __init__(self, to_seq=None):
         """Creates a new instance
-
-        :param to_seq: a callable for convert any object to a string.
-                        By defautl see yatel.weight.levenshtein.to_seq_default
+        
+        Parameters
+        ----------
+        to_seq : callable
+            a callable for convert any object to a string. By defautl see 
+            yatel.weight.levenshtein.to_seq_default
 
         """
         self.to_seq = to_seq_default if to_seq is None else to_seq
 
     def weight(self, hap0, hap1):
-        """A ``float`` distance between 2 ``dom.Haplotype`` instances"""
+        """A ``float`` distance between 2 `dom.Haplotype` instances"""
 
         def levenshtein(a, b):
             """Calculates the Levenshtein distance between a and b.
@@ -112,7 +115,7 @@ class DamerauLevenshtein(Levenshtein):
         return "dameraulevenshtein", "damlev", "damerau-levenshtein"
 
     def weight(self, hap0, hap1):
-        """A ``float`` distance between 2 ``dom.Haplotype`` instances"""
+        """A ``float`` distance between 2 `dom.Haplotype` instances"""
 
         def dameraulevenshtein(seq1, seq2):
             """This is the original code found in:

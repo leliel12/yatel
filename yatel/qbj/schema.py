@@ -5,7 +5,7 @@
 # DOCS
 #===============================================================================
 
-"""Defines the schema for validate all incomming QBJ
+"""Defines the schema to validate all incomming QBJ.
 
 """
 
@@ -26,6 +26,7 @@ from yatel import typeconv
 # http://www.tutorialspoint.com/json/json_schema.htm
 
 
+#: Extra definitions for the schema validation.
 DEFINITIONS = {
     "TYPE_SINGLE_DEF" : {
         "type": "string",
@@ -104,6 +105,7 @@ DEFINITIONS = {
 }
 
 
+#: Schema to validate QBJ queries.
 QBJ_SCHEMA = {
     # metadata
     "title": "Yatel QBJ Schema",
@@ -126,6 +128,19 @@ QBJ_SCHEMA = {
 #===============================================================================
 
 def validate(to_validate, *args, **kwargs):
+    """Validates that the query structure given as JSON is correct.
+    
+    Parameters
+    ----------
+        to_validate : str
+            String in JSON format.
+    
+    Raises
+    ------
+        ValidationError
+            When `to_validate` does not have the corresponding structure.
+
+    """
     return jsonschema.validate(to_validate, QBJ_SCHEMA, *args, **kwargs)
 
 

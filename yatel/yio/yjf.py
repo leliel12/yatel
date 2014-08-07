@@ -11,7 +11,9 @@
 # DOC
 #===============================================================================
 
-"""Persist yatel db in json format"""
+"""Persist yatel databases in json format
+
+"""
 
 
 #===============================================================================
@@ -29,12 +31,24 @@ from yatel.yio import core
 #===============================================================================
 
 class JSONParser(core.BaseParser):
+    """JSON parser."""
 
     @classmethod
     def file_exts(cls):
+        """Returns extensions for JSON handling"""
         return ("yjf", "json")
 
     def dump(self, nw, fp, *args, **kwargs):
+        """Serializes data from a yatel network to a JSON file-like stream.
+        
+        Parameters
+        ----------
+        nw : yatel.db.YatelNetwork
+            Network source of data.
+        fp : file-like object
+            Target for serialization.
+
+        """
         kwargs["ensure_ascii"] = kwargs.get("ensure_ascii", True)
         data = {
             "haplotypes":  map(typeconv.simplifier, nw.haplotypes()),
@@ -45,6 +59,17 @@ class JSONParser(core.BaseParser):
         json.dump(data, fp, *args, **kwargs)
 
     def load(self, nw, fp, *args, **kwargs):
+        """Deserializes data from a JSON file-like stream and adds it to the 
+        yatel network.
+        
+        Parameters
+        ----------
+        nw : yatel.db.YatelNetwork
+            Network target of data.
+        fp : file-like object
+            Source of data to deserialize.
+        
+        """
         data = json.load(fp, *args, **kwargs)
         nw.add_elements(map(typeconv.parse, data["haplotypes"]))
         nw.add_elements(map(typeconv.parse, data["facts"]))

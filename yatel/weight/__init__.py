@@ -45,18 +45,20 @@ del p
 
 
 def weight(calcname, hap0, hap1):
-    """Calculate the a weight between ``yatel.dom.Haplotype`` instance by the
-    given calculator
+    """Calculate the a weight between `yatel.dom.Haplotype` instance by the
+    given calculator.
+    
+    Parameters
+    ----------
+    calcname : string
+        Registered calculator name (see: `yatel.weight.calculators`)
+    hap0 : yatel.dom.Haplotype
+        A Haplotype
+    hap1 : yatel.dom.Haplotype
+        A Haplotype
 
-    :param calcname: Registered calculator name (see:
-                     ``yatel.weight.calculators``)
-    :type calcname: string
-    :param hap0: an Haplotype
-    :type hap0: yatel.dom.Haplotype
-    :param hap1: an Haplotype
-    :type hap1: yatel.dom.Haplotype
-
-    **Example**
+    Examples
+    --------
 
     >>> from yatel import dom, weight
     >>> hap0 = dom.Haplotype(1, att0="foo", att1=34)
@@ -74,26 +76,30 @@ def weight(calcname, hap0, hap1):
 def weights(calcname, nw, to_same=False, env=None, **kwargs):
     """Calculate distance between all combinations of a existing haplotypes
     of network enviroment or a collection by the given calculator algorithm.
+    
+    Parameters
+    ----------
+    calcname : string
+        Registered calculator name (see: `yatel.weight.calculators`)
+    nw : yatel.db.YatelNetwork or yatel.dom.Haplotype
+        `yatel.db.YatelNetwork` instance or iterable of `yatel.dom.Haplotype` 
+        instances
+    to_same : bool
+        If ``True`` calculate the distance between the same haplotype.
+    env : dict or None
+        Enviroment dictionary only if `nw` is `yatel.db.YatelNetwork` instance.
+    kwargs : 
+        Variable parameters to use as enviroment filters only if `nw` is 
+        `yatel.db.YatelNetwork` instance.
+    
+    Returns
+    -------
+     Iterator
+        Like ``(hap_x, hap_y), float`` where hap_x is the origin node, hap_y 
+        is the end node and float is the weight of between them.
 
-    :param calcname: Registered calculator name (see:
-                     ``yatel.weight.calculators``)
-    :type calcname: string
-    :param nw: ``yatel.db.YatelNetwork`` instance or iterable of
-               ``yatel.dom.Haplotype`` instances
-    :param to_same: If ``True` `calculate the distance between the same
-                    haplotype.
-    :type to_dame: bool
-    :param env: enviroment dictionary only if nw is
-                ``yatel.db.YatelNetwork`` instance.
-    :type env: None or dict
-    :param kwargs: Variable parameters for use as enviroment filter only
-                   if nw is ``yatel.db.YatelNetwork`` instance.
-
-    :returns: A iterator like like ``(hap_x, hap_y), float`` where hap_x is
-              the origin node, hap_y is the end node and float is the weight
-              of between them.
-
-    **Example**
+    Examples
+    --------
 
     >>> from yatel import db, dom, weight
     >>> nw = db.YatelNetwork('memory', mode=db.MODE_WRITE)

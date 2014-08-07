@@ -11,7 +11,7 @@
 # DOCS
 #===============================================================================
 
-"""Functionality for create and execute
+"""Functionality to create and execute an ETL.
 `ETLs <http://en.wikipedia.org/wiki/Extract,_transform,_load>`_
 
 """
@@ -43,14 +43,14 @@ ETL_TEMPLATE = string.Template("""
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''auto created template for create your custom etl for yatel'''
+'''auto created template to create a custom ETL for yatel'''
 
 
 from yatel import etl, dom
 
 
 #===============================================================================
-# PUT YOUT ETLs HERE
+# PUT YOUR ETLs HERE
 #===============================================================================
 
 class ETL(etl.BaseETL):
@@ -73,14 +73,14 @@ if __name__ == "__main__":
 #===============================================================================
 
 class _ETLMeta(abc.ABCMeta):
-    """Metaclass for control the ETL inheritance
+    """Metaclass to control the ETL inheritance
 
     """
     def __init__(self, *args, **kwargs):
         super(_ETLMeta, self).__init__(*args, **kwargs)
         spec = inspect.getargspec(self.setup)
         if spec.varargs or spec.keywords or spec.defaults:
-            msg = "Only positional arguments without defauls is alowed on setup"
+            msg = "Only positional arguments without defaults is allowed on setup"
             raise TypeError(msg)
         self.setup_args = tuple(arg for arg in spec.args if arg != "self")
 
@@ -90,6 +90,9 @@ class _ETLMeta(abc.ABCMeta):
 #===============================================================================
 
 class BaseETL(object):
+    """Defines the basic structure of an ETL and methods to be implemented.
+    
+    """
 
     __metaclass__ = _ETLMeta
 
@@ -101,6 +104,7 @@ class BaseETL(object):
 
     @abc.abstractmethod
     def haplotype_gen(self):
+        """Creation of data to haplotype like style"""
         return []
 
     def post_haplotype_gen(self):
@@ -111,6 +115,7 @@ class BaseETL(object):
 
     @abc.abstractmethod
     def fact_gen(self):
+        """Creation of data to fact like style"""
         return []
 
     def post_fact_gen(self):
@@ -121,6 +126,7 @@ class BaseETL(object):
 
     @abc.abstractmethod
     def edge_gen(self):
+        """Creation of data to edge like style"""
         return []
 
     def post_edge_gen(self):
@@ -149,7 +155,7 @@ def scan_dir(dirpath):
 
 
 def scan_file(filepath):
-    """Retrieve all yatel.etl.BaseETL subclass of a given file"""
+    """Retrieve all `yatel.etl.BaseETL` subclass of a given file"""
     dirname, filename = os.path.split(filepath)
     modname = os.path.splitext(filename)[0]
     etlmodule = None
@@ -169,13 +175,16 @@ def scan_file(filepath):
 
 
 def etlcls_from_module(filepath, clsname):
-    """Return a class of a given  filepath.
+    """Return a class of a given  `filepath`.
 
     """
     return scan_file(filepath)[clsname]
 
 
 def get_template():
+    """Return the template of a base ETL as a string.
+    
+    """
     defs = []
     for amethod in BaseETL.__abstractmethods__:
         defd = ("    def {}(self):\n"
@@ -186,6 +195,7 @@ def get_template():
 
 def execute(nw, etl, *args):
     """Execute an ETL instance.
+    
     """
 
     etl_name = type(etl).__name__

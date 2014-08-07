@@ -40,22 +40,32 @@ class BaseWeight(object):
 
     def weights(self, nw, to_same=False, env=None, **kwargs):
         """Calculate distance between all combinations of a existing haplotypes
-        of network enviroment or a collection
-
-        :param nw: ``yatel.db.YatelNetwork`` instance or iterable of
-                   ``yatel.dom.Haplotype`` instances
-        :param to_same: If ``True` `calculate the distance between the same
-                        haplotype.
-        :type to_dame: bool
-        :param env: enviroment dictionary only if nw is
-                    ``yatel.db.YatelNetwork`` instance.
-        :type env: None or dict
-        :param kwargs: Variable parameters for use as enviroment filter only
-                       if nw is ``yatel.db.YatelNetwork`` instance.
+        of network environment or a collection
+        
+        Parameters
+        ----------
+        calcname : string
+            Registered calculator name (see: `yatel.weight.calculators`)
+        nw : yatel.db.YatelNetwork or yatel.dom.Haplotype
+            `yatel.db.YatelNetwork` instance or iterable of `yatel.dom.Haplotype` 
+            instances
+        to_same : bool
+            If ``True`` calculate the distance between the same haplotype.
+        env : dict or None
+            Enviroment dictionary only if `nw` is `yatel.db.YatelNetwork` instance.
+        kwargs : 
+            Variable parameters to use as enviroment filters only if `nw` is 
+            `yatel.db.YatelNetwork` instance.
 
         :returns: A iterator like like ``(hap_x, hap_y), float`` where hap_x is
                   the origin node, hap_y is the end node and float is the
                   weight of between them.
+        
+        Returns
+        -------
+        Iterator
+            Like ``(hap_x, hap_y), float`` where hap_x is the origin node, hap_y 
+            is the end node and float is the weight of between them.
 
         """
         env = dict(env) if env else {}

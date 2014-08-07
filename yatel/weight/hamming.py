@@ -39,7 +39,8 @@ class Hamming(core.BaseWeight):
         #. attr_a exist in haplotype0 but not exist in haplotype1.
 
 
-    **Example**
+    Examples
+    --------
 
     >>> from yatel import dom, weigth
     >>> h0 = dom.Haplotype("0", attr_a="a", attr_b="b", attr_c=0)
@@ -55,7 +56,7 @@ class Hamming(core.BaseWeight):
         return "hamming", "ham"
 
     def weight(self, hap0, hap1):
-        """A ``float`` distance between 2 ``dom.Haplotype`` instances"""
+        """A ``float`` distance between 2 `dom.Haplotype` instances"""
         w = 0
         for name in set(hap0.keys() + hap1.keys()):
             if name not in hap0.keys() \

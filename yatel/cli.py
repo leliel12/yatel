@@ -11,7 +11,7 @@
 # DOCS
 #==============================================================================
 
-"""Launcher of yatel cli tools
+"""Launcher of yatel Command Line Interface (cli) tools.
 
 """
 
@@ -40,7 +40,7 @@ from yatel import yio
 #==============================================================================
 
 class _FlaskMock(object):
-    """This class only mock the flask object to use flask script stand alone
+    """This class only mock the flask object to use flask script stand alone.
 
     """
 
@@ -70,11 +70,11 @@ manager = Manager(
 
 
 #==============================================================================
-# DECOTATOR
+# DECORATOR
 #==============================================================================
 
 def command(name):
-    """Clean way to register class based commands
+    """Clean way to register class based commands.
 
     """
     def _dec(cls):
@@ -90,19 +90,19 @@ def command(name):
 
 manager.add_option(
     "-k", "--full-stack", dest="full-stack", required=False,
-    action="store_true", help="If the command fails print all Python stack"
+    action="store_true", help="If the command fails print all Python stack."
 )
 
 manager.add_option(
     "-l", "--log", dest="log", required=False,
-    action="store_true", help="Enable engine logger"
+    action="store_true", help="Enable engine logger."
 )
 
 manager.add_option(
     "-f", "--force", dest="log", required=False,
     action="store_true",
-    help=("If a database is try to open in 'w' or 'a' and a Yatel Network "
-          "is discovered overwrite it")
+    help=("If a database is tried to open in 'w' or 'a' mode and a Yatel Network "
+          "already exists it overwrites it.")
 )
 
 
@@ -111,7 +111,7 @@ manager.add_option(
 #==============================================================================
 
 class Database(object):
-    """This class parse and validate the open mode of a databases"""
+    """This class parses and validates the open mode of a database."""
 
     def __init__(self, mode):
         self.mode = mode
@@ -124,9 +124,9 @@ class Database(object):
             if not force:
                 msg = (
                     "You are trying to open the db '{}' in '{}' mode, but "
-                    "it contains a already existing network. Please use "
-                    "-f/--force for ignore this warning and destroy the "
-                    "existing data"
+                    "it contains already an existing network. Please use "
+                    "-f/--force to ignore this warning and destroy the "
+                    "existing data."
                 ).format(toparse, self.mode)
                 raise InvalidCommand(msg)
 
@@ -140,7 +140,7 @@ class Database(object):
 
 @command("list")
 class List(Command):
-    """List all available connection strings in yatel"""
+    """Lists all available connection strings in yatel."""
 
     def run(self):
         for engine in db.ENGINES:
@@ -149,7 +149,7 @@ class List(Command):
 
 @command("test")
 class Test(Command):
-    """Run all yatel test suites
+    """Run all yatel test suites.
 
     """
 
@@ -165,7 +165,7 @@ class Test(Command):
 
 @command("describe")
 class Describe(Command):
-    """Print information about the network"""
+    """Prints information about the network."""
 
     option_list = [
         Option(
@@ -193,8 +193,8 @@ class Describe(Command):
 
 @command("dump")
 class Dump(Command):
-    """Export the given database to file.
-    The extension of a file determine the format
+    """Exports the given database to a file.
+    The extension of the file determines the format.
 
     """
 
@@ -205,8 +205,8 @@ class Dump(Command):
         ),
         Option(
             dest='dumpfile', type=argparse.FileType("w"),
-            help=("File path to dump al the content of the database. "
-                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
+            help=("File path to dump the content of the database. "
+                  "Supported formats: {}".format(", ".join(yio.PARSERS.keys())))
         )
     ]
 
@@ -218,7 +218,7 @@ class Dump(Command):
 @command("backup")
 class Backup(Command):
     """Like dump but always create a new file with the format
-     'backup_file<TIMESTAMP>.EXT'.
+     ``backup_file<TIMESTAMP>.EXT``.
 
      """
 
@@ -229,8 +229,8 @@ class Backup(Command):
         ),
         Option(
             dest='backupfile',
-            help=("File path template to dump al the content of the database. "
-                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
+            help=("File path template to dump the content of the database. "
+                  "Supported formats: {}".format(", ".join(yio.PARSERS.keys())))
         )
     ]
 
@@ -257,7 +257,7 @@ class Load(Command):
         Option(
             dest='datafile', type=argparse.FileType("r"),
             help=("File path of the existing data file. "
-                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
+                  "Supported formats: {}".format(", ".join(yio.PARSERS.keys())))
         )
     ]
 
@@ -269,7 +269,7 @@ class Load(Command):
 
 @command("copy")
 class Copy(Command):
-    """Copy a yatel network to another database
+    """Copy a yatel network to another database.
 
     """
 
@@ -291,13 +291,13 @@ class Copy(Command):
 
 @command("createconf")
 class CreateConf(Command):
-    """Create a new configuration file for yatel"""
+    """Creates a new configuration file for yatel."""
 
     option_list = [
         Option(
             dest='config', type=argparse.FileType("w"),
             help=("File path of the config file. ie: config.json. "
-                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
+                  "Supported formats: {}".format(", ".join(yio.PARSERS.keys())))
         ),
 
     ]
@@ -308,7 +308,7 @@ class CreateConf(Command):
 
 @command("createwsgi")
 class CreateWSGI(Command):
-    """Create a new wsgi file for a given configuration"""
+    """Creates a new WSGI file for a given configuration."""
 
     option_list = [
         Option(dest='config',
@@ -325,7 +325,7 @@ class CreateWSGI(Command):
 
 @command("runserver")
 class Runserver(Command):
-    """Run yatel as development http server with a given config file"""
+    """Run yatel as a development http server with a given config file."""
 
     option_list = [
         Option(
@@ -334,7 +334,7 @@ class Runserver(Command):
         ),
         Option(
             dest='host_port',
-            help="Host and port to run yatel in format HOST:PORT"
+            help="Host and port to run yatel, format HOST:PORT"
         )
     ]
 
@@ -347,7 +347,7 @@ class Runserver(Command):
 
 @command("createetl")
 class CreateETL(Command):
-    """Create a template file for write yout own etl"""
+    """Creates a template file to write your own ETL"""
 
     option_list = [
         Option(
@@ -369,7 +369,7 @@ class CreateETL(Command):
 
 @command("describeetl")
 class DescribeETL(Command):
-    """Return a list of parameters and documentation about the etl
+    """Return a list of parameters and documentation about the ETL.
     The argument is in the format path/to/module.py
     The BaseETL subclass must be named after ETL
 
@@ -391,11 +391,9 @@ class DescribeETL(Command):
 
 @command("runetl")
 class RunETL(Command):
-    """Run one or more etl inside of a given script.
-
-    The first argument is in the format path/to/module.py
-    the second onwards parameter are parameters of the setup method of the
-    given class.
+    """Runs one or more ETL inside of a given script. 
+    The first argument is in the format ``path/to/module.py`` 
+    From second onwards parameters are of the setup method of the given class.
 
     """
 
@@ -417,7 +415,7 @@ class RunETL(Command):
 
 @command("pyshell")
 class PyShell(Shell):
-    """Run a python shell with a Yatel network context.
+    """Run a python shell with a Yatel Network context.
 
     """
 
@@ -454,7 +452,7 @@ class PyShell(Shell):
 
 @command("qbjshell")
 class QBJShell(Command):
-    """Run interactive console for execute QBJ queries
+    """Runs interactive console to execute QBJ queries
 
     """
 
@@ -491,3 +489,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    

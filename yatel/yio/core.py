@@ -30,7 +30,9 @@ import abc
 # CONSTANTS
 # =============================================================================
 
+#: Parser version number (tuple).
 YF_VERSION = ("0", "5")
+#: Parser version number (string).
 YF_STR_VERSION = ".".join(YF_VERSION)
 
 
@@ -45,6 +47,7 @@ class BaseParser(object):
 
     @classmethod
     def version(cls):
+        """Returns versino of parser."""
         return YF_STR_VERSION
 
     @classmethod
@@ -52,8 +55,8 @@ class BaseParser(object):
         raise NotImplementedError()
 
     def dumps(self, nw, *args, **kwargs):
-        """Serialize a yatel db to a formatted string
-        
+        """Serialize a yatel db to a formatted string.
+
         Parameters
         ----------
         nw : yatel.db.YatelNetwork
@@ -74,9 +77,9 @@ class BaseParser(object):
         
         Parameters
         ----------
-        nw : yatel.db.YatelNetwork
-            network destination for data
-        string: str
+        nw : `yatel.db.YatelNetwork`
+            Network destination for data
+        string : str
             String to be deserialize
         
         """

@@ -38,15 +38,15 @@ from yatel import db
 
 def kmeans(nw, envs, k_or_guess,
            whiten=False, coordc=None, *args, **kwargs):
-    """Performs k-means on a set of all environments defined by ``fact_attrs``
+    """Performs k-means on a set of all environments defined by `fact_attrs`
     of a network.
 
     Parameters
     ----------
-    nw : yatel.db.YatelNetwork
+    nw : `yatel.db.YatelNetwork`
         Network source of environments to classify.
-    envs : iterable of yatel.dom.Enviroments or dicts
-        Represent all the environment to be clustered.
+    envs : iterable of `yatel.dom.Environments` or dicts
+        Represents all the environments to be clustered.
     k_or_guess : int or ndarray
         The number of centroids to generate. A code is assigned
         to each centroid, which is also the row index of the
@@ -60,12 +60,12 @@ def kmeans(nw, envs, k_or_guess,
         execute ``scipy.cluster.vq.whiten`` function over the
         observation array before executing subjacent *scipy kmeans*.
     coordc : None or callable
-        If coordc is None generates use ``hap_in_env_coords``
-        function. Otherwise ``coordc`` must be a callable with
+        If `coordc` is ``None`` generates use `hap_in_env_coords`
+        function. Otherwise `coordc` must be a callable with
         2 arguments:
 
-        - ``nw`` network source of environments to classify.
-        - ``env`` the environment to calculate the coordinates
+        - `nw` network source of environments to classify.
+        - `env` the environment to calculate the coordinates
 
         and must return an array of coordinates for the given
         network environment.
@@ -152,8 +152,8 @@ def hap_in_env_coords(nw, env):
 
 
 def nw2obs(nw, envs, whiten=False, coordc=None):
-    """Convert any given environments defined by ``fact_attrs``
-    of a network to observation matrix to cluster with subjacent *scipy kmeans*
+    """Converts any given environments defined by `fact_attrs`
+    of a network to an observation matrix to cluster with subjacent *scipy kmeans*
 
     Parameters
     ----------
@@ -163,15 +163,15 @@ def nw2obs(nw, envs, whiten=False, coordc=None):
     envs : iterable of yatel.dom.Enviroment or dicts
         Represent all the environment to be clustered.
     whiten : bool
-        execute ``scipy.cluster.vq.whiten`` function over the
+        execute `scipy.cluster.vq.whiten` function over the
         observation array before executing subjacent *scipy kmeans*.
     coordc : None or callable
-        If coordc is None generates use ``hap_in_env_coords``
-        function. Otherwise ``coordc`` must be a callable with
+        If coordc is ``None`` generates use `hap_in_env_coords`
+        function. Otherwise `coordc` must be a callable with
         2 arguments:
 
-        - ``nw`` network source of environments to classify.
-        - ``env`` the environment to calculate the coordinates
+        - `nw` network source of environments to classify.
+        - `env` the environment to calculate the coordinates
 
         and must return an array of coordinates for the given
         network environment.
@@ -180,7 +180,7 @@ def nw2obs(nw, envs, whiten=False, coordc=None):
     -------
     obs : a vector of envs
         Each I'th row of the M by N array is an observation
-        vector of the I'th environment of ``envs``.
+        vector of the I'th environment of `envs`.
 
     Examples
     --------

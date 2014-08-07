@@ -11,7 +11,7 @@
 # DOCS
 #===============================================================================
 
-"""http server for queriying using qbj or yql
+"""http server for querying using qbj or yql
 
 """
 
@@ -32,6 +32,7 @@ from yatel import db, qbj
 # CONSTANTS
 #===============================================================================
 
+#: JSON schema to validate configuration
 CONF_SCHEMA = {
     "schema": "yatel server configuration schema",
     "type": "object",
@@ -71,13 +72,14 @@ CONF_BASE = {
     }
 }
 
+#: Template for WSGI configuration
 WSGI_BASE_TPL = string.Template("""
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import sys, os, json
 
-# Change working directory so relative paths (and template lookup) work again
+# Changes working directory so relative paths (and template lookup) work again
 sys.path.append(os.path.dirname(__file__))
 os.chdir(os.path.dirname(__file__))
 
@@ -99,6 +101,8 @@ application = server.from_dict(conf)
 #===============================================================================
 
 class YatelHttpServer(flask.Flask):
+    """
+    """
 
     def __init__(self, **config):
         super(YatelHttpServer, self).__init__(__name__)
@@ -133,10 +137,16 @@ class YatelHttpServer(flask.Flask):
 #==============================================================================
 
 def validate_conf(confdata):
+    """Validates that the configuration structure given as JSON is correct.
+    
+    """
     return jsonschema.validate(confdata, CONF_SCHEMA)
 
 
 def from_dict(data):
+    """Returns a server created with a dictionary as configuration.
+    
+    """
     validate_conf(data)
     config = data["CONFIG"]
     server = YatelHttpServer(**config)
@@ -148,10 +158,21 @@ def from_dict(data):
 
 
 def get_conf_template():
+    """Returns a JSON configuration template as a String.
+    
+    """
     return json.dumps(CONF_BASE, indent=2)
 
 
 def get_wsgi_template(confpath):
+    """Returns WSGI configuration template as a String.
+    
+    Parameters
+    ----------
+    confpath: string
+        Path to configuration file.
+    
+    """
     if not os.path.isfile(confpath):
         raise ValueError("confpath '{}' not exists".format(confpath))
     return WSGI_BASE_TPL.substitute(confpath=confpath).strip()
