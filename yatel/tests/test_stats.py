@@ -79,7 +79,7 @@ class TestStats(YatelTestCase):
         rs = stats.min(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
         for env in self.nw.environments():
-            if self.warrenv[env]:
+            if len(self.warrenv[env]):
                 orig = np.min(self.warrenv[env])
                 rs = stats.min(self.nw, env)
                 if np.isnan(orig) or np.isnan(rs):
@@ -95,7 +95,7 @@ class TestStats(YatelTestCase):
         rs = stats.max(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
         for env in self.nw.environments():
-            if self.warrenv[env]:
+            if len(self.warrenv[env]):
                 orig = np.max(self.warrenv[env])
                 rs = stats.max(self.nw, env)
                 if np.isnan(orig) or np.isnan(rs):
@@ -111,7 +111,7 @@ class TestStats(YatelTestCase):
         rs = stats.amin(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
         for env in self.nw.environments():
-            if self.warrenv[env]:
+            if len(self.warrenv[env]):
                 orig = np.amin(self.warrenv[env])
                 rs = stats.amin(self.nw, env)
                 if np.isnan(orig) or np.isnan(rs):
@@ -127,7 +127,7 @@ class TestStats(YatelTestCase):
         rs = stats.amax(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
         for env in self.nw.environments():
-            if self.warrenv[env]:
+            if len(self.warrenv[env]):
                 orig = np.amax(self.warrenv[env])
                 rs = stats.amax(self.nw, env)
                 if np.isnan(orig) or np.isnan(rs):
@@ -191,7 +191,7 @@ class TestStats(YatelTestCase):
         rs = stats.range(self.nw)
         self.assertAlmostEqual(orig, rs, self.places)
         for env in self.nw.environments():
-            if self.warrenv[env]:
+            if len(self.warrenv[env]):
                 orig = np.amax(self.warrenv[env]) - np.amin(self.warrenv[env])
                 rs = stats.range(self.nw, env)
                 if np.isnan(orig) or np.isnan(rs):
@@ -218,8 +218,13 @@ class TestStats(YatelTestCase):
         orig = np.percentile(self.warr, 25)
         rs = stats.percentile(self.nw, 25)
         self.assertAlmostEqual(orig, rs, self.places)
+
+        orig = np.percentile(self.warr, (25, 50, 75))
+        rs = stats.percentile(self.nw, (25, 50, 75))
+        self.assertNDArrayEquals(orig, rs)
+
         for env in self.nw.environments():
-            if self.warrenv[env]:
+            if len(self.warrenv[env]):
                 orig = np.percentile(self.warrenv[env], 25)
                 rs = stats.percentile(self.nw, 25, env)
                 if np.isnan(orig) or np.isnan(rs):
@@ -236,9 +241,10 @@ class TestStats(YatelTestCase):
         value = np.max(cnt.values())
         n = cnt.values().count(value)
         moda = np.array(tuple(v[0] for v in cnt.most_common(n)))
-        self.assertEqual(moda, rs)
+
+        self.assertTrue(np.allclose(moda, rs, rtol=1e-01))
         for env in self.nw.environments():
-            if self.warrenv[env]:
+            if len(self.warrenv[env]):
                 rs = stats.mode(self.nw, env)
                 orig = self.warrenv[env]
                 cnt = collections.Counter(orig)
@@ -256,24 +262,16 @@ class TestStats(YatelTestCase):
     def test_weights2array(self):
         orig = self.warr
         rs = stats.weights2array(self.nw.edges())
-        self.assertEqual(orig.all(), rs.all())
+        self.assertNDArrayEquals(orig, rs)
 
     def test_env2weightarray(self):
         orig = self.warr
         rs = stats.env2weightarray(self.nw)
-        self.assertEqual(orig.all(), rs.all())
+        self.assertNDArrayEquals(orig, rs)
         for env in self.nw.environments():
             orig = self.warrenv[env]
             rs = stats.env2weightarray(self.nw, env)
-            if self.warrenv[env]:
-                orig = self.warrenv[env]
-                rs = stats.env2weightarray(self.nw, env)
-                if np.isnan(orig) or np.isnan(rs):
-                    self.assertTrue(np.isnan(orig) and np.isnan(rs))
-                else:
-                    self.assertAlmostEqual(orig, rs, self.places)
-            with self.assertRaises(TypeError):
-                self.assertAlmostEqual(orig, rs, self.places)
+            self.assertNDArrayEquals(orig, rs)
 
 
 # ===============================================================================

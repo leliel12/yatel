@@ -207,6 +207,10 @@ class YatelTestCase(unittest.TestCase):
             msg = "'{}' only in one collection".format(repr(elem))
             raise AssertionError(msg)
 
+    def assertNDArrayEquals(self, arr0, arr1):
+        self.assertEquals(len(arr0), len(arr1))
+        self.assertTrue(np.allclose(arr0, arr1, rtol=1e-01))
+
     def assertUnsortedNDArray(self, arr0, arr1):
         # happy to compare disorder floats in numpy...
         used = set()

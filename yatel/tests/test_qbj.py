@@ -630,28 +630,28 @@ class FunctionTest(core.YatelTestCase):
         four = hashlib.sha512(str(random.random())).hexdigest()
         string = "".join([one, two, three, four])
 
-        rs = self.execute("startswith", string=string, suffix=one)
+        rs = self.execute("startswith", string=string, prefix=one)
         self.assertTrue(rs)
-        rs = self.execute("startswith", string=string, suffix="ll" + one)
+        rs = self.execute("startswith", string=string, prefix="ll" + one)
         self.assertFalse(rs)
 
         offset = len(one)
         rs = self.execute(
-            "startswith", string=string, suffix=two, start=offset
+            "startswith", string=string, prefix=two, start=offset
         )
         self.assertTrue(rs)
         rs = self.execute(
-            "startswith", string=string, suffix=two, start=offset + 1
+            "startswith", string=string, prefix=two, start=offset + 1
         )
         self.assertFalse(rs)
 
         rs = self.execute(
-            "startswith", string=string, suffix=two,
+            "startswith", string=string, prefix=two,
             start=offset, end=offset * 2
         )
         self.assertTrue(rs)
         rs = self.execute(
-            "startswith", string=string, suffix=two,
+            "startswith", string=string, prefix=two,
             start=offset, end=offset * 2 - 1
         )
         self.assertFalse(rs)
@@ -861,7 +861,9 @@ class QBJEngineTest(core.YatelTestCase):
 
     def test_describe(self):
         query = {"id": 1, "function": {"name": 'describe'}}
+
         orig = self.nw.describe()
+        orig = typeconv.parse(typeconv.simplifier(orig))
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertEqual(orig, rs)
 
@@ -869,6 +871,7 @@ class QBJEngineTest(core.YatelTestCase):
         query = {"id": 1, "function": {"name": 'average'}}
 
         orig = stats.average(self.nw)
+        orig = typeconv.parse(typeconv.simplifier(orig))
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertAlmostEqual(orig, rs, places=4)
 
@@ -883,6 +886,7 @@ class QBJEngineTest(core.YatelTestCase):
             }
         }
         orig = stats.average(nw)
+        orig = typeconv.parse(typeconv.simplifier(orig))
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertAlmostEqual(orig, rs, places=4)
 
@@ -909,6 +913,7 @@ class QBJEngineTest(core.YatelTestCase):
             }
         }
         orig = self.nw.haplotype_by_id("01")
+        orig = typeconv.parse(typeconv.simplifier(orig))
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertEqual(orig, rs)
 
@@ -927,6 +932,7 @@ class QBJEngineTest(core.YatelTestCase):
             }
         }
         orig = self.nw.haplotype_by_id(hap_id)
+        orig = typeconv.parse(typeconv.simplifier(orig))
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertEqual(orig, rs)
 
@@ -965,6 +971,7 @@ class QBJEngineTest(core.YatelTestCase):
             }
         }
         orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2)
+        orig = typeconv.parse(typeconv.simplifier(orig))
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertEquals(orig[0], rs[0])
         self.assertEquals(orig[1], rs[1])
@@ -992,6 +999,7 @@ class QBJEngineTest(core.YatelTestCase):
         }
 
         orig = kmeans.kmeans(self.nw, envs=envs, k_or_guess=2, coordc=coordc)
+        orig = typeconv.parse(typeconv.simplifier(orig))
         rs = typeconv.parse(self.execute(query)["result"])
         self.assertEquals(orig[0], rs[0])
         self.assertEquals(orig[1], rs[1])
