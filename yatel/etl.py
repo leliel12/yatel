@@ -45,7 +45,6 @@ ETL_TEMPLATE = string.Template("""
 
 '''auto created template to create a custom ETL for yatel'''
 
-
 from yatel import etl, dom
 
 
@@ -56,6 +55,10 @@ from yatel import etl, dom
 class ETL(etl.BaseETL):
 
     # you can access the current network from the attribute 'self.nw'
+    # You can access all the allready created haplotypes from attribute
+    # 'self.haplotypes_cache'. If you want to disable the cache put a class
+    # level attribute 'HAPLOTYPES_CACHE = False'
+
 
 ${code}
 
@@ -91,10 +94,12 @@ class _ETLMeta(abc.ABCMeta):
 
 class BaseETL(object):
     """Defines the basic structure of an ETL and methods to be implemented.
-    
+
     """
 
     __metaclass__ = _ETLMeta
+
+    HAPLOTYPES_CACHE = True
 
     def setup(self):
         pass
@@ -183,7 +188,7 @@ def etlcls_from_module(filepath, clsname):
 
 def get_template():
     """Return the template of a base ETL as a string.
-    
+
     """
     defs = []
     for amethod in BaseETL.__abstractmethods__:
@@ -195,7 +200,7 @@ def get_template():
 
 def execute(nw, etl, *args):
     """Execute an ETL instance.
-    
+
     """
 
     etl_name = type(etl).__name__
@@ -204,13 +209,19 @@ def execute(nw, etl, *args):
         msg = "etl is not instance of a subclass of yatel.etl.BaseETL"
         raise TypeError(msg)
 
+    haps_cache = getattr(etl, "HAPLOTYPES_CACHE", True)
+
     etl.nw = nw
+    if haps_cache:
+        etl.haplotypes_cache = {}
     etl.setup(*args)
 
     etl.pre_haplotype_gen()
     for hap in etl.haplotype_gen() or []:
         if isinstance(hap, dom.Haplotype):
             nw.add_element(hap)
+            if haps_cache:
+                etl.haplotypes_cache[hap.hap_id] = hap
         else:
             msg = ("ETL '{}' is 'haplotype_gen' method"
                    "return  a non 'dom.Haplotype' object").format(etl_name)
