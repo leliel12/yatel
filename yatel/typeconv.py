@@ -94,7 +94,7 @@ NAMES_TO_TYPES = dict((v, k) for k, v in TYPES_TO_NAMES.items())
 # =============================================================================
 
 def np2py(obj):
-    """Converts a numpy number to it´s closest respresentation of Python
+    """Converts a numpy number to itÂ´s closest respresentation of Python
     traditional objects
 
     """

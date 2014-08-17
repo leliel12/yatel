@@ -1,5 +1,5 @@
-API
-===
+yatel
+=====
 
 .. toctree::
    :maxdepth: 4

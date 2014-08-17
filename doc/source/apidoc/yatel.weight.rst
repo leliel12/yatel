@@ -1,43 +1,46 @@
-weight Package
-==============
+yatel.weight package
+====================
 
-:mod:`weight` Package
----------------------
+Submodules
+----------
 
-.. automodule:: yatel.weight
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`core` Module
-------------------
+yatel.weight.core module
+------------------------
 
 .. automodule:: yatel.weight.core
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`euclidean` Module
------------------------
+yatel.weight.euclidean module
+-----------------------------
 
 .. automodule:: yatel.weight.euclidean
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`hamming` Module
----------------------
+yatel.weight.hamming module
+---------------------------
 
 .. automodule:: yatel.weight.hamming
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`levenshtein` Module
--------------------------
+yatel.weight.levenshtein module
+-------------------------------
 
 .. automodule:: yatel.weight.levenshtein
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: yatel.weight
+    :members:
+    :undoc-members:
+    :show-inheritance:
