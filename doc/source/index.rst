@@ -15,14 +15,13 @@ Contents:
     :maxdepth: 2
 
     install.rst
+    cli.rst
     quickstart.rst
     stats.rst
-    cli.rst
     dom.rst
     qbj.rst
     etl.rst
     apidoc/yatel.rst
-
 
 
 Indices and tables
