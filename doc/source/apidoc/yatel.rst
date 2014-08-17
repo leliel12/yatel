@@ -1,5 +1,5 @@
-yatel package
-=============
+API Reference: ``yatel package``
+================================
 
 Subpackages
 -----------

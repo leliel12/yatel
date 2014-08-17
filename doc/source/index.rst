@@ -18,9 +18,10 @@ Contents:
     quickstart.rst
     stats.rst
     cli.rst
+    dom.rst
     qbj.rst
     etl.rst
-    apidoc/modules.rst
+    apidoc/yatel.rst
 
 
 

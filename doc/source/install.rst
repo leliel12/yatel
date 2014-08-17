@@ -9,9 +9,8 @@ Execute
 
 .. code-block:: bash
 
-        $ sudo apt-get install python-setuptools python-pip
-          python-numpy python-scipy
-        $ sudo pip install yatel
+    $ sudo apt-get install python-setuptools python-pip python-numpy python-scipy
+    $ sudo pip install yatel
 
 
 
@@ -27,10 +26,10 @@ Windows or other Xnix
 
 Finally open a console and execute
 
-    .. code-block:: bat
+.. code-block:: batch
 
-        > easy_install pip
-        > pip install yatel
+    > easy_install pip
+    > pip install yatel
 
 
 From repo
