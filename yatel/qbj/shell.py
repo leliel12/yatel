@@ -22,6 +22,7 @@
 
 import cmd
 import json
+import random
 
 from yatel import db
 from yatel.qbj import core
@@ -44,6 +45,13 @@ PROMPT_2 = u"\t "
 
 class QBJShell(cmd.Cmd):
     """Write your QBJQuery and end it with ';'
+
+    Special Commands:
+
+        - help: Print this help.
+        - fhelp: Printa list of all available QBJ-functions
+        - fhelp <FNAME>: print help about FNAME function.
+
     """
 
     def __init__(self, nw, debug):
@@ -55,7 +63,7 @@ class QBJShell(cmd.Cmd):
         )
         self.prompt_0 = PROMPT_0.format(self.nw_name)
         self.prompt = self.prompt_0
-        self.intro  = "Yatel QBJ Console\n"
+        self.intro  = "Yatel QBJ Console\n" + self.__doc__
         self.qbj = core.QBJEngine(nw)
         self.debug = debug
         self.buff = []
@@ -66,8 +74,31 @@ class QBJShell(cmd.Cmd):
 
     def do_EOF(self, args):
         """Exit on system end of file character"""
-        print "Good bye!"
+        print random.choice((
+            "See you space cowboy", "The End", "Run Forrest, run!",
+            "To be continued...", "I'll be back", "Hasta la vista baby",
+            "This is not the end only the beginning"
+        ))
         return self.do_exit(args)
+
+    def do_fhelp(self, args):
+        if args:
+            cmd = u"""{
+                "id": null,
+                "function": {
+                    "name": "help",
+                    "kwargs": {
+                        "fname": {"value": "%placeholder%", "type": "literal"}
+                    }
+                }
+            };""".replace("%placeholder%", args)
+        else:
+            cmd = u"""{
+                "id": null,
+                "function": {"name": "help"}
+            };"""
+        import ipdb; ipdb.set_trace()
+        self.default(cmd)
 
     def do_help(self, args):
         print u"\t" + self.__doc__
