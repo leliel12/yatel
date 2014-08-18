@@ -93,6 +93,7 @@ Showing the description
      'size': {u'edges': 3, u'facts': 4, u'haplotypes': 3}
     }
 
+
 Showing Haplotypes:
 
 .. code-block:: python

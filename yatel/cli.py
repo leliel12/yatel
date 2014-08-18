@@ -138,6 +138,14 @@ class Database(object):
 # COMMANDS
 #==============================================================================
 
+@command("version")
+class List(Command):
+    """Show Yatel version and exit"""
+
+    def run(self):
+        print yatel.STR_VERSION
+
+
 @command("list")
 class List(Command):
     """Lists all available connection strings in yatel."""
@@ -391,8 +399,8 @@ class DescribeETL(Command):
 
 @command("runetl")
 class RunETL(Command):
-    """Runs one or more ETL inside of a given script. 
-    The first argument is in the format ``path/to/module.py`` 
+    """Runs one or more ETL inside of a given script.
+    The first argument is in the format ``path/to/module.py``
     From second onwards parameters are of the setup method of the given class.
 
     """
@@ -489,4 +497,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
+

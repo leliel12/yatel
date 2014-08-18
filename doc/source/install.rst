@@ -26,7 +26,7 @@ Windows or other Xnix
 
 Finally open a console and execute
 
-.. code-block:: batch
+.. code-block:: bat
 
     > easy_install pip
     > pip install yatel

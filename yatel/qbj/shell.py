@@ -23,6 +23,7 @@
 import cmd
 import json
 
+from yatel import db
 from yatel.qbj import core
 
 
@@ -30,7 +31,7 @@ from yatel.qbj import core
 # CONSTANTS
 #==============================================================================
 
-PROMPT_0 = u"QBJ> "
+PROMPT_0 = u"QBJ [{}]> "
 
 PROMPT_1 = u"...\t"
 
@@ -47,7 +48,13 @@ class QBJShell(cmd.Cmd):
 
     def __init__(self, nw, debug):
         cmd.Cmd.__init__(self)
-        self.prompt = PROMPT_0
+
+        nwdata = db.parse_uri(nw.uri)
+        self.nw_name = "{}://***/{}".format(
+            nwdata["engine"], nwdata["database"].rsplit("/", 1)[-1]
+        )
+        self.prompt_0 = PROMPT_0.format(self.nw_name)
+        self.prompt = self.prompt_0
         self.intro  = "Yatel QBJ Console\n"
         self.qbj = core.QBJEngine(nw)
         self.debug = debug
@@ -85,9 +92,9 @@ class QBJShell(cmd.Cmd):
                 except Exception as err:
                     print(PROMPT_2+unicode(err)+u"\n")
                 finally:
-                    self.prompt = PROMPT_0
+                    self.prompt = self.prompt_0
             else:
-                self.prompt = PROMPT_0
+                self.prompt = self.prompt_0
         else:
             self.prompt = PROMPT_1
 

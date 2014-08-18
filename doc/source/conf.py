@@ -263,3 +263,13 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
+
+
+
+rst_epilog = """
+.. _Yatel: http://getyatel.org
+.. _IPython: http://ipython.org/
+.. _BPython: http://bpython-interpreter.org/
+.. _Python: http://www.python.org/
+
+"""
