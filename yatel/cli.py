@@ -139,11 +139,11 @@ class Database(object):
 #==============================================================================
 
 @command("version")
-class List(Command):
+class Version(Command):
     """Show Yatel version and exit"""
 
     def run(self):
-        print yatel.STR_VERSION
+        print "{} - version {}".format(yatel.PRJ, yatel.STR_VERSION)
 
 
 @command("list")
@@ -411,7 +411,7 @@ class RunETL(Command):
             help="Connection string to database according to the RFC 1738 spec."
         ),
         Option(dest='etlfile', help="Python ETL filepath. ie: my_new_etl.py"),
-        Option(dest="args", help="Arguments for etl to excecute", nargs="+")
+        Option(dest='args', help="Arguments for etl to excecute", nargs="*")
     ]
 
     def run(self, database, etlfile, args):
