@@ -51,6 +51,7 @@ class QBJShell(cmd.Cmd):
         - help: Print this help.
         - fhelp: Printa list of all available QBJ-functions
         - fhelp <FNAME>: print help about FNAME function.
+        - indent <INT>: change indentation of response (Default: None).
 
     """
 
@@ -66,6 +67,7 @@ class QBJShell(cmd.Cmd):
         self.intro  = "Yatel QBJ Console\n" + self.__doc__
         self.qbj = core.QBJEngine(nw)
         self.debug = debug
+        self.indent = None
         self.buff = []
 
     def do_exit(self, args):
@@ -97,11 +99,16 @@ class QBJShell(cmd.Cmd):
                 "id": null,
                 "function": {"name": "help"}
             };"""
-        import ipdb; ipdb.set_trace()
         self.default(cmd)
 
     def do_help(self, args):
         print u"\t" + self.__doc__
+
+    def do_indent(self, indent):
+        try:
+            self.indent = int(indent)
+        except:
+            self.indent = None
 
     def emptyline(self):
         """Do nothing on empty input line"""
@@ -119,7 +126,11 @@ class QBJShell(cmd.Cmd):
                 try:
                     query = json.loads(fullcmd)
                     response = self.qbj.execute(query, self.debug)
-                    print(PROMPT_2+json.dumps(response)+u"\n")
+                    print(
+                        PROMPT_2 +
+                        json.dumps(response, indent=self.indent)
+                        + u"\n"
+                    )
                 except Exception as err:
                     print(PROMPT_2+unicode(err)+u"\n")
                 finally:
