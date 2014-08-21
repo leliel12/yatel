@@ -99,7 +99,7 @@ think this stuff is worth it, you can buy us a WISKEY in return.
 
 # : Keywords for search of pypi
 KEYWORDS = """Yatel user-profile-distance-based networks  multidimensional
-exploration biology database kdd datamining"""
+exploration database kdd datamining"""
 
 # : If the program is en debug mode
 DEBUG = __debug__
