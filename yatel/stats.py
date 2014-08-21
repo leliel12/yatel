@@ -129,7 +129,7 @@ def amax(nw, env=None, **kwargs):
     ----------
     nw : `yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env: `yatel.dom.Enviroment` or dict like
+    env : `yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """

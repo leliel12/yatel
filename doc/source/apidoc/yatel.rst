@@ -19,7 +19,6 @@ yatel.cli module
 
 .. automodule:: yatel.cli
     :members:
-    :undoc-members:
     :show-inheritance:
 
 yatel.client module
@@ -27,7 +26,6 @@ yatel.client module
 
 .. automodule:: yatel.client
     :members:
-    :undoc-members:
     :show-inheritance:
 
 yatel.db module
@@ -35,7 +33,6 @@ yatel.db module
 
 .. automodule:: yatel.db
     :members:
-    :undoc-members:
     :show-inheritance:
 
 yatel.dom module
@@ -43,7 +40,6 @@ yatel.dom module
 
 .. automodule:: yatel.dom
     :members:
-    :undoc-members:
     :show-inheritance:
 
 yatel.etl module
@@ -51,7 +47,6 @@ yatel.etl module
 
 .. automodule:: yatel.etl
     :members:
-    :undoc-members:
     :show-inheritance:
 
 yatel.server module
@@ -59,7 +54,6 @@ yatel.server module
 
 .. automodule:: yatel.server
     :members:
-    :undoc-members:
     :show-inheritance:
 
 yatel.stats module
@@ -67,7 +61,6 @@ yatel.stats module
 
 .. automodule:: yatel.stats
     :members:
-    :undoc-members:
     :show-inheritance:
 
 yatel.typeconv module
@@ -75,7 +68,6 @@ yatel.typeconv module
 
 .. automodule:: yatel.typeconv
     :members:
-    :undoc-members:
     :show-inheritance:
 
 Module contents
@@ -83,5 +75,4 @@ Module contents
 
 .. automodule:: yatel
     :members:
-    :undoc-members:
     :show-inheritance:

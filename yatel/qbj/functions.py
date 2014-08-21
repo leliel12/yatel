@@ -5,7 +5,7 @@
 # DOCS
 #===============================================================================
 
-"""
+"""QBJ domain of functions.
 
 """
 
@@ -52,6 +52,8 @@ def qbjfunction(name=None, doc=None):
             func=func
         )
         FUNCTIONS[qbjfunc.name] = qbjfunc
+        if doc is not None:
+            func.__doc__ = doc
         return func
 
     return _dec
