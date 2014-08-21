@@ -309,15 +309,97 @@ indicating that Yatel is listening to our queries.
         }
 
 
-
 Functions
 ---------
+
+QBJ incluye funciones para la consulta de datos sobre la red (``haplotypes``,
+``edges``, ``facts``, etc.); manipulación de texto (``split``, ``strip``,
+``startswith``, ``endswith``, etc.); aritmética y estadística básica (``sum``,
+``average``, ``kurtosis``, ``std``, etc.); minería de datos
+y de tratamiento de fecha y hora locales asi como en UTC_ .
+
+El listado completo de funciones se encuentra disponible
+:ref:`aquí <qbjfunctions>`.
+
+.. todo:: Quedan pendiente para versiones futuras funciones de expresiones
+          regulares, trigonometría y constantes matemáticas.
+
+QBJ Console
+-----------
+
+Yatel brinda una comoda interfaz de linea de comandos para utilizar QBJ. Puede
+abrirla con el comando:
+
+.. code-block:: bash
+
+    $ yatel qbjshell sqlite:///path_to_nw.db
+
+.. seealso:: Para mas información refierase a la documentacion sobre la
+             :ref:`interfáz de linea de comando <cli>`.
 
 
 The process resolution
 ----------------------
 
+.. warning:: Esta seccion brinda detalles de implementación utiles para
+             desarrolladores o personas interesadas en optimizar sus consultas.
 
-.. _Python: http://www.python.org/
-.. _olap: http://en.wikipedia.org/wiki/OLAP_cube
-.. _json-schema: http://json-schema.org/
+.. digraph:: Proccess
+
+    source [shape=plaintext, label="User"];
+    shell [label="QBJShell"];
+    server [label="Server"];
+    engine [label="Engine"];
+    resolver [label="Resolver"];
+
+    source -> shell [label="query JSON"];
+    source -> server [label="query JSON"];
+    shell -> engine [label="query dict"];
+    server -> engine [label="query dict"];
+    engine -> resolver [label="function"];
+    resolver -> resolver [label="arguments"];
+    resolver -> engine [label="data"];
+    engine -> shell [label="response dict"];
+    engine -> server [label="response dict"];
+
+    shell -> source [label="response JSON"];
+    server -> source [label="response JSON"];
+
+
+
+#. Tanto en el servidor yatel como en la consola siempre las consultas se
+   reciben en JSON_ con formato UTF-8_.
+#. El servidor o la consola se encargan de convertir el string en un ``dict``
+   que ahora en adelante nos referiremos como *query*.
+#. El procesador qbj recibe la *query* y un parametro que indica si debe o no
+   agregar el *stacktrace* en caso de algun fallo.
+#. El procesador extrae los parametros principales de la consulta *id* y
+   *function*.
+#. El procesador valida la *query* contra el json-schema_ de qbj.
+#. El procesador crea un resolver para la funcion principal y se la envia en
+   conjunto con su contexto (el contexto es la red sobre la que se esta
+   ejecutando).
+#. El resolver extrae el conjunto de parametros (*args* y *kwargs*) de la
+   funcion y los resuelve cada uno por separado segun el caso:
+
+        #. Si el argumento es una funcion, se genera una nuevo resolver para
+           esa funcion y se le pasa el contexto del resolver actual.
+        #. Si el argumento es un valor simplemente se extrae el valor.
+
+#. Cada argumento luego se convierte al tipo de dato especificado por el mismo
+   en el parametro *type*, con el modulo ``typeconv``.
+#. La funcion del resolver se ejecuta con todos los parametros preprocesados
+   y se retorna el valor al procesador.
+#. En cualquier paso que se detecte un error el procesador extrae la
+   descripcion del mismo para la respuesta y de ser necesario todo su
+   stacktrace.
+#. El procesador simplifica el resultado con el modulo ``typeconv`` y crea
+   el diccionario de respuesta.
+#. Por ultimo la *query* es serializada nuevamente en JSON_ y se imprime por
+   consola en el caso de qbjshell o se envia el valor por la red en el caso
+   del servidor.
+
+
+
+
+

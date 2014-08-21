@@ -25,9 +25,9 @@ Suppose we have the following problem:
     mx [label="Córdoba"];
     sp [label="Córdoba"];
 
-    ar -- mx[label="6599"];
-    mx -- sp[label="8924"];
-    sp -- ar[label="9871"];
+    ar -- mx [label="6599"];
+    mx -- sp [label="8924"];
+    sp -- ar [label="9871"];
 
 
 We have three places called Cordoba [0]_ [1]_ [2]_, each separated one from the other

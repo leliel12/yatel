@@ -1,6 +1,8 @@
 Command Line Interface
 ======================
 
+.. _cli:
+
 For common maintenance, startup and general configuration Yatel has a
 comfortable set of commands for use from console.
 

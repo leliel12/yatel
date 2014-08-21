@@ -271,5 +271,10 @@ rst_epilog = """
 .. _IPython: http://ipython.org/
 .. _BPython: http://bpython-interpreter.org/
 .. _Python: http://www.python.org/
+.. _olap: http://en.wikipedia.org/wiki/OLAP_cube
+.. _json-schema: http://json-schema.org/
+.. _UTC: http://en.wikipedia.org/wiki/Coordinated_Universal_Time
+.. _JSON: http://en.wikipedia.org/wiki/JSON
+.. _UTF-8: http://en.wikipedia.org/wiki/UTF-8
 
 """
