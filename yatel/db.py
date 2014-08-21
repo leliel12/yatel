@@ -527,7 +527,7 @@ class YatelNetwork(object):
         Returns
         -------
         iterator
-            Iterator of dictionaries with all valid combinations of 
+            Iterator of dictionaries with all valid combinations of
             values of a given `fact_attrs` names
 
         Examples
@@ -611,15 +611,15 @@ class YatelNetwork(object):
         Parameters
         ----------
         env : dict
-            Keys are `dom.Fact` attributes name, and value is a possible 
+            Keys are `dom.Fact` attributes name, and value is a possible
             value of the given attribute.
         kwargs : a dict of keywords arguments
-            Keys are `dom.Fact` attributes name, and value is a possible 
+            Keys are `dom.Fact` attributes name, and value is a possible
             value of the given attribute.
 
         Returns
         -------
-        iterator 
+        iterator
             `iterator` of `dom.Haplotype`.
 
         Examples
@@ -682,10 +682,10 @@ class YatelNetwork(object):
         Parameters
         ----------
         env : dict
-            Keys are `dom.Fact` attributes name, and value is a possible 
+            Keys are `dom.Fact` attributes name, and value is a possible
             value of the given attribute.
         kwargs : dict
-            Keys are `dom.Fact` attributes name, and value is a possible 
+            Keys are `dom.Fact` attributes name, and value is a possible
             value of the given attribte.
 
         Returns
@@ -721,7 +721,7 @@ class YatelNetwork(object):
         ----------
         hap : `dom.Haplotype`
             Haplotype to search with.
-            
+
         Returns
         -------
         iterator
@@ -753,7 +753,7 @@ class YatelNetwork(object):
         ----------
         hap : `dom.Haplotype`
             Haplotype to search with
-        
+
         Returns
         -------
         iterator
@@ -776,10 +776,10 @@ class YatelNetwork(object):
         Parameters
         ----------
         env : dict
-            Keys are `dom.Fact` attributes name, and value is a possible 
+            Keys are `dom.Fact` attributes name, and value is a possible
             value of the given attribute.
         kwargs : dict of keywords arguments
-            Keys are `dom.Fact` attributes name, and value is a possible 
+            Keys are `dom.Fact` attributes name, and value is a possible
             value of the given attribute.
 
         Returns
@@ -801,24 +801,25 @@ class YatelNetwork(object):
     #===========================================================================
 
     def describe(self):
-        """Returns a `dom.Descriptor` object with all the information 
+        """Returns a `dom.Descriptor` object with all the information
         about the network.
 
         The descriptor object is a dictionary like with keys:
-        *edges_attributes*: dict
-            Dictionary contains always 2 keys: `max_nodes` How many nodes 
-            connect the edge with maximun number of connections. And `weight` 
+
+        edges_attributes : dict
+            Dictionary contains always 2 keys : `max_nodes` How many nodes
+            connect the edge with maximun number of connections. And `weight`
             the time od weight attribute
-        *fact_attributes*: dict
-            Contains an arbitrary number of keys, with keys as attributes 
+        fact_attributes : dict
+            Contains an arbitrary number of keys, with keys as attributes
             name, and value as attribute type.
-        *haplotype_atributes*: dict
-            Contains an arbitrary number of keys, with keys as attributes 
+        haplotype_atributes : dict
+            Contains an arbitrary number of keys, with keys as attributes
             name, and value as attribute type.
-        *mode*: str
+        mode : str
             Actual mode of the network
-        *size*: dict
-            Has the number of elements in the network discrimined by type 
+        size : dict
+            Has the number of elements in the network discrimined by type
             haplotypes, facts and edges.
 
         Examples
@@ -937,7 +938,7 @@ class YatelNetwork(object):
 
 def qfilter(query, flt):
     """Filters a yatel query by a given filter.
-    
+
     Parameters
     ----------
     query : `iterator` of Yatel DOM
@@ -1056,7 +1057,7 @@ def copy(from_nw, to_nw):
 
     Parameters
     ----------
-    from_nw : ``yatel.db.YatelNetwork`
+    from_nw : ``yatel.db.YatelNetwork``
         Network in *r* mode.
     to_nw : `yatel.db.YatelNetwork`
         Network in *w* or *a* mode.

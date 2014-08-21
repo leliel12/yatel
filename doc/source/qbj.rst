@@ -1,5 +1,5 @@
-Specification for QBJ
-=====================
+The *Query By JSON* (QBJ) Language
+==================================
 
 **Query By JSON** (QBJ) comes up from the need of Yatel to provide an agnostic
 query language for NW-OLAP (OLAP Multidimensional Networks).

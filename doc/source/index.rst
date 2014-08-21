@@ -17,8 +17,8 @@ Contents:
     install.rst
     cli.rst
     quickstart.rst
-    stats.rst
     dom.rst
+    stats.rst
     qbj.rst
     etl.rst
     apidoc/yatel.rst

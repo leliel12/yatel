@@ -38,7 +38,7 @@ from yatel.qbj import functions, schema
 
 class QBJResolver(object):
     """Resolver of QBJ calls.
-    
+
     Parameters
     ----------
     function : dict
@@ -46,10 +46,11 @@ class QBJResolver(object):
             - `name` function to be called.
             - `args` positional arguments for function `name`.
             - `kwargs` named arguments for function `name`.
+
         MIRAR FUNCTION.PY PARA MAS DETALLES DE LOS ARGUMENTOS
     context : `db.YatelNetwork`
         Network to execute functions on.
-    
+
     """
 
     def __init__ (self, function, context):
@@ -68,9 +69,9 @@ class QBJResolver(object):
         return typeconv.parse({"type": atype, "value": value})
 
     def resolve(self):
-        """Responsible for putting together the call to `function` with the 
+        """Responsible for putting together the call to `function` with the
         respective arguments, and return its result.
-        
+
         """
         name = self.function["name"]
         args = []
@@ -91,32 +92,32 @@ class QBJResolver(object):
 #===============================================================================
 
 class QBJEngine(object):
-    """Responsible of storing context for QBJ queries, and executes the 
+    """Responsible of storing context for QBJ queries, and executes the
     functions required on it.
 
     Parameters
     ----------
     nw : `db.YatelNetwork`
         Network to be used with the query.
-    
+
     """
 
     def __init__(self, nw):
         self.context = nw
 
     def execute(self, querydict, stacktrace=False):
-        """Takes the query in `querydict` and executes it after validation of 
+        """Takes the query in `querydict` and executes it after validation of
         it's structure.
-        
+
         Parameters
         ----------
         querydict : dict
             Dictionary with query in QBJ format.
         stacktrace : bool or False
             True if you want a stacktrace to be generated.
-        
-        Return
-        ------
+
+        Returns
+        -------
         dict
             Result of the query.
         """
