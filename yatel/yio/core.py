@@ -11,7 +11,7 @@
 # DOC
 # =============================================================================
 
-"""Base structure for yatel parsers"""
+"""Base structure for Yatel parsers."""
 
 
 # =============================================================================
@@ -41,13 +41,13 @@ YF_STR_VERSION = ".".join(YF_VERSION)
 # =============================================================================
 
 class BaseParser(object):
-    """Base structure for yatel parsers"""
+    """Base class for parsers."""
 
     __metaclass__ = abc.ABCMeta
 
     @classmethod
     def version(cls):
-        """Returns versino of parser."""
+        """Returns version of parser."""
         return YF_STR_VERSION
 
     @classmethod
@@ -55,17 +55,17 @@ class BaseParser(object):
         raise NotImplementedError()
 
     def dumps(self, nw, *args, **kwargs):
-        """Serialize a yatel db to a formatted string.
+        """Serializes a yatel db to a formatted string.
 
         Parameters
         ----------
-        nw : yatel.db.YatelNetwork
-            network source of data
+        nw : :py:class:`yatel.db.YatelNetwork`
+            Network source of data.
         
         Returns
         -------
-        string: str
-            json formatted string
+        string : str
+            Json formatted string.
         
         """
         fp = StringIO.StringIO()
@@ -73,14 +73,14 @@ class BaseParser(object):
         return fp.getvalue()
 
     def loads(self, nw, string, *args, **kwargs):
-        """Deserialize a formatted string to add it into the yatel db
+        """Deserializes a formatted string to add it into the yatel database.
         
         Parameters
         ----------
-        nw : `yatel.db.YatelNetwork`
-            Network destination for data
+        nw : :py:class:`yatel.db.YatelNetwork`
+            Network destination for data.
         string : str
-            String to be deserialize
+            String to be deserialize.
         
         """
         fp = StringIO.StringIO(string)
@@ -88,14 +88,26 @@ class BaseParser(object):
 
     @abc.abstractmethod
     def dump(self, nw, fp, *args, **kwargs):
-        """Serializes data from a yatel network to a file
+        """**Abstract Method.**
+        
+        Serializes data from a yatel network to a file.
+        
+        Raises
+        ------
+            NotImplementedError
         
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     def load(self, nw, fp, *args, **kwargs):
-        """Deserializes data from a file and adds it to the yatel network
+        """**Abstract Method.**
+        
+        Deserializes data from a file and adds it to the yatel network.
+        
+        Raises
+        ------
+            NotImplementedError
         
         """
         raise NotImplementedError()

@@ -11,7 +11,7 @@
 # DOC
 #===============================================================================
 
-"""Persist yatel databases in json format
+"""Persists Yatel databases in json format.
 
 """
 
@@ -31,22 +31,22 @@ from yatel.yio import core
 #===============================================================================
 
 class JSONParser(core.BaseParser):
-    """JSON parser."""
+    """JSON parser to serialize and deserialize data."""
 
     @classmethod
     def file_exts(cls):
-        """Returns extensions for JSON handling"""
+        """Returns extensions used for JSON handling."""
         return ("yjf", "json")
 
     def dump(self, nw, fp, *args, **kwargs):
-        """Serializes data from a yatel network to a JSON file-like stream.
+        """Serializes data from a Yatel network to a JSON file-like stream.
         
         Parameters
         ----------
-        nw : yatel.db.YatelNetwork
+        nw : :py:class:`yatel.db.YatelNetwork`
             Network source of data.
         fp : file-like object
-            Target for serialization.
+            Target  for serialization.
 
         """
         kwargs["ensure_ascii"] = kwargs.get("ensure_ascii", True)
@@ -64,7 +64,7 @@ class JSONParser(core.BaseParser):
         
         Parameters
         ----------
-        nw : yatel.db.YatelNetwork
+        nw : :py:class:`yatel.db.YatelNetwork`
             Network target of data.
         fp : file-like object
             Source of data to deserialize.

@@ -11,7 +11,7 @@
 # DOC
 #===============================================================================
 
-"""Utilities to persist yatel into diferent file formats"""
+"""Utilities to persist yatel into diferent file formats."""
 
 
 #===============================================================================
@@ -26,9 +26,9 @@ from yatel.yio import yjf, yxf
 # CONSTANTS
 #===============================================================================
 
-#: Parsers container
+#: Container of the different parsers supported by Yatel.
 PARSERS = {}
-#: Synonyms of parser names
+#: Synonyms of the names used by the parser.
 SYNONYMS = []
 for p in BaseParser.__subclasses__():
     syns = tuple(set(p.file_exts()))
@@ -43,16 +43,16 @@ del p
 #===============================================================================
 
 def load(ext, nw, stream, *args, **kwargs):
-    """Deserializea from a `stream` to yatel network.
+    """Deserializes from a stream to Yatel network.
     
     Parameters
     ----------
     ext : str
         Extension of source data.
-    nw : yatel.db.YatelNetwork
+    nw : :py:class:`yatel.db.YatelNetwork`
         Target database.
     stream : file or str
-        Source, can be string or a file.
+        Source of  data, can be string or file.
     
     """
     parser = PARSERS[ext]()
@@ -62,16 +62,16 @@ def load(ext, nw, stream, *args, **kwargs):
 
 
 def dump(ext, nw, stream=None, *args, **kwargs):
-    """Serializes from a yatel network to a file or string.
+    """Serializes from a Yatel network to a file or string.
     
     Parameters
     ----------
     ext : str
         Extension of target data.
-    nw : yatel.db.YatelNetwork
+    nw : :py:class:`yatel.db.YatelNetwork`
         Source database.
     stream : file or str
-        Target, can be string or a file.
+        Target of data, can be string or a file.
     
     """
     parser = PARSERS[ext]()

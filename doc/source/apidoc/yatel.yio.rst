@@ -25,7 +25,6 @@ yatel.yio.yxf module
 
 .. automodule:: yatel.yio.yxf
     :members:
-    :undoc-members:
     :show-inheritance:
 
 
