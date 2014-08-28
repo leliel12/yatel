@@ -2,16 +2,16 @@ Stats
 =====
 
 The statistics module is one of the fundamental parts of Yatel. It's
-designed to support decision making through
-extraction of measure of positions, variation, skewness and peak analysis of
-arc weights in a given environment.
+designed to support decision making through extraction of measure of 
+positions, variation, skewness and peak analysis of arc weights in a given 
+environment.
 
 The features of this module are divided into 2 distinct groups:
 
-- *Transformation Functions:* Is responsible for converting an environment of
+- Transformation Functions: Is responsible for converting an environment of
   a given network into a *numpy array* to accelerate the calculation 
   of statistics.
-- *Calculation Functions:* Are used for calculating statistical measures
+- Calculation Functions: Are used for calculating statistical measures
   on a haplotypes environment.
 
 While all calculation functions use internally the transformation functions, 
@@ -25,7 +25,7 @@ Transformation Functions
 The transformation functions are two:
 
 - ``weights2array``: given a ``dom.Edges`` iterable this function returns a 
-  *numpy* array with all weight values ​​of said arcs.
+  ``numpy.ndarray`` with all weight values ​​of said arcs.
 
 .. code-block:: python
 
@@ -57,7 +57,7 @@ The transformation functions are two:
 
 
 - ``env2weightarray``: This function is responsible for converting a 
-  *db.YatelNetwork* instance into an array with all weights of the edges 
+  ``db.YatelNetwork`` instance into an array with all weights of the edges 
   contained; or any of them filtered by environments. Also for reasons of 
   implementations can receive any iterable and turn it into a numpy array.
 
@@ -75,9 +75,9 @@ The transformation functions are two:
 Calculation Functions
 ---------------------
 
-Calculation functions are responsible for efficiently calculate statistics 
+Calculation functions are responsible for efficiently calculating statistics 
 on the variability of a network or a network environment.
-The full list of functions can be found on the reference module stats here.
+The full list of functions can be found on the reference module :py:mod:`yatel.stats`
 
 .. code-block:: python
 
@@ -116,16 +116,16 @@ The functions also support python iterables such as lists or tuples
     nan
 
 
-A more advanced example
+A More Advanced Example
 -----------------------
 
-While Yatel it provides for the calculation of common statistics, ``stats`` 
+While Yatel provides for the calculation of common statistics, ``stats`` 
 module for its architecture facilitates data analysis of more complex 
-environments easily integrating itself with the functionality of SciPy.
+environments easily integrating itself with the functionality of SciPy_.
 
 For example if we wanted to calculate
 `One-Way ANOVA <http://en.wikipedia.org/wiki/Analysis_of_variance>`_ with two 
-environments of our netword
+environments of our network.
 
 .. code-block:: python
 

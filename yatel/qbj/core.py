@@ -46,8 +46,8 @@ class QBJResolver(object):
             - `name` function to be called.
             - `args` positional arguments for function `name`.
             - `kwargs` named arguments for function `name`.
-
-        MIRAR FUNCTION.PY PARA MAS DETALLES DE LOS ARGUMENTOS
+            
+        For further detail on functions arguments see :py:mod:`yatel.qbj.functions`
     context : `db.YatelNetwork`
         Network to execute functions on.
 

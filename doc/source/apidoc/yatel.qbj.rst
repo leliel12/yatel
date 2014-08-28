@@ -18,6 +18,7 @@ yatel.qbj.functions module
 
 .. automodule:: yatel.qbj.functions
     :members:
+    :exclude-members: QBJFunction
     :show-inheritance:
 
 yatel.qbj.schema module

@@ -34,6 +34,7 @@ PRIVATE_FUNC_DATA = ["func"]
 # CLASS
 #==============================================================================
 
+#: doc
 QBJFunction = collections.namedtuple(
     "QBJFunction", ["name", "doc", "func"]
 )

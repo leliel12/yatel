@@ -39,7 +39,7 @@ def average(nw, env=None, **kwargs):
     ----------
     nw : `yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env: `yatel.dom.Enviroment` or dict like
+    env : `yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -54,7 +54,7 @@ def median(nw, env=None, **kwargs):
     ----------
     nw : `yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env: `yatel.dom.Enviroment` or dict like
+    env : `yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -69,7 +69,7 @@ def percentile(nw, q, env=None, **kwargs):
     ----------
     nw : `yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env: `yatel.dom.Enviroment` or dict like
+    env : `yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -84,7 +84,7 @@ def min(nw, env=None, **kwargs):
     ----------
     nw : `yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env: `yatel.dom.Enviroment` or dict like
+    env : `yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -99,7 +99,7 @@ def max(nw, env=None, **kwargs):
     ----------
     nw : `yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env: `yatel.dom.Enviroment` or dict like
+    env : `yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -114,7 +114,7 @@ def amin(nw, env=None, **kwargs):
     ----------
     nw : `yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env: `yatel.dom.Enviroment` or dict like
+    env : `yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -144,7 +144,7 @@ def sum(nw, env=None, **kwargs):
     ----------
     nw : `yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env: `yatel.dom.Enviroment` or dict like
+    env : `yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -159,7 +159,7 @@ def mode(nw, env=None, **kwargs):
     ----------
     nw : `yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env: `yatel.dom.Enviroment` or dict like
+    env : `yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -181,7 +181,7 @@ def var(nw, env=None, **kwargs):
     ----------
     nw : `yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env: `yatel.dom.Enviroment` or dict like
+    env : `yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -196,7 +196,7 @@ def std(nw, env=None, **kwargs):
     ----------
     nw : `yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env: `yatel.dom.Enviroment` or dict like
+    env : `yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -211,7 +211,7 @@ def variation(nw, env=None, **kwargs):
     ----------
     nw : `yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env: `yatel.dom.Enviroment` or dict like
+    env : `yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -225,7 +225,7 @@ def range(nw, env=None, **kwargs):
     ----------
     nw : `yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env: `yatel.dom.Enviroment` or dict like
+    env : `yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -244,7 +244,7 @@ def kurtosis(nw, env=None, **kwargs):
     ----------
     nw : `yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env: `yatel.dom.Enviroment` or dict like
+    env : `yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -295,7 +295,3 @@ def env2weightarray(nw, env=None, **kwargs):
 
 if __name__ == "__main__":
     print(__doc__)
-
-
-
-

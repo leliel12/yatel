@@ -10,7 +10,7 @@ It's a reference implementation of NW-OLAP
 - It is largely implementing the aforementioned process.
 - Soon to arrive it's first usable version 0.3
 
-`Read more <http://getyatel.org/>`_
+`Read more about Yatel. <http://getyatel.org/>`_
 
 
 
@@ -159,31 +159,32 @@ Facts by haplotype:
     {u'lang': u'sp', u'timezone': u'utc', 'hap_id': 2, u'name': u'Andalucia'}
 
 
-Haplotypes by lang enviroment:
+Haplotypes by lang environment:
 
 .. code-block:: python
 
-    >>> for hap in nw.haplotypes_by_enviroment(lang="sp"):
+    >>> for hap in nw.haplotypes_by_environment(lang="sp"):
     ...     print hap
     <Haplotype (0) at 0x24fa2d0>
     <Haplotype (1) at 0x25c5350>
     <Haplotype (2) at 0x24fa2d0>
 
 
-Haplotypes by timezone enviroment:
+Haplotypes by timezone environment:
 
 .. code-block:: python
 
-    >>> for hap in nw.haplotypes_by_enviroment(timezone="utc-6"):
+    >>> for hap in nw.haplotypes_by_environment(timezone="utc-6"):
     ...     print hap
     <Haplotype (1) at 0x24eae50>
 
 
-Haplotypes by name enviroment:
+Haplotypes by name environment:
 
-    for hap in nw.haplotypes_by_enviroment(name="Andalucia"):
-        print hap
+.. code-block:: python
 
+    >>> for hap in nw.haplotypes_by_environment(name="Andalucia"):
+    ...    print hap
     <Haplotype (0) at 0x25c5350>
     <Haplotype (2) at 0x24eae50>
 
@@ -192,7 +193,7 @@ Edges by Andalucia environment:
 
 .. code-block:: python
 
-    >>> for edge in nw.edges_by_enviroment(name="Andalucia"):
+    >>> for edge in nw.edges_by_environment(name="Andalucia"):
     ...     print edge
     <Edge ([9871.0 [2, 0]]  ) at 0x24fa7d0>
 
@@ -200,7 +201,7 @@ All environments:
 
 .. code-block:: python
 
-    >>> for env in nw.enviroments():
+    >>> for env in nw.environments():
     ...     print env
     <Enviroment {u'lang': u'sp', u'timezone': u'utc-3', u'name': u'Andalucia'} at 0x24faad0>
     <Enviroment {u'lang': u'sp', u'timezone': None, u'name': None} at 0x24db490>
@@ -234,9 +235,9 @@ Now to some data mining:
     >>> from scipy.spatial.distance import euclidean
     >>> from yatel.cluster import kmeans
 
-    >>> cbs, distortion = kmeans.kmeans(nw, nw.enviroments(), 2)
+    >>> cbs, distortion = kmeans.kmeans(nw, nw.environments(), 2)
 
-    >>> for env in nw.enviroments():
+    >>> for env in nw.environments():
     ...     coords = kmeans.hap_in_env_coords(nw, env)
     ...     min_euc = None
     ...     closest_centroid = None

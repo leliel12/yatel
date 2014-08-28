@@ -1,16 +1,16 @@
 Yatel Objects
 =============
 
-Yatel has a series of classes in the file ``yatel.dom`` that serve to abstarct 
-the information into data structures that we conceptually use in *nw-olap*
+Yatel has a series of classes in the file ``yatel.dom`` that serve to abstract 
+the information into data structures that we conceptually use in **nw-olap**
 
 All classes defined there having behavior like immutable dictionaries and most 
-notably of all is probably ``dom.Haplotype.``. So assuming two objects of 
+notably of all is probably ``dom.Haplotype``. So assuming two objects of 
 either class, the following statements are equivalent ``obj.attribute`` o 
-``ob["attribute"]``.
+``obj["attribute"]``.
 
 Like any dictionary, they have available methods like ``items()``, ``keys()``
-``values()`` y ``get(k)``.
+``values()`` and ``get(k)``.
 
 All instances of ``yatel.dom`` for being immutable can be used as keys in a 
 dictionary except that the object contains a non hasheable element. Example:
@@ -32,10 +32,11 @@ Classes
 -------
 
 - ``dom.Haplotype`` represents a node in a nw-olap and receives at least one 
-  parameter (el *hap_id*) others being named optionally. Two haplotypes are 
-  equal if they have the same hap_id regardless of other attributes. Another 
-  important feature is that attributes with values ​​*None* are not taken into 
-  account and removed.
+  parameter (``hap_id``) others being named optionally. Two haplotypes are 
+  equal if they have the same ``hap_id`` regardless of other attributes. 
+  Another important feature is that attributes with values ​​None are not 
+  taken into account and removed.
+  
   Example:
 
 .. code-block:: python
@@ -107,11 +108,11 @@ Classes
 
 
 - ``dom.Fact`` are the meta data of the analysis of haplotypes. Only their 
-  first parameter is required,  ``hap_id`` of the haplotype to which they 
-  belong, and all other named parameters are optional.
-  ``dom.Fact`` are equal only if they belong to the same haplotype and 
-  possesses the same attributes with the same values. Another important feature
-  is that attributes with values ​​*None* are not taken into account and removed.
+  first parameter is required, ``hap_id`` of the haplotype to which they 
+  belong, and all other named parameters are optional. ``dom.Fact`` are equal 
+  only if they belong to the same haplotype and possesses the same 
+  attributes with the same values. Another important feature is that 
+  attributes with values None are not taken into account and removed.
 
 .. code-block:: python
 
@@ -128,6 +129,3 @@ Classes
     >>> set([fact0, fact1])
     {<Fact (of Haplotype '0') at 0x22e75d0>,
      <Fact (of Haplotype '1') at 0x22e78d0>}
-
-
-
