@@ -42,6 +42,11 @@ class FunctionTest(core.YatelTestCase):
         nw = self.nw if nw is None else nw
         return functions.execute(name, nw, **kwargs)
 
+    def test_ping(self):
+        orig = functions.ping(self.nw)
+        rs = self.execute("ping")
+        self.assertEquals(orig, rs)
+
     def test_help(self):
         orig = list(functions.FUNCTIONS.keys())
         rs = self.execute("help")
