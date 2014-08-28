@@ -49,7 +49,8 @@ class QBJShell(cmd.Cmd):
     Special Commands:
 
         - help: Print this help.
-        - fhelp: Printa list of all available QBJ-functions
+        - exec <PATH>: execute a query from a qbj file.
+        - fhelp: Print a list of all available QBJ-functions
         - fhelp <FNAME>: print help about FNAME function.
         - indent <INT>: change indentation of response (Default: None).
 
@@ -67,7 +68,7 @@ class QBJShell(cmd.Cmd):
         self.intro  = "Yatel QBJ Console\n" + self.__doc__
         self.qbj = core.QBJEngine(nw)
         self.debug = debug
-        self.indent = None
+        self.indent = 2
         self.buff = []
 
     def do_exit(self, args):
@@ -101,14 +102,25 @@ class QBJShell(cmd.Cmd):
             };"""
         self.default(cmd)
 
+    def do_exec(self, fpath):
+        """Excecute query from .qbj file"""
+        with open(fpath) as fp:
+            src = fp.read().strip()
+            if not src.endswith(";"):
+                src += ";"
+            self.default(src)
+
     def do_help(self, args):
         print u"\t" + self.__doc__
 
     def do_indent(self, indent):
         try:
-            self.indent = int(indent)
+            if indent is None:
+                self.indent = None
+            else:
+                self.indent = int(indent)
         except:
-            self.indent = None
+            self.indent = 2
 
     def emptyline(self):
         """Do nothing on empty input line"""

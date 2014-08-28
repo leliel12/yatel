@@ -78,8 +78,13 @@ def execute(name, nw, *args, **kwargs):
 #==============================================================================
 
 @qbjfunction()
+def ping(nw):
+    """Always return True"""
+    return True
+
+@qbjfunction()
 def help(nw, fname=None):
-    """Returns a list of all functions if `fname` is not specified or ``None`` 
+    """Returns a list of all functions if `fname` is not specified or ``None``
     otherwise documentation for `fname`.
     """
     if fname is None:
@@ -361,7 +366,7 @@ def index(nw, iterable, value, start=None, end=None):
         network source of data.
     iterable : iterator
         iterable object.
-    value : 
+    value :
         Value to look for.
     start : int or None
         Starting point.
@@ -421,9 +426,9 @@ def utctime(nw, *args, **kwargs):
 
 @qbjfunction
 def get_from_time(nw, datetime_instance, dtformat, *args, **kwargs):
-    """Return a ``str`` from a `datetime_instance` that is a ``datetime`` 
+    """Return a ``str`` from a `datetime_instance` that is a ``datetime``
     object, according to specified format in `dtformat`.
-    
+
     About `format https://docs.python.org/2/library/datetime.html#strftime-strptime-behavior`_
     """
     return datetime_instance.strftime(dtformat)
@@ -453,7 +458,7 @@ def div(nw, dividend, divider):
 
 @qbjfunction()
 def floor(nw, dividend, divider):
-    """Return mod from division operation between `dividend` and 
+    """Return mod from division operation between `dividend` and
     `divider`."""
     return dividend % float(divider)
 
@@ -482,19 +487,19 @@ def count(nw, iterable, to_count):
 
 @qbjfunction()
 def split(nw, string, s=None, maxsplit=None):
-    """Return a list of the words of `string`. With `s` as separator and 
+    """Return a list of the words of `string`. With `s` as separator and
     maximum number of split by `maxsplit`.
-    
+
     Parameters
     ----------
-    
+
     string : str
         String to split.
     s : str ot None
-        Used as separator if given, if ``None`` uses whitespace characters as 
+        Used as separator if given, if ``None`` uses whitespace characters as
         separators.
     maxsplit : int or None
-        Maximum number of split on `string` and the remainder of the string 
+        Maximum number of split on `string` and the remainder of the string
         is returned as the final element of the list, if ``None`` no limit.
     """
     if s is None and maxsplit is None:
@@ -506,19 +511,19 @@ def split(nw, string, s=None, maxsplit=None):
 
 @qbjfunction()
 def rsplit(nw, string, s=None, maxsplit=None):
-    """Return a list of the words of `string`, scanning `s` from the end. With 
+    """Return a list of the words of `string`, scanning `s` from the end. With
     `s` as separator and maximum number of split by `maxsplit`.
-    
+
     Parameters
     ----------
-    
+
     string : str
         String to split.
     s : str ot None
-        Used as separator if given, if ``None`` uses whitespace characters as 
+        Used as separator if given, if ``None`` uses whitespace characters as
         separators.
     maxsplit : int or None
-        Maximum number of split on `string` and the remainder of the string 
+        Maximum number of split on `string` and the remainder of the string
         is returned as the first element of the list, if ``None`` no limit.
     """
     if s is None and maxsplit is None:
@@ -530,8 +535,8 @@ def rsplit(nw, string, s=None, maxsplit=None):
 
 @qbjfunction()
 def strip(nw, string, chars=None):
-    """Return a copy of `string` with leading and trailing characters 
-    removed. if `chars` is ``None`` whitespaces are removed otherwise the 
+    """Return a copy of `string` with leading and trailing characters
+    removed. if `chars` is ``None`` whitespaces are removed otherwise the
     characters in the string will be stripped from the both ends.
     """
     if chars is None:
@@ -541,9 +546,9 @@ def strip(nw, string, chars=None):
 
 @qbjfunction()
 def lstrip(nw, string, chars=None):
-    """Return a copy of `string` with leading characters removed. If 
-    `chars` is omitted or ``None``, whitespace characters are removed. If 
-    given and not ``None``, `chars` must be a string; the characters in the string 
+    """Return a copy of `string` with leading characters removed. If
+    `chars` is omitted or ``None``, whitespace characters are removed. If
+    given and not ``None``, `chars` must be a string; the characters in the string
     will be stripped from the beginning of the string.
     """
     if chars is None:
@@ -553,9 +558,9 @@ def lstrip(nw, string, chars=None):
 
 @qbjfunction()
 def rstrip(nw, string, chars=None):
-    """Return a copy of `string` with trailing characters removed. If 
-    `chars` is omitted or ``None``, whitespace characters are removed. If 
-    given and not ``None``, `chars` must be a string; the characters in the 
+    """Return a copy of `string` with trailing characters removed. If
+    `chars` is omitted or ``None``, whitespace characters are removed. If
+    given and not ``None``, `chars` must be a string; the characters in the
     string will be stripped from the end of the string.
     """
     if chars is None:
@@ -565,7 +570,7 @@ def rstrip(nw, string, chars=None):
 
 @qbjfunction()
 def join(nw, joiner, to_join):
-    """Concatenate a list or tuple of words with intervening occurrences of 
+    """Concatenate a list or tuple of words with intervening occurrences of
     `joiner`.
     """
     return joiner.join(to_join)
@@ -573,7 +578,7 @@ def join(nw, joiner, to_join):
 
 @qbjfunction()
 def upper(nw, string):
-    """Return a copy of `string`, with lower case letters converted to 
+    """Return a copy of `string`, with lower case letters converted to
     upper case.
     """
     return string.upper()
@@ -581,7 +586,7 @@ def upper(nw, string):
 
 @qbjfunction()
 def lower(nw, string):
-    """Return a copy of `string`, with upper case letters converted to 
+    """Return a copy of `string`, with upper case letters converted to
     lower case.
     """
     return string.lower()
@@ -589,7 +594,7 @@ def lower(nw, string):
 
 @qbjfunction()
 def title(nw, string):
-    """Returns a copy of `string` in which first characters of all the words 
+    """Returns a copy of `string` in which first characters of all the words
     are capitalized.
     """
     return string.title()
@@ -597,7 +602,7 @@ def title(nw, string):
 
 @qbjfunction()
 def capitalize(nw, string):
-    """Return a copy of `string` with its first character capitalized and 
+    """Return a copy of `string` with its first character capitalized and
     the rest lowercased.
     """
     return string.capitalize()
@@ -605,7 +610,7 @@ def capitalize(nw, string):
 
 @qbjfunction()
 def isalnum(nw, string):
-    """Return true if all characters in `string` are alphanumeric and there 
+    """Return true if all characters in `string` are alphanumeric and there
     is at least one character, false otherwise.
     """
     return string.isalnum()
@@ -613,7 +618,7 @@ def isalnum(nw, string):
 
 @qbjfunction()
 def isalpha(nw, string):
-    """Return true if all characters in `string` are alphabetic and there is 
+    """Return true if all characters in `string` are alphabetic and there is
     at least one character, false otherwise.
     """
     return string.isalpha()
@@ -621,7 +626,7 @@ def isalpha(nw, string):
 
 @qbjfunction()
 def isdigit(nw, string):
-    """Return true if all characters in `string` are digits and there is at 
+    """Return true if all characters in `string` are digits and there is at
     least one character, false otherwise.
     """
     return string.isdigit()
@@ -629,9 +634,9 @@ def isdigit(nw, string):
 
 @qbjfunction()
 def startswith(nw, string, prefix, start=None, end=None):
-    """Return True if `string` starts with the `prefix`, otherwise return 
-    False. `prefix` can also be a tuple of prefixes to look for. With optional 
-    `start`, test `string` beginning at that position. With optional 
+    """Return True if `string` starts with the `prefix`, otherwise return
+    False. `prefix` can also be a tuple of prefixes to look for. With optional
+    `start`, test `string` beginning at that position. With optional
     `end`, stop comparing string at that position.
     """
     if start is None and end is None:
@@ -643,9 +648,9 @@ def startswith(nw, string, prefix, start=None, end=None):
 
 @qbjfunction()
 def endswith(nw, string, suffix, start=None, end=None):
-    """Return True if `string` ends with the specified `suffix`, otherwise 
-    return False. `suffix` can also be a tuple of suffixes to look for. With 
-    optional `start`, test beginning at that position. With optional 
+    """Return True if `string` ends with the specified `suffix`, otherwise
+    return False. `suffix` can also be a tuple of suffixes to look for. With
+    optional `start`, test beginning at that position. With optional
     `end`, stop comparing at that position.
     """
     if start is None and end is None:
@@ -657,14 +662,14 @@ def endswith(nw, string, suffix, start=None, end=None):
 
 @qbjfunction()
 def istitle(nw, string):
-    """Return true if `string` is a titlecased string and there is at least 
+    """Return true if `string` is a titlecased string and there is at least
     one character."""
     return string.istitle()
 
 
 @qbjfunction()
 def isupper(nw, string):
-    """Return ``true`` if all cased characters in `string` are uppercase and 
+    """Return ``true`` if all cased characters in `string` are uppercase and
     there is at least one cased character, ``false`` otherwise.
     """
     return string.isupper()
@@ -672,7 +677,7 @@ def isupper(nw, string):
 
 @qbjfunction()
 def isspace(nw, string):
-    """Return ``true`` if there are only whitespace characters in `string` 
+    """Return ``true`` if there are only whitespace characters in `string`
     and there is at least one character, ``false`` otherwise.
     """
     return string.isspace()
@@ -680,7 +685,7 @@ def isspace(nw, string):
 
 @qbjfunction()
 def islower(nw, string):
-    """Return ``true`` if all cased characters in `string` are lowercase and 
+    """Return ``true`` if all cased characters in `string` are lowercase and
     there is at least one cased character, ``false`` otherwise.
     """
     return string.islower()
@@ -688,7 +693,7 @@ def islower(nw, string):
 
 @qbjfunction()
 def swapcase(nw, string):
-    """Return a copy of `string`, with lower case letters converted to upper 
+    """Return a copy of `string`, with lower case letters converted to upper
     case and vice versa.
     """
     return string.swapcase()
@@ -696,8 +701,8 @@ def swapcase(nw, string):
 
 @qbjfunction()
 def replace(nw, string, old, new, count=None):
-    """Return a copy of `string` with all occurrences of `old` replaced by 
-    `new`. If `count` is given, the first `count` occurrences are 
+    """Return a copy of `string` with all occurrences of `old` replaced by
+    `new`. If `count` is given, the first `count` occurrences are
     replaced.
     """
     if count is None:
@@ -707,9 +712,9 @@ def replace(nw, string, old, new, count=None):
 
 @qbjfunction()
 def find(nw, string, subs, start=None, end=None):
-    """Return the lowest index in `string` where the substring `sub` is 
-    found such that `sub` is wholly contained in ``string[start:end]``. Return -1 on 
-    failure. Defaults for `start` and `end` and interpretation of negative values 
+    """Return the lowest index in `string` where the substring `sub` is
+    found such that `sub` is wholly contained in ``string[start:end]``. Return -1 on
+    failure. Defaults for `start` and `end` and interpretation of negative values
     is the same as for slices.
     """
     try:
@@ -724,7 +729,7 @@ def find(nw, string, subs, start=None, end=None):
 
 @qbjfunction()
 def rfind(nw, string, subs, start=None, end=None):
-    """Return the highest index in `string` where the substring `sub` is 
+    """Return the highest index in `string` where the substring `sub` is
     found.
     """
     try:
