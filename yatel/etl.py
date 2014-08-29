@@ -29,6 +29,7 @@ import os
 import imp
 import sys
 import re
+import collections
 
 from yatel import db
 from yatel import dom
@@ -57,7 +58,9 @@ class ETL(etl.BaseETL):
     # you can access the current network from the attribute 'self.nw'
     # You can access all the allready created haplotypes from attribute
     # 'self.haplotypes_cache'. If you want to disable the cache put a class
-    # level attribute 'HAPLOTYPES_CACHE = False'
+    # level attribute 'HAPLOTYPES_CACHE = None'. Also if you want to change
+    # the default cache engine put a subclass of 'collections.Mappiing' as
+    # value of 'HAPLOTYPES_CACHE'
 
 
 ${code}
@@ -99,7 +102,7 @@ class BaseETL(object):
 
     __metaclass__ = _ETLMeta
 
-    HAPLOTYPES_CACHE = True
+    HAPLOTYPES_CACHE = dict
 
     def setup(self):
         pass
@@ -141,9 +144,9 @@ class BaseETL(object):
         pass
 
 
-#===============================================================================
+#==============================================================================
 # FUNCTIONS
-#===============================================================================
+#==============================================================================
 
 def scan_dir(dirpath):
     """Retrieve all python files from a given directory"""
@@ -209,18 +212,18 @@ def execute(nw, etl, *args):
         msg = "etl is not instance of a subclass of yatel.etl.BaseETL"
         raise TypeError(msg)
 
-    haps_cache = getattr(etl, "HAPLOTYPES_CACHE", True)
+    CacheCls = getattr(etl, "HAPLOTYPES_CACHE", None)
+    if CacheCls is not None:
+        etl.haplotypes_cache = CacheCls()
 
     etl.nw = nw
-    if haps_cache:
-        etl.haplotypes_cache = {}
     etl.setup(*args)
 
     etl.pre_haplotype_gen()
     for hap in etl.haplotype_gen() or []:
         if isinstance(hap, dom.Haplotype):
             nw.add_element(hap)
-            if haps_cache:
+            if CacheCls is not None:
                 etl.haplotypes_cache[hap.hap_id] = hap
         else:
             msg = ("ETL '{}' is 'haplotype_gen' method"
