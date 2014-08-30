@@ -13,11 +13,11 @@ ingles es LOAD) a nuestra base de datos.
 Yatel brinda un modesto framework para la creación de ETL para la carga de
 NW-OLAP de una forma consistente.
 
-Creando Un Etl
+Creando Un ETL
 ^^^^^^^^^^^^^^
 
 El primer paso para crear un ETL_ es utilizar Yatel para que nos genere un
-template sobre el cual trabajar
+template sobre el cual trabajar en un archivo de nombre, por ejemplo,
 
 .. code-block:: bash
 
@@ -66,12 +66,45 @@ Si lo abrimos veremos el siguiente codigo
     if __name__ == "__main__":
         print(__doc__)
 
-Analizaremos las lineas una por una omitiendo los comentarios:
 
+.. note::
 
-Como condicion hay que aclarar que **siempre** que se utilice las herramientas
-de lineas de comando la clase con el ETL_ a correr debe llamarse
-``ETL`` (Line 13).
+    Como condicion hay que aclarar que **siempre** que se utilice las herramientas
+    de lineas de comando la clase con el ETL_ a correr debe llamarse
+    ``ETL`` (Line 13).
+    Es buena practica que solo haya un ETL por archivo, para evitar confusiones
+    problematicas al momento de la ejecucion y poner en riesgo la consistencia de
+    su wharehouse.
+    
+
+- La linea # son los imports que se utilizan sin ecepcion en todos los ETL
+- La linea # crea la clase ETL que contendra toda la logica para la extraccion, 
+  transformacion y carga de datos.
+
+Cabe aclarar que existen muchos metodos que pueden redefinirse (tienen una seccion mas 
+adelante) pero los unicos que hay que redefinir obligatoriamente son los generadores:
+``haplotype_gen``, ``edge_gen``, ``fact_gen``.
+
+- ``haplotype_gen`` (linea #) debe retornar o bien un iterable o en el mejor de los 
+  casos un generador de los haplotypes que desea que se cargen en la base de datos.
+  Por ejemplo podriamos decidir que los haplotypes se lean de un CSV_ utilizando el
+  modulo csv de Python:
+  
+.. code-block:: python
+
+    def haplotype_gen(self):
+        with open("file.csv") as fp:
+            reader = csv.reader(fp)
+            for row in reader:
+                hap_id = row[0] # suponemos que el id esta en la primer columna
+                name = row[1] # suponemos que la columna 1 tiene un atributo name
+                yiel dom.Haplotype(hap_id, name=name)
+    
+        
+  Como es muy comun utilizar estos haplotypes en las siguientes funciones, el ETL
+  se encarga de guardarlos en una variable llamada **haplotypes_cache**; 
+  la manipulacion del cache se vera en su propia seccion mas adelante.
+
 
 Sugested *bash* (posix) script
 ------------------------------
