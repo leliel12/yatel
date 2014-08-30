@@ -33,10 +33,6 @@ class YatelDOM(collections.Mapping):
 
     CLEAN_NULL = True
 
-    #~ class __metaclass__(type):
-       #~ def __getattr__(cls, attr):
-           #~ return ExpressionFactory(attr)
-
     def __init__(self, **attrs):
         if "id" in attrs:
             raise ValueError("'id' is not valid attribute name")
