@@ -93,18 +93,116 @@ adelante) pero los unicos que hay que redefinir obligatoriamente son los generad
 .. code-block:: python
 
     def haplotype_gen(self):
-        with open("file.csv") as fp:
+        with open("haplotypes.csv") as fp:
             reader = csv.reader(fp)
             for row in reader:
                 hap_id = row[0] # suponemos que el id esta en la primer columna
                 name = row[1] # suponemos que la columna 1 tiene un atributo name
-                yiel dom.Haplotype(hap_id, name=name)
+                yield dom.Haplotype(hap_id, name=name)
     
         
   Como es muy comun utilizar estos haplotypes en las siguientes funciones, el ETL
-  se encarga de guardarlos en una variable llamada **haplotypes_cache**; 
-  la manipulacion del cache se vera en su propia seccion mas adelante.
+  se encarga de guardarlos en una variable llamada **haplotypes_cache**. Este
+  cache es un un *dict-like* cuya llave son los `hap_id` y los valores los haplotypos
+  en si mismo (la manipulacion del cache se vera en su propia seccion mas adelante).
+  
+- ``edge_gen`` (linea #) debe retornar o bien un iterable o en el mejor de los 
+  casos un generador de los edges que desea que se cargen en la base de datos.
+  Es normal querer utilizar el cache de haplotypes para de alguna manera compararlos
+  y cargar el peso deseado en cada arco. Para comparar cada haplotipo con todos
+  los demas excepto con el mismo podemos utilizar la funcion *itertools.combinations*
+  que viene con python (si se quiere comparar los haplotypos con ellos mismos se puede
+  utilizar por otro lado la funcion *itertools.combinations.with_replacement*). El peso
+  finalmente estara dada por la 
+  `distancia de hamming <http://en.wikipedia.org/wiki/Hamming_distance>`_ entre los
+  dos haplotypos utilizando el modulo *weights* presente en Yatel:
+  
+  
+.. code-block:: python
 
+    def edge_gen(self):
+        # combinamos de a dos haplotypos
+        for hap0, hap1 in itertools.combinations(self.haplotypes_cache.values(), 2):
+            w = weight.weight("hamming", hap0, hap1)
+            haps_id = hap0.hap_id, hap1.hap_id
+            yield dom.Edge(w, haps_id) 
+            
+
+- ``fact_gen`` (linea #) debe retornar o bien un iterable o en el mejor de los 
+  casos un generador de los facts que desea que se cargen en la base de datos.
+  Normalmente la mayor complejidad de los ETL radica en esta función.
+  Podemos imaginar en nuestro caso (par agregar algo de complegidad al ejemplo)
+  que los facts provienen de un archivo JSON_, cuyo elemento principal es un
+  objeto y sus llaves son equivalentes al atributo *name* de cada haplotype; a
+  su ves los valores son un array el cual cada uno debe ser un *fact* de dicho
+  haplotypo. Un ejemplo sencillo seria:
+  
+.. code-block:: javascript
+
+
+    {
+        "hap_name_0": [
+            {"year": 1978, "description": "something..." },
+            {"year": 1990},
+            {"notes": "some notes", "year": 1986},
+            {"year": 2014, "active": false}
+        ]
+        ...
+    }
+        
+  Asi la funcion que procese dichos datos debe primero determinar cual es el ``hap_id``
+  para cada haplotipo antes de crear el fact. Podemos (por una cuestion de facilidad) 
+  guardar un *dict* cuyo valor sea el *name* del haplotipo (asumimos unico) y el valor el  
+  *hap_id*. Para no hacer bucles inutiles podemos hacerlo directamente en el método
+  ``haplotype_gen`` con o cual quedaria de la siguiente forma:
+  
+.. code-block:: python
+
+    def haplotype_gen(self):
+        self.name_to_hapid = {}
+        with open("haplotypes.csv") as fp:
+            reader = csv.reader(fp)
+            for row in reader:
+                hap_id = row[0]
+                name = row[1]
+                hap = dom.Haplotype(hap_id, name=name)
+                self.name_to_hapid[name] = hap_id
+                yield hap
+                
+  Ahora podemos crear los facts facilmente utilizando el mòdulo json de Python
+
+.. code-block:: python
+
+    def fact_gen(self):
+        with open("facts.json", "rb") as fp:
+            data = json.load(fp)
+            for hap_name, facts_data in data.items():
+                hap_id = self.name_to_hapid[hap_name]
+                for fact_data in facts_data: 
+                    yield dom.Fact(hap_id, **fact_data)
+   
+
+Por ùltimo teniendo una base de datos objetivo podemos cargarla con nuestro ETL con el comando:
+
+.. code-block:: bash
+
+    $ yatel runetl sqlite:///my_database.db my_etl.py
+  
+  
+Inicialidador y limpieza de un ETL
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Funciones intermedias a los generadores
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Cache de Haplotypos
+^^^^^^^^^^^^^^^^^^^
+
+Ciclo de vida de un ETL
+-----------------------
+
+Corriendo ETL en un cronjob
+----------------------------
 
 Sugested *bash* (posix) script
 ------------------------------
