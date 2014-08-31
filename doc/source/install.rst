@@ -9,7 +9,7 @@ Execute
 
 .. code-block:: bash
 
-    $ sudo apt-get install python-setuptools python-pip python-numpy python-scipy
+    $ sudo apt-get install python-dev libatlas-base-dev gfortran
     $ sudo pip install yatel
 
 
@@ -37,11 +37,12 @@ From repo
 
 First install all dependencies, and then
 
-    .. code-block:: bash
+.. code-block:: bash
 
-        $ hg clone http://bitbucket.org/yatel/yatel yatel
-        $ cd yatel
-        $ python setup.py install
+    $ hg clone http://bitbucket.org/yatel/yatel yatel
+    $ cd yatel
+    $ python setup.py sdist
+    $ pip install dist/yatel-<VERSION>.tar.gz
 
 
 

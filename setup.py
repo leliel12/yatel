@@ -21,6 +21,7 @@
 #==============================================================================
 
 import os
+import sys
 
 from ez_setup import use_setuptools
 use_setuptools()
@@ -34,14 +35,10 @@ import yatel
 # CONSTANTS
 #==============================================================================
 
-PATH = os.path.abspath(os.path.dirname(__file__))
-
-REQUIREMENTS_PATH = os.path.join(PATH, "requirements.txt")
-
-with open(REQUIREMENTS_PATH) as fp:
-    REQUIREMENTS = [
-        line.strip() for line in fp.read().splitlines() if line.strip()
-    ]
+REQUIREMENTS = [
+    "Flask", "Flask-Script", "SQLAlchemy",
+    "jsonschema", "requests", "mock", "numpy", "scipy"
+]
 
 
 #==============================================================================

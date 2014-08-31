@@ -44,7 +44,7 @@ import sys
 PRJ = "Yatel"
 
 # : The project version as tuple of strings
-VERSION = ("0", "3")
+VERSION = ("0", "3dev")
 
 # : The project version as string
 STR_VERSION = ".".join(VERSION)
@@ -71,7 +71,7 @@ CLASSIFIERS = (
 )
 
 # : Home Page of yatel
-URL = "http://bitbucket.org/yatel/yatel"
+URL = "http://getyatel.org"
 
 # : Download for pypi
 DOWNLOAD_URL = "{}/downloads/{}-{}.tar.gz".format(URL, PRJ.lower(),
