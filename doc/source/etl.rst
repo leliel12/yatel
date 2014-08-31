@@ -70,29 +70,29 @@ Si lo abrimos veremos el siguiente codigo
 .. note:: Como condicion hay que aclarar que **siempre** que se utilice las herramientas
           de lineas de comando la clase con el ETL_ a correr debe llamarse
           ``ETL`` (Line 13).
-         
-         
+
+
 .. note:: Es buena practica que solo haya un ETL por archivo, para evitar confusiones
           problematicas al momento de la ejecucion y poner en riesgo la consistencia de
           su wharehouse.
-    
 
-- La linea # son los imports que se utilizan sin ecepcion en todos los ETL
-- La linea # crea la clase ETL que contendra toda la logica para la extraccion, 
+
+- La linea 6 son los imports que se utilizan sin ecepcion en todos los ETL
+- La linea 13 crea la clase ETL que contendra toda la logica para la extraccion,
   transformacion y carga de datos.
 
 
-Cabe aclarar que existen muchos metodos que pueden redefinirse (tienen una seccion mas 
+Cabe aclarar que existen muchos metodos que pueden redefinirse (tienen una seccion mas
 adelante) pero los unicos que hay que redefinir obligatoriamente son los generadores:
 ``haplotype_gen``, ``edge_gen``, ``fact_gen``.
 
 
-- ``haplotype_gen`` (linea #) debe retornar o bien un iterable o en el mejor de los 
+- ``haplotype_gen`` (linea 21) debe retornar o bien un iterable o en el mejor de los
   casos un generador de los haplotypes que desea que se cargen en la base de datos.
   Por ejemplo podriamos decidir que los haplotypes se lean de un CSV_ utilizando el
   modulo csv de Python:
-  
-.. code-block:: python
+
+  .. code-block:: python
 
     def haplotype_gen(self):
         with open("haplotypes.csv") as fp:
@@ -101,37 +101,37 @@ adelante) pero los unicos que hay que redefinir obligatoriamente son los generad
                 hap_id = row[0] # suponemos que el id esta en la primer columna
                 name = row[1] # suponemos que la columna 1 tiene un atributo name
                 yield dom.Haplotype(hap_id, name=name)
-    
-        
+
+
   Como es muy comun utilizar estos haplotypes en las siguientes funciones, el ETL
   se encarga de guardarlos en una variable llamada **haplotypes_cache**. Este
   cache es un un *dict-like* cuya llave son los `hap_id` y los valores los haplotypos
   en si mismo (la manipulacion del cache se vera en su propia seccion mas adelante).
 
-  
-- ``edge_gen`` (linea #) debe retornar o bien un iterable o en el mejor de los 
+
+- ``edge_gen`` (linea 24) debe retornar o bien un iterable o en el mejor de los
   casos un generador de los edges que desea que se cargen en la base de datos.
   Es normal querer utilizar el cache de haplotypes para de alguna manera compararlos
   y cargar el peso deseado en cada arco. Para comparar cada haplotipo con todos
   los demas excepto con el mismo podemos utilizar la funcion *itertools.combinations*
   que viene con python (si se quiere comparar los haplotypos con ellos mismos se puede
   utilizar por otro lado la funcion *itertools.combinations.with_replacement*). El peso
-  finalmente estara dada por la 
+  finalmente estara dada por la
   `distancia de hamming <http://en.wikipedia.org/wiki/Hamming_distance>`_ entre los
   dos haplotypos utilizando el modulo *weights* presente en Yatel:
-  
-  
-.. code-block:: python
+
+
+  .. code-block:: python
 
     def edge_gen(self):
         # combinamos de a dos haplotypos
         for hap0, hap1 in itertools.combinations(self.haplotypes_cache.values(), 2):
             w = weight.weight("hamming", hap0, hap1)
             haps_id = hap0.hap_id, hap1.hap_id
-            yield dom.Edge(w, haps_id) 
-            
+            yield dom.Edge(w, haps_id)
 
-- ``fact_gen`` (linea #) debe retornar o bien un iterable o en el mejor de los 
+
+- ``fact_gen`` (linea 27) debe retornar o bien un iterable o en el mejor de los
   casos un generador de los facts que desea que se cargen en la base de datos.
   Normalmente la mayor complejidad de los ETL radica en esta función.
   Podemos imaginar en nuestro caso (par agregar algo de complegidad al ejemplo)
@@ -140,29 +140,29 @@ adelante) pero los unicos que hay que redefinir obligatoriamente son los generad
   su ves los valores son un array el cual cada uno debe ser un *fact* de dicho
   haplotypo. Un ejemplo sencillo seria:
 
-  
-.. code-block:: javascript
+
+  .. code-block:: javascript
 
 
-    {
-        "hap_name_0": [
-            {"year": 1978, "description": "something..." },
-            {"year": 1990},
-            {"notes": "some notes", "year": 1986},
-            {"year": 2014, "active": false}
-        ]
-        ...
-    }
+        {
+            "hap_name_0": [
+                {"year": 1978, "description": "something..." },
+                {"year": 1990},
+                {"notes": "some notes", "year": 1986},
+                {"year": 2014, "active": false}
+            ]
+            ...
+        }
 
-        
+
   Asi la funcion que procese dichos datos debe primero determinar cual es el ``hap_id``
-  para cada haplotipo antes de crear el fact. Podemos (por una cuestion de facilidad) 
-  guardar un *dict* cuyo valor sea el *name* del haplotipo (asumimos unico) y el valor el  
+  para cada haplotipo antes de crear el fact. Podemos (por una cuestion de facilidad)
+  guardar un *dict* cuyo valor sea el *name* del haplotipo (asumimos unico) y el valor el
   *hap_id*. Para no hacer bucles inutiles podemos hacerlo directamente en el método
   ``haplotype_gen`` con o cual quedaria de la siguiente forma:
 
-  
-.. code-block:: python
+
+  .. code-block:: python
 
     def haplotype_gen(self):
         self.name_to_hapid = {}
@@ -174,32 +174,32 @@ adelante) pero los unicos que hay que redefinir obligatoriamente son los generad
                 hap = dom.Haplotype(hap_id, name=name)
                 self.name_to_hapid[name] = hap_id
                 yield hap
-                
+
   Ahora podemos crear los facts facilmente utilizando el mòdulo json de Python
 
 
-.. code-block:: python
+  .. code-block:: python
 
     def fact_gen(self):
         with open("facts.json", "rb") as fp:
             data = json.load(fp)
             for hap_name, facts_data in data.items():
                 hap_id = self.name_to_hapid[hap_name]
-                for fact_data in facts_data: 
+                for fact_data in facts_data:
                     yield dom.Fact(hap_id, **fact_data)
-   
+
 
 Por ùltimo teniendo una base de datos objetivo podemos cargarla con nuestro ETL con el comando:
 
 .. code-block:: bash
 
     $ yatel runetl sqlite:///my_database.db my_etl.py
-  
-  
+
+
 Inicialidador y limpieza de un ETL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Puede ser necesario, en algunos caso que su ETL necesite algunos recursos y que sea conveniente 
+Puede ser necesario, en algunos caso que su ETL necesite algunos recursos y que sea conveniente
 liberarlos recien al termina todo el procesamiento (una conexion a una base de datos por ejemplo);
 o por otro lado, crear variables globales a los mètodos
 
@@ -210,11 +210,11 @@ Para estos casos Yatel cuenta con dos metodos extra que se pueden redefinir en s
   aceptados) los cuales se pueden pasar desde la linea de comando.
 - ``teardown`` Este mètodo se ejeuta al finalizar todo el procesamiento y es el ultimo responsable
   en dejar el sistema en estable luego de liberar todos los recursos utilizados en la ejecucion del ETL.
-  
-  
-En nuesto ejemplo, podriamos imaginar que se desea ecribir el momento de inicio y finalizacion 
-de la ejecucion del ETL (obtenidos con el mòdulo *time* de python) en un archivo que se pasa 
-por paràmetro. Tambien es realmente este un mejor lugar para declrar el *dict* ``name_to_hapid`` 
+
+
+En nuesto ejemplo, podriamos imaginar que se desea ecribir el momento de inicio y finalizacion
+de la ejecucion del ETL (obtenidos con el mòdulo *time* de python) en un archivo que se pasa
+por paràmetro. Tambien es realmente este un mejor lugar para declrar el *dict* ``name_to_hapid``
 que se utilizara en los haplotipos y los facts. Las dos funciones tendran la forma
 
 
@@ -225,11 +225,11 @@ que se utilizara en los haplotipos y los facts. Las dos funciones tendran la for
         self.fp = open(filename, "w")
         self.name_to_hapid = {}
         self.fp.write(str(time.time()) + "\n")
-        
+
     def teardown(self):
         self.fp.write(str(time.time()) + "\n")
         self.fp.close()
-        
+
 Finalmente para correr nuestro etl ahora deberìamos utilizar el comando pasando los parametros
 para setup
 
@@ -237,8 +237,8 @@ para setup
 .. code-block:: bash
 
     $ yatel runetl sqlite:///my_database.db my_etl.py timestamps.log
- 
-        
+
+
 .. note:: Cabe aclarar que todos los parametros que llegan a ``setup`` llegan en la forma
           de texto y deben ser convertidos en la medida de lo necesario.
 
@@ -248,7 +248,7 @@ Funciones intermedias a los generadores
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Si bien no suele ser comun su utilizacion, los ETL poseen 6 metodos mas que permiten el
-control mas atomico de los ETL. Cada una de ellos se ejecutan justo antes y justo despues 
+control mas atomico de los ETL. Cada una de ellos se ejecutan justo antes y justo despues
 de cada generador, ellos son:
 
 - ``pre_haplotype_gen(self)`` se ejecuta justo antes de ejecutar *haplotype_gen*.
@@ -274,7 +274,7 @@ Si este mètodo suspende toda la ejecucion el ETL (incluso ``teardown``)
 
 .. note:: los ETL **NO** son manejadores de contexto.
 
-.. nota:: ``handle_error`` **NUNCA** debe relanzar la exception que le llega
+.. note:: ``handle_error`` **NUNCA** debe relanzar la exception que le llega
           como paràmetro. Si decesa sileciar esa exception simplemente retorne
           ``True`` o algun valor verdadero, de lo contrario la exception se
           propagarà

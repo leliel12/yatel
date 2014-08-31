@@ -278,5 +278,6 @@ rst_epilog = """
 .. _UTF-8: http://en.wikipedia.org/wiki/UTF-8
 .. _ETL: http://en.wikipedia.org/wiki/Extract,_transform,_load
 .. _SciPy: http://www.scipy.org/
+.. _CSV: http://en.wikipedia.org/wiki/Comma-separated_values
 
 """
