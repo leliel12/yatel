@@ -292,6 +292,28 @@ Por ejemplo si quisieramos silenciar la exception solo si es TypeError
 Cache de Haplotypos
 ^^^^^^^^^^^^^^^^^^^
 
+La ultima funcionalidad que se puede alterar a un ETL es el funcionamiento del
+cache de haplotypos. Por ejemplo si os haplotipos son demasiados para mantenerlos
+en memoria al mismo tiempo podria por ejemplo reemplazar el diccionario con una
+una base de datos ZODB_ (orientada a objetos) como cache.
+
+Los ETL utilizan como cache clases que heran de ``collections.Mapping``. En
+nuestro caso para utilizar ZODB_ deberiamos crear una clase como la siguiente:
+
+.. code-blok:: python
+
+    import collections
+    
+    class ZODBCache(collections.Mapping):
+    
+        def __init__(self, path)
+    
+ 
+
+
+
+
+
 Ciclo de vida de un ETL
 -----------------------
 
