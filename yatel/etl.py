@@ -103,7 +103,7 @@ class BaseETL(object):
     __metaclass__ = _ETLMeta
 
     HAPLOTYPES_CACHE = dict
-
+    
     def setup(self):
         pass
 
@@ -142,6 +142,9 @@ class BaseETL(object):
 
     def teardown(self):
         pass
+        
+    def handle_error(self, exc_type, exc_val, exc_tb):
+        return False
 
 
 #==============================================================================
@@ -205,55 +208,59 @@ def execute(nw, etl, *args):
     """Execute an ETL instance.
 
     """
-
-    etl_name = type(etl).__name__
-
-    if not isinstance(etl, BaseETL):
-        msg = "etl is not instance of a subclass of yatel.etl.BaseETL"
-        raise TypeError(msg)
-
-    CacheCls = getattr(etl, "HAPLOTYPES_CACHE", None)
-    if CacheCls is not None:
-        etl.haplotypes_cache = CacheCls()
-
-    etl.nw = nw
-    etl.setup(*args)
-
-    etl.pre_haplotype_gen()
-    for hap in etl.haplotype_gen() or []:
-        if isinstance(hap, dom.Haplotype):
-            nw.add_element(hap)
-            if CacheCls is not None:
-                etl.haplotypes_cache[hap.hap_id] = hap
-        else:
-            msg = ("ETL '{}' is 'haplotype_gen' method"
-                   "return  a non 'dom.Haplotype' object").format(etl_name)
+    try:
+        etl_name = type(etl).__name__
+    
+        if not isinstance(etl, BaseETL):
+            msg = "etl is not instance of a subclass of yatel.etl.BaseETL"
             raise TypeError(msg)
-    etl.post_haplotype_gen()
-
-    etl.pre_fact_gen()
-    for fact in etl.fact_gen() or []:
-        if isinstance(fact, dom.Fact):
-            nw.add_element(fact)
-        else:
-            msg = ("ETL '{}' 'fact_gen' method"
-                   "return  a non 'dom.Fact' object").format(etl_name)
-            raise TypeError(msg)
-    etl.post_fact_gen()
-
-    etl.pre_edge_gen()
-    for edge in etl.edge_gen() or []:
-        if isinstance(edge, dom.Edge):
-            nw.add_element(edge)
-        else:
-            msg = ("ETL '{}' 'edge_gen' method"
-                   "return a non 'dom.Edge' object").format(etl_name)
-            raise TypeError(msg)
-    etl.post_edge_gen()
-
-    etl.teardown()
-
-
+    
+        CacheCls = getattr(etl, "HAPLOTYPES_CACHE", None)
+        if CacheCls is not None:
+            etl.haplotypes_cache = CacheCls()
+    
+        etl.nw = nw
+        etl.setup(*args)
+    
+        etl.pre_haplotype_gen()
+        for hap in etl.haplotype_gen() or []:
+            if isinstance(hap, dom.Haplotype):
+                nw.add_element(hap)
+                if CacheCls is not None:
+                    etl.haplotypes_cache[hap.hap_id] = hap
+            else:
+                msg = ("ETL '{}' is 'haplotype_gen' method"
+                       "return  a non 'dom.Haplotype' object").format(etl_name)
+                raise TypeError(msg)
+        etl.post_haplotype_gen()
+    
+        etl.pre_fact_gen()
+        for fact in etl.fact_gen() or []:
+            if isinstance(fact, dom.Fact):
+                nw.add_element(fact)
+            else:
+                msg = ("ETL '{}' 'fact_gen' method"
+                       "return  a non 'dom.Fact' object").format(etl_name)
+                raise TypeError(msg)
+        etl.post_fact_gen()
+    
+        etl.pre_edge_gen()
+        for edge in etl.edge_gen() or []:
+            if isinstance(edge, dom.Edge):
+                nw.add_element(edge)
+            else:
+                msg = ("ETL '{}' 'edge_gen' method"
+                       "return a non 'dom.Edge' object").format(etl_name)
+                raise TypeError(msg)
+        etl.post_edge_gen()
+    
+        etl.teardown()
+    except err:        
+        ex_type, ex, tb = sys.exc_info()
+        if not etl.handle_error(ex_type, ex, tb)
+            raise
+            
+            
 #===============================================================================
 # MAIN
 #===============================================================================

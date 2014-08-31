@@ -67,23 +67,25 @@ Si lo abrimos veremos el siguiente codigo
         print(__doc__)
 
 
-.. note::
-
-    Como condicion hay que aclarar que **siempre** que se utilice las herramientas
-    de lineas de comando la clase con el ETL_ a correr debe llamarse
-    ``ETL`` (Line 13).
-    Es buena practica que solo haya un ETL por archivo, para evitar confusiones
-    problematicas al momento de la ejecucion y poner en riesgo la consistencia de
-    su wharehouse.
+.. note:: Como condicion hay que aclarar que **siempre** que se utilice las herramientas
+          de lineas de comando la clase con el ETL_ a correr debe llamarse
+          ``ETL`` (Line 13).
+         
+         
+.. note:: Es buena practica que solo haya un ETL por archivo, para evitar confusiones
+          problematicas al momento de la ejecucion y poner en riesgo la consistencia de
+          su wharehouse.
     
 
 - La linea # son los imports que se utilizan sin ecepcion en todos los ETL
 - La linea # crea la clase ETL que contendra toda la logica para la extraccion, 
   transformacion y carga de datos.
 
+
 Cabe aclarar que existen muchos metodos que pueden redefinirse (tienen una seccion mas 
 adelante) pero los unicos que hay que redefinir obligatoriamente son los generadores:
 ``haplotype_gen``, ``edge_gen``, ``fact_gen``.
+
 
 - ``haplotype_gen`` (linea #) debe retornar o bien un iterable o en el mejor de los 
   casos un generador de los haplotypes que desea que se cargen en la base de datos.
@@ -105,6 +107,7 @@ adelante) pero los unicos que hay que redefinir obligatoriamente son los generad
   se encarga de guardarlos en una variable llamada **haplotypes_cache**. Este
   cache es un un *dict-like* cuya llave son los `hap_id` y los valores los haplotypos
   en si mismo (la manipulacion del cache se vera en su propia seccion mas adelante).
+
   
 - ``edge_gen`` (linea #) debe retornar o bien un iterable o en el mejor de los 
   casos un generador de los edges que desea que se cargen en la base de datos.
@@ -136,6 +139,7 @@ adelante) pero los unicos que hay que redefinir obligatoriamente son los generad
   objeto y sus llaves son equivalentes al atributo *name* de cada haplotype; a
   su ves los valores son un array el cual cada uno debe ser un *fact* de dicho
   haplotypo. Un ejemplo sencillo seria:
+
   
 .. code-block:: javascript
 
@@ -149,12 +153,14 @@ adelante) pero los unicos que hay que redefinir obligatoriamente son los generad
         ]
         ...
     }
+
         
   Asi la funcion que procese dichos datos debe primero determinar cual es el ``hap_id``
   para cada haplotipo antes de crear el fact. Podemos (por una cuestion de facilidad) 
   guardar un *dict* cuyo valor sea el *name* del haplotipo (asumimos unico) y el valor el  
   *hap_id*. Para no hacer bucles inutiles podemos hacerlo directamente en el método
   ``haplotype_gen`` con o cual quedaria de la siguiente forma:
+
   
 .. code-block:: python
 
@@ -170,6 +176,7 @@ adelante) pero los unicos que hay que redefinir obligatoriamente son los generad
                 yield hap
                 
   Ahora podemos crear los facts facilmente utilizando el mòdulo json de Python
+
 
 .. code-block:: python
 
@@ -192,8 +199,95 @@ Por ùltimo teniendo una base de datos objetivo podemos cargarla con nuestro ETL
 Inicialidador y limpieza de un ETL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Puede ser necesario, en algunos caso que su ETL necesite algunos recursos y que sea conveniente 
+liberarlos recien al termina todo el procesamiento (una conexion a una base de datos por ejemplo);
+o por otro lado, crear variables globales a los mètodos
+
+Para estos casos Yatel cuenta con dos metodos extra que se pueden redefinir en su ETL estos son:
+
+- ``setup`` que se ejecuta previamente a **todos** los demas metodos del ETL. Sumado a esto; tambien
+  puede recibir paràmetros posicionales (los parametros variables o con valores por defecto no son
+  aceptados) los cuales se pueden pasar desde la linea de comando.
+- ``teardown`` Este mètodo se ejeuta al finalizar todo el procesamiento y es el ultimo responsable
+  en dejar el sistema en estable luego de liberar todos los recursos utilizados en la ejecucion del ETL.
+  
+  
+En nuesto ejemplo, podriamos imaginar que se desea ecribir el momento de inicio y finalizacion 
+de la ejecucion del ETL (obtenidos con el mòdulo *time* de python) en un archivo que se pasa 
+por paràmetro. Tambien es realmente este un mejor lugar para declrar el *dict* ``name_to_hapid`` 
+que se utilizara en los haplotipos y los facts. Las dos funciones tendran la forma
+
+
+.. code-block:: python
+
+
+    def setup(self, filename):
+        self.fp = open(filename, "w")
+        self.name_to_hapid = {}
+        self.fp.write(str(time.time()) + "\n")
+        
+    def teardown(self):
+        self.fp.write(str(time.time()) + "\n")
+        self.fp.close()
+        
+Finalmente para correr nuestro etl ahora deberìamos utilizar el comando pasando los parametros
+para setup
+
+
+.. code-block:: bash
+
+    $ yatel runetl sqlite:///my_database.db my_etl.py timestamps.log
+ 
+        
+.. note:: Cabe aclarar que todos los parametros que llegan a ``setup`` llegan en la forma
+          de texto y deben ser convertidos en la medida de lo necesario.
+
+
+
 Funciones intermedias a los generadores
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Si bien no suele ser comun su utilizacion, los ETL poseen 6 metodos mas que permiten el
+control mas atomico de los ETL. Cada una de ellos se ejecutan justo antes y justo despues 
+de cada generador, ellos son:
+
+- ``pre_haplotype_gen(self)`` se ejecuta justo antes de ejecutar *haplotype_gen*.
+- ``post_haplotype_gen(self)`` se ejecuta justo despues de ejecutar *haplotype_gen*.
+- ``pre_edge_gen(self)`` se ejecuta justo antes de ejecutar *edge_gen*.
+- ``post_edge_gen(self)`` se ejecuta justo despues de ejecutar *edge_gen*.
+- ``pre_fact_gen(self)`` se ejecuta justo antes de ejecutar *fact_gen*.
+- ``post_fact_gen(self)`` se ejecuta justo despues de ejecutar *fact_gen*.
+
+
+Manejo de Errores
+^^^^^^^^^^^^^^^^^
+
+En caso de suceder algun error en el procesamiento de un ETL, puede redefinirse
+un metodo para tratar este error: ``handle_error(exc_type, exc_val, exc_tb)``
+
+Los parametros que recibe ``handle_error`` son los equivalente a exit de un
+context manager donde: *exc_type* es la clase del error (exception) que sucecio,
+*exc_val* es la exception propiamente dicha y *exc_tb* es e traceback del error.
+
+Si este mètodo suspende toda la ejecucion el ETL (incluso ``teardown``)
+
+
+.. note:: los ETL **NO** son manejadores de contexto.
+
+.. nota:: ``handle_error`` **NUNCA** debe relanzar la exception que le llega
+          como paràmetro. Si decesa sileciar esa exception simplemente retorne
+          ``True`` o algun valor verdadero, de lo contrario la exception se
+          propagarà
+
+
+Por ejemplo si quisieramos silenciar la exception solo si es TypeError
+
+
+.. code-block:: python
+
+    def handle_error(self exc_type, exc_val, exc_tb):
+        return exc_type == TypeError
+
 
 Cache de Haplotypos
 ^^^^^^^^^^^^^^^^^^^
