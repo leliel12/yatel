@@ -279,5 +279,9 @@ rst_epilog = """
 .. _ETL: http://en.wikipedia.org/wiki/Extract,_transform,_load
 .. _SciPy: http://www.scipy.org/
 .. _CSV: http://en.wikipedia.org/wiki/Comma-separated_values
+.. _ZODB: http://www.zodb.org
+.. _Riak: http://basho.com/riak/
+.. _Redis: http://redis.io/
+.. _SQLite: http://www.sqlite.org/
 
 """

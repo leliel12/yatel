@@ -417,8 +417,8 @@ class RunETL(Command):
     def run(self, database, etlfile, args):
         etl_cls = etl.etlcls_from_module(etlfile, "ETL")
         etl_instance = etl_cls()
-        etl.execute(database, etl_instance, *args)
-        database.confirm_changes()
+        if etl.execute(database, etl_instance, *args):
+            database.confirm_changes()
 
 
 @command("pyshell")

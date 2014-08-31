@@ -13,8 +13,8 @@ ingles es LOAD) a nuestra base de datos.
 Yatel brinda un modesto framework para la creación de ETL para la carga de
 NW-OLAP de una forma consistente.
 
-Creando Un ETL
-^^^^^^^^^^^^^^
+Creando Un ETL Completo
+^^^^^^^^^^^^^^^^^^^^^^^
 
 El primer paso para crear un ETL_ es utilizar Yatel para que nos genere un
 template sobre el cual trabajar en un archivo de nombre, por ejemplo,
@@ -150,7 +150,7 @@ adelante) pero los unicos que hay que redefinir obligatoriamente son los generad
                 {"year": 1990},
                 {"notes": "some notes", "year": 1986},
                 {"year": 2014, "active": false}
-            ]
+            ],
             ...
         }
 
@@ -197,7 +197,7 @@ Por ùltimo teniendo una base de datos objetivo podemos cargarla con nuestro ETL
 
 
 Inicialidador y limpieza de un ETL
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------
 
 Puede ser necesario, en algunos caso que su ETL necesite algunos recursos y que sea conveniente
 liberarlos recien al termina todo el procesamiento (una conexion a una base de datos por ejemplo);
@@ -220,7 +220,6 @@ que se utilizara en los haplotipos y los facts. Las dos funciones tendran la for
 
 .. code-block:: python
 
-
     def setup(self, filename):
         self.fp = open(filename, "w")
         self.name_to_hapid = {}
@@ -229,6 +228,7 @@ que se utilizara en los haplotipos y los facts. Las dos funciones tendran la for
     def teardown(self):
         self.fp.write(str(time.time()) + "\n")
         self.fp.close()
+
 
 Finalmente para correr nuestro etl ahora deberìamos utilizar el comando pasando los parametros
 para setup
@@ -245,7 +245,7 @@ para setup
 
 
 Funciones intermedias a los generadores
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------------
 
 Si bien no suele ser comun su utilizacion, los ETL poseen 6 metodos mas que permiten el
 control mas atomico de los ETL. Cada una de ellos se ejecutan justo antes y justo despues
@@ -260,7 +260,7 @@ de cada generador, ellos son:
 
 
 Manejo de Errores
-^^^^^^^^^^^^^^^^^
+-----------------
 
 En caso de suceder algun error en el procesamiento de un ETL, puede redefinirse
 un metodo para tratar este error: ``handle_error(exc_type, exc_val, exc_tb)``
@@ -285,43 +285,138 @@ Por ejemplo si quisieramos silenciar la exception solo si es TypeError
 
 .. code-block:: python
 
-    def handle_error(self exc_type, exc_val, exc_tb):
+    def handle_error(self, exc_type, exc_val, exc_tb):
         return exc_type == TypeError
 
 
 Cache de Haplotypos
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 La ultima funcionalidad que se puede alterar a un ETL es el funcionamiento del
 cache de haplotypos. Por ejemplo si os haplotipos son demasiados para mantenerlos
-en memoria al mismo tiempo podria por ejemplo reemplazar el diccionario con una
-una base de datos ZODB_ (orientada a objetos) como cache.
+en memoria al mismo tiempo podria por ejemplo reemplazar el doble diccionario
+(el cache interno y el que enlaza los nombres con los id) por un unico cache
+que contenga internamente los datos de manera prolija
 
-Los ETL utilizan como cache clases que heran de ``collections.Mapping``. En
-nuestro caso para utilizar ZODB_ deberiamos crear una clase como la siguiente:
+Los ETL utilizan como cache clases que heredan de
+``collections.MutableMapping``.
 
-.. code-blok:: python
+.. code-block:: python
 
     import collections
-    
-    class ZODBCache(collections.Mapping):
-    
-        def __init__(self, path)
-    
- 
+
+    class DoubleDictCache(collections.MutableMapping):
+
+        def __init__(self, path):
+            self.by_hap_id = {}
+            self.name_to_hap_id = {}
+
+        # todos estos metodos son necesarios redefinit en un mutable mapping
+        def __delitem__(self, hap_id):
+            hap = self.by_hap_id.pop(hap_id)
+            self.name_to_hap_id.pop(hap.name)
+
+        def __getitem__(self, hap_id):
+            return self.by_hap_id[hap_id]
+
+        def __iter__(self):
+            return iter(self.by_hap_id)
+
+        def __len__(self):
+            return len(self.by_hap_id)
+
+        def __setitem__(self, hap_id, hap):
+            self.by_hap_id[hap_id] = hap
+            self.name_to_hap_id[hap.name] = hap_id
+
+        def get_hap_id(self, name):
+            return self.name_to_hap_id[name]
+
+Para utilizar este cache a nivel de clase del ETL hay que redefinir un atributo
+que se llama ``HAPLOTYPES_CACHE`` y que tenga valor la clase
+``DoubleDictCache``.
+
+.. note:: Si desea deshabilitar el cache totalmente, ponga el valor
+          ``HAPLOTYPES_CACHE`` a *None*
+
+En nuestro ejemplo el codigo finalmente quedaría:
+
+.. code-block:: python
+
+    class ETL(etl.BaseETL):
+
+        HAPLOTYPES_CACHE = DoubleDictCache
+
+        ...
+
+.. note:: Tenga en cuenta que es posible que sea necesario depende el tamño de
+          su cache que le convenga implementar algo sobre una base de datos
+          llave valor (Riak_ o Redis_), OO (ZODB_) o directamente una
+          relacional como una pequeña SQLite_
 
 
+Ejemplo Completo
+----------------
 
+El ejemplo completo del codigo puede verse `aqui <_static/examples/myetl.zip>`_
 
 
 Ciclo de vida de un ETL
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
+
+#. Primero se verifica que la clase herede de ``yatel.etl.BaseETL``
+#. Se extrae la clase de Cache y si no se encuentra se deshabilita.
+#. Si la clase de cache es:
+    #. ``None`` no se crea ni un cache.
+    #. ``!= None`` se verifica que se una subclase de
+       ``collections.MutableMapping`` y luego se crea una instancia y se la
+       asigna al etl en la variable ``haplotypes_cache``
+#. Se asigna la instancia de ``db.YatelNetwork`` a la variabe ``nw`` en el ETL
+#. Se ejecuta el metodo ``setup`` del ETL pasandole todos los argumentos.
+#. Se ejecuta ``pre_haplotype_gen``.
+#. Se itera sobre los ``dom.Haplotype`` que devuelve ``haplotype_gen`` y se
+   los agrega a la base de datos. Si en algun momento se devuelve algo que no
+   sea un  ``dom.Edge`` se lanza un ``TypeError``. Si existe un cache se asigna
+   cada ``dom.Haplotype`` al cache poniendo como llave el *hap_id* y como valor
+   el *Haplotype*
+#. Se ejecuta ``post_haplotype_gen``.
+#. Se ejecuta ``pre_edge_gen``.
+#. Se itera sobre lo ``dom.Edge`` que devuelve ``edge_gen`` y se los agrega a
+   la base de datos. Si en algun momento se devuelve algo que no sea un
+   ``dom.Edge`` se lanza un ``TypeError``
+#. Se ejecuta ``post_edge_gen``
+#. Se ejecuta ``pre_fact_gen``.
+#. Se itera sobre lo ``dom.Fact`` que devuelve ``fact_gen`` y se los agrega a
+   la base de datos. Si en algun momento se devuelve algo que no sea un
+   ``dom.Fact`` se lanza un ``TypeError``
+#. Se ejecuta ``post_fact_gen``
+#. Se ejecuta ``teardown``
+#. Se retorna ``True``
+
+**Si algo Falla**
+
+A. Se ejecuta ``handle_error`` pasandole información
+   del error. Si ``handle_error`` retorna ``False`` no se detiene la exception.
+B. Se retorna ``None``.
+
+.. warning:: Si usted esta corriendo directamente su etl utilizando la funcion
+             ``etl.execute`` no se confirman los cambios y es su
+             responsabilidad ejecutar el ``nw.confirm_changes()``.
+
+             Si por otro lado usted esta ejecutando con la linea de comandos
+             la confirmacion solo se ejecuta si la funcion ``etl.execute`` no
+             falla en ningun momento.
+
 
 Corriendo ETL en un cronjob
-----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Sugested *bash* (posix) script
-------------------------------
+Es altamente recomendable antes de correr un etl que siempre haga un backup de
+los datos para eso le sugerimos los siguientes scipts (para windows y posix)
+que facilitan esta tarea
+
+
+**Sugested *bash* (posix) script**
 
 .. code-block:: bash
 
@@ -332,19 +427,20 @@ Sugested *bash* (posix) script
     DATABASE="engine://your_usr:your_pass@host:port/database";
     BACKUP_TPL="/path/to/your/backup.xml";
     ETL="/path/to/your/etl_file.py";
+    LOGFILE="/var/yatel/log.txt"
 
-    yatel --no-gui --database $DATABASE --backup $BACKUP_TPL --log 2> logfile.txt;
-    yatel --no-gui --database $DATABASE --run-etl $ETL --log 2> logfile.txt;
+    yatel backup $DATABASE $BACKUP_TPL --log --full-stack 2> $LOGFILE;
+    yatel runetl $DATABASE $ETL --log --full-stack 2> $LOGFILE;
 
 
-Sugested *bat* (Windows) script
--------------------------------
+**Sugested *bat* (Windows) script**
 
 .. code-block:: bat
 
     set BACKUP_TPL=c:\path\to\your\backup.json
     set ETL=c:\path\to\your\etl_file.py
     set DATABASE=sqlite://to/thing
+    set LOGFILE=logfile.txt
 
-    yatel --no-gui --database %DATABASE% --backup %BACKUP_TPL% --log 2> logfile.txt;
-    yatel --no-gui --database %DATABASE% --run-etl %ETL% --log 2> logfile.txt;
+    yatel backup %DATABASE% %BACKUP_TPL% --log --full-stack 2> %LOGFILE%;
+    yatel runetl %DATABASE% %ETL% --log --full-stack 2> %LOGFILE%;

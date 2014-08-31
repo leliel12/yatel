@@ -59,8 +59,8 @@ class ETL(etl.BaseETL):
     # You can access all the allready created haplotypes from attribute
     # 'self.haplotypes_cache'. If you want to disable the cache put a class
     # level attribute 'HAPLOTYPES_CACHE = None'. Also if you want to change
-    # the default cache engine put a subclass of 'collections.Mappiing' as
-    # value of 'HAPLOTYPES_CACHE'
+    # the default cache engine put a subclass of 'collections.MutableMappiing'
+    # as value of 'HAPLOTYPES_CACHE'
 
 
 ${code}
@@ -217,6 +217,12 @@ def execute(nw, etl, *args):
 
         CacheCls = getattr(etl, "HAPLOTYPES_CACHE", None)
         if CacheCls is not None:
+            if not issubclass(CacheCls, collections.MutableMapping):
+                msg = (
+                    "Haplotypes Cache must be subclass of "
+                    "'collections.MutableMapping'"
+                )
+                raise TypeError(msg)
             etl.haplotypes_cache = CacheCls()
 
         etl.nw = nw
@@ -259,6 +265,8 @@ def execute(nw, etl, *args):
         ex_type, ex, tb = sys.exc_info()
         if not etl.handle_error(ex_type, ex, tb):
             raise
+    else:
+        return True
 
 
 #===============================================================================
