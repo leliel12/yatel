@@ -13,9 +13,9 @@
 """yatel.etl module tests"""
 
 
-# ===============================================================================
+# =============================================================================
 # IMPORTS
-# ===============================================================================
+# =============================================================================
 import os
 import tempfile
 import shutil
@@ -25,9 +25,9 @@ from yatel import db
 from yatel.tests.core import YatelTestCase
 from yatel import dom
 
-# ===============================================================================
+# =============================================================================
 # VALIDATE TESTS
-# ===============================================================================
+# =============================================================================
 ETL = """
 
 from yatel import etl, dom
@@ -117,7 +117,7 @@ class TestEtl(YatelTestCase):
         nw.confirm_changes()
         rs = etl.execute(self.nw, self.etl, )
         self.nw.confirm_changes()
-        self.assertEquals(rs, None)
+        self.assertTrue(rs)
         self.assertSameUnsortedContent(nw.haplotypes(), self.nw.haplotypes())
         self.assertSameUnsortedContent(nw.facts(), self.nw.facts())
         self.assertSameUnsortedContent(nw.edges(), self.nw.edges())
@@ -132,9 +132,9 @@ class TestEtl(YatelTestCase):
     def test_get_template(self):
         rs = etl.get_template()
 
-# ===============================================================================
+# =============================================================================
 # MAIN
-# ===============================================================================
+# =============================================================================
 
 if __name__ == "__main__":
     print(__doc__)
