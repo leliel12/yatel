@@ -3,7 +3,7 @@ Installation Guide
 ==================
 
 Ubuntu/Debian/Mint
-------------------
+^^^^^^^^^^^^^^^^^^
 
 Execute
 
@@ -13,9 +13,8 @@ Execute
     $ sudo pip install yatel
 
 
-
-Windows or other Xnix
----------------------
+Windows or other xnix
+^^^^^^^^^^^^^^^^^^^^^
 
 - Python 2.7 http://www.python.org
 - Setup tools http://pypi.python.org/pypi/setuptools
@@ -33,7 +32,7 @@ Finally open a console and execute
 
 
 From repo
----------
+^^^^^^^^^
 
 First install all dependencies, and then
 
@@ -45,6 +44,15 @@ First install all dependencies, and then
     $ pip install dist/yatel-<VERSION>.tar.gz
 
 
+Install as develop
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+    $ hg clone http://bitbucket.org/yatel/yatel yatel
+    $ cd yatel
+    $ pip install -r requirements.txt
+    $ python setup.py develp
 
 
 

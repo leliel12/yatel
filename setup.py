@@ -36,8 +36,9 @@ import yatel
 #==============================================================================
 
 REQUIREMENTS = [
-    "Flask", "Flask-Script", "SQLAlchemy",
-    "jsonschema", "requests", "mock", "numpy", "scipy"
+    "Flask >= 0.10.1", "Flask-Script >= 2.0.5", "SQLAlchemy >= 0.9.7",
+    "jsonschema >= 2.4.0", "requests >= 2.4.0", "mock >= 1.0.1",
+    "numpy >= 1.8.2", "scipy >= 0.14.0"
 ]
 
 
