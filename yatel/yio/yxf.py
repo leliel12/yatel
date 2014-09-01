@@ -11,9 +11,9 @@
 # DOCS
 #===============================================================================
 
-'''Persist yatel db in XML format
+"""Persists Yatel databases in XML format.
 
-'''
+"""
 
 #===============================================================================
 # IMPORTS
@@ -31,9 +31,11 @@ from yatel.yio import core
 #===============================================================================
 
 class XMLParser(core.BaseParser):
+    """XML parser to serialize and deserialize data."""
 
     @classmethod
     def file_exts(cls):
+        """Returns extensions used for XML handling."""
         return ("yxf", "xml")
 
     #===========================================================================
@@ -53,6 +55,16 @@ class XMLParser(core.BaseParser):
 
 
     def dump(self, nw, fp, *args, **kwargs):
+        """Serializes data from a Yatel network to a XML file-like stream.
+        
+        Parameters
+        ----------
+        nw : :py:class:`yatel.db.YatelNetwork`
+            Network source of data.
+        fp : file-like object
+            Target for serialization.
+        
+        """
 
         fp.write(self.start_elem(u"Network", {u"version": self.version()}))
 
@@ -109,6 +121,17 @@ class XMLParser(core.BaseParser):
     #===========================================================================
 
     def load(self, nw, fp, *args, **kwargs):
+        """Deserializes data from a XML file-like stream and adds it to the 
+        Yatel network.
+        
+        Parameters
+        ----------
+        nw : :py:class:`yatel.db.YatelNetwork`
+            Network target of data.
+        fp : file-like object
+            Source of data to deserialize.
+        
+        """
 
         class YatelXMLHandler(sax.ContentHandler):
 

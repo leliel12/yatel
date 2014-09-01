@@ -11,7 +11,7 @@
 # DOCS
 #===============================================================================
 
-"""Functionality for create and execute
+"""Functionality to create and execute an ETL.
 `ETLs <http://en.wikipedia.org/wiki/Extract,_transform,_load>`_
 
 """
@@ -29,6 +29,7 @@ import os
 import imp
 import sys
 import re
+import collections
 
 from yatel import db
 from yatel import dom
@@ -43,19 +44,24 @@ ETL_TEMPLATE = string.Template("""
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''auto created template for create your custom etl for yatel'''
-
+'''auto created template to create a custom ETL for yatel'''
 
 from yatel import etl, dom
 
 
 #===============================================================================
-# PUT YOUT ETLs HERE
+# PUT YOUR ETLs HERE
 #===============================================================================
 
 class ETL(etl.BaseETL):
 
     # you can access the current network from the attribute 'self.nw'
+    # You can access all the allready created haplotypes from attribute
+    # 'self.haplotypes_cache'. If you want to disable the cache put a class
+    # level attribute 'HAPLOTYPES_CACHE = None'. Also if you want to change
+    # the default cache engine put a subclass of 'collections.MutableMappiing'
+    # as value of 'HAPLOTYPES_CACHE'
+
 
 ${code}
 
@@ -73,14 +79,14 @@ if __name__ == "__main__":
 #===============================================================================
 
 class _ETLMeta(abc.ABCMeta):
-    """Metaclass for control the ETL inheritance
+    """Metaclass to control the ETL inheritance
 
     """
     def __init__(self, *args, **kwargs):
         super(_ETLMeta, self).__init__(*args, **kwargs)
         spec = inspect.getargspec(self.setup)
         if spec.varargs or spec.keywords or spec.defaults:
-            msg = "Only positional arguments without defauls is alowed on setup"
+            msg = "Only positional arguments without defaults is allowed on setup"
             raise TypeError(msg)
         self.setup_args = tuple(arg for arg in spec.args if arg != "self")
 
@@ -90,8 +96,13 @@ class _ETLMeta(abc.ABCMeta):
 #===============================================================================
 
 class BaseETL(object):
+    """Defines the basic structure of an ETL and methods to be implemented.
+
+    """
 
     __metaclass__ = _ETLMeta
+
+    HAPLOTYPES_CACHE = dict
 
     def setup(self):
         pass
@@ -101,6 +112,7 @@ class BaseETL(object):
 
     @abc.abstractmethod
     def haplotype_gen(self):
+        """Creation of data to haplotype like style"""
         return []
 
     def post_haplotype_gen(self):
@@ -111,6 +123,7 @@ class BaseETL(object):
 
     @abc.abstractmethod
     def fact_gen(self):
+        """Creation of data to fact like style"""
         return []
 
     def post_fact_gen(self):
@@ -121,6 +134,7 @@ class BaseETL(object):
 
     @abc.abstractmethod
     def edge_gen(self):
+        """Creation of data to edge like style"""
         return []
 
     def post_edge_gen(self):
@@ -129,10 +143,13 @@ class BaseETL(object):
     def teardown(self):
         pass
 
+    def handle_error(self, exc_type, exc_val, exc_tb):
+        return False
 
-#===============================================================================
+
+#==============================================================================
 # FUNCTIONS
-#===============================================================================
+#==============================================================================
 
 def scan_dir(dirpath):
     """Retrieve all python files from a given directory"""
@@ -149,7 +166,7 @@ def scan_dir(dirpath):
 
 
 def scan_file(filepath):
-    """Retrieve all yatel.etl.BaseETL subclass of a given file"""
+    """Retrieve all `yatel.etl.BaseETL` subclass of a given file"""
     dirname, filename = os.path.split(filepath)
     modname = os.path.splitext(filename)[0]
     etlmodule = None
@@ -169,13 +186,16 @@ def scan_file(filepath):
 
 
 def etlcls_from_module(filepath, clsname):
-    """Return a class of a given  filepath.
+    """Return a class of a given  `filepath`.
 
     """
     return scan_file(filepath)[clsname]
 
 
 def get_template():
+    """Return the template of a base ETL as a string.
+
+    """
     defs = []
     for amethod in BaseETL.__abstractmethods__:
         defd = ("    def {}(self):\n"
@@ -186,48 +206,67 @@ def get_template():
 
 def execute(nw, etl, *args):
     """Execute an ETL instance.
+
     """
+    try:
+        etl_name = type(etl).__name__
 
-    etl_name = type(etl).__name__
-
-    if not isinstance(etl, BaseETL):
-        msg = "etl is not instance of a subclass of yatel.etl.BaseETL"
-        raise TypeError(msg)
-
-    etl.nw = nw
-    etl.setup(*args)
-
-    etl.pre_haplotype_gen()
-    for hap in etl.haplotype_gen() or []:
-        if isinstance(hap, dom.Haplotype):
-            nw.add_element(hap)
-        else:
-            msg = ("ETL '{}' is 'haplotype_gen' method"
-                   "return  a non 'dom.Haplotype' object").format(etl_name)
+        if not isinstance(etl, BaseETL):
+            msg = "etl is not instance of a subclass of yatel.etl.BaseETL"
             raise TypeError(msg)
-    etl.post_haplotype_gen()
 
-    etl.pre_fact_gen()
-    for fact in etl.fact_gen() or []:
-        if isinstance(fact, dom.Fact):
-            nw.add_element(fact)
-        else:
-            msg = ("ETL '{}' 'fact_gen' method"
-                   "return  a non 'dom.Fact' object").format(etl_name)
-            raise TypeError(msg)
-    etl.post_fact_gen()
+        CacheCls = getattr(etl, "HAPLOTYPES_CACHE", None)
+        if CacheCls is not None:
+            if not issubclass(CacheCls, collections.MutableMapping):
+                msg = (
+                    "Haplotypes Cache must be subclass of "
+                    "'collections.MutableMapping'"
+                )
+                raise TypeError(msg)
+            etl.haplotypes_cache = CacheCls()
 
-    etl.pre_edge_gen()
-    for edge in etl.edge_gen() or []:
-        if isinstance(edge, dom.Edge):
-            nw.add_element(edge)
-        else:
-            msg = ("ETL '{}' 'edge_gen' method"
-                   "return a non 'dom.Edge' object").format(etl_name)
-            raise TypeError(msg)
-    etl.post_edge_gen()
+        etl.nw = nw
+        etl.setup(*args)
 
-    etl.teardown()
+        etl.pre_haplotype_gen()
+        for hap in etl.haplotype_gen() or []:
+            if isinstance(hap, dom.Haplotype):
+                nw.add_element(hap)
+                if CacheCls is not None:
+                    etl.haplotypes_cache[hap.hap_id] = hap
+            else:
+                msg = ("ETL '{}' is 'haplotype_gen' method"
+                       "return  a non 'dom.Haplotype' object").format(etl_name)
+                raise TypeError(msg)
+        etl.post_haplotype_gen()
+
+        etl.pre_fact_gen()
+        for fact in etl.fact_gen() or []:
+            if isinstance(fact, dom.Fact):
+                nw.add_element(fact)
+            else:
+                msg = ("ETL '{}' 'fact_gen' method"
+                       "return  a non 'dom.Fact' object").format(etl_name)
+                raise TypeError(msg)
+        etl.post_fact_gen()
+
+        etl.pre_edge_gen()
+        for edge in etl.edge_gen() or []:
+            if isinstance(edge, dom.Edge):
+                nw.add_element(edge)
+            else:
+                msg = ("ETL '{}' 'edge_gen' method"
+                       "return a non 'dom.Edge' object").format(etl_name)
+                raise TypeError(msg)
+        etl.post_edge_gen()
+
+        etl.teardown()
+    except:
+        ex_type, ex, tb = sys.exc_info()
+        if not etl.handle_error(ex_type, ex, tb):
+            raise
+    else:
+        return True
 
 
 #===============================================================================

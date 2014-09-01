@@ -44,7 +44,7 @@ import sys
 PRJ = "Yatel"
 
 # : The project version as tuple of strings
-VERSION = ("0", "3")
+VERSION = ("0", "3dev")
 
 # : The project version as string
 STR_VERSION = ".".join(VERSION)
@@ -71,11 +71,7 @@ CLASSIFIERS = (
 )
 
 # : Home Page of yatel
-URL = "http://bitbucket.org/yatel/yatel"
-
-# : Download for pypi
-DOWNLOAD_URL = "{}/downloads/{}-{}.tar.gz".format(URL, PRJ.lower(),
-                                                   STR_VERSION)
+URL = "http://getyatel.org"
 
 # : Url of the official yatel doc
 DOC_URL = "http://yatel.readthedocs.org"
@@ -99,7 +95,7 @@ think this stuff is worth it, you can buy us a WISKEY in return.
 
 # : Keywords for search of pypi
 KEYWORDS = """Yatel user-profile-distance-based networks  multidimensional
-exploration biology database kdd datamining"""
+exploration database kdd datamining"""
 
 # : If the program is en debug mode
 DEBUG = __debug__

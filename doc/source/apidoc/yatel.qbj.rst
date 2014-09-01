@@ -1,35 +1,44 @@
-qbj Package
-===========
+yatel.qbj package
+=================
 
-:mod:`qbj` Package
-------------------
+Submodules
+----------
 
-.. automodule:: yatel.qbj
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`core` Module
-------------------
+yatel.qbj.core module
+---------------------
 
 .. automodule:: yatel.qbj.core
     :members:
-    :undoc-members:
     :show-inheritance:
 
-:mod:`functions` Module
------------------------
+.. _qbjfunctions:
+
+yatel.qbj.functions module
+--------------------------
 
 .. automodule:: yatel.qbj.functions
     :members:
-    :undoc-members:
+    :exclude-members: QBJFunction
     :show-inheritance:
 
-:mod:`schema` Module
---------------------
+yatel.qbj.schema module
+-----------------------
 
 .. automodule:: yatel.qbj.schema
     :members:
-    :undoc-members:
     :show-inheritance:
 
+yatel.qbj.shell module
+----------------------
+
+.. automodule:: yatel.qbj.shell
+    :members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: yatel.qbj
+    :members:
+    :show-inheritance:

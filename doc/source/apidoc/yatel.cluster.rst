@@ -1,19 +1,22 @@
-cluster Package
-===============
+yatel.cluster package
+=====================
 
-:mod:`cluster` Package
-----------------------
+Submodules
+----------
 
-.. automodule:: yatel.cluster
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`kmeans` Module
---------------------
+yatel.cluster.kmeans module
+---------------------------
 
 .. automodule:: yatel.cluster.kmeans
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: yatel.cluster
+    :members:
+    :undoc-members:
+    :show-inheritance:

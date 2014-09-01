@@ -7,9 +7,9 @@
 # think this stuff is worth it, you can buy us a WISKEY us return.
 
 
-#===============================================================================
+#==============================================================================
 # DOCS
-#===============================================================================
+#==============================================================================
 
 """Euclidean distance implementation of yatel.
 
@@ -18,20 +18,20 @@ http://en.wikipedia.org/wiki/Euclidean_distance
 
 """
 
-#===============================================================================
+#==============================================================================
 # IMPORTS
-#===============================================================================
+#==============================================================================
 
 import numpy as np
 
 from yatel.weight import core
 
 
-#===============================================================================
+#==============================================================================
 # EUCLIDEAN
-#===============================================================================
+#==============================================================================
 
-class Euclidean(core.Weight):
+class Euclidean(core.BaseWeight):
     """Calculate "ordinary" distance/weight between two haplotypes given by the
     Pythagorean formula.
 
@@ -53,30 +53,36 @@ class Euclidean(core.Weight):
     http://en.wikipedia.org/wiki/Euclidean_distance
 
     """
+
+    @classmethod
+    def names(cls):
+        return "euclidean", "euc", "ordinary"
+
     def __init__(self, to_num=None):
         """Creates a new instance
 
-        **Params**
-        :param to_num: Convert to a number an haplotype attribute value.
-                       The default behavior of ``to_num`` is a sumatory of
-                       base64 ord value of every attribute value or
+        Parameters
+        ----------
+        to_num : callable
+            Convert to a number an haplotype attribute value. The default 
+            behavior of `to_num` is a sumatory of base64 ord value of every 
+            attribute value or
 
-                        .. code-block:: python
+        .. code-block:: python
 
-                            def to_num(attr):
-                                value = 0
-                                for c in str(attr).encode("base64"):
-                                    value += ord(c)
-                                return value
+            def to_num(attr):
+                value = 0
+                for c in str(attr).encode("base64"):
+                    value += ord(c)
+                return value
 
-                            to_num("h") # 294
-        :type to_num: callable
+            to_num("h") # 294
 
         """
         self.to_num = to_num_default if to_num is None else to_num
 
     def weight(self, hap0, hap1):
-        """A ``float`` distance between 2 ``dom.Haplotype`` instances"""
+        """A ``float`` distance between 2 `dom.Haplotype` instances"""
         s = 0.0
         for name in set(hap0.keys() + hap1.keys()):
             v0 = self.to_num(hap0.get(name, ""))
@@ -85,9 +91,9 @@ class Euclidean(core.Weight):
         return np.sqrt(s)
 
 
-#===============================================================================
+#==============================================================================
 # FUNCTION
-#===============================================================================
+#==============================================================================
 
 def to_num_default(attr):
     value = 0
@@ -96,9 +102,9 @@ def to_num_default(attr):
     return value
 
 
-#===============================================================================
+#==============================================================================
 # MAIN
-#===============================================================================
+#==============================================================================
 
 if __name__ == "__main__":
     print(__doc__)

@@ -21,10 +21,15 @@ import unittest
 import random
 import functools
 import tempfile
+import os
 
 import numpy as np
 
-from mock import patch
+try:
+    from mock import patch, Mock
+    MOCK = True
+except ImportError:
+    MOCK = False
 
 from yatel import db, dom, weight
 
@@ -33,14 +38,29 @@ from yatel import db, dom, weight
 # MOCKS
 #==============================================================================
 
-TO_MOCK = {
-    "yatel.cluster.kmeans.vq.kmeans": {
-        "patch": {},
-        "mock": {
-            "return_value": [None, None]
+TO_MOCK = {}
+
+if MOCK:
+    TO_MOCK.update({
+        "yatel.cluster.kmeans.vq.kmeans": {
+            "patch": {},
+            "mock": {
+                "return_value": [None, None]
+            }
+        },
+        "requests.post": {
+            "patch": {},
+            "mock": {
+                "return_value": Mock(json=lambda: {
+                    "error": False,
+                    "result": {"type": "literal", "value": None},
+                    "id": None,
+                    "error_msg": "",
+                    "stack_trace": "",
+                })
+            }
         }
-    }
-}
+    })
 
 
 #===============================================================================
@@ -138,24 +158,33 @@ class YatelTestCase(unittest.TestCase):
 
         return [h.hap_id for h in haps]
 
-    def setUp(self):
-        conn = self.conn()
+    def get_random_nw(self, conn):
         conn["mode"] = db.MODE_WRITE
-        self.nw = db.YatelNetwork(**conn)
-        self.haps_ids = self.add_elements(self.nw)
-        self.nw.confirm_changes()
-        for target, options in TO_MOCK.items():
-            mock = patch(target, **options["patch"]).start()
-            mock.configure_mock(**options["mock"])
+        nw = db.YatelNetwork(**conn)
+        haps_ids = self.add_elements(nw)
+        nw.confirm_changes()
+        return nw, haps_ids
+
+    def setUp(self):
+        self.nw, self.haps_ids = self.get_random_nw(self.conn())
+        if MOCK:
+            for target, options in TO_MOCK.items():
+                mock = patch(target, **options["patch"]).start()
+                mock.configure_mock(**options["mock"])
 
     def tearDown(self):
-        patch.stopall()
+        if MOCK:
+            patch.stopall()
         if self.conn()["engine"] == "sqlite":
             os.remove(self.conn()["database"])
 
     #==========================================================================
     # CUSTOM ASSERTS
     #==========================================================================
+
+    def assertAllTheSame(self, iterable, *args, **kwargs):
+        result = all(x == iterable[0] for x in iterable)
+        self.assertTrue(result, *args, **kwargs)
 
     def assertAproxDatetime(self, dt0, dt1):
         self.assertEqual(
@@ -177,6 +206,10 @@ class YatelTestCase(unittest.TestCase):
             elem = i1.pop()
             msg = "'{}' only in one collection".format(repr(elem))
             raise AssertionError(msg)
+
+    def assertNDArrayEquals(self, arr0, arr1):
+        self.assertEquals(len(arr0), len(arr1))
+        self.assertTrue(np.allclose(arr0, arr1, rtol=1e-01))
 
     def assertUnsortedNDArray(self, arr0, arr1):
         # happy to compare disorder floats in numpy...

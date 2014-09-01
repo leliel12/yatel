@@ -40,8 +40,7 @@ class TestTypeConvFunctions(YatelTestCase):
 
     def test_simplifier(self):
         generators = (
-            [self.nw.describe()],
-            self.nw.enviroments(),
+            self.nw.environments(),
             self.nw.haplotypes(),
             self.nw.facts(),
             self.nw.edges()
@@ -52,8 +51,7 @@ class TestTypeConvFunctions(YatelTestCase):
 
     def test_parse(self):
         generators = (
-            [self.nw.describe()],
-            self.nw.enviroments(),
+            self.nw.environments(),
             self.nw.haplotypes(),
             self.nw.facts(),
             self.nw.edges()
@@ -66,8 +64,7 @@ class TestTypeConvFunctions(YatelTestCase):
 
     def test_ignore(self):
         generators = (
-            [self.nw.describe()],
-            self.nw.enviroments(),
+            self.nw.environments(),
             self.nw.haplotypes(),
             self.nw.facts(),
             self.nw.edges()

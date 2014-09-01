@@ -1,35 +1,33 @@
-Especificación de QBJ
-=====================
+The *Query By JSON* (QBJ) Language
+==================================
 
-**Query By JSON** (QBJ) surge con la necesidad de un lenguaje de consulta
-agnóstico a bases de datos de MNwOLAP (redes multidimencionales,
-del ingles 'Multidimensional Networks OLAP_') que brinda yatel.
-
-
-Características
----------------
-
-- Declarativo.
-- Tipado.
-- Diseñado basandose en JSON dada su ampla difusion en Python_ (lenguaje
-  utilizado para implementar Yatel).
-- Para el parseo de tipos de datos se utiliza el modulo ``yatel.typeconv``
-  que tambien es aprobechado en las funcionalidades de exportanción e
-  importación de Yatel.
-- Previo al parseo de datos QBJ valida la consulta con json-schema_ para evitar
-  calculos inútiles.
-- Se considera un lenguaje de bajo nivel.
+**Query By JSON** (QBJ) comes up from the need of Yatel to provide an agnostic
+query language for NW-OLAP (OLAP Multidimensional Networks).
 
 
-Syntaxis: Consulta y Respuesta
-------------------------------
+Features
+--------
 
-Partamos de un ejemplo con la función mas simple que posee QBJ, *ping*
+- Declarative.
+- Strong typing.
+- Design based on JSON given its wide diffusion in Python (language used to 
+  implement Yatel).
+- For parsing the data types we use the ``yatel.typeconv`` module that is also
+  exploited in the export and import features of Yatel.
+- Prior to parsing QBJ queries are validated with json-schema_ to avoid
+  unnecessary calculations.
+- Considered a Low-level language.
 
-El objetivo de la funcion *ping* es simplemente recibir una respuesta sin
-contenido que indique que Yatel esta escuchando nuestras consultas.
 
-#. **Consulta simple**
+Syntax: Query and Query returns
+-------------------------------
+
+Let's start with an example of the simplest QBJ function, `ping`
+
+The purpose of the function `ping` is simply a response without content
+indicating that Yatel is listening to our queries.
+
+#. **Simple query**
 
     .. code-block:: javascript
 
@@ -42,23 +40,21 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
             }
         }
 
-    - ``id`` es un identificador de la consulta. Puede ser un valor numérico
-      entero un string o ``null``. Este valor sera retornado en la respuesta de
-      la consulta.Si usted esta procesando esto asincronamente puede utilizar
-      este campo para discriminar su procesamiento.
-    - ``function`` es la segunda, y ultima, llave obligatoria en la consulta.
-      Consiste en la consulta en sí que va a ser validada y ejecutada, la cual
-      tiene a su ves varias llaves.
+    - ``id`` is a query identifier. It can be an integer or a string or null.
+      This value will be returned in the query response. If you are processing
+      it asynchronously you can use this field to discriminate processing.
+    - ``function`` is the second, and final, mandatory key in the query. It
+      consists of the query itself to be validated and implemented, which has
+      its own various keys.
 
-        - ``name`` es el nombre de la función a ser ejecutada, en este caso
-          *ping*
-        - ``args`` son los argumentos posicionales de la función. En este caso
-           *ping* no posee ningun parámetro con lo cual la totalidad de la llave
-           y el valor pueden ser oviados.
-        - ``kwargs`` son los parametros nombrados de la funcion y al estar vacio
-          pueden oviarse de la declaración total.
+        - ``name`` the name of the function to be executed, in this case `ping`
+        - ``args`` are positional arguments of the function. In this case
+          `ping` does not have any parameter with which all of the key and
+          the value can be avoided.
+        - ``kwargs`` are named parameters of the function and being empty
+          can be avoided as well.
 
-    Quitando los parametros inecesarios la funcion completa podria escribirse
+    Removing the unnecessary parameters the function could be written
 
     .. code-block:: javascript
 
@@ -69,7 +65,7 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
             }
         }
 
-    La respuesta de esta consulta tiene la forma:
+    The answer to this query has the form:
 
     .. code-block:: javascript
 
@@ -84,29 +80,28 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
             }
         }
 
-    Donde:
+    Where:
 
-    - ``id`` es el mismo id de la consulta.
-    - ``error`` es un valor booleanno que se ra falso mientras la consulta se
-      haya procesado con éxito.
-    - ``error_msg`` Si el valor de ``error`` es *true* esta llave contendra una
-      descripción del error ocurrido.
-    - ``stack_trace`` si el valor de ``error`` es *true* y la consulta se
-      ejecuto en modo debug, contiene toda la  secuencias de llamadas de cuando
-      sucedio el error.
-    - ``result`` siempre vale *null* si el valor de ``error`` es *true*. Por
-      otro lado si no sucedio ningun error result posee el valor resultante de
-      la funcion (en nuestro *ping*) el cual esta en formato de
-      ``yatel.typeconv`` e indica que el resultado es del tipo boleano y su
-      valor es verdadero.
+    - ``id`` is the same id from the query.
+    - ``error`` it's a Boolean value,  will be false while the query
+      is processed successfully.
+    - ``error_msg`` if the ``error`` value it is true this key will contain
+      a description of the error that occurred.
+    - ``stack_trace`` if the ``error`` value it is true and the query is 
+      run in debug mode contains all the sequences of calls when the error 
+      happened.
+    - ``result`` always **null** if the ``error`` value  true. On the other
+      hand if no error happened ``result`` has the resulting value of the
+      function (in our `ping`) which is in format ``yatel.typeconv`` and
+      indicates that the result is of boolean type and its value is true.
 
-    En resumen nuestro ejemplo simplemente dice que no sucedio ningun error y
-    como resultado se devuelve un valor de verdad boleano.
+    In summary our example simply says that no error happened and as a results
+    a Boolean value of true is returned.
 
-#. **Una consulta con errores**
+#. **A query with errors**
 
-    Supongamos la llamada a una funcion inexistente para ver un resultado de una
-    consulta con errores.
+    Suppose the call to a nonexistent function to see a result of
+    a query with errors.
 
     .. code-block:: javascript
 
@@ -117,8 +112,8 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
             }
         }
 
-    En qbj la funcion *fail!* no existe por lo tanto el resultado seria si lo
-    ejecutamos en modo debug el siguiente
+    In QBJ the function **fail!** Does not exist, therefore the result would
+    be if we run it in debug mode the following
 
     .. code-block:: javascript
 
@@ -130,23 +125,23 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
             'result': null
         }
 
-    Donde:
+    Where:
 
-    - El ``id`` es el mismo de la consulta.
-    - ``error`` es *true*.
-    - ``error_msg`` nor informa que algo que enviamos con el valor *fail* es
-      producto del error.
-    - ``stack_trace`` contiene toda la sucecion de llamadas donde sucedio el
-      error dentro de Yatel (cortado para el ejemplo)
-    - ``result`` regresa vacio ya que sucedio un error durante el procesamiento
-      de la consulta.
-
-
-#. **Consulta tipica de Yatel**
+    - ``id`` it is the same from the query.
+    - ``error`` it is *true*.
+    - ``error_msg`` tells us that we sent something with the value *fail* is
+      the result of the error.
+    - ``stack_trace`` contains the entire sequence of calls where the error
+      within Yatel happens (cut for example) .
+    - ``result`` returns empty because an error happened during the
+      processing of the query.
 
 
-    Veremos ahora un ejemplo con una funcion mas tipica del dominio de Yatel
-    como la consulta de obtener un haplotypo por su id.
+#. **Typical Yatel query**
+
+
+    We will now see an example with a more typical Yatel function domain as
+    query to obtain a haplotype by its ``id``.
 
     .. code-block:: javascript
 
@@ -163,12 +158,11 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
             }
         }
 
-    En este caso la funcion *haplotype_by_id* recibe un parametro con el valor
-    *01* que sera el id del haplotypo a buscar. El valor de ``type`` es
-    *literal* con lo cual el valor no sera transformado del tipo de dato json
-    (en este caso string) antes de ser enviado a la función. Si pensamos esto
-    como en un llamado a una funcion Python podria imaginarse como
-    ``haplotype_by_id("01")``
+    In this case the function ``haplotype_by_id`` receives a parameter with a
+    value of *01* to be the id of the haplotype to look for. The value of
+    ``type`` is *literal* so that the value will not be changed from its json
+    data type (string in this case) before being sent to the function. If we
+    think of this as a call to a Python function ``haplotype_by_id("01")``
 
     .. code-block:: javascript
 
@@ -187,15 +181,15 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
             }
         }
 
-    El resultado entrega  un valor del tipo *Haplotype* cuyos atributos son:
-    ``hap_id`` entero de valor *1*, ``name`` unicode de valor *Amet* y un *bool*
-    llamado ``special`` con el valor *false*
+    The result returns a value of type ``Haplotype`` whose attributes are:
+    ``hap_id`` integer of value *1*, ``name`` unicode of value *Amet* and a
+    Boolean called ``special`` with value *false*
 
 
-#. **Consulta con un manejo mas avanzado de tipos**
+#. **Query with advanced type handling**
 
-    La siguiente consulta es una consulta ``sum`` que suma dos o mas valores
-    cualesquiera se los pase.
+    The following query is a ``sum`` query that adds two or more values ​​
+    whatever pass.
 
     .. code-block:: javascript
 
@@ -215,12 +209,12 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
             }
         }
 
-    Como vemos en esta consulta el parametro ``nw`` es una lista que contiene
-    los valores 1 (definido como literal, asi que Yatel toma el valor json)
-    y el segundo *int* con el valor representado con un string "2". Yatel con
-    esto convierte automáticamnte el segundo elemento al tipo entero
+    As we see in this query the parameter ``nw`` is a list containing the
+    values ​​"1" (defined as *literal*, so Yatel takes the json type) and the
+    second *int* with a value represented by a string "2". Yatel with this
+    automatically converts the second element to integer type
 
-    Una version mas corta de la misma consulta seria:
+    A shorter version of the same query would be:
 
     .. code-block:: javascript
 
@@ -235,7 +229,7 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
         }
 
 
-    El resultado tiene la forma
+    The result has the form
 
     .. code-block:: javascript
 
@@ -247,7 +241,7 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
             'result': {'type': 'float', 'value': 3.0}
         }
 
-#. **Consultas anidadas**
+#. **Nested queries**
 
     .. code-block:: javascript
 
@@ -272,16 +266,15 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
             }
         }
 
-    Esta consulta muesta realmente la potencia de QBJ. La primero que hay que
-    notar es que la funcion principal, *haplotype_by_id*, recibe como primer
-    argumento la resolucion de la función *slice*.
-    El valor de la llave type dentro del argumento indica que el resultado de
-    la funcion interna si no es un texto debe convertirse a el.
+    This query really shows the QBJ potential. The first thing to note is
+    that the main function, ``haplotype_by_id``, as the first argument receives
+    the result of function ``slice``.
+    The value of the ``type`` key into the argument indicates that the result
+    of internal function if it is not a text must be converted to it.
 
-    *slice*, por otra parte, lo que hace es recortar el texto *id_01_* desde
-    su posicion *-3* hasta la *-1*.
+    ``slice`` moreover, what it does is cut the text *id_01_* from its position *-3* to *-1*.
 
-    si esto lo imaginaramos como codigo Python la funcion seria algo similar a
+    if this were Python code the function would be somethin like
 
     .. code-block:: python
 
@@ -289,14 +282,14 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
             unicode(slice(iterable="id_01_", f=int("-3"), t=int("-1")))
         )
 
-    o lo que es lo mismo
+    or what is the same
 
     .. code-block:: python
 
         haplotype_by_id("01")
 
-    El resultado de esta consulta devolveria un *haplotipo* de la DB de la
-    siguiente forma:
+    The result of this query would return a ``Haplotype`` from the database
+    as follows:
 
     .. code-block:: javascript
 
@@ -318,15 +311,88 @@ contenido que indique que Yatel esta escuchando nuestras consultas.
         }
 
 
-
-Funciones
+Functions
 ---------
 
+QBJ includes functions to query data on a network (``haplotypes``, ``edges``, 
+``facts``, etc.); text handling (``split``, ``strip``, ``startswith``, 
+``endswith``, etc.); Arithmetic and basic statistics (``sum``, ``average``, 
+``kurtosis``, ``std``, etc.); data mining and treatment of local date and time 
+as well as UTC_
 
-El proceso de resolución
-------------------------
+The complete functions list it's available :ref:`here <qbjfunctions>`.
+
+.. todo:: Quedan pendiente para versiones futuras funciones de expresiones
+          regulares, trigonometría y constantes matemáticas.
+
+QBJ Console
+-----------
+
+Yatel provides a comfortable command line interface to use QBJ. It's opened 
+with the command:
+
+.. code-block:: bash
+
+    $ yatel qbjshell sqlite:///path_to_nw.db
+
+.. seealso:: For more information see the documentation about 
+             :ref:`command line interface <cli>`.
 
 
-.. _Python: http://www.python.org/
-.. _olap: http://en.wikipedia.org/wiki/OLAP_cube
-.. _json-schema: http://json-schema.org/
+The Resolution Process
+----------------------
+
+.. warning:: This section provides implementation details useful for 
+             developers or people interested in optimizing their queries
+             
+.. digraph:: Proccess
+
+    source [shape=plaintext, label="User"];
+    shell [label="QBJShell"];
+    server [label="Server"];
+    engine [label="Engine"];
+    resolver [label="Resolver"];
+
+    source -> shell [label="query JSON"];
+    source -> server [label="query JSON"];
+    shell -> engine [label="query dict"];
+    server -> engine [label="query dict"];
+    engine -> resolver [label="function"];
+    resolver -> resolver [label="arguments"];
+    resolver -> engine [label="data"];
+    engine -> shell [label="response dict"];
+    engine -> server [label="response dict"];
+
+    shell -> source [label="response JSON"];
+    server -> source [label="response JSON"];
+
+
+
+#. Yatel both the server and console always receives queries in JSON_ 
+   formatted in UTF-8_.
+#. The server or console are responsible for converting the ``string`` into a
+   ``dict`` hereafter referred as the **query**.
+#. The QBJ engine receives the **query** and one more parameter that tells if 
+   it should add the stacktrace if anything fails.
+#. The engine extracts the main parameters of the query ``id`` 
+   and ``function``.
+#. The engine validates the **query** against the json-schema_ of QBJ
+#. The engine creates a resolver for the main function and sends it with it's 
+   context (the context is the network on wich is executing) 
+#. The resolver extracts the parameters (\*args and \**kwargs) of the functions 
+   and solves each separated depending on the case by:
+        
+        #. If the argument is a function, it generates a new resolver for that 
+           function and passes the context of the current resolver.
+        #. If the argument is just a value it's extracted.
+        
+#. Each argument is then casted to the data type specified by itself in the 
+   parameter ``type`` , with the ``typeconv`` module.
+#. The function is executed with all the preprocessed arguments and the result 
+   it's returned to the engine.
+#. At any step that an error is detected the engine draws it's description for 
+   the response and the stacktrace if it was required.
+#. The engine simplifies the result with ``typeconv`` module and creates the 
+   response dictionary.
+#. Finally the **query** is serialized into JSON_ and printed on console 
+   (if using the QBJ shell) or sent back through the server.

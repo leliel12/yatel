@@ -38,15 +38,15 @@ from yatel import db
 
 def kmeans(nw, envs, k_or_guess,
            whiten=False, coordc=None, *args, **kwargs):
-    """Performs k-means on a set of all enviroments defined by ``fact_attrs``
+    """Performs k-means on a set of all environments defined by `fact_attrs`
     of a network.
 
     Parameters
     ----------
-    nw : yatel.db.YatelNetwork
-        Network source of enviroments to classify.
-    envs : iterable of yatel.dom.Enviroments or dicts
-        Represent all the enviroment to be clustered.
+    nw : `yatel.db.YatelNetwork`
+        Network source of environments to classify.
+    envs : iterable of `yatel.dom.Environments` or dicts
+        Represents all the environments to be clustered.
     k_or_guess : int or ndarray
         The number of centroids to generate. A code is assigned
         to each centroid, which is also the row index of the
@@ -60,15 +60,15 @@ def kmeans(nw, envs, k_or_guess,
         execute ``scipy.cluster.vq.whiten`` function over the
         observation array before executing subjacent *scipy kmeans*.
     coordc : None or callable
-        If coordc is None generates use ``hap_in_env_coords``
-        function. Otherwise ``coordc`` must be a callable with
+        If `coordc` is ``None`` generates use `hap_in_env_coords`
+        function. Otherwise `coordc` must be a callable with
         2 arguments:
 
-        - ``nw`` network source of enviroments to classify.
-        - ``env`` the enviroment to calculate the coordinates
+        - `nw` network source of environments to classify.
+        - `env` the environment to calculate the coordinates
 
-        and must must return an array of coordinates for the given
-        network enviroment.
+        and must return an array of coordinates for the given
+        network environment.
     args : arguments for scipy kmeans
     kwargs : keywords arguments for scipy kmeans
 
@@ -140,45 +140,47 @@ def hap_in_env_coords(nw, env):
         with same order of ``yatel.db.YatelNetwork.haplotypes_ids`` function
         with 2 posible values:
 
-        - **0** if the haplotype not exist in the enviroment.
-        - **0** if the haplotype exist in the enviroment.
+        - **0** if the haplotype doesn´t exist in the environment.
+        - **0** if the haplotype exist in the environment.
 
     """
-    haps_id = tuple(hap.hap_id for hap in nw.haplotypes())
-    ehid = tuple(hap.hap_id for hap in nw.haplotypes_by_enviroment(env=env))
+    haps_id = [hap.hap_id for hap in nw.haplotypes()]
+    ehid = [hap.hap_id for hap in nw.haplotypes_by_environment(env=env)]
+    haps_id.sort()
+    ehid.sort()
     return [int(hid in ehid) for hid in haps_id]
 
 
 def nw2obs(nw, envs, whiten=False, coordc=None):
-    """Convert any given enviroments defined by ``fact_attrs``
-    of a network to observation matrix to cluster with subjacent *scipy kmeans*
+    """Converts any given environments defined by `fact_attrs`
+    of a network to an observation matrix to cluster with subjacent *scipy kmeans*
 
     Parameters
     ----------
 
     nw : yatel.db.YatelNetwork
-        Network source of enviroments to classify.
+        Network source of environments to classify.
     envs : iterable of yatel.dom.Enviroment or dicts
-        Represent all the enviroment to be clustered.
+        Represent all the environment to be clustered.
     whiten : bool
-        execute ``scipy.cluster.vq.whiten`` function over the
+        execute `scipy.cluster.vq.whiten` function over the
         observation array before executing subjacent *scipy kmeans*.
     coordc : None or callable
-        If coordc is None generates use ``hap_in_env_coords``
-        function. Otherwise ``coordc`` must be a callable with
+        If coordc is ``None`` generates use `hap_in_env_coords`
+        function. Otherwise `coordc` must be a callable with
         2 arguments:
 
-        - ``nw`` network source of enviroments to classify.
-        - ``env`` the enviroment to calculate the coordinates
+        - `nw` network source of environments to classify.
+        - `env` the environment to calculate the coordinates
 
-        and must must return an array of coordinates for the given
-        network enviroment.
+        and must return an array of coordinates for the given
+        network environment.
 
     Returns
     -------
     obs : a vector of envs
         Each I'th row of the M by N array is an observation
-        vector of the I'th enviroment of ``envs``.
+        vector of the I'th environment of `envs`.
 
     Examples
     --------

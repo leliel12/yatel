@@ -15,53 +15,45 @@
 
 """
 
-
-#==============================================================================
-# IMPORTS
-#==============================================================================
-
-import os
-
-from ez_setup import use_setuptools
-use_setuptools()
-
-from setuptools import setup, find_packages
-
-import yatel
-
-
 #==============================================================================
 # CONSTANTS
 #==============================================================================
 
-PATH = os.path.abspath(os.path.dirname(__file__))
-
-REQUIREMENTS_PATH = os.path.join(PATH, "requirements.txt")
-
-with open(REQUIREMENTS_PATH) as fp:
-    REQUIREMENTS = [
-        line.strip() for line in fp.read().splitlines() if line.strip()
-    ]
+REQUIREMENTS = [
+    "Flask>=0.10.1", "Flask-Script>=2.0.5", "SQLAlchemy>=0.9.7",
+    "jsonschema>=2.4.0", "requests>=2.4.0", "mock>=1.0.1",
+    "numpy>=1.8.2", "scipy>=0.14.0"
+]
 
 
 #==============================================================================
 # FUNCTIONS
 #==============================================================================
 
-setup(
-    name=yatel.PRJ.lower(),
-    version=yatel.STR_VERSION,
-    description=yatel.SHORT_DESCRIPTION,
-    author=yatel.AUTHOR,
-    author_email=yatel.EMAIL,
-    url=yatel.URL,
-    download_url=yatel.DOWNLOAD_URL,
-    license=yatel.LICENSE,
-    keywords=yatel.KEYWORDS,
-    classifiers=yatel.CLASSIFIERS,
-    packages=[pkg for pkg in find_packages() if pkg.startswith("yatel")],
-    include_package_data=True,
-    py_modules=["ez_setup"],
-    entry_points={'console_scripts': ['yatel = yatel.cli:main']},
-    install_requires=REQUIREMENTS,
-)
+if __name__ == "__main__":
+    import os
+    import sys
+
+    from ez_setup import use_setuptools
+    use_setuptools()
+
+    from setuptools import setup, find_packages
+
+    import yatel
+
+    setup(
+        name=yatel.PRJ.lower(),
+        version=yatel.STR_VERSION,
+        description=yatel.SHORT_DESCRIPTION,
+        author=yatel.AUTHOR,
+        author_email=yatel.EMAIL,
+        url=yatel.URL,
+        license=yatel.LICENSE,
+        keywords=yatel.KEYWORDS,
+        classifiers=yatel.CLASSIFIERS,
+        packages=[pkg for pkg in find_packages() if pkg.startswith("yatel")],
+        include_package_data=True,
+        py_modules=["ez_setup"],
+        entry_points={'console_scripts': ['yatel = yatel.cli:main']},
+        install_requires=REQUIREMENTS,
+    )

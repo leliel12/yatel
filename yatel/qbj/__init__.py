@@ -20,6 +20,7 @@ using JSON
 #===============================================================================
 
 from yatel.qbj.core import QBJEngine
+from yatel.qbj.shell import QBJShell
 from yatel.qbj.schema import validate
 
 

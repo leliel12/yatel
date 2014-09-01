@@ -27,32 +27,39 @@ import collections
 #===============================================================================
 
 class YatelDOM(collections.Mapping):
+    """Base class for yatel objects, handling arbitrary keys.
+    
+    """
 
-    #~ class __metaclass__(type):
-       #~ def __getattr__(cls, attr):
-           #~ return ExpressionFactory(attr)
+    CLEAN_NULL = True
 
     def __init__(self, **attrs):
         if "id" in attrs:
             raise ValueError("'id' is not valid attribute name")
-        self._data = attrs
+        self._data = dict([
+            [k, v] for k, v in attrs.items() if v is not None
+        ]) if self.CLEAN_NULL else attrs
         super(YatelDOM, self).__init__()
 
-    def __hash__(self):
-        return hash(tuple(self._data)) + 555
-
     def __getitem__(self, k):
+        """x.__getitem__(k) <==> x[k]"""
         return self._data[k]
 
     def __iter__(self):
+        """x.__iter__() <==> iter(x)"""
         return iter(self._data)
 
     def __len__(self):
+        """x.__len__() <==> len(x)"""
         return len(self._data)
 
     def __eq__(self, obj):
         """x.__eq__(y) <==> x==y"""
         return isinstance(obj, type(self)) and self._data == obj._data
+
+    def __hash__(self):
+        """x.__hash__() <==> hash(x)"""
+        return hash(tuple(self._data.items()))
 
     def __ne__(self, obj):
         """x.__ne__(y) <==> x!=y"""
@@ -77,19 +84,35 @@ class YatelDOM(collections.Mapping):
 #===============================================================================
 
 class Haplotype(YatelDOM):
-    """Represent a individual class or group with similar characteristics
+    """Represents an individual class or group with similar characteristics
     to be analized."""
 
     def __init__(self, hap_id, **attrs):
         """Creates a new instance
 
-        **Params**
-            :hap_id: Unique id of this haplotype.
-            :attrs: Diferents attributes of this haplotype.
+        Parameters
+        ----------
+            hap_id : Unique id of this haplotype.
+            attrs : Different attributes of this haplotype.
 
         """
+        if hap_id is None:
+            raise ValueError("'hap_id' can't be None")
         attrs["hap_id"] = hap_id
         super(Haplotype, self).__init__(**attrs)
+
+
+    def __eq__(self, obj):
+        """x.__eq__(y) <==> x==y"""
+        return isinstance(obj, Haplotype) and self.hap_id == obj.hap_id
+
+    def __hash__(self):
+        """x.__hash__() <==> hash(x)"""
+        return hash(self.hap_id)
+
+    def __ne__(self, obj):
+        """x.__ne__(y) <==> x!=y"""
+        return not (self == obj)
 
     def __repr__(self):
         """x.__repr__() <==> repr(x)"""
@@ -104,22 +127,25 @@ class Haplotype(YatelDOM):
 #===============================================================================
 
 class Fact(YatelDOM):
-    """The Fact represent a *metadata* of the *haplotype*.
+    """Fact represents a *metadata* of the `haplotype`.
 
-    For example if you relieve in two places the same *haplotype*,
+    For example if you gather in two places the same `haplotype`,
     the characteristics of these places correspond to different *facts* of the
-    same *haplotype*.
+    same `haplotype`.
 
     """
 
     def __init__(self, hap_id, **attrs):
         """Creates a new instance
 
-        **Params**
-            :hap_id: The ``dom.Haplotype`` id of this fact.
-            :attrs: Diferents attributes of this fact.
+        Parameters
+        ----------
+        hap_id : The `dom.Haplotype` id of this `fact`.
+        attrs : Different attributes of this `fact`.
 
         """
+        if hap_id is None:
+            raise ValueError("'hap_id' can't be None")
         attrs["hap_id"] = hap_id
         super(Fact, self).__init__(**attrs)
 
@@ -136,16 +162,18 @@ class Fact(YatelDOM):
 #===============================================================================
 
 class Edge(YatelDOM):
-    """Represent a relation between 2 or more *haplotypes*
+    """Represents a relation between 2 or more `haplotypes`.
 
     """
+    CLEAN_NULL = False
 
     def __init__(self, weight, haps_id):
         """Creates a new instance.
 
-        **Params**
-            :weight: The degree of relationship between haplotypes.
-            :haps_id: The list of the related haplotypes.
+        Parameters
+        ----------
+        weight : The degree of relationship between `haplotypes`.
+        haps_id : The list of the related `haplotypes`.
 
         """
         super(Edge, self).__init__(
@@ -166,12 +194,17 @@ class Edge(YatelDOM):
 # ENVIROMENT
 #===============================================================================
 
-class Enviroment(YatelDOM):
+class Environment(YatelDOM):
+    """Represents an iterable dictionary of dictionaries with valid 
+    combinations of values of the attributes given when the instance is created.
+    
+    """
+    CLEAN_NULL = False
 
     def __repr__(self):
         """x.__repr__() <==> repr(x)"""
         cls = type(self).__name__
-        desc = super(Enviroment, self).__repr__()
+        desc = super(Environment, self).__repr__()
         at = hex(id(self))
         return "<{cls} {desc} at {at}>".format(cls=cls, desc=desc, at=at)
 
@@ -181,9 +214,35 @@ class Enviroment(YatelDOM):
 #===============================================================================
 
 class Descriptor(YatelDOM):
+    """Represents detailed information of a network.
+
+    """
+
+    CLEAN_NULL = False
 
     def __init__(self, mode, fact_attributes,
                  haplotype_attributes, edge_attributes, size):
+        """Creates a new instance.
+
+        Parameters
+        ----------
+        edges_attributes : dict
+            Dictionary contains always 2 keys: `max_nodes` How many nodes 
+            connect the edge with maximun number of connections. And `weight` 
+            the time od weight attribute
+        fact_attributes : dict
+            Contains an arbitrary number of keys, with keys as attributes 
+            name, and value as attribute type.
+        haplotype_atributes : dict
+            Contains an arbitrary number of keys, with keys as attributes 
+            name, and value as attribute type.
+        mode : str
+            Actual mode of the network
+        size : dict
+            Has the number of elements in the network discrimined by type 
+            haplotypes, facts and edges.
+            
+        """
         super(Descriptor, self).__init__(
             mode=mode, fact_attributes=fact_attributes,
             haplotype_attributes=haplotype_attributes,

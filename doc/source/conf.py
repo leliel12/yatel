@@ -16,7 +16,7 @@ import sys, os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../..'))
 import yatel
 
 
@@ -30,7 +30,7 @@ import yatel
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo',
               'sphinx.ext.coverage', 'sphinx.ext.pngmath',
               'sphinx.ext.ifconfig', 'sphinx.ext.viewcode',
-              'sphinx.ext.autosummary',
+              'sphinx.ext.autosummary', 'sphinx.ext.graphviz',
               'numpydoc']
 
 numpydoc_show_class_members = False
@@ -263,3 +263,25 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
+
+
+
+rst_epilog = """
+.. _Yatel: http://getyatel.org
+.. _IPython: http://ipython.org/
+.. _BPython: http://bpython-interpreter.org/
+.. _Python: http://www.python.org/
+.. _olap: http://en.wikipedia.org/wiki/OLAP_cube
+.. _json-schema: http://json-schema.org/
+.. _UTC: http://en.wikipedia.org/wiki/Coordinated_Universal_Time
+.. _JSON: http://en.wikipedia.org/wiki/JSON
+.. _UTF-8: http://en.wikipedia.org/wiki/UTF-8
+.. _ETL: http://en.wikipedia.org/wiki/Extract,_transform,_load
+.. _SciPy: http://www.scipy.org/
+.. _CSV: http://en.wikipedia.org/wiki/Comma-separated_values
+.. _ZODB: http://www.zodb.org
+.. _Riak: http://basho.com/riak/
+.. _Redis: http://redis.io/
+.. _SQLite: http://www.sqlite.org/
+
+"""

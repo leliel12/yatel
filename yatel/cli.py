@@ -11,7 +11,7 @@
 # DOCS
 #==============================================================================
 
-"""Launcher of yatel cli tools
+"""Launcher of yatel Command Line Interface (cli) tools.
 
 """
 
@@ -21,41 +21,45 @@
 #==============================================================================
 
 import sys
-import pprint
 import datetime
 import argparse
 import json
 import functools
+import traceback
 
-import flask
-from flask.ext.script import Manager, Command, Option
+from flask.ext.script import Manager, Command, Option, Shell
 from flask.ext.script.commands import InvalidCommand
 
 import yatel
-from yatel import db, tests, server, etl
+from yatel import db, tests, server, etl, qbj
 from yatel import yio
 
 
-#===============================================================================
+#==============================================================================
 # MANAGER
-#===============================================================================
+#==============================================================================
 
 class _FlaskMock(object):
-    """This class only mock the flask object to use flask script stand alone
+    """This class only mock the flask object to use flask script stand alone.
 
     """
+
     def __init__(self, *a, **kw):
         self.options = kw
+
     def __getattr__(self, *a, **kw):
         return _FlaskMock()
+
     def __call__(self, *a, **kw):
         return _FlaskMock(*a, **kw)
-    def __exit__(self, *a, **kw):
-        return _FlaskMock()
+
     def __enter__(self, *a, **kw):
         return _FlaskMock()
 
-app = flask.Flask(__name__)
+    def __exit__(self, etype, evalue, etrace):
+        if etype or evalue or etrace:
+            return False
+        return _FlaskMock()
 
 manager = Manager(
     _FlaskMock,
@@ -66,53 +70,39 @@ manager = Manager(
 
 
 #==============================================================================
-# DECOTATOR
+# DECORATOR
 #==============================================================================
 
-def run_wrapper(func):
-    """Convert any exception inside tun into flask script exception
-
-    """
-    @functools.wraps(func)
-    def _dec(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as err:
-            raise InvalidCommand(str(err))
-    return _dec
-
-
 def command(name):
-    """Clean way to register class based commands
+    """Clean way to register class based commands.
 
     """
     def _dec(cls):
         instance = cls()
-        instance.run = run_wrapper(instance.run)
         manager.add_command(name, instance)
         return cls
     return _dec
 
 
-#===============================================================================
+#==============================================================================
 # OPTIONS
-#===============================================================================
+#==============================================================================
 
 manager.add_option(
     "-k", "--full-stack", dest="full-stack", required=False,
-    action="store_true", help="If the command fails print all Python stack"
+    action="store_true", help="If the command fails print all Python stack."
 )
 
 manager.add_option(
     "-l", "--log", dest="log", required=False,
-    action="store_true", help="Enable engine logger"
+    action="store_true", help="Enable engine logger."
 )
 
 manager.add_option(
     "-f", "--force", dest="log", required=False,
     action="store_true",
-    help=("If a database is try to open in 'w' or 'a' and a Yatel Network "
-          "is discovered overwrite it")
+    help=("If a database is tried to open in 'w' or 'a' mode and a Yatel Network "
+          "already exists it overwrites it.")
 )
 
 
@@ -121,7 +111,7 @@ manager.add_option(
 #==============================================================================
 
 class Database(object):
-    """This class parse and validate the open mode of a databases"""
+    """This class parses and validates the open mode of a database."""
 
     def __init__(self, mode):
         self.mode = mode
@@ -134,9 +124,9 @@ class Database(object):
             if not force:
                 msg = (
                     "You are trying to open the db '{}' in '{}' mode, but "
-                    "it contains a already existing network. Please use "
-                    "-f/--force for ignore this warning and destroy the "
-                    "existing data"
+                    "it contains already an existing network. Please use "
+                    "-f/--force to ignore this warning and destroy the "
+                    "existing data."
                 ).format(toparse, self.mode)
                 raise InvalidCommand(msg)
 
@@ -144,13 +134,21 @@ class Database(object):
         return db.YatelNetwork(**data)
 
 
-#===============================================================================
+#==============================================================================
 # COMMANDS
-#===============================================================================
+#==============================================================================
+
+@command("version")
+class Version(Command):
+    """Show Yatel version and exit"""
+
+    def run(self):
+        print "{} - version {}".format(yatel.PRJ, yatel.STR_VERSION)
+
 
 @command("list")
 class List(Command):
-    """List all available connection strings in yatel"""
+    """Lists all available connection strings in yatel."""
 
     def run(self):
         for engine in db.ENGINES:
@@ -159,7 +157,7 @@ class List(Command):
 
 @command("test")
 class Test(Command):
-    """Run all yatel test suites
+    """Run all yatel test suites.
 
     """
 
@@ -168,12 +166,14 @@ class Test(Command):
     ]
 
     def run(self, level):
-        tests.run_tests(level)
+        response = tests.run_tests(level)
+        if response.failures or response.errors:
+            sys.exit(2)
 
 
 @command("describe")
 class Describe(Command):
-    """Print information about the network"""
+    """Prints information about the network."""
 
     option_list = [
         Option(
@@ -201,8 +201,8 @@ class Describe(Command):
 
 @command("dump")
 class Dump(Command):
-    """Export the given database to file.
-    The extension of a file determine the format
+    """Exports the given database to a file.
+    The extension of the file determines the format.
 
     """
 
@@ -213,8 +213,8 @@ class Dump(Command):
         ),
         Option(
             dest='dumpfile', type=argparse.FileType("w"),
-            help=("File path to dump al the content of the database. "
-                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
+            help=("File path to dump the content of the database. "
+                  "Supported formats: {}".format(", ".join(yio.PARSERS.keys())))
         )
     ]
 
@@ -226,7 +226,7 @@ class Dump(Command):
 @command("backup")
 class Backup(Command):
     """Like dump but always create a new file with the format
-     'backup_file<TIMESTAMP>.EXT'.
+     ``backup_file<TIMESTAMP>.EXT``.
 
      """
 
@@ -237,8 +237,8 @@ class Backup(Command):
         ),
         Option(
             dest='backupfile',
-            help=("File path template to dump al the content of the database. "
-                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
+            help=("File path template to dump the content of the database. "
+                  "Supported formats: {}".format(", ".join(yio.PARSERS.keys())))
         )
     ]
 
@@ -265,7 +265,7 @@ class Load(Command):
         Option(
             dest='datafile', type=argparse.FileType("r"),
             help=("File path of the existing data file. "
-                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
+                  "Supported formats: {}".format(", ".join(yio.PARSERS.keys())))
         )
     ]
 
@@ -277,7 +277,7 @@ class Load(Command):
 
 @command("copy")
 class Copy(Command):
-    """Copy a yatel network to another database
+    """Copy a yatel network to another database.
 
     """
 
@@ -299,13 +299,13 @@ class Copy(Command):
 
 @command("createconf")
 class CreateConf(Command):
-    """Create a new configuration file for yatel"""
+    """Creates a new configuration file for yatel."""
 
     option_list = [
         Option(
             dest='config', type=argparse.FileType("w"),
             help=("File path of the config file. ie: config.json. "
-                  "Suported formats: {}".format(", ".join(yio.PARSERS.keys())))
+                  "Supported formats: {}".format(", ".join(yio.PARSERS.keys())))
         ),
 
     ]
@@ -316,7 +316,7 @@ class CreateConf(Command):
 
 @command("createwsgi")
 class CreateWSGI(Command):
-    """Create a new wsgi file for a given configuration"""
+    """Creates a new WSGI file for a given configuration."""
 
     option_list = [
         Option(dest='config',
@@ -333,7 +333,7 @@ class CreateWSGI(Command):
 
 @command("runserver")
 class Runserver(Command):
-    """Run yatel as development http server with a given config file"""
+    """Run yatel as a development http server with a given config file."""
 
     option_list = [
         Option(
@@ -342,7 +342,7 @@ class Runserver(Command):
         ),
         Option(
             dest='host_port',
-            help="Host and port to run yatel in format HOST:PORT"
+            help="Host and port to run yatel, format HOST:PORT"
         )
     ]
 
@@ -355,7 +355,7 @@ class Runserver(Command):
 
 @command("createetl")
 class CreateETL(Command):
-    """Create a template file for write yout own etl"""
+    """Creates a template file to write your own ETL"""
 
     option_list = [
         Option(
@@ -377,7 +377,7 @@ class CreateETL(Command):
 
 @command("describeetl")
 class DescribeETL(Command):
-    """Return a list of parameters and documentation about the etl
+    """Return a list of parameters and documentation about the ETL.
     The argument is in the format path/to/module.py
     The BaseETL subclass must be named after ETL
 
@@ -399,11 +399,9 @@ class DescribeETL(Command):
 
 @command("runetl")
 class RunETL(Command):
-    """Run one or more etl inside of a given script.
-
-    The first argument is in the format path/to/module.py
-    the second onwards parameter are parameters of the setup method of the
-    given class.
+    """Runs one or more ETL inside of a given script.
+    The first argument is in the format ``path/to/module.py``
+    From second onwards parameters are of the setup method of the given class.
 
     """
 
@@ -413,32 +411,90 @@ class RunETL(Command):
             help="Connection string to database according to the RFC 1738 spec."
         ),
         Option(dest='etlfile', help="Python ETL filepath. ie: my_new_etl.py"),
-        Option(dest="args", help="Arguments for etl to excecute", nargs="+")
+        Option(dest='args', help="Arguments for etl to excecute", nargs="*")
     ]
 
     def run(self, database, etlfile, args):
         etl_cls = etl.etlcls_from_module(etlfile, "ETL")
         etl_instance = etl_cls()
-        etl.execute(database, etl_instance, *args)
-        database.confirm_changes()
+        if etl.execute(database, etl_instance, *args):
+            database.confirm_changes()
 
 
-#===============================================================================
+@command("pyshell")
+class PyShell(Shell):
+    """Run a python shell with a Yatel Network context.
+
+    """
+
+    banner = """
+    Welcome to Yatel Interactive mode.
+    Yatel is ready to use. You only need worry about your project.
+    If you install IPython, the shell will use it.
+    For more info, visit http://getyatel.org/
+    Available modules:
+        Your NW-OLAP: nw
+        from yatel: db, dom, stats
+        from pprint: pprint
+    """
+    help = __doc__
+    option_list = [
+        Option(
+            dest='database', type=Database(db.MODE_READ),
+            help="Connection string to database according to the RFC 1738 spec."
+        )
+    ]
+
+    def get_context(self):
+        from yatel import db, dom, stats
+        from pprint import pprint
+        return dict(db=db, dom=dom, stats=stats, pprint=pprint, nw=self.nw)
+
+    def get_options(self):
+        return list(super(type(self), self).get_options()) + self.option_list
+
+    def run(self, database, no_ipython, no_bpython):
+        self.nw = database
+        super(type(self), self).run(no_ipython, no_bpython)
+
+
+@command("qbjshell")
+class QBJShell(Command):
+    """Runs interactive console to execute QBJ queries
+
+    """
+
+    option_list = [
+        Option(
+            dest='database', type=Database(db.MODE_READ),
+            help="Connection string to database according to the RFC 1738 spec."
+        ),
+    ]
+
+    def run(self, database):
+        debug = manager.app.options["full-stack"]
+        shell = qbj.QBJShell(database, debug)
+        shell.cmdloop()
+
+
+#==============================================================================
 # MAIN FUNCTION
-#===============================================================================
+#==============================================================================
 
 def main():
     try:
         manager.run()
-    except InvalidCommand as err:
-        print(err)
+    except Exception as err:
+        if "--full-stack" in sys.argv or "-k" in sys.argv:
+            traceback.print_exc()
+        print unicode(err)
         sys.exit(1)
 
 
-
-#===============================================================================
+#==============================================================================
 # MAIN
-#===============================================================================
+#==============================================================================
 
 if __name__ == "__main__":
     main()
+
