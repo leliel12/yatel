@@ -11,7 +11,7 @@
 # DOCS
 #===============================================================================
 
-"""Main logic behind QBJ
+"""Main logic behind QBJ.
 
 """
 
@@ -42,13 +42,14 @@ class QBJResolver(object):
     Parameters
     ----------
     function : dict
-        Keys of `function`:
-            - `name` function to be called.
-            - `args` positional arguments for function `name`.
-            - `kwargs` named arguments for function `name`.
+        Keys of ``function``:
+        
+            - ``name`` function to be called.
+            - ``args`` positional arguments for function ``name``.
+            - ``kwargs`` named arguments for function ``name``.
             
         For further detail on functions arguments see :py:mod:`yatel.qbj.functions`
-    context : `db.YatelNetwork`
+    context : :py:class:`yatel.db.YatelNetwork`
         Network to execute functions on.
 
     """
@@ -69,7 +70,7 @@ class QBJResolver(object):
         return typeconv.parse({"type": atype, "value": value})
 
     def resolve(self):
-        """Responsible for putting together the call to `function` with the
+        """Responsible for putting together the call to ``function`` with the
         respective arguments, and return its result.
 
         """
@@ -97,7 +98,7 @@ class QBJEngine(object):
 
     Parameters
     ----------
-    nw : `db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to be used with the query.
 
     """
@@ -106,7 +107,7 @@ class QBJEngine(object):
         self.context = nw
 
     def execute(self, querydict, stacktrace=False):
-        """Takes the query in `querydict` and executes it after validation of
+        """Takes the query in ``querydict`` and executes it after validation of
         it's structure.
 
         Parameters
