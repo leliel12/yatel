@@ -297,7 +297,7 @@ class Mock(object):
 
 MOCK_MODULES = [
     'scipy.cluster', 'scipy',
-    'flask.ext.script', 'flask'
+    'flask.ext', 'flask.ext.script', 'flask'
     'argparse', 'numpy', 'requests', 'mock', 'jsonschema',
     'sqlalchemy.sql', 'sqlalchemy.engine','sqlalchemy',
 ]
