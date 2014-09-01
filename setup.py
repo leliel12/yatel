@@ -15,22 +15,6 @@
 
 """
 
-
-#==============================================================================
-# IMPORTS
-#==============================================================================
-
-import os
-import sys
-
-from ez_setup import use_setuptools
-use_setuptools()
-
-from setuptools import setup, find_packages
-
-import yatel
-
-
 #==============================================================================
 # CONSTANTS
 #==============================================================================
@@ -47,6 +31,16 @@ REQUIREMENTS = [
 #==============================================================================
 
 if __name__ == "__main__":
+    import os
+    import sys
+
+    from ez_setup import use_setuptools
+    use_setuptools()
+
+    from setuptools import setup, find_packages
+
+    import yatel
+
     setup(
         name=yatel.PRJ.lower(),
         version=yatel.STR_VERSION,
