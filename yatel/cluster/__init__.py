@@ -10,7 +10,7 @@
 # DOCS
 #===============================================================================
 
-"""This package contains utilities for environments clusterization.
+"""This package contains utilities for environment clusterization.
 
 """
 

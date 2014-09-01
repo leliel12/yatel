@@ -11,9 +11,9 @@
 # DOCS
 #==============================================================================
 
-"""Euclidean distance implementation of yatel.
+"""Euclidean distance implementation of Yatel.
 
-http://en.wikipedia.org/wiki/Euclidean_distance
+- http://en.wikipedia.org/wiki/Euclidean_distance
 
 
 """
@@ -32,8 +32,8 @@ from yatel.weight import core
 #==============================================================================
 
 class Euclidean(core.BaseWeight):
-    """Calculate "ordinary" distance/weight between two haplotypes given by the
-    Pythagorean formula.
+    """Calculates "ordinary" distance/weight between two haplotypes given by 
+    the Pythagorean formula.
 
     Every attribute value is converted to a number by a ``to_num`` function.
     The default behavior of ``to_num`` is a sumatory of base64 ord value of
@@ -56,17 +56,20 @@ class Euclidean(core.BaseWeight):
 
     @classmethod
     def names(cls):
+        """Synonims names to call this weight calculation.
+        
+        """
         return "euclidean", "euc", "ordinary"
 
     def __init__(self, to_num=None):
-        """Creates a new instance
+        """Creates a new instance.
 
         Parameters
         ----------
         to_num : callable
             Convert to a number an haplotype attribute value. The default 
-            behavior of `to_num` is a sumatory of base64 ord value of every 
-            attribute value or
+            behavior of ``to_num`` is a sumatory of base64 ord value of every 
+            attribute value.
 
         .. code-block:: python
 
@@ -82,7 +85,8 @@ class Euclidean(core.BaseWeight):
         self.to_num = to_num_default if to_num is None else to_num
 
     def weight(self, hap0, hap1):
-        """A ``float`` distance between 2 `dom.Haplotype` instances"""
+        """A ``float`` distance between 2 :py:class:`yatel.dom.Haplotype` 
+        instances"""
         s = 0.0
         for name in set(hap0.keys() + hap1.keys()):
             v0 = self.to_num(hap0.get(name, ""))
@@ -96,6 +100,10 @@ class Euclidean(core.BaseWeight):
 #==============================================================================
 
 def to_num_default(attr):
+    """The default behavior of ``to_num`` is a sumatory of base64 ord value 
+    of every attribute value.
+    
+    """
     value = 0
     for c in str(attr).encode("base64"):
         value += ord(c)

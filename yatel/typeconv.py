@@ -11,7 +11,7 @@
 # DOCS
 # =============================================================================
 
-"""Contains functions to convert various support types of yatel to more easily
+"""Contains functions to convert various support types of Yatel to more easily
 serializable types.
 
 """
@@ -32,15 +32,15 @@ from yatel import dom
 # CONSTANTS
 # =============================================================================
 
-#: Constant to retrieve  value as is
+#: Constant to retrieve  value as is.
 LITERAL_TYPE = "literal"
 
 CONTAINER_TYPES = (tuple, set, list, frozenset, types.GeneratorType)
 
-#: Dictionary of yatel domain object model
+#: Dictionary of yatel domain object model.
 HASHED_TYPES = tuple([dict] + dom.YatelDOM.__subclasses__())
 
-#: This dictionary maps types to it's most simple representation
+#: This dictionary maps types to it's most simple representation.
 TO_SIMPLE_TYPES = {
     datetime.datetime: lambda x: x.isoformat(),
     datetime.time: lambda x: x.isoformat(),
@@ -56,7 +56,7 @@ TO_SIMPLE_TYPES = {
     complex: lambda x: unicode(x)
 }
 
-#: This dictionary maps types to python types
+#: This dictionary maps types to python types.
 TO_PYTHON_TYPES = {
     datetime.datetime:
         lambda x: datetime.datetime.strptime(x, "%Y-%m-%dT%H:%M:%S.%f"),
@@ -76,7 +76,7 @@ TO_PYTHON_TYPES = {
     complex: complex
 }
 
-#: This dictionary maps data types to their name
+#: This dictionary maps data types to their name.
 TYPES_TO_NAMES = dict(
     (k, k.__name__)
     for k in TO_SIMPLE_TYPES.keys() +
@@ -85,7 +85,7 @@ TYPES_TO_NAMES = dict(
 )
 TYPES_TO_NAMES[str] = unicode.__name__
 
-#: This dictionary maps names to data type
+#: This dictionary maps names to data type.
 NAMES_TO_TYPES = dict((v, k) for k, v in TYPES_TO_NAMES.items())
 
 
@@ -95,7 +95,7 @@ NAMES_TO_TYPES = dict((v, k) for k, v in TYPES_TO_NAMES.items())
 
 def np2py(obj):
     """Converts a numpy number to it´s closest respresentation of Python
-    traditional objects
+    traditional objects.
 
     """
     # http://stackoverflow.com/questions/9452775/converting-numpy-dtypes-to-native-python-types
@@ -117,12 +117,12 @@ def np2py(obj):
 
 
 def simplifier(obj):
-    """Translates obj given to a python dictionary
+    """Translates obj given to a Python dictionary.
 
     Returns
     -------
     dictionary: dict
-        a dictionary representation of obj
+        a dictionary representation of obj.
 
     """
 
@@ -144,7 +144,7 @@ def simplifier(obj):
 
 
 def parse(obj):
-    """Parses an objects type and value, according to the dictionary maps
+    """Parses an objects type and value, according to the dictionary maps.
 
     """
 

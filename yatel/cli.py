@@ -11,7 +11,7 @@
 # DOCS
 #==============================================================================
 
-"""Launcher of yatel Command Line Interface (cli) tools.
+"""Launcher of Yatel Command Line Interface (cli) tools.
 
 """
 
@@ -38,7 +38,7 @@ from yatel import yio
 #==============================================================================
 
 class _FlaskMock(object):
-    """This class only mock the flask object to use flask script stand alone.
+    """This class only mocks the flask object to use flask script stand alone.
 
     """
 
@@ -109,7 +109,9 @@ manager.add_option(
 #==============================================================================
 
 class Database(object):
-    """This class parses and validates the open mode of a database."""
+    """This class parses and validates the open mode of a database.
+    
+    """
 
     def __init__(self, mode):
         self.mode = mode
@@ -138,16 +140,18 @@ class Database(object):
 
 @command("version")
 class Version(script.Command):
-    """Show Yatel version and exit"""
-
+    """Show Yatel version and exit.
+    
+    """
     def run(self):
         print "{} - version {}".format(yatel.PRJ, yatel.STR_VERSION)
 
 
 @command("list")
 class List(script.Command):
-    """Lists all available connection strings in yatel."""
-
+    """Lists all available connection strings in yatel.
+    
+    """
     def run(self):
         for engine in db.ENGINES:
             print "{}: {}".format(engine, db.ENGINE_URIS[engine])
@@ -155,10 +159,9 @@ class List(script.Command):
 
 @command("test")
 class Test(script.Command):
-    """Run all yatel test suites.
+    """Run all Yatel test suites.
 
     """
-
     option_list = [
         script.Option(dest='level', type=int, help="Test level [0|1|2]")
     ]
@@ -171,8 +174,9 @@ class Test(script.Command):
 
 @command("describe")
 class Describe(script.Command):
-    """Prints information about the network."""
-
+    """Prints information about the network.
+    
+    """
     option_list = [
         script.Option(
             dest='database', type=Database(db.MODE_READ),
@@ -199,11 +203,10 @@ class Describe(script.Command):
 
 @command("dump")
 class Dump(script.Command):
-    """Exports the given database to a file.
-    The extension of the file determines the format.
+    """Exports the given database to a file. The extension of the file 
+    determines the format.
 
     """
-
     option_list = [
         script.Option(
             dest='database', type=Database(db.MODE_READ),
@@ -223,11 +226,10 @@ class Dump(script.Command):
 
 @command("backup")
 class Backup(script.Command):
-    """Like dump but always create a new file with the format
-     ``backup_file<TIMESTAMP>.EXT``.
+    """Like dump but always creates a new file with the format 
+    ``backup_file<TIMESTAMP>.EXT``.
 
      """
-
     option_list = [
         script.Option(
             dest='database', type=Database(db.MODE_READ),
@@ -254,7 +256,6 @@ class Load(script.Command):
     """Import the given file to the given database.
 
     """
-
     option_list = [
         script.Option(
             dest='database', type=Database(db.MODE_WRITE),
@@ -275,10 +276,9 @@ class Load(script.Command):
 
 @command("copy")
 class Copy(script.Command):
-    """Copy a yatel network to another database.
+    """Copy a Yatel network to another database.
 
     """
-
     option_list = [
         script.Option(
             dest='database_from', type=Database(db.MODE_READ),
@@ -297,8 +297,9 @@ class Copy(script.Command):
 
 @command("createconf")
 class CreateConf(script.Command):
-    """Creates a new configuration file for yatel."""
-
+    """Creates a new configuration file for Yatel.
+    
+    """
     option_list = [
         script.Option(
             dest='config', type=argparse.FileType("w"),
@@ -314,8 +315,9 @@ class CreateConf(script.Command):
 
 @command("createwsgi")
 class CreateWSGI(script.Command):
-    """Creates a new WSGI file for a given configuration."""
-
+    """Creates a new WSGI file for a given configuration.
+    
+    """
     option_list = [
         script.Option(dest='config',
                help="File path of the config file. ie: config.json"),
@@ -331,8 +333,9 @@ class CreateWSGI(script.Command):
 
 @command("runserver")
 class Runserver(script.Command):
-    """Run yatel as a development http server with a given config file."""
-
+    """Run Yatel as a development http server with a given config file.
+    
+    """
     option_list = [
         script.Option(
             dest='config',  type=argparse.FileType("r"),
@@ -353,8 +356,9 @@ class Runserver(script.Command):
 
 @command("createetl")
 class CreateETL(script.Command):
-    """Creates a template file to write your own ETL"""
-
+    """Creates a template file to write your own ETL.
+    
+    """
     option_list = [
         script.Option(
             dest='etlfile', type=argparse.FileType("w"),
@@ -377,10 +381,9 @@ class CreateETL(script.Command):
 class DescribeETL(script.Command):
     """Return a list of parameters and documentation about the ETL.
     The argument is in the format path/to/module.py
-    The BaseETL subclass must be named after ETL
+    The BaseETL subclass must be named after ETL.
 
     """
-
     option_list = [
         script.Option(dest='etlfile', help="Python ETL filepath. ie: my_new_etl.py")
     ]
@@ -397,12 +400,11 @@ class DescribeETL(script.Command):
 
 @command("runetl")
 class RunETL(script.Command):
-    """Runs one or more ETL inside of a given script.
-    The first argument is in the format ``path/to/module.py``
-    From second onwards parameters are of the setup method of the given class.
+    """Runs one or more ETL inside of a given script. The first argument is 
+    in the format path/to/module.py second onwards parameters are of the 
+    setup method of the given class.
 
     """
-
     option_list = [
         script.Option(
             dest='database', type=Database(db.MODE_WRITE),
@@ -424,7 +426,6 @@ class PyShell(script.Shell):
     """Run a python shell with a Yatel Network context.
 
     """
-
     banner = """
     Welcome to Yatel Interactive mode.
     Yatel is ready to use. You only need worry about your project.
@@ -458,10 +459,9 @@ class PyShell(script.Shell):
 
 @command("qbjshell")
 class QBJShell(script.Command):
-    """Runs interactive console to execute QBJ queries
+    """Runs interactive console to execute QBJ queries.
 
     """
-
     option_list = [
         script.Option(
             dest='database', type=Database(db.MODE_READ),

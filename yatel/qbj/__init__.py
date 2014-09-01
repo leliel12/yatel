@@ -10,7 +10,7 @@
 # DOC
 #===============================================================================
 
-"""This package contains all necesary function and classes for execute queries
+"""This package contains all necesary function and classes to execute queries
 using JSON
 
 """

@@ -7,6 +7,8 @@
 
 """Defines the schema to validate all incomming QBJ.
 
+- http://www.tutorialspoint.com/json/json_schema.htm
+
 """
 
 #===============================================================================
@@ -138,7 +140,7 @@ def validate(to_validate, *args, **kwargs):
     Raises
     ------
         ValidationError
-            When `to_validate` does not have the corresponding structure.
+            When ``to_validate`` does not have the corresponding structure.
 
     """
     return jsonschema.validate(to_validate, QBJ_SCHEMA, *args, **kwargs)

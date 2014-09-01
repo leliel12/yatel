@@ -31,6 +31,7 @@ from yatel import typeconv
 # CLASS
 #==============================================================================
 
+#: Response structure tuple.
 QBJResponse = collections.namedtuple(
     "QBJResponse",
     ["id", "response", "json", "yatel", "error", "error_msg", "stack_trace"]
@@ -38,6 +39,9 @@ QBJResponse = collections.namedtuple(
 
 
 class QBJClientError(Exception):
+    """Custom exception for failed executions.
+    
+    """
 
     def __init__(self, qbjresponse):
         super(QBJClientError, self).__init__(self, qbjresponse.error_msg)
@@ -49,6 +53,9 @@ class QBJClientError(Exception):
 
 
 class QBJClient(object):
+    """Handles query execution and parsing its response.
+    
+    """
 
     def __init__(self, url, nwname):
         while url.endswith("/"):
@@ -58,6 +65,9 @@ class QBJClient(object):
         self.full_url = "/".join([self.url, "qbj", nwname])
 
     def parse_response(self, response):
+        """Response parser.
+        
+        """
         as_json = response.json()
         yatel = None if as_json["error"] else typeconv.parse(as_json["result"])
         return QBJResponse(
@@ -67,6 +77,9 @@ class QBJClient(object):
         )
 
     def execute(self, query):
+        """Executes the query given in the server.
+        
+        """
         serialized = json.dumps(query)
         response = requests.post(
             self.full_url, data=serialized,

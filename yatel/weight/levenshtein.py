@@ -11,7 +11,7 @@
 # DOCS
 #==============================================================================
 
-"""Levnshtetin and Damerau Levenshteing distance implementation of yatel.
+"""Levenshtein and Damerau Levenshtein distance implementation of Yatel.
 
 - http://en.wikipedia.org/wiki/Levenshtein_distance
 - http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
@@ -34,36 +34,42 @@ class Levenshtein(core.BaseWeight):
     """The Levenshtein distance between two haplotypes is defined as the
     minimum number of edits needed to transform one haplotype as squence
     (sumatory of attribute values) into the other, with the  allowable edit
-    operations being insertion, deletion, or substitution of a single character
+    operations being insertion, deletion, or substitution of a single 
+    character.
 
-    Note: Previously the haplotypes attribute values are encoded with to_seq
-          funcion.
+    Note: Previously the haplotypes attribute values are encoded with to_seq 
+    funcion.
 
     """
 
     @classmethod
     def names(cls):
+        """Synonims names to call this weight calculation.
+        
+        """
         return "levenshtein", "lev"
 
     def __init__(self, to_seq=None):
-        """Creates a new instance
+        """Creates a new instance.
         
         Parameters
         ----------
         to_seq : callable
-            a callable for convert any object to a string. By defautl see 
-            yatel.weight.levenshtein.to_seq_default
+            a callable to convert any object to a string. By defautl see 
+            :py:func:`yatel.weight.levenshtein.to_seq_default`
 
         """
         self.to_seq = to_seq_default if to_seq is None else to_seq
 
     def weight(self, hap0, hap1):
-        """A ``float`` distance between 2 `dom.Haplotype` instances"""
-
+        """A ``float`` distance between 2 :py:class:`dom.Haplotype` instances
+        
+        """
         def levenshtein(a, b):
             """Calculates the Levenshtein distance between a and b.
 
             Found at: http://hetland.org/coding/
+            
             """
             n, m = len(a), len(b)
             if n > m:
@@ -94,29 +100,33 @@ class Levenshtein(core.BaseWeight):
 #==============================================================================
 
 class DamerauLevenshtein(Levenshtein):
-    """Calculate the Damerau-Levenshtein distance between haplotypes.
+    """Calculates the Damerau-Levenshtein distance between haplotypes.
 
     This distance is the number of additions, deletions, substitutions,
     and transpositions needed to transform the first haplotypes as sequences
     into the second.
 
-    Transpositions are exchanges of *consecutive* characters; all other
+    Transpositions are exchanges of **consecutive** characters; all other
     operations are self-explanatory.
 
     This implementation is O(N*M) time and O(M) space, for N and M the
     lengths of the two sequences.
 
-    Note: Previously the haplotypes attribute values are *base64* endoced
+    Note: Previously the haplotypes attribute values are *base64* encoded.
 
     """
 
     @classmethod
     def names(cls):
+        """Synonims names to call this weight calculation.
+        
+        """        
         return "dameraulevenshtein", "damlev", "damerau-levenshtein"
 
     def weight(self, hap0, hap1):
-        """A ``float`` distance between 2 `dom.Haplotype` instances"""
-
+        """A ``float`` distance between 2 `dom.Haplotype` instances
+        
+        """
         def dameraulevenshtein(seq1, seq2):
             """This is the original code found in:
 
@@ -169,7 +179,7 @@ class DamerauLevenshtein(Levenshtein):
 #==============================================================================
 
 def to_seq_default(obj):
-    """Convert a given object to a normalized as base64 of self
+    """Converts a given object to a normalized base64 of self.
 
     """
     if obj is None:

@@ -79,7 +79,7 @@ if __name__ == "__main__":
 #===============================================================================
 
 class _ETLMeta(abc.ABCMeta):
-    """Metaclass to control the ETL inheritance
+    """Metaclass to control the ETL inheritance.
 
     """
     def __init__(self, *args, **kwargs):
@@ -112,7 +112,7 @@ class BaseETL(object):
 
     @abc.abstractmethod
     def haplotype_gen(self):
-        """Creation of data to haplotype like style"""
+        """Creation of data to haplotype like style."""
         return []
 
     def post_haplotype_gen(self):
@@ -123,7 +123,7 @@ class BaseETL(object):
 
     @abc.abstractmethod
     def fact_gen(self):
-        """Creation of data to fact like style"""
+        """Creation of data to fact like style."""
         return []
 
     def post_fact_gen(self):
@@ -134,7 +134,7 @@ class BaseETL(object):
 
     @abc.abstractmethod
     def edge_gen(self):
-        """Creation of data to edge like style"""
+        """Creation of data to edge like style."""
         return []
 
     def post_edge_gen(self):
@@ -152,7 +152,9 @@ class BaseETL(object):
 #==============================================================================
 
 def scan_dir(dirpath):
-    """Retrieve all python files from a given directory"""
+    """Retrieve all python files from a given directory.
+    
+    """
     dir_found = {}
     for content in os.listdir(dirpath):
         path = os.path.join(dirpath, content)
@@ -166,7 +168,9 @@ def scan_dir(dirpath):
 
 
 def scan_file(filepath):
-    """Retrieve all `yatel.etl.BaseETL` subclass of a given file"""
+    """Retrieve all `yatel.etl.BaseETL` subclass of a given file.
+    
+    """
     dirname, filename = os.path.split(filepath)
     modname = os.path.splitext(filename)[0]
     etlmodule = None
@@ -186,7 +190,7 @@ def scan_file(filepath):
 
 
 def etlcls_from_module(filepath, clsname):
-    """Return a class of a given  `filepath`.
+    """Return a class of a given  ``filepath``.
 
     """
     return scan_file(filepath)[clsname]
