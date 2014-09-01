@@ -73,10 +73,6 @@ CLASSIFIERS = (
 # : Home Page of yatel
 URL = "http://getyatel.org"
 
-# : Download for pypi
-DOWNLOAD_URL = "{}/downloads/{}-{}.tar.gz".format(URL, PRJ.lower(),
-                                                   STR_VERSION)
-
 # : Url of the official yatel doc
 DOC_URL = "http://yatel.readthedocs.org"
 

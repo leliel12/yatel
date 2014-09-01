@@ -48,7 +48,6 @@ if __name__ == "__main__":
         author=yatel.AUTHOR,
         author_email=yatel.EMAIL,
         url=yatel.URL,
-        download_url=yatel.DOWNLOAD_URL,
         license=yatel.LICENSE,
         keywords=yatel.KEYWORDS,
         classifiers=yatel.CLASSIFIERS,
