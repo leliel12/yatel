@@ -11,13 +11,15 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys, os, re
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../..'))
 import yatel
+
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 
 # -- General configuration -----------------------------------------------------
@@ -102,12 +104,10 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-try:
+if not on_rtd:
     import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-except ImportError:
-    html_theme = 'agogo'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -265,6 +265,28 @@ texinfo_documents = [
 intersphinx_mapping = {'http://docs.python.org/': None}
 
 
+#==============================================================================
+# MOCK
+#==============================================================================
+
+class Mock(object):
+
+    @classmethod
+    def __getattr__(cls, name):
+        return Mock()
+
+MOCK_MODULES = [
+    'scipy', 'jsonschema',
+    'flask', 'argparse',
+    'numpy', 'requests',
+    'mock', 'sqlalchemy'
+]
+#sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
+
+#==============================================================================
+#
+#==============================================================================
 
 rst_epilog = """
 .. _Yatel: http://getyatel.org
