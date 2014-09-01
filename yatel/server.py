@@ -11,7 +11,7 @@
 # DOCS
 #===============================================================================
 
-"""http server for querying using qbj or yql
+"""Http server for querying, using QBJ or YQL (Yatel Query Languaje).
 
 """
 
@@ -101,7 +101,8 @@ application = server.from_dict(conf)
 #===============================================================================
 
 class YatelHttpServer(flask.Flask):
-    """
+    """Yatel server class.
+    
     """
 
     def __init__(self, **config):
@@ -112,6 +113,9 @@ class YatelHttpServer(flask.Flask):
         self.route("/qbj/<nwname>", methods=["POST", "GET"])(self.qbj)
 
     def add_nw(self, nwname, nw, enable_qbj):
+        """Adds the given ``nw`` to the server.
+        
+        """
         if not isinstance(nw, db.YatelNetwork):
             raise TypeError("nw must be db.YatelNetwork subclass")
         self._nws[nwname] = {"nwname": nwname, "nw": nw}
@@ -122,6 +126,9 @@ class YatelHttpServer(flask.Flask):
         return flask.jsonify({type(self).__name__: "Works"})
 
     def qbj(self, nwname):
+        """It handles the server query calls.
+        
+        """
         qbj_nw = self._nws[nwname]["qbj"]
         response = qbj_nw.execute(
             flask.request.json, stacktrace=self.config["DEBUG"]
@@ -129,6 +136,9 @@ class YatelHttpServer(flask.Flask):
         return flask.jsonify(response)
 
     def nw(self, name):
+        """Returns the context network.
+        
+        """
         return self._nws[name]["nw"]
 
 
@@ -145,6 +155,12 @@ def validate_conf(confdata):
 
 def from_dict(data):
     """Returns a server created with a dictionary as configuration.
+    
+    ``data`` keys:
+    
+    - Path to the configuration file.
+    - ``IP`` and ``port`` where the service will be listening  separated by 
+      a ``:``
     
     """
     validate_conf(data)
