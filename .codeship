@@ -1,7 +1,7 @@
 if [ -d dist ]; then
   rm dist/*;
 fi
-python setup.py sdist;
-pip install --upgrade dist/yatel-*.tar.gz;
+python setup.py sdist formats=tar;
+pip install --upgrade dist/yatel-*.tar;
 yatel test 2;
 
