@@ -32,10 +32,8 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo',
               'sphinx.ext.coverage', 'sphinx.ext.pngmath',
               'sphinx.ext.ifconfig', 'sphinx.ext.viewcode',
-              'sphinx.ext.autosummary', 'sphinx.ext.graphviz']
-
-if not on_rtd:
-    extensions += ['numpydoc']
+              'sphinx.ext.autosummary', 'sphinx.ext.graphviz',
+              'numpydoc']
 
 numpydoc_show_class_members = False
 
