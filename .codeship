@@ -1,4 +1,4 @@
-pip install setuptools -U;
+python ez_setup.py -U setuptools;
 pip install $(python -c "import setup; print '\n'.join(setup.REQUIREMENTS)");
 python setup.py install;
 yatel test 2;
