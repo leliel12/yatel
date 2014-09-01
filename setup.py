@@ -46,20 +46,21 @@ REQUIREMENTS = [
 # FUNCTIONS
 #==============================================================================
 
-setup(
-    name=yatel.PRJ.lower(),
-    version=yatel.STR_VERSION,
-    description=yatel.SHORT_DESCRIPTION,
-    author=yatel.AUTHOR,
-    author_email=yatel.EMAIL,
-    url=yatel.URL,
-    download_url=yatel.DOWNLOAD_URL,
-    license=yatel.LICENSE,
-    keywords=yatel.KEYWORDS,
-    classifiers=yatel.CLASSIFIERS,
-    packages=[pkg for pkg in find_packages() if pkg.startswith("yatel")],
-    include_package_data=True,
-    py_modules=["ez_setup"],
-    entry_points={'console_scripts': ['yatel = yatel.cli:main']},
-    install_requires=REQUIREMENTS,
-)
+if __name__ == "__main__":
+    setup(
+        name=yatel.PRJ.lower(),
+        version=yatel.STR_VERSION,
+        description=yatel.SHORT_DESCRIPTION,
+        author=yatel.AUTHOR,
+        author_email=yatel.EMAIL,
+        url=yatel.URL,
+        download_url=yatel.DOWNLOAD_URL,
+        license=yatel.LICENSE,
+        keywords=yatel.KEYWORDS,
+        classifiers=yatel.CLASSIFIERS,
+        packages=[pkg for pkg in find_packages() if pkg.startswith("yatel")],
+        include_package_data=True,
+        py_modules=["ez_setup"],
+        entry_points={'console_scripts': ['yatel = yatel.cli:main']},
+        install_requires=REQUIREMENTS,
+    )
