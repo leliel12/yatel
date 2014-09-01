@@ -9,8 +9,14 @@ Execute
 
 .. code-block:: bash
 
-    $ sudo apt-get install python-dev libatlas-base-dev gfortran
-    $ sudo pip install yatel
+    $ apt-get install python-dev libatlas-base-dev gfortran
+    $ pip install yatel
+
+Development version
+
+.. code-block:: bash
+
+    $ pip install --pre yatel
 
 
 Windows or other xnix
@@ -30,6 +36,11 @@ Finally open a console and execute
     > easy_install pip
     > pip install yatel
 
+For development version
+
+.. code-block:: bat
+
+    > pip install --pre yatel
 
 From repo
 ^^^^^^^^^
