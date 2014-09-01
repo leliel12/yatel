@@ -273,17 +273,36 @@ intersphinx_mapping = {'http://docs.python.org/': None}
 
 class Mock(object):
 
-    @classmethod
-    def __getattr__(cls, name):
-        return Mock()
+    def __init__(self, name, *a, **kw):
+        self.name = name
+
+    def __getattr__(self, name):
+        name = u"{}.{}".format(self.name, name)
+        return Mock(name)
+
+    def __call__(self, *a, **kw):
+        return Mock(self.name)
+
+    def __enter__(self, *a, **kw):
+        return Mock(self.name)
+
+    def __exit__(self, *a, **kw):
+        return Mock(self.name)
+
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return repr(self)
 
 MOCK_MODULES = [
-    'scipy', 'jsonschema',
-    'flask', 'argparse',
-    'numpy', 'requests',
-    'mock', 'sqlalchemy'
+    'scipy.cluster', 'scipy',
+    'flask.ext.script', 'flask'
+    'argparse', 'numpy', 'requests', 'mock', 'jsonschema',
+    'sqlalchemy.sql', 'sqlalchemy.engine','sqlalchemy',
 ]
-#sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+sys.modules.update((mod_name, Mock(mod_name)) for mod_name in MOCK_MODULES)
+
 
 
 #==============================================================================
