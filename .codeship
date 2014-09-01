@@ -1,7 +1,4 @@
-if [ -d dist ]; then
-  rm dist/*;
-fi
 pip install $(python -c "import setup; print '\n'.join(setup.REQUIREMENTS)");
-pip install --upgrade dist/yatel-*.tar;
+python setup.py install
 yatel test 2;
 
