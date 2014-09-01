@@ -273,33 +273,31 @@ intersphinx_mapping = {'http://docs.python.org/': None}
 
 class Mock(object):
 
-    def __init__(self, name, *a, **kw):
-        self.name = name
+    __all__ = []
 
-    def __getattr__(self, name):
-        name = u"{}.{}".format(self.name, name)
-        return Mock(name)
+    def __init__(self, *args, **kwargs):
+        pass
 
-    def __call__(self, *a, **kw):
-        return Mock(self.name)
+    def __call__(self, *args, **kwargs):
+        return Mock()
 
-    def __enter__(self, *a, **kw):
-        return Mock(self.name)
+    @classmethod
+    def __getattr__(cls, name):
+        if name in ('__file__', '__path__'):
+            return '/dev/null'
+        elif name[0] == name[0].upper():
+            mockType = type(name, (Mock,), {})
+            mockType.__module__ = __name__
+            return mockType
+        else:
+            return Mock()
 
-    def __exit__(self, *a, **kw):
-        return Mock(self.name)
-
-    def __repr__(self):
-        return self.name
-
-    def __str__(self):
-        return repr(self)
 
 MOCK_MODULES = [
-    'scipy.cluster', 'scipy',
-    'flask.ext', 'flask.ext.script', 'flask'
+    'scipy', 'scipy.cluster', 'scipy.stats',
+    'flask', 'flask.ext', 'flask.ext.script',
     'argparse', 'numpy', 'requests', 'mock', 'jsonschema',
-    'sqlalchemy.sql', 'sqlalchemy.engine','sqlalchemy',
+    'sqlalchemy', 'sqlalchemy.sql', 'sqlalchemy.engine'
 ]
 sys.modules.update((mod_name, Mock(mod_name)) for mod_name in MOCK_MODULES)
 

@@ -24,11 +24,9 @@ import sys
 import datetime
 import argparse
 import json
-import functools
 import traceback
 
-from flask.ext.script import Manager, Command, Option, Shell
-from flask.ext.script.commands import InvalidCommand
+from flask.ext import script
 
 import yatel
 from yatel import db, tests, server, etl, qbj
@@ -61,7 +59,7 @@ class _FlaskMock(object):
             return False
         return _FlaskMock()
 
-manager = Manager(
+manager = script.Manager(
     _FlaskMock,
     description=yatel.SHORT_DESCRIPTION,
         usage="yatel [OPTIONS, ...] COMMAND [ARGS, ...] ",
@@ -128,7 +126,7 @@ class Database(object):
                     "-f/--force to ignore this warning and destroy the "
                     "existing data."
                 ).format(toparse, self.mode)
-                raise InvalidCommand(msg)
+            raise script.commands.InvalidCommand(msg)
 
         data.update(log=log, mode=self.mode)
         return db.YatelNetwork(**data)
@@ -139,7 +137,7 @@ class Database(object):
 #==============================================================================
 
 @command("version")
-class Version(Command):
+class Version(script.Command):
     """Show Yatel version and exit"""
 
     def run(self):
@@ -147,7 +145,7 @@ class Version(Command):
 
 
 @command("list")
-class List(Command):
+class List(script.Command):
     """Lists all available connection strings in yatel."""
 
     def run(self):
@@ -156,13 +154,13 @@ class List(Command):
 
 
 @command("test")
-class Test(Command):
+class Test(script.Command):
     """Run all yatel test suites.
 
     """
 
     option_list = [
-        Option(dest='level', type=int, help="Test level [0|1|2]")
+        script.Option(dest='level', type=int, help="Test level [0|1|2]")
     ]
 
     def run(self, level):
@@ -172,11 +170,11 @@ class Test(Command):
 
 
 @command("describe")
-class Describe(Command):
+class Describe(script.Command):
     """Prints information about the network."""
 
     option_list = [
-        Option(
+        script.Option(
             dest='database', type=Database(db.MODE_READ),
             help="Connection string to database according to the RFC 1738 spec."
         ),
@@ -200,18 +198,18 @@ class Describe(Command):
 
 
 @command("dump")
-class Dump(Command):
+class Dump(script.Command):
     """Exports the given database to a file.
     The extension of the file determines the format.
 
     """
 
     option_list = [
-        Option(
+        script.Option(
             dest='database', type=Database(db.MODE_READ),
             help="Connection string to database according to the RFC 1738 spec."
         ),
-        Option(
+        script.Option(
             dest='dumpfile', type=argparse.FileType("w"),
             help=("File path to dump the content of the database. "
                   "Supported formats: {}".format(", ".join(yio.PARSERS.keys())))
@@ -224,18 +222,18 @@ class Dump(Command):
 
 
 @command("backup")
-class Backup(Command):
+class Backup(script.Command):
     """Like dump but always create a new file with the format
      ``backup_file<TIMESTAMP>.EXT``.
 
      """
 
     option_list = [
-        Option(
+        script.Option(
             dest='database', type=Database(db.MODE_READ),
             help="Connection string to database according to the RFC 1738 spec."
         ),
-        Option(
+        script.Option(
             dest='backupfile',
             help=("File path template to dump the content of the database. "
                   "Supported formats: {}".format(", ".join(yio.PARSERS.keys())))
@@ -252,17 +250,17 @@ class Backup(Command):
 
 
 @command("load")
-class Load(Command):
+class Load(script.Command):
     """Import the given file to the given database.
 
     """
 
     option_list = [
-        Option(
+        script.Option(
             dest='database', type=Database(db.MODE_WRITE),
             help="Connection string to database according to the RFC 1738 spec."
         ),
-        Option(
+        script.Option(
             dest='datafile', type=argparse.FileType("r"),
             help=("File path of the existing data file. "
                   "Supported formats: {}".format(", ".join(yio.PARSERS.keys())))
@@ -276,17 +274,17 @@ class Load(Command):
 
 
 @command("copy")
-class Copy(Command):
+class Copy(script.Command):
     """Copy a yatel network to another database.
 
     """
 
     option_list = [
-        Option(
+        script.Option(
             dest='database_from', type=Database(db.MODE_READ),
             help="Connection string to database according to the RFC 1738 spec."
         ),
-        Option(
+        script.Option(
             dest='database_to', type=Database(db.MODE_WRITE),
             help="Connection string to database according to the RFC 1738 spec."
         )
@@ -298,11 +296,11 @@ class Copy(Command):
 
 
 @command("createconf")
-class CreateConf(Command):
+class CreateConf(script.Command):
     """Creates a new configuration file for yatel."""
 
     option_list = [
-        Option(
+        script.Option(
             dest='config', type=argparse.FileType("w"),
             help=("File path of the config file. ie: config.json. "
                   "Supported formats: {}".format(", ".join(yio.PARSERS.keys())))
@@ -315,13 +313,13 @@ class CreateConf(Command):
 
 
 @command("createwsgi")
-class CreateWSGI(Command):
+class CreateWSGI(script.Command):
     """Creates a new WSGI file for a given configuration."""
 
     option_list = [
-        Option(dest='config',
+        script.Option(dest='config',
                help="File path of the config file. ie: config.json"),
-        Option(
+        script.Option(
             dest='filename', type=argparse.FileType("w"),
             help="WSGI filepath. ie: my_wsgi.py"
         )
@@ -332,15 +330,15 @@ class CreateWSGI(Command):
 
 
 @command("runserver")
-class Runserver(Command):
+class Runserver(script.Command):
     """Run yatel as a development http server with a given config file."""
 
     option_list = [
-        Option(
+        script.Option(
             dest='config',  type=argparse.FileType("r"),
             help="File path of the config file. ie: config.json"
         ),
-        Option(
+        script.Option(
             dest='host_port',
             help="Host and port to run yatel, format HOST:PORT"
         )
@@ -354,11 +352,11 @@ class Runserver(Command):
 
 
 @command("createetl")
-class CreateETL(Command):
+class CreateETL(script.Command):
     """Creates a template file to write your own ETL"""
 
     option_list = [
-        Option(
+        script.Option(
             dest='etlfile', type=argparse.FileType("w"),
             help="Python ETL filepath. ie: my_new_etl.py"
         )
@@ -376,7 +374,7 @@ class CreateETL(Command):
 
 
 @command("describeetl")
-class DescribeETL(Command):
+class DescribeETL(script.Command):
     """Return a list of parameters and documentation about the ETL.
     The argument is in the format path/to/module.py
     The BaseETL subclass must be named after ETL
@@ -384,7 +382,7 @@ class DescribeETL(Command):
     """
 
     option_list = [
-        Option(dest='etlfile', help="Python ETL filepath. ie: my_new_etl.py")
+        script.Option(dest='etlfile', help="Python ETL filepath. ie: my_new_etl.py")
     ]
 
     def run(self, etlfile):
@@ -398,7 +396,7 @@ class DescribeETL(Command):
 
 
 @command("runetl")
-class RunETL(Command):
+class RunETL(script.Command):
     """Runs one or more ETL inside of a given script.
     The first argument is in the format ``path/to/module.py``
     From second onwards parameters are of the setup method of the given class.
@@ -406,12 +404,12 @@ class RunETL(Command):
     """
 
     option_list = [
-        Option(
+        script.Option(
             dest='database', type=Database(db.MODE_WRITE),
             help="Connection string to database according to the RFC 1738 spec."
         ),
-        Option(dest='etlfile', help="Python ETL filepath. ie: my_new_etl.py"),
-        Option(dest='args', help="Arguments for etl to excecute", nargs="*")
+        script.Option(dest='etlfile', help="Python ETL filepath. ie: my_new_etl.py"),
+        script.Option(dest='args', help="Arguments for etl to excecute", nargs="*")
     ]
 
     def run(self, database, etlfile, args):
@@ -422,7 +420,7 @@ class RunETL(Command):
 
 
 @command("pyshell")
-class PyShell(Shell):
+class PyShell(script.Shell):
     """Run a python shell with a Yatel Network context.
 
     """
@@ -439,7 +437,7 @@ class PyShell(Shell):
     """
     help = __doc__
     option_list = [
-        Option(
+        script.Option(
             dest='database', type=Database(db.MODE_READ),
             help="Connection string to database according to the RFC 1738 spec."
         )
@@ -459,13 +457,13 @@ class PyShell(Shell):
 
 
 @command("qbjshell")
-class QBJShell(Command):
+class QBJShell(script.Command):
     """Runs interactive console to execute QBJ queries
 
     """
 
     option_list = [
-        Option(
+        script.Option(
             dest='database', type=Database(db.MODE_READ),
             help="Connection string to database according to the RFC 1738 spec."
         ),
