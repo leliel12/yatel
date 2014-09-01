@@ -11,9 +11,9 @@
 # DOCS
 #==============================================================================
 
-"""hamming distance implementation of yatel.
+"""Hamming distance implementation of Yatel.
 
-http://en.wikipedia.org/wiki/Hamming_distance
+- http://en.wikipedia.org/wiki/Hamming_distance
 
 
 """
@@ -30,14 +30,13 @@ from yatel.weight import core
 #==============================================================================
 
 class Hamming(core.BaseWeight):
-    """Calculate the hamming distance
-    (http://en.wikipedia.org/wiki/Hamming_distance) between two haplotypes, by
-    counting the number of diferences in attributes.
-
-    The distances is incremented by "1" by two reasons:
+    """Calculate the hamming distance between two haplotypes, by counting the 
+    number of differences in attributes.
+    
+    The distance is incremented by "1" by two reasons:
+    
         #. haplotype0.attr_a != haplotype1.attr_a
         #. attr_a exist in haplotype0 but not exist in haplotype1.
-
 
     Examples
     --------
@@ -53,10 +52,14 @@ class Hamming(core.BaseWeight):
 
     @classmethod
     def names(cls):
+        """Synonims names to call this weight calculation.
+        
+        """
         return "hamming", "ham"
 
     def weight(self, hap0, hap1):
-        """A ``float`` distance between 2 `dom.Haplotype` instances"""
+        """A ``float`` distance between 2 :py:class:`dom.Haplotype` 
+        instances"""
         w = 0
         for name in set(hap0.keys() + hap1.keys()):
             if name not in hap0.keys() \
