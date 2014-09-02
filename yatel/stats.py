@@ -11,7 +11,7 @@
 # DOCS
 #===============================================================================
 
-"""Statistic functions for calculate weight statistics over yatel enviroments
+"""Statistic functions to calculate weight statistics over Yatel enviroments.
 
 """
 
@@ -37,9 +37,9 @@ def average(nw, env=None, **kwargs):
 
     Parameters
     ----------
-    nw : `yatel.db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env : `yatel.dom.Enviroment` or dict like
+    env : :py:class:`yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -52,9 +52,9 @@ def median(nw, env=None, **kwargs):
 
     Parameters
     ----------
-    nw : `yatel.db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env : `yatel.dom.Enviroment` or dict like
+    env : :py:class:`yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -67,9 +67,9 @@ def percentile(nw, q, env=None, **kwargs):
 
     Parameters
     ----------
-    nw : `yatel.db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env : `yatel.dom.Enviroment` or dict like
+    env : :py:class:`yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -82,9 +82,9 @@ def min(nw, env=None, **kwargs):
 
     Parameters
     ----------
-    nw : `yatel.db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env : `yatel.dom.Enviroment` or dict like
+    env : :py:class:`yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -97,9 +97,9 @@ def max(nw, env=None, **kwargs):
 
     Parameters
     ----------
-    nw : `yatel.db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env : `yatel.dom.Enviroment` or dict like
+    env : :py:class:`yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -112,9 +112,9 @@ def amin(nw, env=None, **kwargs):
 
     Parameters
     ----------
-    nw : `yatel.db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env : `yatel.dom.Enviroment` or dict like
+    env : :py:class:`yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -127,9 +127,9 @@ def amax(nw, env=None, **kwargs):
 
     Parameters
     ----------
-    nw : `yatel.db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env : `yatel.dom.Enviroment` or dict like
+    env : :py:class:`yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -142,9 +142,9 @@ def sum(nw, env=None, **kwargs):
 
     Parameters
     ----------
-    nw : `yatel.db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env : `yatel.dom.Enviroment` or dict like
+    env : :py:class:`yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -157,9 +157,9 @@ def mode(nw, env=None, **kwargs):
 
     Parameters
     ----------
-    nw : `yatel.db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env : `yatel.dom.Enviroment` or dict like
+    env : :py:class:`yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -179,9 +179,9 @@ def var(nw, env=None, **kwargs):
 
     Parameters
     ----------
-    nw : `yatel.db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env : `yatel.dom.Enviroment` or dict like
+    env : :py:class:`yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -194,9 +194,9 @@ def std(nw, env=None, **kwargs):
 
     Parameters
     ----------
-    nw : `yatel.db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env : `yatel.dom.Enviroment` or dict like
+    env : :py:class:`yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -209,9 +209,9 @@ def variation(nw, env=None, **kwargs):
 
     Parameters
     ----------
-    nw : `yatel.db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env : `yatel.dom.Enviroment` or dict like
+    env : :py:class:`yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -223,9 +223,9 @@ def range(nw, env=None, **kwargs):
 
     Parameters
     ----------
-    nw : `yatel.db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env : `yatel.dom.Enviroment` or dict like
+    env : :py:class:`yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -242,9 +242,9 @@ def kurtosis(nw, env=None, **kwargs):
 
     Parameters
     ----------
-    nw : `yatel.db.YatelNetwork`
+    nw : :py:class:`yatel.db.YatelNetwork`
         Network to which apply the operation.
-    env : `yatel.dom.Enviroment` or dict like
+    env : :py:class:`yatel.dom.Enviroment` or dict like
         Environment for filtering.
 
     """
@@ -257,21 +257,24 @@ def kurtosis(nw, env=None, **kwargs):
 #===============================================================================
 
 def weights2array(edges):
-    """Create a *numpy.ndarray* with all the weights of `dom.Edges`"""
+    """Create a **numpy.ndarray** with all the weights of 
+    :py:class:`yatel.dom.Edge`
+    
+    """
     generator = (e.weight for e in edges)
     return np.fromiter(generator, float)
 
 
 def env2weightarray(nw, env=None, **kwargs):
-    """This function always return a *numpy.ndarray* with this conditions:
+    """This function always return a **numpy.ndarray** with this conditions:
 
-    - If `nw` is instance of ``numpy.ndarray`` the same array is returned.
-    - If `nw` is instance of `db.YatelNetwork` and an environment is
-      given return all the edges in this environment.
-    - If `nw` is instance of `db.YatelNetwork` and no environment is
-      given  then return all edges.
-    - In the last case the function tries to convert `nw` to 
-      ``numpy.ndarray`` instance.
+    - If ``nw`` is instance of **numpy.ndarray** the same array is returned.
+    - If ``nw`` is instance of :py:class:`yatel.db.YatelNetwork` and an 
+      environment is given return all the edges in this environment.
+    - If ``nw`` is instance of :py:class:`yatel.db.YatelNetwork` and no 
+      environment is given  then return all edges.
+    - In the last case the function tries to convert ``nw`` to 
+      **numpy.ndarray** instance.
 
     """
     env = dict(env) if env else {}

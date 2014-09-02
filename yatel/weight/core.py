@@ -11,7 +11,7 @@
 # DOCS
 #==============================================================================
 
-"""Base classes for weight calculation in yatel
+"""Base structure for weight calculations in Yatel.
 
 """
 
@@ -30,42 +30,50 @@ from yatel import db
 #==============================================================================
 
 class BaseWeight(object):
-    """Base class of all weight calculators"""
+    """Base class of all weight calculators."""
 
     __metaclass__ = abc.ABCMeta
 
     @classmethod
     def names(cls):
+        """**Abstract Method.**
+        
+        Names of the registered calculators.
+        
+        Raises
+        ------
+            NotImplementedError
+        
+        """
         raise NotImplementedError()
 
     def weights(self, nw, to_same=False, env=None, **kwargs):
-        """Calculate distance between all combinations of a existing haplotypes
-        of network environment or a collection
+        """Calculates the distance between all combinations of existing 
+        haplotypes of the network environment or a collection.
         
         Parameters
         ----------
         calcname : string
             Registered calculator name (see: `yatel.weight.calculators`)
-        nw : yatel.db.YatelNetwork or yatel.dom.Haplotype
-            `yatel.db.YatelNetwork` instance or iterable of `yatel.dom.Haplotype` 
+        nw : :py:class:`yatel.db.YatelNetwork` or \ 
+            :py:class:`yatel.dom.Haplotype`
+            :py:class:`yatel.db.YatelNetwork` instance or iterable of 
+            :py:class:`yatel.dom.Haplotype` 
             instances
         to_same : bool
             If ``True`` calculate the distance between the same haplotype.
         env : dict or None
-            Enviroment dictionary only if `nw` is `yatel.db.YatelNetwork` instance.
+            Enviroment dictionary only if ``nw`` is 
+            :py:class:`yatel.db.YatelNetwork` instance.
         kwargs : 
-            Variable parameters to use as enviroment filters only if `nw` is 
-            `yatel.db.YatelNetwork` instance.
-
-        :returns: A iterator like like ``(hap_x, hap_y), float`` where hap_x is
-                  the origin node, hap_y is the end node and float is the
-                  weight of between them.
+            Variable parameters to use as enviroment filters only if ``nw`` is 
+            :py:class:`yatel.db.YatelNetwork` instance.
         
         Returns
         -------
         Iterator
-            Like ``(hap_x, hap_y), float`` where hap_x is the origin node, hap_y 
-            is the end node and float is the weight of between them.
+            Like ``(hap_x, hap_y), float`` where ``hap_x`` is the origin node, 
+            ``hap_y`` is the end node and ``float`` is the weight between them.
 
         """
         env = dict(env) if env else {}
@@ -95,8 +103,9 @@ class BaseWeight(object):
 
     @abc.abstractmethod
     def weight(self, hap0, hap1):
-        """**Not implemented:** A ``float`` distance
-           between 2 ``dom.Haplotype`` instances
+        """**Abstract Method.**
+        
+        A `float` distance between 2 :py:class:`yatel.dom.Haplotype` instances.
 
         """
         raise NotImplementedError()

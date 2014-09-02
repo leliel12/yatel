@@ -11,7 +11,7 @@
 # DOCS
 #==============================================================================
 
-"""Interactive shell for QBJ
+"""Interactive shell for QBJ.
 
 """
 
@@ -72,11 +72,15 @@ class QBJShell(cmd.Cmd):
         self.buff = []
 
     def do_exit(self, args):
-        """Exits from the console"""
+        """Exits from the console.
+        
+        """
         return -1
 
     def do_EOF(self, args):
-        """Exit on system end of file character"""
+        """Exit on system end of file character.
+        
+        """
         print random.choice((
             "See you space cowboy", "The End", "Run Forrest, run!",
             "To be continued...", "I'll be back", "Hasta la vista baby",
@@ -85,6 +89,9 @@ class QBJShell(cmd.Cmd):
         return self.do_exit(args)
 
     def do_fhelp(self, args):
+        """Provides help of the given function if it cant all help is returned.
+        
+        """
         if args:
             cmd = u"""{
                 "id": null,
@@ -103,7 +110,9 @@ class QBJShell(cmd.Cmd):
         self.default(cmd)
 
     def do_exec(self, fpath):
-        """Excecute query from .qbj file"""
+        """Excecute query from .qbj file.
+        
+        """
         with open(fpath) as fp:
             src = fp.read().strip()
             if not src.endswith(";"):
@@ -111,9 +120,15 @@ class QBJShell(cmd.Cmd):
             self.default(src)
 
     def do_help(self, args):
+        """Provides the entire help.
+        
+        """
         print u"\t" + self.__doc__
 
     def do_indent(self, indent):
+        """Sets the level of indentation of output.
+        
+        """
         try:
             if indent is None:
                 self.indent = None
@@ -123,11 +138,14 @@ class QBJShell(cmd.Cmd):
             self.indent = 2
 
     def emptyline(self):
-        """Do nothing on empty input line"""
+        """Do nothing on empty input line.
+        
+        """
         pass
 
     def default(self, line):
-        """Execute a QBJ query
+        """Execute a QBJ query.
+        
         """
         line = line.strip()
         self.buff.append(line)

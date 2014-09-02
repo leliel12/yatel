@@ -3,11 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Yatel's documentation!
-=================================
-
-.. image:: _static/web_logo.png
+.. figure:: _static/web_logo.png
     :align: center
+
+    **Version:** |release|
 
 Contents:
 

@@ -1,30 +1,28 @@
 Yatel ETL Framework
 ===================
 
-Una de las principales problematicas que se enfrentan los almacenes de datos
-orientados al ánalisis es la forma en el cual se cargan incrementalmente o
-se actualizan sus datos.
+One of the main problems faced of data warehouses oriented to analysis is the 
+way in which their data is loaded or updated incrementally.
 
-La tecnica utilizada es la conocida como ETL_, que a grandes rasgos consiste en
-**Extraer** datos de una fuente, **Transformalos** para que tengan sentido
-en el contexto de nuestro almacen; y finalmente **Cargarlos** (cargar en
-ingles es LOAD) a nuestra base de datos.
+The technique used is known as ETL_, which roughly consists in **Extract** 
+data from source, **Transform** them to make sense in the context of our 
+warehouse, and finally **Load** them to our database.
 
-Yatel brinda un modesto framework para la creación de ETL para la carga de
-NW-OLAP de una forma consistente.
+Yatel provides a modest framework for creating ETL for loading NW-OLAP 
+consistently.
 
-Creando Un ETL Completo
-^^^^^^^^^^^^^^^^^^^^^^^
+Creation of a full ETL
+^^^^^^^^^^^^^^^^^^^^^^
 
-El primer paso para crear un ETL_ es utilizar Yatel para que nos genere un
-template sobre el cual trabajar en un archivo de nombre, por ejemplo,
+The first step in creating a ETL is using Yatel to generate us a template on 
+which to work in a file name, for example,
 
 .. code-block:: bash
 
     $ yatel createetl myetl.py
 
 
-Si lo abrimos veremos el siguiente codigo
+If we open it we will see the following code
 
 .. code-block:: python
     :linenos:
@@ -67,30 +65,31 @@ Si lo abrimos veremos el siguiente codigo
         print(__doc__)
 
 
-.. note:: Como condicion hay que aclarar que **siempre** que se utilice las herramientas
-          de lineas de comando la clase con el ETL_ a correr debe llamarse
+.. note:: As a condition should be clarified that whenever the command line 
+          tools the class with the ETL_ to be called must be called 
           ``ETL`` (Line 13).
 
 
-.. note:: Es buena practica que solo haya un ETL por archivo, para evitar confusiones
-          problematicas al momento de la ejecucion y poner en riesgo la consistencia de
-          su wharehouse.
+.. note:: It is good practice to have only one ETL per file, to prevent 
+          problems at the time of execution and jeopardize the consistency of 
+          your data wharehouse.
 
 
-- La linea 6 son los imports que se utilizan sin ecepcion en todos los ETL
-- La linea 13 crea la clase ETL que contendra toda la logica para la extraccion,
-  transformacion y carga de datos.
+- Line 6 are the imports used without exception in all the ETL
+- Line 13 creates the ETL class that will contain the logic for extraction, 
+  transformation and load of the data
 
 
-Cabe aclarar que existen muchos metodos que pueden redefinirse (tienen una seccion mas
-adelante) pero los unicos que hay que redefinir obligatoriamente son los generadores:
-``haplotype_gen``, ``edge_gen``, ``fact_gen``.
+
+Should be noted that there are many methods that can be overridden (there is a 
+sectino for ahead) but the ones that are mandatory to redefine are the 
+generators: ``haplotype_gen``, ``edge_gen``, ``fact_gen``.
 
 
-- ``haplotype_gen`` (linea 21) debe retornar o bien un iterable o en el mejor de los
-  casos un generador de los haplotypes que desea que se cargen en la base de datos.
-  Por ejemplo podriamos decidir que los haplotypes se lean de un CSV_ utilizando el
-  modulo csv de Python:
+- ``haplotype_gen`` (line 21) must return an iterable or in the best of cases 
+  a generator of haplotypes that you want to load into the database. For 
+  example we may decide that the haplotypes are read of a CSV_ using the csv 
+  module of Python:
 
   .. code-block:: python
 
@@ -98,47 +97,47 @@ adelante) pero los unicos que hay que redefinir obligatoriamente son los generad
         with open("haplotypes.csv") as fp:
             reader = csv.reader(fp)
             for row in reader:
-                hap_id = row[0] # suponemos que el id esta en la primer columna
-                name = row[1] # suponemos que la columna 1 tiene un atributo name
+                hap_id = row[0] # assume that the id is in the first column
+                name = row[1] # assume that the column 1 has an attribute name
                 yield dom.Haplotype(hap_id, name=name)
 
 
-  Como es muy comun utilizar estos haplotypes en las siguientes funciones, el ETL
-  se encarga de guardarlos en una variable llamada **haplotypes_cache**. Este
-  cache es un un *dict-like* cuya llave son los `hap_id` y los valores los haplotypos
-  en si mismo (la manipulacion del cache se vera en su propia seccion mas adelante).
+  As is very common to use these haplotypes in the following functions, the ETL
+  is responsible for storing them in a variable named **haplotypes_cache**. 
+  This cache is a **dict-like** whose key are ``hap_id`` and the values of the 
+  haplotypes themselves (cache manipulationhas it's own section ahead).
 
 
-- ``edge_gen`` (linea 24) debe retornar o bien un iterable o en el mejor de los
-  casos un generador de los edges que desea que se cargen en la base de datos.
-  Es normal querer utilizar el cache de haplotypes para de alguna manera compararlos
-  y cargar el peso deseado en cada arco. Para comparar cada haplotipo con todos
-  los demas excepto con el mismo podemos utilizar la funcion *itertools.combinations*
-  que viene con python (si se quiere comparar los haplotypos con ellos mismos se puede
-  utilizar por otro lado la funcion *itertools.combinations.with_replacement*). El peso
-  finalmente estara dada por la
-  `distancia de hamming <http://en.wikipedia.org/wiki/Hamming_distance>`_ entre los
-  dos haplotypos utilizando el modulo *weights* presente en Yatel:
+- ``edge_gen`` (line 24) must return an iterable or in the best of cases 
+  a generator of edges that you want to load into the database. It is normal 
+  to want to use the haplotypes cache for comparison and give the right weight 
+  to each edge. To compare each happlotype with all the rest but itself we can 
+  use the function **itertools.combinations**  that comes with Python (if 
+  someone would want to compare the haplotypes with itself we can use another 
+  function **itertools.combinations.with_replacement**). Finally the weight 
+  given by the 
+  `hamming distance <http://en.wikipedia.org/wiki/Hamming_distance>`_ between 
+  two haplotypes using the **weights** module in Yatel:
 
 
   .. code-block:: python
 
     def edge_gen(self):
-        # combinamos de a dos haplotypos
+        # we combine  haplotypes by two
         for hap0, hap1 in itertools.combinations(self.haplotypes_cache.values(), 2):
             w = weight.weight("hamming", hap0, hap1)
             haps_id = hap0.hap_id, hap1.hap_id
             yield dom.Edge(w, haps_id)
 
 
-- ``fact_gen`` (linea 27) debe retornar o bien un iterable o en el mejor de los
-  casos un generador de los facts que desea que se cargen en la base de datos.
-  Normalmente la mayor complejidad de los ETL radica en esta función.
-  Podemos imaginar en nuestro caso (par agregar algo de complegidad al ejemplo)
-  que los facts provienen de un archivo JSON_, cuyo elemento principal es un
-  objeto y sus llaves son equivalentes al atributo *name* de cada haplotype; a
-  su ves los valores son un array el cual cada uno debe ser un *fact* de dicho
-  haplotypo. Un ejemplo sencillo seria:
+- ``fact_gen`` (line 27) must return an iterable or in the best of cases 
+  a generator of facts that you want to load into the database.
+  Normally the greater complexity of the ETL is in this function.
+  We can imagine in our case (to add some complexity to this example) that the
+  facts com from a JSON_, whose main element is an object and its keys are 
+  equivalent to the attribute **name** of each haplotype; the values ​​in turn 
+  are an array which each one must be a **fact** of said haplotype. A simple 
+  example would be:
 
 
   .. code-block:: javascript
@@ -155,11 +154,11 @@ adelante) pero los unicos que hay que redefinir obligatoriamente son los generad
         }
 
 
-  Asi la funcion que procese dichos datos debe primero determinar cual es el ``hap_id``
-  para cada haplotipo antes de crear el fact. Podemos (por una cuestion de facilidad)
-  guardar un *dict* cuyo valor sea el *name* del haplotipo (asumimos unico) y el valor el
-  *hap_id*. Para no hacer bucles inutiles podemos hacerlo directamente en el método
-  ``haplotype_gen`` con o cual quedaria de la siguiente forma:
+  So the function to process the data must first determine what the ``hap_id`` 
+  for each haplotype is before creating fact. We could (by a matter of ease) 
+  save a *dict* whose value is the *name* of the haplotype (assuming it's 
+  unique) and the value of *hap_id*. To not do useless loops we can do it 
+  directly in the method ``haplotype_gen`` with which would be as follows:
 
 
   .. code-block:: python
@@ -175,7 +174,7 @@ adelante) pero los unicos que hay que redefinir obligatoriamente son los generad
                 self.name_to_hapid[name] = hap_id
                 yield hap
 
-  Ahora podemos crear los facts facilmente utilizando el mòdulo json de Python
+  Now we can easily create the facts using the json module in Python.
 
 
   .. code-block:: python
@@ -189,33 +188,37 @@ adelante) pero los unicos que hay que redefinir obligatoriamente son los generad
                     yield dom.Fact(hap_id, **fact_data)
 
 
-Por ùltimo teniendo una base de datos objetivo podemos cargarla con nuestro ETL con el comando:
+Finally having a destination database we can load it with our ETL with the 
+command:
 
 .. code-block:: bash
 
     $ yatel runetl sqlite:///my_database.db my_etl.py
 
 
-Inicialidador y limpieza de un ETL
-----------------------------------
+Initializer and cleanup of an ETL
+---------------------------------
 
-Puede ser necesario, en algunos caso que su ETL necesite algunos recursos y que sea conveniente
-liberarlos recien al termina todo el procesamiento (una conexion a una base de datos por ejemplo);
-o por otro lado, crear variables globales a los mètodos
+It may be necessary in some cases your ETL needs some resources and it is 
+convenient that they are freed at the finish of the process (a connection to a 
+database for example); or otherwise create global variables to the methods.
 
-Para estos casos Yatel cuenta con dos metodos extra que se pueden redefinir en su ETL estos son:
+For this cases Yatel has two extra methods than can be redefined in your ETL:
 
-- ``setup`` que se ejecuta previamente a **todos** los demas metodos del ETL. Sumado a esto; tambien
-  puede recibir paràmetros posicionales (los parametros variables o con valores por defecto no son
-  aceptados) los cuales se pueden pasar desde la linea de comando.
-- ``teardown`` Este mètodo se ejeuta al finalizar todo el procesamiento y es el ultimo responsable
-  en dejar el sistema en estable luego de liberar todos los recursos utilizados en la ejecucion del ETL.
+- ``setup`` which is executed before **all** other methods in the ETL. Added 
+  to this; also can receive positional parameters (variable parameters and 
+  those with default values are not accepted) wich can be given through the 
+  command line.
+- ``teardown`` this method is executed at the end of all processing and is 
+  the last responsible for leaving the system in a stable estate after 
+  freeing all resources of the ETL execution.
 
 
-En nuesto ejemplo, podriamos imaginar que se desea ecribir el momento de inicio y finalizacion
-de la ejecucion del ETL (obtenidos con el mòdulo *time* de python) en un archivo que se pasa
-por paràmetro. Tambien es realmente este un mejor lugar para declrar el *dict* ``name_to_hapid``
-que se utilizara en los haplotipos y los facts. Las dos funciones tendran la forma
+In our example, We might want to write the time of start and end of the ETL 
+execution (obtained with the *time* module in Python) into a file given as 
+a parameter. This is really a better place to declare *dict* ``name_to_hapid`` 
+that will be used with the haplotypes and facts. the two functions have the 
+form:
 
 
 .. code-block:: python
@@ -230,8 +233,8 @@ que se utilizara en los haplotipos y los facts. Las dos funciones tendran la for
         self.fp.close()
 
 
-Finalmente para correr nuestro etl ahora deberìamos utilizar el comando pasando los parametros
-para setup
+Finally to run our ETL we should use the command passing it parameters for 
+the setup
 
 
 .. code-block:: bash
@@ -239,48 +242,50 @@ para setup
     $ yatel runetl sqlite:///my_database.db my_etl.py timestamps.log
 
 
-.. note:: Cabe aclarar que todos los parametros que llegan a ``setup`` llegan en la forma
-          de texto y deben ser convertidos en la medida de lo necesario.
+.. note:: Should be pointed that all the parameters arriving to ``setup`` do 
+          as text and must be converted to the extent necessary.
 
 
 
-Funciones intermedias a los generadores
----------------------------------------
+Intermediate functions to generators
+------------------------------------
 
-Si bien no suele ser comun su utilizacion, los ETL poseen 6 metodos mas que permiten el
-control mas atomico de los ETL. Cada una de ellos se ejecutan justo antes y justo despues
-de cada generador, ellos son:
+While it is not commonly use, the ETL has six more methods that give more 
+atomic control of the ETL. Each one of them are executed right before and 
+after each generator, they are:
 
-- ``pre_haplotype_gen(self)`` se ejecuta justo antes de ejecutar *haplotype_gen*.
-- ``post_haplotype_gen(self)`` se ejecuta justo despues de ejecutar *haplotype_gen*.
-- ``pre_edge_gen(self)`` se ejecuta justo antes de ejecutar *edge_gen*.
-- ``post_edge_gen(self)`` se ejecuta justo despues de ejecutar *edge_gen*.
-- ``pre_fact_gen(self)`` se ejecuta justo antes de ejecutar *fact_gen*.
-- ``post_fact_gen(self)`` se ejecuta justo despues de ejecutar *fact_gen*.
-
-
-Manejo de Errores
------------------
-
-En caso de suceder algun error en el procesamiento de un ETL, puede redefinirse
-un metodo para tratar este error: ``handle_error(exc_type, exc_val, exc_tb)``
-
-Los parametros que recibe ``handle_error`` son los equivalente a exit de un
-context manager donde: *exc_type* es la clase del error (exception) que sucecio,
-*exc_val* es la exception propiamente dicha y *exc_tb* es e traceback del error.
-
-Si este mètodo suspende toda la ejecucion el ETL (incluso ``teardown``)
+- ``pre_haplotype_gen(self)`` executed right before *haplotype_gen*.
+- ``post_haplotype_gen(self)`` executed right after *haplotype_gen*.
+- ``pre_edge_gen(self)`` executed right before *edge_gen*.
+- ``post_edge_gen(self)`` executed right after *edge_gen*.
+- ``pre_fact_gen(self)`` executed right before *fact_gen*.
+- ``post_fact_gen(self)`` executed right after *fact_gen*.
 
 
-.. note:: los ETL **NO** son manejadores de contexto.
+Error Handling
+--------------
 
-.. note:: ``handle_error`` **NUNCA** debe relanzar la exception que le llega
-          como paràmetro. Si decesa sileciar esa exception simplemente retorne
-          ``True`` o algun valor verdadero, de lo contrario la exception se
-          propagarà
+In case of encountering an error in the processing of an ETL, a method can be 
+overridden to treat it: ``handle_error(exc_type, exc_val, exc_tb)``
+
+The parameters that ``handle_error`` receives are equivalent to the exit from 
+a context manager where: *exc_type* is the error class (exception) that 
+happened, *exc_val* its the exception itself and *exc_tb* its the error 
+traceback.
+
+Yes, this method 
+Si este mètodo suspends all execution of ETL (even ``teardown``)
 
 
-Por ejemplo si quisieramos silenciar la exception solo si es TypeError
+.. note:: ETL **ARENT** context managers.
+
+.. note:: ``handle_error`` should **NEVER** relaunch the exception that 
+          reaches it as parameter. If you want to silence said exception 
+          simply return ``True`` or a true value, otherwise the exception 
+          will propagate.
+
+
+For example if we want to silence the exception only if it is TypeError
 
 
 .. code-block:: python
@@ -289,17 +294,16 @@ Por ejemplo si quisieramos silenciar la exception solo si es TypeError
         return exc_type == TypeError
 
 
-Cache de Haplotypos
--------------------
+Haplotypes cache
+----------------
 
-La ultima funcionalidad que se puede alterar a un ETL es el funcionamiento del
-cache de haplotypos. Por ejemplo si os haplotipos son demasiados para mantenerlos
-en memoria al mismo tiempo podria por ejemplo reemplazar el doble diccionario
-(el cache interno y el que enlaza los nombres con los id) por un unico cache
-que contenga internamente los datos de manera prolija
+The last functionality that can be altered in a ETL is the operation of the 
+cache haplotypes, for example if the haplotypes are too many to keep in 
+memory at the same time we could replace the double dictionary (internal 
+cache and the one that links names with its id) by a single cache that 
+contains the data internally neatly.
 
-Los ETL utilizan como cache clases que heredan de
-``collections.MutableMapping``.
+The ETL use as cache classes that inherit from ``collections.MutableMapping``.
 
 .. code-block:: python
 
@@ -311,7 +315,7 @@ Los ETL utilizan como cache clases que heredan de
             self.by_hap_id = {}
             self.name_to_hap_id = {}
 
-        # todos estos metodos son necesarios redefinit en un mutable mapping
+        # all this methods have to be redefined in a mutable mapping
         def __delitem__(self, hap_id):
             hap = self.by_hap_id.pop(hap_id)
             self.name_to_hap_id.pop(hap.name)
@@ -332,14 +336,16 @@ Los ETL utilizan como cache clases que heredan de
         def get_hap_id(self, name):
             return self.name_to_hap_id[name]
 
+To use this class level cache of the ETL we need to redefine an attribute 
+called ``HAPLOTYPES_CACHE``
 Para utilizar este cache a nivel de clase del ETL hay que redefinir un atributo
-que se llama ``HAPLOTYPES_CACHE`` y que tenga valor la clase
+que se llama ``HAPLOTYPES_CACHE`` and have the class value 
 ``DoubleDictCache``.
 
-.. note:: Si desea deshabilitar el cache totalmente, ponga el valor
-          ``HAPLOTYPES_CACHE`` a *None*
+.. note:: If you want to disable the cache completely, put the value of 
+          ``HAPLOTYPES_CACHE`` as *None*
 
-En nuestro ejemplo el codigo finalmente quedaría:
+In our example the code would be:
 
 .. code-block:: python
 
@@ -349,71 +355,75 @@ En nuestro ejemplo el codigo finalmente quedaría:
 
         ...
 
-.. note:: Tenga en cuenta que es posible que sea necesario depende el tamño de
+.. note:: Note that it may be required depends on the size of your cache that 
+          suits you to implement something on a key value database (Riak_ o 
+          Redis_), OO (ZODB_) or directly
+          Tenga en cuenta que es posible que sea necesario depende el tamaño de
           su cache que le convenga implementar algo sobre una base de datos
-          llave valor (Riak_ o Redis_), OO (ZODB_) o directamente una
-          relacional como una pequeña SQLite_
+          llave valor (Riak_ o Redis_), OO (ZODB_) or directly a relational 
+          database lia a small SQLite_
 
 
-Ejemplo Completo
-----------------
+Full example
+------------
 
-El ejemplo completo del codigo puede verse `aqui <_static/examples/myetl.zip>`_
-
-
-Ciclo de vida de un ETL
-^^^^^^^^^^^^^^^^^^^^^^^
-
-#. Primero se verifica que la clase herede de ``yatel.etl.BaseETL``
-#. Se extrae la clase de Cache y si no se encuentra se deshabilita.
-#. Si la clase de cache es:
-    #. ``None`` no se crea ni un cache.
-    #. ``!= None`` se verifica que se una subclase de
-       ``collections.MutableMapping`` y luego se crea una instancia y se la
-       asigna al etl en la variable ``haplotypes_cache``
-#. Se asigna la instancia de ``db.YatelNetwork`` a la variabe ``nw`` en el ETL
-#. Se ejecuta el metodo ``setup`` del ETL pasandole todos los argumentos.
-#. Se ejecuta ``pre_haplotype_gen``.
-#. Se itera sobre los ``dom.Haplotype`` que devuelve ``haplotype_gen`` y se
-   los agrega a la base de datos. Si en algun momento se devuelve algo que no
-   sea un  ``dom.Edge`` se lanza un ``TypeError``. Si existe un cache se asigna
-   cada ``dom.Haplotype`` al cache poniendo como llave el *hap_id* y como valor
-   el *Haplotype*
-#. Se ejecuta ``post_haplotype_gen``.
-#. Se ejecuta ``pre_edge_gen``.
-#. Se itera sobre lo ``dom.Edge`` que devuelve ``edge_gen`` y se los agrega a
-   la base de datos. Si en algun momento se devuelve algo que no sea un
-   ``dom.Edge`` se lanza un ``TypeError``
-#. Se ejecuta ``post_edge_gen``
-#. Se ejecuta ``pre_fact_gen``.
-#. Se itera sobre lo ``dom.Fact`` que devuelve ``fact_gen`` y se los agrega a
-   la base de datos. Si en algun momento se devuelve algo que no sea un
-   ``dom.Fact`` se lanza un ``TypeError``
-#. Se ejecuta ``post_fact_gen``
-#. Se ejecuta ``teardown``
-#. Se retorna ``True``
-
-**Si algo Falla**
-
-A. Se ejecuta ``handle_error`` pasandole información
-   del error. Si ``handle_error`` retorna ``False`` no se detiene la exception.
-B. Se retorna ``None``.
-
-.. warning:: Si usted esta corriendo directamente su etl utilizando la funcion
-             ``etl.execute`` no se confirman los cambios y es su
-             responsabilidad ejecutar el ``nw.confirm_changes()``.
-
-             Si por otro lado usted esta ejecutando con la linea de comandos
-             la confirmacion solo se ejecuta si la funcion ``etl.execute`` no
-             falla en ningun momento.
+Full example code can be seen `here <_static/examples/myetl.zip>`_
 
 
-Corriendo ETL en un cronjob
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Life cycle of a ETL
+^^^^^^^^^^^^^^^^^^^
 
-Es altamente recomendable antes de correr un etl que siempre haga un backup de
-los datos para eso le sugerimos los siguientes scipts (para windows y posix)
-que facilitan esta tarea
+#. First it verifies that the class inherits from :py:class:``yatel.etl.BaseETL``.
+#. Cache class is extracted and if is not found disabled.
+#. If cache class is:
+    #. ``None`` no cache is created.
+    #. ``!= None`` it verifies that is a subclass of 
+       ``collections.MutableMapping`` then an instance is created and asigned 
+       to the etl in ``haplotypes_cache`` variable.
+#. The ``db.YatelNetwork`` instance is assigned to the variable ``nw`` in the 
+   ETL.
+#. ``setup`` method of the ETL is executed passing all arguments.
+#. ``pre_haplotype_gen`` is executed.
+#. Iterating over the ``dom.Haplotype`` that returns ``haplotype_gen`` and 
+   they are added to the database. If something is returned at some point 
+   other than a ``dom.Haplotype`` an ``TypeError`` is thrown. If there is a cache 
+   each ``dom.Haplotype`` is assigned to the cache putting the key as 
+   *hap_id* and for value the *Haplotype*.
+#. ``post_haplotype_gen`` is executed.
+#. ``pre_edge_gen`` is executed.
+#. Iterating over the ``dom.Edge`` that returns ``edge_gen`` and they are 
+   added to the database. If something is returned at some point other than a 
+   ``dom.Edge`` an ``TypeError`` is thrown.
+#. ``post_edge_gen`` is executed.
+#. ``pre_fact_gen`` is executed.
+#. Iterating over the ``dom.Fact`` that returns ``fact_gen`` and they are 
+   added to the database. If something is returned at some point other than a 
+   ``dom.Fact`` an ``TypeError`` is thrown.
+#. ``post_fact_gen`` is executed.
+#. ``teardown`` is executed.
+#. Returns ``True``.
+
+**If something Fails**
+
+A. ``handle_error`` is executed passing it the error information. if 
+   ``handle_error`` returns ``False`` the exception is not stopped.
+B. Returns ``None``.
+
+.. warning:: If you are running your ETL directly using the function 
+             ``etl.execute`` changes are not confirmed and It is your 
+             responsibility to run ``nw.confirm_changes()``.
+
+             If on the other hand you are running with the command line the 
+             confirmation is run only if ``etl.execute`` does not fail at any 
+             time.
+
+
+Running a ETL in a cronjob
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It is highly recommended that before running an ETL to always backup the data 
+for that we suggest the following scripts (for windows and posix) that 
+facilitate this task.
 
 
 **Sugested *bash* (posix) script**
