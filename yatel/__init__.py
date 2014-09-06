@@ -44,7 +44,7 @@ import sys
 PRJ = "Yatel"
 
 # : The project version as tuple of strings
-VERSION = ("0", "3")
+VERSION = ("0", "3", "1")
 
 # : The project version as string
 STR_VERSION = ".".join(VERSION)

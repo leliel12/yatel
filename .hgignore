@@ -19,3 +19,4 @@ yatel.egg-info/*
 Sphinx_PyPI_upload*/*
 paper/*.pdf
 build/*
+test_yatel.sh
