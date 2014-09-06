@@ -157,19 +157,21 @@ class YatelExtraDBTestTemplate(object):
 #==============================================================================
 
 if extra_dbs:
-    for idx, extra_db in enumerate(extra_dbs.split(";")):
-        data = db.parse_uri(extra_db)
-        engine = data["engine"]
-        database = data.get("database", "")
-        cls_name = "YatelExtraDB{}{}{}".format(
-            engine.title(), database.title(), idx
-        )
-        Cls = type(
-            cls_name,
-            (YatelExtraDBTestTemplate, YatelTestCase),
-            {"CONN_DATA": data}
-        )
-        extra_tests[cls_name] = Cls
+    for idx, conn_str in enumerate(extra_dbs.split(";")):
+        conn_str = conn_str.strip()
+        if conn_str:
+            data = db.parse_uri(conn_str)
+            engine = data["engine"]
+            database = data.get("database", "")
+            cls_name = "YatelExtraDB{}{}{}".format(
+                engine.title(), database.title(), idx
+            ).replace("sql", "SQL")
+            Cls = type(
+                cls_name,
+                (YatelExtraDBTestTemplate, YatelTestCase),
+                {"CONN_DATA": data}
+            )
+            extra_tests[cls_name] = Cls
 
 
 #===============================================================================

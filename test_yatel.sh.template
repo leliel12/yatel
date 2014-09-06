@@ -1,0 +1,10 @@
+#!/bin/bash
+
+MEMORY="memory:///";
+MYSQL="";
+POSTGRESQL="";
+
+DBS="$MEMORY;$MYSQL;$POSTGRESQL";
+export YATEL_TEST_DBS=$DBS;
+yatel test 2;
+
