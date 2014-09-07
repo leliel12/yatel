@@ -74,7 +74,7 @@ class YatelTestCase(unittest.TestCase):
         return set(self.__subclasses__())
 
     def conn(self):
-        return {"engine": "memory"}
+        return {"uri": "sqlite:///"}
 
     def add_elements(self, nw):
 
@@ -175,8 +175,9 @@ class YatelTestCase(unittest.TestCase):
     def tearDown(self):
         if MOCK:
             patch.stopall()
-        if self.conn()["engine"] == "sqlite":
-            os.remove(self.conn()["database"])
+        data = db.parse_uri(**self.conn())
+        if data["engine"] == "sqlite" and data["database"]:
+            os.remove(data["database"])
 
     #==========================================================================
     # CUSTOM ASSERTS

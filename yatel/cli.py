@@ -110,7 +110,7 @@ manager.add_option(
 
 class Database(object):
     """This class parses and validates the open mode of a database.
-    
+
     """
 
     def __init__(self, mode):
@@ -119,8 +119,7 @@ class Database(object):
     def __call__(self, toparse):
         log = "--log" in sys.argv or "-l" in sys.argv
         force = "--force" in sys.argv or "-f" in sys.argv
-        data = db.parse_uri(toparse)
-        if self.mode in (db.MODE_WRITE, db.MODE_APPEND) and db.exists(**data):
+        if self.mode in (db.MODE_WRITE, db.MODE_APPEND) and db.exists(toparse):
             if not force:
                 msg = (
                     "You are trying to open the db '{}' in '{}' mode, but "
@@ -129,9 +128,7 @@ class Database(object):
                     "existing data."
                 ).format(toparse, self.mode)
             raise script.commands.InvalidCommand(msg)
-
-        data.update(log=log, mode=self.mode)
-        return db.YatelNetwork(**data)
+        return db.YatelNetwork(topare, log=log, mode=self.mode)
 
 
 #==============================================================================
@@ -141,20 +138,10 @@ class Database(object):
 @command("version")
 class Version(script.Command):
     """Show Yatel version and exit.
-    
+
     """
     def run(self):
         print "{} - version {}".format(yatel.PRJ, yatel.STR_VERSION)
-
-
-@command("list")
-class List(script.Command):
-    """Lists all available connection strings in yatel.
-    
-    """
-    def run(self):
-        for engine in db.ENGINES:
-            print "{}: {}".format(engine, db.ENGINE_URIS[engine])
 
 
 @command("test")
@@ -163,11 +150,14 @@ class Test(script.Command):
 
     """
     option_list = [
-        script.Option(dest='level', type=int, help="Test level [0|1|2]")
+        script.Option(dest='level', type=int, help="Test level [0|1|2]"),
+        script.Option(
+            '--failfast', action="store_true", dest='failfast', default=False,
+            help="Stop the tests run on the first error or failure."),
     ]
 
-    def run(self, level):
-        response = tests.run_tests(level)
+    def run(self, level, failfast):
+        response = tests.run_tests(level, failfast=failfast)
         if response.failures or response.errors:
             sys.exit(2)
 
@@ -175,7 +165,7 @@ class Test(script.Command):
 @command("describe")
 class Describe(script.Command):
     """Prints information about the network.
-    
+
     """
     option_list = [
         script.Option(
@@ -203,7 +193,7 @@ class Describe(script.Command):
 
 @command("dump")
 class Dump(script.Command):
-    """Exports the given database to a file. The extension of the file 
+    """Exports the given database to a file. The extension of the file
     determines the format.
 
     """
@@ -226,7 +216,7 @@ class Dump(script.Command):
 
 @command("backup")
 class Backup(script.Command):
-    """Like dump but always creates a new file with the format 
+    """Like dump but always creates a new file with the format
     ``backup_file<TIMESTAMP>.EXT``.
 
      """
@@ -298,7 +288,7 @@ class Copy(script.Command):
 @command("createconf")
 class CreateConf(script.Command):
     """Creates a new configuration file for Yatel.
-    
+
     """
     option_list = [
         script.Option(
@@ -316,7 +306,7 @@ class CreateConf(script.Command):
 @command("createwsgi")
 class CreateWSGI(script.Command):
     """Creates a new WSGI file for a given configuration.
-    
+
     """
     option_list = [
         script.Option(dest='config',
@@ -334,7 +324,7 @@ class CreateWSGI(script.Command):
 @command("runserver")
 class Runserver(script.Command):
     """Run Yatel as a development http server with a given config file.
-    
+
     """
     option_list = [
         script.Option(
@@ -357,7 +347,7 @@ class Runserver(script.Command):
 @command("createetl")
 class CreateETL(script.Command):
     """Creates a template file to write your own ETL.
-    
+
     """
     option_list = [
         script.Option(
@@ -400,8 +390,8 @@ class DescribeETL(script.Command):
 
 @command("runetl")
 class RunETL(script.Command):
-    """Runs one or more ETL inside of a given script. The first argument is 
-    in the format path/to/module.py second onwards parameters are of the 
+    """Runs one or more ETL inside of a given script. The first argument is
+    in the format path/to/module.py second onwards parameters are of the
     setup method of the given class.
 
     """
