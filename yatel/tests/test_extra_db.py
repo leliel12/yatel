@@ -42,7 +42,7 @@ extra_tests = {}
 
 class YatelExtraDBTestTemplate(object):
 
-    CONN_DATA = {}
+    CONN_STR = ""
 
     def setUp(self):
         self.haplotypes = [
@@ -61,10 +61,7 @@ class YatelExtraDBTestTemplate(object):
             dom.Fact(1, timezone="utc-6"),
             dom.Fact(2, name="Andalucia", lang="sp", timezone="utc")
         ]
-
-        data = dict(self.CONN_DATA)
-        data["mode"] = "w"
-        self.nw = db.YatelNetwork(**data)
+        self.nw = db.YatelNetwork(self.CONN_STR, mode="w")
         self.nw.add_elements(self.haplotypes + self.edges + self.facts)
         self.nw.confirm_changes()
 
@@ -150,7 +147,7 @@ class YatelExtraDBTestTemplate(object):
                     self.assertEquals(v, None)
 
     def test_uri(self):
-        self.assertEquals(self.nw.uri, db.to_uri(**self.CONN_DATA))
+        self.assertEquals(self.nw.uri, self.CONN_STR)
 
 #==============================================================================
 # CREATE CLASSES
@@ -169,7 +166,7 @@ if extra_dbs:
             Cls = type(
                 cls_name,
                 (YatelExtraDBTestTemplate, YatelTestCase),
-                {"CONN_DATA": data}
+                {"CONN_STR": conn_str}
             )
             extra_tests[cls_name] = Cls
 

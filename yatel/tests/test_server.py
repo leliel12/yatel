@@ -86,13 +86,14 @@ class TestServerFunctions(core.YatelTestCase):
 
     def test_from_dict(self):
         vconf = json.loads(server.get_conf_template())
-        vconf["NETWORKS"]["network-name"]["uri"] = "memory:///"
+        vconf["NETWORKS"]["network-name"]["uri"] = "sqlite:///"
         self.assertRaises(
             db.YatelNetworkError, lambda: server.from_dict(vconf)
         )
         try:
-            fd, path = tempfile.mkstemp()
-            conn = {"engine": "sqlite", "database": path}
+            fd, fpath = tempfile.mkstemp()
+            uri = "sqlite:///{}".format(fpath)
+            conn = {"uri": uri}
             nw = self.get_random_nw(conn)[0]
             vconf["NETWORKS"]["network-name"]["uri"] = nw.uri
             srv = server.from_dict(vconf)

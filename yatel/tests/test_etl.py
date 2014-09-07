@@ -74,7 +74,7 @@ class TestEtl(YatelTestCase):
 
     def setUp(self):
         self.tempfile_path = tempfile.mkdtemp(prefix="yatel_test")
-        self.nw = db.YatelNetwork("memory", mode="w")
+        self.nw = db.YatelNetwork("sqlite:///", mode="w")
         self.etl = ETLTest()
         self.lista = [1, 2]
         self.pth_with_etl = os.path.join(self.tempfile_path, "with_etl.py")
@@ -112,7 +112,7 @@ class TestEtl(YatelTestCase):
             dom.Fact(1, attr0="fac"),
             dom.Fact(2, attr0="facc")
         ]
-        nw = db.YatelNetwork("memory", mode="w")
+        nw = db.YatelNetwork("sqlite:///", mode="w")
         nw.add_elements(haplotype + edge + fact)
         nw.confirm_changes()
         rs = etl.execute(self.nw, self.etl, )

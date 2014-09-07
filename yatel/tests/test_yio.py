@@ -34,7 +34,7 @@ from yatel.tests.core import YatelTestCase
 class TestYio(YatelTestCase):
 
     def get_new_nw(self):
-        return db.YatelNetwork("memory", mode="w")
+        return db.YatelNetwork("sqlite:///", mode="w")
 
     def test_synonyms(self):
         for syns in yio.SYNONYMS:

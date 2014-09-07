@@ -962,7 +962,7 @@ def parse_uri(uri, mode=MODE_READ, log=None):
             "host": urlo.host, "port": urlo.port}
 
 
-def to_uri(engine, **kwargs):
+def to_uri(engine, database, **kwargs):
     """Create a correct uri for a given engine ignoring all unused parameters.
 
     Parameters
@@ -983,13 +983,12 @@ def to_uri(engine, **kwargs):
     'mysql://root:secret@localhost:3306/nw'
 
     """
-    template = "{engine}{driver}://{user}{pasword}/{host}{port}/{database}"
+    template = "{engine}{driver}://{user}{password}{host}{port}/{database}"
     driver = "+" + kwargs["driver"] if "driver" in kwargs else ""
     user = kwargs.get("user", "")
     password = ":" + kwargs["password"] if "password" in kwargs else ""
-    host = kwargs.get("host", "")
-    port = ":" + kwargs["port"] if "port" in kwargs else ""
-    database = ":" + kwargs["database"] if "database" in kwargs else ""
+    host = "@" + kwargs["host"] if "host" in kwargs else ""
+    port = ":" + str(kwargs["port"]) if "port" in kwargs else ""
     return template.format(
         engine=engine, driver=driver,
         user=user, password=password,
@@ -1032,15 +1031,14 @@ def exists(uri):
     True
 
     """
-    kwargs.pop("mode", None)
     try:
-        nw = YatelNetwork(engine, mode=MODE_READ, **kwargs)
+        nw = YatelNetwork(uri=uri, mode=MODE_READ)
         desc = nw.describe()
         hap_types = desc["haplotype_attributes"]
         fact_types = desc["fact_attributes"]
         edges_types = desc["edge_attributes"]
         if hap_types["hap_id"] != fact_types["hap_id"]:
-            raise Exception()
+            return False
     except Exception as err:
         return False
     else:

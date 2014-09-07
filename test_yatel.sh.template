@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MEMORY="memory:///";
+MEMORY="sqlite:///";
 MYSQL="";
 POSTGRESQL="";
 

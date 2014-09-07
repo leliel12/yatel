@@ -50,12 +50,12 @@ class TestDBFunctions(YatelTestCase):
             dom.Fact(1, timezone="utc-6"),
             dom.Fact(2, name="Andalucia", lang="sp", timezone="utc")
         ]
-        self.nw = db.YatelNetwork("memory", mode="w")
+        self.nw = db.YatelNetwork("sqlite:///", mode="w")
         self.nw.add_elements(self.haplotypes + self.edges + self.facts)
         self.nw.confirm_changes()
 
     def test_copy(self):
-        anw = db.YatelNetwork(engine="memory", mode=db.MODE_WRITE)
+        anw = db.YatelNetwork("sqlite:///", mode=db.MODE_WRITE)
         db.copy(self.nw, anw)
         anw.confirm_changes()
         for method in ["haplotypes", "facts", "edges"]:
@@ -79,35 +79,37 @@ class TestDBFunctions(YatelTestCase):
                 self.assertEquals(parsed["log"], log)
 
     def test_to_uri(self):
-        for eng in db.ENGINES:
+        for eng in ["mysql", "postgres"]:
             for mode in db.MODES:
                 for log in [True, False]:
-                    conf = dict(
-                        (k, "foo") for k in db.ENGINE_VARS[eng]
-                    )
+                    conf = {}
+                    conf["engine"] = eng
                     conf["mode"] = mode
                     conf["log"] = log
-                    if "port" in conf:
-                        conf["port"] = 666
+                    conf["database"] = str(random.randint(30000, 999999))
+                    conf["host"] = str(random.random()).replace(".", "")
+                    conf["port"] = random.randint(255, 20000)
+                    conf["user"] = str(random.random()).replace(".", "")
+                    conf["password"] = str(random.random()).replace(".", "")
 
-                    orig = string.Template(
-                        db.ENGINE_URIS[eng]
-                    ).safe_substitute(engine=eng, **conf)
-                    uri = db.to_uri(engine=eng, **conf)
-                    self.assertEquals(orig, uri)
+                    uri = db.to_uri(**conf)
+                    rs = db.parse_uri(uri, log=log, mode=mode)
+                    self.assertEquals(conf, rs)
 
     def test_exists(self):
         try:
             fd, ftemp = tempfile.mkstemp()
-            self.assertFalse(db.exists("sqlite", database=ftemp))
+            uri = "sqlite:///{}".format(ftemp)
+            self.assertFalse(db.exists(uri))
         except:
             raise
         finally:
             os.close(fd)
         try:
             fd, ftemp = tempfile.mkstemp()
-            self.get_random_nw({"engine": "sqlite", "database": ftemp})
-            self.assertTrue(db.exists("sqlite", database=ftemp))
+            uri = "sqlite:///{}".format(ftemp)
+            things = self.get_random_nw({"uri": uri})
+            self.assertTrue(db.exists(uri))
         except:
             raise
         finally:
@@ -144,7 +146,7 @@ class YatelNetwork(YatelTestCase):
             dom.Fact(1, timezone="utc-6"),
             dom.Fact(2, name="Andalucia", lang="sp", timezone="utc")
         ]
-        self.nw = db.YatelNetwork("memory", mode="w")
+        self.nw = db.YatelNetwork("sqlite:///", mode="w")
         self.nw.add_elements(self.haplotypes + self.edges + self.facts)
         self.nw.confirm_changes()
 
@@ -165,7 +167,7 @@ class YatelNetwork(YatelTestCase):
             dom.Fact(1, timezone="utc-6"),
             dom.Fact(2, name="Andalucia", lang="sp", timezone="utc")
         ]
-        nw = db.YatelNetwork("memory", mode="w")
+        nw = db.YatelNetwork("sqlite:///", mode="w")
         for cont in [haplotypes, edges, facts]:
             for elem in cont:
                 self.nw.add_element(elem)
@@ -193,7 +195,7 @@ class YatelNetwork(YatelTestCase):
             dom.Fact(1, timezone="utc-6"),
             dom.Fact(2, name="Andalucia", lang="sp", timezone="utc")
         ]
-        nw = db.YatelNetwork("memory", mode="w")
+        nw = db.YatelNetwork("sqlite:///", mode="w")
         nw.add_elements(self.haplotypes + self.edges + self.facts)
         try:
             self.assertEquals(nw.describe(), self.nw.describe())
@@ -314,7 +316,7 @@ class YatelNetwork(YatelTestCase):
             dom.Fact(1, timezone="utc-6"),
             dom.Fact(2, name="Andalucia", lang="sp", timezone="utc")
         ]
-        nw = db.YatelNetwork("memory", mode="w")
+        nw = db.YatelNetwork("sqlite:///", mode="w")
         nw.add_elements(self.haplotypes + self.edges + self.facts)
         self.assertEquals(nw.mode, db.MODE_WRITE)
         nw.confirm_changes()
@@ -322,12 +324,9 @@ class YatelNetwork(YatelTestCase):
 
         try:
             fd, ftemp = tempfile.mkstemp()
-            nw, haps = self.get_random_nw(
-                {"engine": "sqlite", "database": ftemp}
-            )
-            nw = db.YatelNetwork(
-                mode="a", **{"engine": "sqlite", "database": ftemp}
-            )
+            uri = "sqlite:///{}".format(ftemp)
+            nw, haps = self.get_random_nw({"uri": uri})
+            nw = db.YatelNetwork(mode="a", uri=uri)
             self.assertEquals(nw.mode, db.MODE_APPEND)
             nw.confirm_changes()
             self.assertEquals(nw.mode, db.MODE_READ)
@@ -337,18 +336,15 @@ class YatelNetwork(YatelTestCase):
             os.close(fd)
 
         self.assertRaises(
-            db.YatelNetworkError, lambda: db.YatelNetwork("memory", mode="a")
+            db.YatelNetworkError, lambda: db.YatelNetwork("sqlite:///", mode="a")
         )
 
     def test_uri(self):
         try:
             fd, ftemp = tempfile.mkstemp()
-            nw, haps = self.get_random_nw(
-                {"engine": "sqlite", "database": ftemp}
-            )
-            self.assertEquals(
-                nw.uri, db.to_uri(**{"engine": "sqlite", "database": ftemp})
-            )
+            uri = "sqlite:///{}".format(ftemp)
+            nw, haps = self.get_random_nw({"uri": uri})
+            self.assertEquals(nw.uri, uri)
         except:
             raise
         finally:
@@ -371,7 +367,7 @@ class YatelNetwork(YatelTestCase):
             dom.Fact(1, timezone="utc-6"),
             dom.Fact(2, name="Andalucia", lang="sp", timezone="utc")
         ]
-        nw = db.YatelNetwork("memory", mode="w")
+        nw = db.YatelNetwork("sqlite:///", mode="w")
         nw.add_elements(self.haplotypes + self.edges + self.facts)
         self.assertRaises(db.YatelNetworkError, nw.validate_read)
         nw.confirm_changes()
@@ -379,12 +375,9 @@ class YatelNetwork(YatelTestCase):
 
         try:
             fd, ftemp = tempfile.mkstemp()
-            nw, haps = self.get_random_nw(
-                {"engine": "sqlite", "database": ftemp}
-            )
-            nw = db.YatelNetwork(
-                mode="a", **{"engine": "sqlite", "database": ftemp}
-            )
+            uri = "sqlite:///{}".format(ftemp)
+            nw, haps = self.get_random_nw({"uri": uri})
+            nw = db.YatelNetwork(mode="a", uri=uri)
             self.assertRaises(db.YatelNetworkError, nw.validate_read)
             nw.confirm_changes()
             self.assertEquals(nw.validate_read(), None)
@@ -396,9 +389,8 @@ class YatelNetwork(YatelTestCase):
     def test_append(self):
         try:
             fd, ftemp = tempfile.mkstemp()
-            nw, haps = self.get_random_nw(
-                {"engine": "sqlite", "database": ftemp}
-            )
+            uri = "sqlite:///{}".format(ftemp)
+            nw, haps = self.get_random_nw({"uri": uri})
             new_haps = [dom.Haplotype(100)]
             new_facts = [dom.Fact(100, faa="foo")]
             new_edges = [dom.Edge(19, [100, 100])]
@@ -414,9 +406,8 @@ class YatelNetwork(YatelTestCase):
                     self.assertIn(hap_id, haps)
                     self.assertNotIn(hap_id, [h.hap_id for h in new_haps])
 
-            nw = db.YatelNetwork(
-                mode="a", **{"engine": "sqlite", "database": ftemp}
-            )
+            uri = "sqlite:///{}".format(ftemp)
+            nw = db.YatelNetwork(mode="a", uri=uri)
             nw.add_elements(new_haps + new_facts + new_edges)
             nw.confirm_changes()
 
@@ -444,9 +435,8 @@ class YatelNetwork(YatelTestCase):
     def test_write(self):
         try:
             fd, ftemp = tempfile.mkstemp()
-            nw, haps = self.get_random_nw(
-                {"engine": "sqlite", "database": ftemp}
-            )
+            uri = "sqlite:///{}".format(ftemp)
+            nw, haps = self.get_random_nw({"uri": uri})
             new_haps = [dom.Haplotype(100)]
             new_facts = [dom.Fact(100, faa="foo")]
             new_edges = [dom.Edge(19, [100, 100])]
@@ -462,9 +452,7 @@ class YatelNetwork(YatelTestCase):
                     self.assertIn(hap_id, haps)
                     self.assertNotIn(hap_id, [h.hap_id for h in new_haps])
 
-            nw = db.YatelNetwork(
-                mode="w", **{"engine": "sqlite", "database": ftemp}
-            )
+            nw = db.YatelNetwork(mode="w", uri=uri)
             nw.add_elements(new_haps + new_facts + new_edges)
             nw.confirm_changes()
             for hap in nw.haplotypes():

@@ -102,7 +102,7 @@ application = server.from_dict(conf)
 
 class YatelHttpServer(flask.Flask):
     """Yatel server class.
-    
+
     """
 
     def __init__(self, **config):
@@ -114,7 +114,7 @@ class YatelHttpServer(flask.Flask):
 
     def add_nw(self, nwname, nw, enable_qbj):
         """Adds the given ``nw`` to the server.
-        
+
         """
         if not isinstance(nw, db.YatelNetwork):
             raise TypeError("nw must be db.YatelNetwork subclass")
@@ -127,7 +127,7 @@ class YatelHttpServer(flask.Flask):
 
     def qbj(self, nwname):
         """It handles the server query calls.
-        
+
         """
         qbj_nw = self._nws[nwname]["qbj"]
         response = qbj_nw.execute(
@@ -137,7 +137,7 @@ class YatelHttpServer(flask.Flask):
 
     def nw(self, name):
         """Returns the context network.
-        
+
         """
         return self._nws[name]["nw"]
 
@@ -148,26 +148,26 @@ class YatelHttpServer(flask.Flask):
 
 def validate_conf(confdata):
     """Validates that the configuration structure given as JSON is correct.
-    
+
     """
     return jsonschema.validate(confdata, CONF_SCHEMA)
 
 
 def from_dict(data):
     """Returns a server created with a dictionary as configuration.
-    
+
     ``data`` keys:
-    
+
     - Path to the configuration file.
-    - ``IP`` and ``port`` where the service will be listening  separated by 
+    - ``IP`` and ``port`` where the service will be listening  separated by
       a ``:``
-    
+
     """
     validate_conf(data)
     config = data["CONFIG"]
     server = YatelHttpServer(**config)
     for nwname, nwdata in data["NETWORKS"].items():
-        nw = db.YatelNetwork(**db.parse_uri(nwdata["uri"]))
+        nw = db.YatelNetwork(nwdata["uri"])
         qbj = nwdata.get("qbj", False)
         server.add_nw(nwname, nw, qbj)
     return server
@@ -175,19 +175,19 @@ def from_dict(data):
 
 def get_conf_template():
     """Returns a JSON configuration template as a String.
-    
+
     """
     return json.dumps(CONF_BASE, indent=2)
 
 
 def get_wsgi_template(confpath):
     """Returns WSGI configuration template as a String.
-    
+
     Parameters
     ----------
     confpath: string
         Path to configuration file.
-    
+
     """
     if not os.path.isfile(confpath):
         raise ValueError("confpath '{}' not exists".format(confpath))
