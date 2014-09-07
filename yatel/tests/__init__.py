@@ -21,19 +21,19 @@ import unittest
 
 from yatel.tests import (
     core,
-    #~ test_db,
-    #~ test_dom,
-    #~ test_db,
-    #~ test_dom,
-    #~ test_stats,
-    #~ test_typeconv,
-    #~ test_qbj,
-    #~ test_cluster,
-    #~ test_yio,
-    #~ test_weight,
-    #~ test_server,
-    #~ test_client,
-    #~ test_etl
+    test_db,
+    test_dom,
+    test_db,
+    test_dom,
+    test_stats,
+    test_typeconv,
+    test_qbj,
+    test_cluster,
+    test_yio,
+    test_weight,
+    test_server,
+    test_client,
+    test_etl,
     test_extra_db
 )
 
@@ -42,7 +42,7 @@ from yatel.tests import (
 # FUNCTIONS
 #===============================================================================
 
-def run_tests(verbosity=1):
+def run_tests(verbosity=1, failfast=False):
 
     def collect(cls):
         collected = set()
@@ -53,7 +53,9 @@ def run_tests(verbosity=1):
 
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
-    runner = unittest.runner.TextTestRunner(verbosity=verbosity)
+    runner = unittest.runner.TextTestRunner(
+        verbosity=verbosity, failfast=failfast
+    )
     for testcase in collect(core.YatelTestCase):
         tests = loader.loadTestsFromTestCase(testcase)
         if tests.countTestCases():

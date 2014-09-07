@@ -44,35 +44,6 @@ from yatel import dom
 # CONSTANTS
 #===============================================================================
 
-#: Available engines
-ENGINES = (
-    'sqlite',
-    'memory',
-    'mysql',
-    'postgres',
-)
-
-
-#: Connection uris for the existing engines
-ENGINE_URIS = {
-    'sqlite': "sqlite:///${database}",
-    'memory': "sqlite://",
-    'mysql': "mysql://${user}:${password}@${host}:${port}/${database}",
-    'postgres': "postgres://${user}:${password}@${host}:${port}/${database}"
-}
-
-
-#: Variables of the uris
-ENGINE_VARS = {}
-for engine in ENGINES:
-    tpl = string.Template(ENGINE_URIS[engine])
-    variables = []
-    for e, n, b, i in tpl.pattern.findall(tpl.template):
-        if n or b:
-            variables.append(n or b)
-    ENGINE_VARS[engine] = variables
-
-
 #: This dictionary maps Python types to functions, converts the given type
 #: instance to a correct sqlalchemy column type.
 #: To retrieve all suported types use db.SQL_ALCHEMY_TYPES.keys()
@@ -154,13 +125,13 @@ class YatelNetwork(object):
 
     """
 
-    def __init__(self, engine, mode=MODE_READ, log=None, **kwargs):
+    def __init__(self, uri, mode=MODE_READ, log=None, **kwargs):
         """Creates a new instance.
 
         Parameters
         ----------
-        engine : str
-            pick one of the :py:data:`yatel.db.ENGINES`
+        uri : str
+            Connection string to database according to the RFC 1738 spec.
         mode : str
             The mode to open the database.
                 - If mode is **r** the network will reflect all the
@@ -179,13 +150,13 @@ class YatelNetwork(object):
         **Log enabled**
 
         >>> from yatel import db, dom
-        >>> nw = db.YatelNetwork("memory", mode="w", log=True)
+        >>> nw = db.YatelNetwork("sqlite:///", mode="w", log=True)
         [ ... LOGS ... ]
 
 
         **Write mode**
 
-        >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
+        >>> nw = db.YatelNetwork("sqlite:///nw.db", mode="w", log=False)
         >>> nw.add_element(dom.Haplotype(1))
         >>> nw.confirm_changes() # change read mode
         >>> len(tuple(nw.haplotypes_iterator()))
@@ -194,7 +165,7 @@ class YatelNetwork(object):
 
         **Append to previous network**
 
-        >>> nw = db.YatelNetwork("sqlite", mode="a", log=False, database="nw.db")
+        >>> nw = db.YatelNetwork("sqlite:///nw.db", log=False)
         >>> nw.add_element(dom.Haplotype(2))
         >>> nw.confirm_changes() # change read mode
         >>> len(tuple(nw.haplotypes_iterator()))
@@ -203,16 +174,16 @@ class YatelNetwork(object):
 
         **Destroy previous data**
 
-        >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
+        >>> nw = db.YatelNetwork(sqlite:///nw.db", mode="w", log=False)
         >>> nw.add_element(dom.Haplotype(3))
         >>> nw.confirm_changes() # change read mode
         >>> len(tuple(nw.haplotypes_iterator()))
         1
 
         """
-        self._uri = to_uri(engine, **kwargs)
+        self._uri = uri
 
-        self._engine_name = engine
+        self._engine_name = parse_uri(uri)["engine"]
 
         self._engine = sa.create_engine(self._uri, echo=bool(log))
         self._metadata = sa.MetaData(self._engine)
@@ -321,7 +292,7 @@ class YatelNetwork(object):
 
         Examples
         --------
-        >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
+        >>> nw = db.YatelNetwork("sqlite:///nw.db", mode="w", log=False)
         >>> nw.add_element([dom.Haplotype(3), dom.Fact(3, att0="foo")])
 
         """
@@ -342,7 +313,7 @@ class YatelNetwork(object):
 
         Examples
         --------
-        >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
+        >>> nw = db.YatelNetwork("sqlite:///nw.db", mode="w", log=False)
         >>> nw.add_element(dom.Fact(3, att0="foo"))
 
         """
@@ -419,7 +390,7 @@ class YatelNetwork(object):
         Examples
         --------
         >>> from yatel import db, dom
-        >>> nw = db.YatelNetwork("sqlite", mode="w", log=False, database="nw.db")
+        >>> nw = db.YatelNetwork("sqlite:///nw.db", mode="w", log=False)
         >>> nw.add_element(dom.Haplotype(3, att0="foo"))
         >>> nw.confirm_changes()
         >>> nw.haplotype_by_id(3)
@@ -634,7 +605,7 @@ class YatelNetwork(object):
         Examples
         --------
         >>> from yatel import db, dom
-        >>> nw = db.YatelNetwork("sqlite", mode=db.MODE_WRITE, database="nw.db")
+        >>> nw = db.YatelNetwork("sqlite:///nw.db", mode=db.MODE_WRITE)
         >>> nw.add_elements([dom.Haplotype("hap1"),
         ···                  dom.Haplotype("hap2"),
         ···                  dom.Fact("hap1", a=1, c="foo"),
@@ -978,9 +949,9 @@ def parse_uri(uri, mode=MODE_READ, log=None):
 
     is equivalent to
 
-    ::
-        nw = db.YatelNetwork("mysql", database="mydb", user="tito",
-                             password="pass", host="localhost", port=2525,
+    .. code-block:: python
+
+        nw = db.YatelNetwork("mysql://tito:pass@localhost:3306/mydb",
                              mode=db.MODE_READ, log=None)
 
     """
@@ -1003,6 +974,7 @@ def to_uri(engine, **kwargs):
 
     Examples
     --------
+
     >>> from yatel import db
     >>> db.to_uri("sqlite", database="nw.db")
     'sqlite:///nw.db'
@@ -1011,22 +983,29 @@ def to_uri(engine, **kwargs):
     'mysql://root:secret@localhost:3306/nw'
 
     """
-    tpl = string.Template(ENGINE_URIS[engine])
-    engine_vars = ENGINE_VARS[engine]
-    kwargs = dict((k, v) for k, v in kwargs.items() if k in engine_vars)
-    return tpl.substitute(kwargs)
+    template = "{engine}{driver}://{user}{pasword}/{host}{port}/{database}"
+    driver = "+" + kwargs["driver"] if "driver" in kwargs else ""
+    user = kwargs.get("user", "")
+    password = ":" + kwargs["password"] if "password" in kwargs else ""
+    host = kwargs.get("host", "")
+    port = ":" + kwargs["port"] if "port" in kwargs else ""
+    database = ":" + kwargs["database"] if "database" in kwargs else ""
+    return template.format(
+        engine=engine, driver=driver,
+        user=user, password=password,
+        host=host, port=port,
+        database=database
+    )
 
 
-def exists(engine, **kwargs):
+def exists(uri):
     """Returns ``True`` if exists a :py:class:`yatel.db.YatelNetwork` database
     in that connection.
 
     Parameters
     ----------
-    engine : str
-        A value of the current engine used (see valid
-        :py:data:`yatel.db.ENGINES`)
-    kwargs : a dict of variables for the engine.
+    uri : str
+       Connection string to database according to the RFC 1738 spec.
 
     Returns
     -------
@@ -1042,7 +1021,7 @@ def exists(engine, **kwargs):
     >>> from yatel import db, dom
     >>> db.exists("sqlite", mode="r", database="nw.db")
     False
-    >>> from_nw = db.YatelNetwork("memory", mode=db.MODE_WRITE)
+    >>> from_nw = db.YatelNetwork("sqlite:///")
     >>> from_nw.add_elements([dom.Haplotype("hap1"),
     ···                       dom.Haplotype("hap2"),
     ···                       dom.Fact("hap1", a=1, c="foo"),
@@ -1085,14 +1064,14 @@ def copy(from_nw, to_nw):
     Examples
     --------
     >>> from yatel import db, dom
-    >>> from_nw = db.YatelNetwork("memory", mode=db.MODE_WRITE)
+    >>> from_nw = db.YatelNetwork("sqlite:///nw.db", mode=db.MODE_WRITE)
     >>> from_nw.add_elements([dom.Haplotype("hap1"),
     ···                       dom.Haplotype("hap2"),
     ···                       dom.Fact("hap1", a=1, c="foo"),
     ···                       dom.Fact("hap2", a=1, b=2),
     ···                       dom.Edge(1, ("hap1", "hap2"))])
     >>> from_nw.confirm_changes()
-    >>> to_nw = db.YatelNetwork("sqlite", mode=db.MODE_WRITE, database="nw.db")
+    >>> to_nw = db.YatelNetwork("sqlite:///nw.db", mode=db.MODE_WRITE)
     >>> db.copy(from_nw, to_nw)
     >>> to_nw.confirm_changes()
     >>> list(from_nw.haplotypes()) == list(to_nw.haplotypes())
