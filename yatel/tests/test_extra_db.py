@@ -101,9 +101,9 @@ class YatelExtraDBTestTemplate(object):
 
     def test_facts_by_environment(self):
         rs = list(self.nw.facts_by_environment(name="Andalucia"))
+        orig = [self.facts[0], self.facts[3]]
         self.assertEqual(len(rs), 2)
-        self.assertEqual(rs[0], self.facts[0])
-        self.assertEqual(rs[1], self.facts[3])
+        self.assertSameUnsortedContent(rs, orig)
 
     def test_haplotypes_by_environment(self):
         rs = list(self.nw.haplotypes_by_environment(name="Andalucia"))

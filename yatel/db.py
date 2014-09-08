@@ -424,8 +424,10 @@ class YatelNetwork(object):
             sa.Column("weight", sa.Float(), nullable=False),
             *edges_columns
         )
-
-        self._metadata.create_all(self._create_conn)
+        self._metadata.create_all(
+            bind=self._create_conn,
+            tables=[self.haplotypes_table, self.edges_table, self.facts_table]
+        )
 
         try:
             query = sql.select([self._create_objects])
