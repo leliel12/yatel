@@ -11,3 +11,4 @@ CHANGELOG
   uri connection string to database according to the RFC 1738 spec.
 - Now if you want t create in memory database the uri is ``sqlite:///``
 - Removed ``list`` command
+- added this changelog.
