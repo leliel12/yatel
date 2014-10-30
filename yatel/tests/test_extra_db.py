@@ -95,18 +95,18 @@ class YatelExtraDBTestTemplate(object):
             self.assertTrue(isinstance(edge.weight, wt))
 
     def test_edges_by_environment(self):
-        rs = list(self.nw.edges_by_environment(name="Andalucia"))
+        rs = self.nw.edges_by_environment(name="Andalucia")
         self.assertEqual(len(rs), 1)
         self.assertEqual(rs[0], self.edges[2])
 
     def test_facts_by_environment(self):
-        rs = list(self.nw.facts_by_environment(name="Andalucia"))
+        rs = self.nw.facts_by_environment(name="Andalucia")
         orig = [self.facts[0], self.facts[3]]
         self.assertEqual(len(rs), 2)
         self.assertSameUnsortedContent(rs, orig)
 
     def test_haplotypes_by_environment(self):
-        rs = list(self.nw.haplotypes_by_environment(name="Andalucia"))
+        rs = self.nw.haplotypes_by_environment(name="Andalucia")
         self.assertEqual(len(rs), 2)
         self.assertEqual(rs[0], self.haplotypes[0])
         self.assertEqual(rs[1], self.haplotypes[2])
@@ -120,16 +120,21 @@ class YatelExtraDBTestTemplate(object):
                 f = random.choice(fact_attrs)
                 if f != "hap_id":
                     filters.add(f)
-            list(self.nw.environments(list(filters)))
+            response = self.nw.environments(list(filters))
+            self.assertEquals(len(response), len(list(response)))
 
     def test_edges_by_haplotype(self):
         for hap in self.haplotypes:
-            for edge in self.nw.edges_by_haplotype(hap):
+            response = self.nw.edges_by_haplotype(hap)
+            self.assertEquals(len(response), len(list(response)))
+            for edge in response:
                 self.assertIn(hap.hap_id, edge.haps_id)
 
     def test_facts_by_haplotype(self):
         for hap in self.haplotypes:
-            for fact in self.nw.facts_by_haplotype(hap):
+            response = self.nw.facts_by_haplotype(hap)
+            self.assertEquals(len(response), len(list(response)))
+            for fact in response:
                 self.assertEquals(hap.hap_id, fact.hap_id)
 
     def test_haplotype_by_id(self):
