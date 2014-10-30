@@ -8,4 +8,9 @@ sphinx-rtd-theme>=0.1.6
 wheel>=0.24.0
 numpydoc>=0.5
 
+MySQL-python>=1.2.5
+pg8000>=1.10.0
+psycopg2>=2.5.4
+oursql>=0.9.3.1
+
 

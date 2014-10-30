@@ -886,7 +886,6 @@ class YatelNetwork(object):
             hapn = self.execute(
                 sql.select([self.haplotypes_table]).alias("hapn").count()
             ).scalar()
-
             factn = self.execute(
                 sql.select([self.facts_table]).alias("factn").count()
             ).scalar()
