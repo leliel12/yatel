@@ -22,19 +22,19 @@ import unittest
 from yatel.tests import (
     core,
     test_db,
-    test_dom,
-    test_db,
-    test_dom,
-    test_stats,
-    test_typeconv,
-    test_qbj,
-    test_cluster,
-    test_yio,
-    test_weight,
-    test_server,
-    test_client,
-    test_etl,
-    test_extra_db
+    #~ test_dom,
+    #~ test_db,
+    #~ test_dom,
+    #~ test_stats,
+    #~ test_typeconv,
+    #~ test_qbj,
+    #~ test_cluster,
+    #~ test_yio,
+    #~ test_weight,
+    #~ test_server,
+    #~ test_client,
+    #~ test_etl,
+    #~ test_extra_db
 )
 
 
