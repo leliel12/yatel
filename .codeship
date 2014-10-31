@@ -1,2 +1,2 @@
 pip install .;
-yatel test 2;
+yatel test --level 2;

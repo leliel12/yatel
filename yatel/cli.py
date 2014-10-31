@@ -150,16 +150,32 @@ class Test(script.Command):
 
     """
     option_list = [
-        script.Option(dest='level', type=int, help="Test level [0|1|2]"),
+        script.Option(
+            '--level', action="store", dest="level",
+            default=2, type=int, help="Test level [0|1|2]"
+        ),
         script.Option(
             '--failfast', action="store_true", dest='failfast', default=False,
-            help="Stop the tests run on the first error or failure."),
+            help="Stop the tests run on the first error or failure."
+        ),
+        script.Option(
+            '--modules', action="store", dest='modules', default=None,
+            nargs="+", help="Run specific test for models (--list for run)"
+        ),
+        script.Option(
+            '--list-modules', action="store_true", dest='list_modules',
+            default=False, help="List the available modules for test"
+        ),
     ]
 
-    def run(self, level, failfast):
-        response = tests.run_tests(level, failfast=failfast)
-        if response.failures or response.errors:
-            sys.exit(2)
+    def run(self, level, failfast, modules, list_modules):
+        if list_modules:
+            for mod in tests.collect_modules().keys():
+                print mod
+        else:
+            response = tests.run_tests(level, modules=modules, failfast=failfast)
+            if response.failures or response.errors:
+                sys.exit(2)
 
 
 @command("describe")

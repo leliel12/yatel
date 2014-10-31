@@ -42,24 +42,37 @@ from yatel.tests import (
 # FUNCTIONS
 #===============================================================================
 
-def run_tests(verbosity=1, failfast=False):
-
-    def collect(cls):
+def collect_modules():
+    def collect(basecls):
         collected = set()
-        for testcls in cls.subclasses():
+        for testcls in basecls.subclasses():
             collected.add(testcls)
             collected.update(collect(testcls))
         return collected
+
+    modules = {}
+    for testcls in collect(core.YatelTestCase):
+        modname = testcls.__module__.rsplit("_", 1)[-1]
+        if modname not in modules:
+            modules[modname] = set()
+        modules[modname].add(testcls)
+    return modules
+
+
+def run_tests(verbosity=1, modules=None, failfast=False):
 
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
     runner = unittest.runner.TextTestRunner(
         verbosity=verbosity, failfast=failfast
     )
-    for testcase in collect(core.YatelTestCase):
-        tests = loader.loadTestsFromTestCase(testcase)
-        if tests.countTestCases():
-                suite.addTests(tests)
+    for modname, testcases in collect_modules().items():
+        if not modules or modname in modules:
+            for testcase in testcases:
+                tests = loader.loadTestsFromTestCase(testcase)
+                if tests.countTestCases():
+                        suite.addTests(tests)
+
     return runner.run(suite)
 
 
