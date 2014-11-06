@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+
+DBS = [
+    "sqlite:///",
+]
+
+YATEL_TEST_DBS = " ".join([" --extra-db {}".format(db) for db in DBS])
+
+CMD = "yatel -k test --level 2 --modules extra_dbs {}".format(YATEL_TEST_DBS)
+
+os.system(CMD)
+

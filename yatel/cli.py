@@ -166,14 +166,20 @@ class Test(script.Command):
             '--list-modules', action="store_true", dest='list_modules',
             default=False, help="List the available modules for test"
         ),
+        script.Option(
+            '--extra-db', action="append", dest='extra_dbs',
+            help="Extra databases URL for testing"
+        ),
     ]
 
-    def run(self, level, failfast, modules, list_modules):
+    def run(self, level, failfast, modules, list_modules, extra_dbs):
         if list_modules:
             for mod in tests.collect_modules().keys():
                 print mod
         else:
-            response = tests.run_tests(level, modules=modules, failfast=failfast)
+            response = tests.run_tests(
+                level, modules=modules, failfast=failfast, extra_dbs=extra_dbs
+            )
             if response.failures or response.errors:
                 sys.exit(2)
 

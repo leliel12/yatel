@@ -34,7 +34,7 @@ from yatel.tests import (
     test_server,
     test_client,
     test_etl,
-    test_extra_db
+    test_extra_dbs
 )
 
 
@@ -52,14 +52,17 @@ def collect_modules():
 
     modules = {}
     for testcls in collect(core.YatelTestCase):
-        modname = testcls.__module__.rsplit("_", 1)[-1]
+        modname = testcls.__module__.rsplit(".", 1)[-1].replace("test_", "", 1)
         if modname not in modules:
             modules[modname] = set()
         modules[modname].add(testcls)
     return modules
 
 
-def run_tests(verbosity=1, modules=None, failfast=False):
+def run_tests(verbosity=1, modules=None, failfast=False, extra_dbs=None):
+
+    if extra_dbs:
+        test_extra_dbs.create_test_for(extra_dbs)
 
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
@@ -72,7 +75,6 @@ def run_tests(verbosity=1, modules=None, failfast=False):
                 tests = loader.loadTestsFromTestCase(testcase)
                 if tests.countTestCases():
                         suite.addTests(tests)
-
     return runner.run(suite)
 
 

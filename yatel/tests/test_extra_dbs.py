@@ -31,9 +31,7 @@ from yatel.tests.core import YatelTestCase
 # CONF
 #==============================================================================
 
-extra_dbs = os.environ.get('YATEL_TEST_DBS', None)
-
-extra_tests = {}
+_extra_tests = {}
 
 
 #==============================================================================
@@ -158,8 +156,8 @@ class YatelExtraDBTestTemplate(object):
 # CREATE CLASSES
 #==============================================================================
 
-if extra_dbs:
-    for idx, conn_str in enumerate(extra_dbs.split(";")):
+def create_test_for(extra_dbs):
+    for idx, conn_str in enumerate(extra_dbs):
         conn_str = conn_str.strip()
         if conn_str:
             data = db.parse_uri(conn_str)
@@ -173,7 +171,7 @@ if extra_dbs:
                 (YatelExtraDBTestTemplate, YatelTestCase),
                 {"CONN_STR": conn_str}
             )
-            extra_tests[cls_name] = Cls
+            _extra_tests[cls_name] = Cls
 
 
 #===============================================================================
