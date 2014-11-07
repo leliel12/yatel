@@ -28,13 +28,6 @@ from yatel.tests.core import YatelTestCase
 
 
 #==============================================================================
-# CONF
-#==============================================================================
-
-_extra_tests = {}
-
-
-#==============================================================================
 # NETWORK
 #==============================================================================
 
@@ -157,6 +150,7 @@ class YatelExtraDBTestTemplate(object):
 #==============================================================================
 
 def create_test_for(extra_dbs):
+    extra_tests_dbs = {}
     for idx, conn_str in enumerate(extra_dbs):
         conn_str = conn_str.strip()
         if conn_str:
@@ -171,7 +165,8 @@ def create_test_for(extra_dbs):
                 (YatelExtraDBTestTemplate, YatelTestCase),
                 {"CONN_STR": conn_str}
             )
-            _extra_tests[cls_name] = Cls
+            extra_tests_dbs[cls_name] = Cls
+    return extra_tests_dbs
 
 
 #===============================================================================

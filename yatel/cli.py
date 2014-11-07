@@ -170,15 +170,23 @@ class Test(script.Command):
             '--extra-db', action="append", dest='extra_dbs',
             help="Extra databases URL for testing"
         ),
+        script.Option(
+            '--use-environ', action="store_true", dest='environ',
+            help=(
+                "Use 'YATEL_TEST_DBS' enviroment variable for locate"
+                "more test databases. The format of this variables "
+                "is 'URL..'")
+        ),
     ]
 
-    def run(self, level, failfast, modules, list_modules, extra_dbs):
+    def run(self, level, failfast, modules, list_modules, extra_dbs, environ):
         if list_modules:
             for mod in tests.collect_modules().keys():
                 print mod
         else:
             response = tests.run_tests(
-                level, modules=modules, failfast=failfast, extra_dbs=extra_dbs
+                level, modules=modules, failfast=failfast,
+                extra_dbs=extra_dbs, environ=environ
             )
             if response.failures or response.errors:
                 sys.exit(2)

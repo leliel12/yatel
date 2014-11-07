@@ -5,6 +5,9 @@ import os
 
 DBS = [
     "sqlite:///",
+    "mysql://root:root@localhost:3306/test_yatel",
+    #~ "mysql+oursql://root:root@localhost:3306/test_yatel",
+
 ]
 
 YATEL_TEST_DBS = " ".join([" --extra-db {}".format(db) for db in DBS])

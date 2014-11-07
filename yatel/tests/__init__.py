@@ -17,6 +17,7 @@
 # IMPORTS
 #===============================================================================
 
+import os
 import unittest
 
 from yatel.tests import (
@@ -37,6 +38,16 @@ from yatel.tests import (
     test_extra_dbs
 )
 
+#==============================================================================
+# CONSTANTS
+#==============================================================================
+
+#: Loas enviroment variable $YATEL_TEST_DBS
+EXTRA_DBS_EVIRON = tuple([
+    db.strip()
+    for db in os.environ.get("YATEL_TEST_DBS", "").split(";")
+    if db.strip()
+])
 
 #===============================================================================
 # FUNCTIONS
@@ -59,10 +70,14 @@ def collect_modules():
     return modules
 
 
-def run_tests(verbosity=1, modules=None, failfast=False, extra_dbs=None):
+def run_tests(verbosity=1, modules=None,
+              failfast=False, extra_dbs=None, environ=True):
 
-    if extra_dbs:
-        test_extra_dbs.create_test_for(extra_dbs)
+    all_extra_dbs = set(EXTRA_DBS_EVIRON) if environ else set()
+    if extra_dbs :
+        all_extra_dbs.update(extra_dbs)
+
+    buff = test_extra_dbs.create_test_for(all_extra_dbs)
 
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
