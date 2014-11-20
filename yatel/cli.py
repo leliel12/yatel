@@ -128,7 +128,7 @@ class Database(object):
                     "existing data."
                 ).format(toparse, self.mode)
             raise script.commands.InvalidCommand(msg)
-        return db.YatelNetwork(topare, log=log, mode=self.mode)
+        return db.YatelNetwork(toparse, log=log, mode=self.mode)
 
 
 #==============================================================================

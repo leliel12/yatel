@@ -53,17 +53,16 @@ class XMLParser(core.BaseParser):
     def to_content(self, data):
         return saxutils.escape(str(data))
 
-
     def dump(self, nw, fp, *args, **kwargs):
         """Serializes data from a Yatel network to a XML file-like stream.
-        
+
         Parameters
         ----------
         nw : :py:class:`yatel.db.YatelNetwork`
             Network source of data.
         fp : file-like object
             Target for serialization.
-        
+
         """
 
         fp.write(self.start_elem(u"Network", {u"version": self.version()}))
@@ -121,16 +120,16 @@ class XMLParser(core.BaseParser):
     #===========================================================================
 
     def load(self, nw, fp, *args, **kwargs):
-        """Deserializes data from a XML file-like stream and adds it to the 
+        """Deserializes data from a XML file-like stream and adds it to the
         Yatel network.
-        
+
         Parameters
         ----------
         nw : :py:class:`yatel.db.YatelNetwork`
             Network target of data.
         fp : file-like object
             Source of data to deserialize.
-        
+
         """
 
         class YatelXMLHandler(sax.ContentHandler):
