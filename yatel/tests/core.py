@@ -70,8 +70,8 @@ if MOCK:
 class YatelTestCase(unittest.TestCase):
 
     @classmethod
-    def subclasses(self):
-        return set(self.__subclasses__())
+    def subclasses(cls):
+        return set(cls.__subclasses__())
 
     def conn(self):
         return {"uri": "sqlite:///"}
