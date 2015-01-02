@@ -175,6 +175,17 @@ class YatelResponse(object):
             self._cnt = self._cntf()
         return self._cnt
 
+    def attrs(self, attrsnames, cls=None, convf=None):
+        query = sql.select([self._query.c[an] for an in attrsnames])
+        return YatelResponse(
+            self._nw, cls if cls else type,
+            query, convf if convf else (lambda x: x[0:len(attrsnames)])
+        )
+
+    @property
+    def query(self):
+        return self._query
+
 
 #==============================================================================
 # NETWORK
