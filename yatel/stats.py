@@ -7,17 +7,25 @@
 # think this stuff is worth it, you can buy us a WISKEY us return.
 
 
-#===============================================================================
+#==============================================================================
 # DOCS
-#===============================================================================
+#==============================================================================
 
-"""Statistic functions to calculate weight statistics over Yatel enviroments.
+"""Statistic functions to calculate weight statistics over Yatel environments.
+
+Exists 2 types of statistics.
+
+#. Weights Statistics: calculates statistics over weights of edges in a given
+   environments. Support as first parameter a *YatelNetwork* or an iterable of
+   weights.
+#. Network  Statistics: Calculates typical network statistics. The first
+   parameter can only be a network
 
 """
 
-#===============================================================================
+#==============================================================================
 # IMPORT
-#===============================================================================
+#==============================================================================
 
 import collections
 
@@ -34,6 +42,7 @@ from yatel import db
 
 def average(nw, env=None, **kwargs):
     """Compute the weighted average on a network.
+
 
     Parameters
     ----------
@@ -218,6 +227,7 @@ def variation(nw, env=None, **kwargs):
     arr = env2weightarray(nw, env=env, **kwargs)
     return stats.variation(arr)
 
+
 def range(nw, env=None, **kwargs):
     """Computes the distance between the maximum and minimum.
 
@@ -253,13 +263,13 @@ def kurtosis(nw, env=None, **kwargs):
 
 
 #===============================================================================
-# SUPPORT
+# SUPPORT FOR WEIGHTS STATISTICS
 #===============================================================================
 
 def weights2array(edges):
-    """Create a **numpy.ndarray** with all the weights of 
+    """Create a **numpy.ndarray** with all the weights of
     :py:class:`yatel.dom.Edge`
-    
+
     """
     generator = (e.weight for e in edges)
     return np.fromiter(generator, float)
@@ -269,11 +279,11 @@ def env2weightarray(nw, env=None, **kwargs):
     """This function always return a **numpy.ndarray** with this conditions:
 
     - If ``nw`` is instance of **numpy.ndarray** the same array is returned.
-    - If ``nw`` is instance of :py:class:`yatel.db.YatelNetwork` and an 
+    - If ``nw`` is instance of :py:class:`yatel.db.YatelNetwork` and an
       environment is given return all the edges in this environment.
-    - If ``nw`` is instance of :py:class:`yatel.db.YatelNetwork` and no 
+    - If ``nw`` is instance of :py:class:`yatel.db.YatelNetwork` and no
       environment is given  then return all edges.
-    - In the last case the function tries to convert ``nw`` to 
+    - In the last case the function tries to convert ``nw`` to
       **numpy.ndarray** instance.
 
     """
@@ -292,9 +302,35 @@ def env2weightarray(nw, env=None, **kwargs):
         return np.array(nw)
 
 
-#===============================================================================
+# =============================================================================
+# NETWORK STATISTICS
+# =============================================================================
+
+def hapfrequency(nw, env=None, **kwargs):
+    """Calculates a frequency of an haplotype of a given enviroment.
+
+    Every *enviroment* is defined for a set of *facts*, every *fact* has only
+    one *haplotype*. This methods count how many facts has the same hap_id.
+
+    Parameters
+    ----------
+    nw : :py:class:`yatel.db.YatelNetwork`
+        Network to which apply the operation.
+    env : :py:class:`yatel.dom.Enviroment` or dict like
+        Environment for filtering.
+
+    """
+    facts = (
+        nw.facts_by_environment(env=env, **kwargs)
+        if (env or kwargs) else nw.facts()
+    )
+    haps_ids = facts.attrs(["hap_id"])
+    return np.unique(haps_ids, return_counts=True)
+
+
+# =============================================================================
 # MAIN
-#===============================================================================
+# =============================================================================
 
 if __name__ == "__main__":
     print(__doc__)
