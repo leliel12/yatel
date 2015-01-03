@@ -232,7 +232,7 @@ class TestStats(YatelTestCase):
                 else:
                     self.assertAlmostEqual(orig, rs, self.places)
             else:
-                with self.assertRaises(ValueError):
+                with self.assertRaises(IndexError):
                     rs = stats.percentile(self.nw, 25, env)
 
     def test_mode(self):
@@ -272,6 +272,8 @@ class TestStats(YatelTestCase):
             orig = self.warrenv[env]
             rs = stats.env2weightarray(self.nw, env)
             self.assertNDArrayEquals(orig, rs)
+
+    #~ def test_
 
 
 # ===============================================================================
