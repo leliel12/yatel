@@ -27,6 +27,7 @@ from yatel.tests import (
     test_db,
     test_dom,
     test_stats,
+    test_nwstats,
     test_typeconv,
     test_qbj,
     test_cluster,

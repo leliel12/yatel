@@ -453,7 +453,7 @@ class PyShell(script.Shell):
     For more info, visit http://getyatel.org/
     Available modules:
         Your NW-OLAP: nw
-        from yatel: db, dom, stats
+        from yatel: db, dom, stats, nwstats
         from pprint: pprint
     """
     help = __doc__
@@ -465,9 +465,10 @@ class PyShell(script.Shell):
     ]
 
     def get_context(self):
-        from yatel import db, dom, stats
+        from yatel import db, dom, stats, nwstats
         from pprint import pprint
-        return dict(db=db, dom=dom, stats=stats, pprint=pprint, nw=self.nw)
+        return {"nw": self.nw, "db": db, "dom": dom,
+                "stats": stats, "nwstats": nwstats, "pprint": pprint}
 
     def get_options(self):
         return list(super(type(self), self).get_options()) + self.option_list

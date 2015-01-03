@@ -6,16 +6,16 @@
 # you can do whatever you want with this stuff. If we meet some day, and you
 # think this stuff is worth it, you can buy us a WISKEY in return.
 
-# ===============================================================================
+# =============================================================================
 # DOC
-# ===============================================================================
+# =============================================================================
 
-"""yatel.dom module tests"""
+"""yatel.stats module tests"""
 
 
-# ===============================================================================
+# =============================================================================
 # IMPORTS
-# ===============================================================================
+# =============================================================================
 
 import collections
 import warnings
@@ -26,10 +26,10 @@ from yatel import stats
 from scipy import stats as statsbis
 from yatel.tests.core import YatelTestCase
 
+
 # ===============================================================================
 # VALIDATE TESTS
 # ===============================================================================
-
 
 class TestStats(YatelTestCase):
 
@@ -272,9 +272,6 @@ class TestStats(YatelTestCase):
             orig = self.warrenv[env]
             rs = stats.env2weightarray(self.nw, env)
             self.assertNDArrayEquals(orig, rs)
-
-    def test_haplotypesfreq(self):
-        pass
 
 
 # ===============================================================================

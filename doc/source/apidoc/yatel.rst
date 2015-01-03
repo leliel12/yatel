@@ -63,6 +63,13 @@ yatel.stats module
     :members:
     :show-inheritance:
 
+yatel.nwstats module
+--------------------
+
+.. automodule:: yatel.nwstats
+    :members:
+    :show-inheritance:
+
 yatel.typeconv module
 ---------------------
 
