@@ -43,6 +43,7 @@ from yatel import db
 def average(nw, env=None, **kwargs):
     """Compute the weighted average on a network.
 
+    :Type: Weights Statistics
 
     Parameters
     ----------
@@ -59,6 +60,8 @@ def average(nw, env=None, **kwargs):
 def median(nw, env=None, **kwargs):
     """Compute the median on a network.
 
+    :Type: Weights Statistics
+
     Parameters
     ----------
     nw : :py:class:`yatel.db.YatelNetwork`
@@ -73,6 +76,8 @@ def median(nw, env=None, **kwargs):
 
 def percentile(nw, q, env=None, **kwargs):
     """Compute the q-th percentile of the network.
+
+    :Type: Weights Statistics
 
     Parameters
     ----------
@@ -89,6 +94,8 @@ def percentile(nw, q, env=None, **kwargs):
 def min(nw, env=None, **kwargs):
     """Return the minimum in a network.
 
+    :Type: Weights Statistics
+
     Parameters
     ----------
     nw : :py:class:`yatel.db.YatelNetwork`
@@ -103,6 +110,8 @@ def min(nw, env=None, **kwargs):
 
 def max(nw, env=None, **kwargs):
     """Return the maximum in a network.
+
+    :Type: Weights Statistics
 
     Parameters
     ----------
@@ -119,6 +128,8 @@ def max(nw, env=None, **kwargs):
 def amin(nw, env=None, **kwargs):
     """Return the minimum in a network.
 
+    :Type: Weights Statistics
+
     Parameters
     ----------
     nw : :py:class:`yatel.db.YatelNetwork`
@@ -133,6 +144,8 @@ def amin(nw, env=None, **kwargs):
 
 def amax(nw, env=None, **kwargs):
     """Return the maximum in a network.
+
+    :Type: Weights Statistics
 
     Parameters
     ----------
@@ -149,6 +162,8 @@ def amax(nw, env=None, **kwargs):
 def sum(nw, env=None, **kwargs):
     """Sum of the elements on the network.
 
+    :Type: Weights Statistics
+
     Parameters
     ----------
     nw : :py:class:`yatel.db.YatelNetwork`
@@ -163,6 +178,8 @@ def sum(nw, env=None, **kwargs):
 
 def mode(nw, env=None, **kwargs):
     """Calculates mode on a network.
+
+    :Type: Weights Statistics
 
     Parameters
     ----------
@@ -186,6 +203,8 @@ def mode(nw, env=None, **kwargs):
 def var(nw, env=None, **kwargs):
     """Compute the variance of the network.
 
+    :Type: Weights Statistics
+
     Parameters
     ----------
     nw : :py:class:`yatel.db.YatelNetwork`
@@ -200,6 +219,8 @@ def var(nw, env=None, **kwargs):
 
 def std(nw, env=None, **kwargs):
     """Compute the standard deviation of the network.
+
+    :Type: Weights Statistics
 
     Parameters
     ----------
@@ -216,6 +237,8 @@ def std(nw, env=None, **kwargs):
 def variation(nw, env=None, **kwargs):
     """Computes the coefficient of variation.
 
+    :Type: Weights Statistics
+
     Parameters
     ----------
     nw : :py:class:`yatel.db.YatelNetwork`
@@ -230,6 +253,8 @@ def variation(nw, env=None, **kwargs):
 
 def range(nw, env=None, **kwargs):
     """Computes the distance between the maximum and minimum.
+
+    :Type: Weights Statistics
 
     Parameters
     ----------
@@ -249,6 +274,8 @@ def range(nw, env=None, **kwargs):
 
 def kurtosis(nw, env=None, **kwargs):
     """Computes the kurtosis (Fisher’s definition) of a network.
+
+    :Type: Weights Statistics
 
     Parameters
     ----------
@@ -306,8 +333,10 @@ def env2weightarray(nw, env=None, **kwargs):
 # NETWORK STATISTICS
 # =============================================================================
 
-def hapfrequency(nw, env=None, **kwargs):
+def haplotypesfreq(nw, env=None, **kwargs):
     """Calculates a frequency of an haplotype of a given enviroment.
+
+    :Type: Network Statistics
 
     Every *enviroment* is defined for a set of *facts*, every *fact* has only
     one *haplotype*. This methods count how many facts has the same hap_id.

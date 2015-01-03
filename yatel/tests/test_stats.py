@@ -273,7 +273,8 @@ class TestStats(YatelTestCase):
             rs = stats.env2weightarray(self.nw, env)
             self.assertNDArrayEquals(orig, rs)
 
-    #~ def test_
+    def test_haplotypesfreq(self):
+        pass
 
 
 # ===============================================================================
