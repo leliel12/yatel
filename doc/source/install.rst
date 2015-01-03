@@ -63,7 +63,7 @@ Install as develop
     $ hg clone http://bitbucket.org/yatel/yatel yatel
     $ cd yatel
     $ pip install -r requirements.txt
-    $ python setup.py develp
+    $ python setup.py develop
 
 
 
