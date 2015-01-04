@@ -53,7 +53,8 @@ def haplotypesfreq(nw, env=None, **kwargs):
         nw.facts_by_environment(env=env, **kwargs)
         if (env or kwargs) else nw.facts()
     )
-    haps_ids, cnt = np.unique(facts.attrs(["hap_id"]), return_counts=True)
+    haps_ids_query = facts.attrs(["hap_id"], convf=lambda r: r[0])
+    haps_ids, cnt = np.unique(haps_ids_query, return_counts=True)
     return haps_ids, cnt
 
 
