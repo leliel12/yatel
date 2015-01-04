@@ -1,2 +1,2 @@
 pip install .;
-yatel test --level 2;
+yatel test --verbosity 2;
