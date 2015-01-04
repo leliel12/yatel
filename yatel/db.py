@@ -119,11 +119,16 @@ class YatelNetworkError(Exception):
 # RESPONSE
 #==============================================================================
 
+class UnknowTypeResponse(object):
+    """This class is used for return an unknow type response object"""
+
+
 class YatelResponse(object):
     """Yatel response generator
 
     """
-    def __init__(self, nw, cls, query, convf, cntf=None):
+    def __init__(self, nw, query,
+                 cls=UnknowTypeResponse, convf=None, cntf=None):
         """Create a new instance
 
         Parameters
@@ -136,7 +141,7 @@ class YatelResponse(object):
         query : sqlAlchemy Query object
             Generate all the query for given response object
         convf : callable
-            Convert every sqlAlchemy row to given cls instance
+            Convert every query row to given cls instance
         cntf : callable or None
             Return how many objects generate *query* object. If is None a
             traditional sql *count* is used
@@ -145,15 +150,19 @@ class YatelResponse(object):
         """
         self._cnt = None
         self._nw = nw
-        self._cls = cls
         self._query = query
-        self._convf = convf
+        self._cls = cls
+        self._convf = convf if convf else self._default_convf
         self._cntf = cntf if cntf else self._default_cntf
 
+    def _default_convf(self, obj):
+        return obj
+
     def _default_cntf(self):
-        return self._nw.execute(
-            self._query.alias("cnt").count()
-        ).scalar()
+        value = 0
+        for row in self._nw.execute(self._query):
+            value += 1
+        return value
 
     def __repr__(self):
         return u"<YatelResponse of '{}' instances>".format(self._cls)
@@ -175,11 +184,11 @@ class YatelResponse(object):
             self._cnt = self._cntf()
         return self._cnt
 
-    def attrs(self, attrsnames, cls=None, convf=None):
+    def attrs(self, attrsnames, cls=None, convf=None, cntf=None):
         query = sql.select([self._query.c[an] for an in attrsnames])
         return YatelResponse(
-            self._nw, cls if cls else type,
-            query, convf if convf else (lambda x: x[0:len(attrsnames)])
+            self._nw, cls if cls else UnknowTypeResponse,
+            query, convf if convf else (lambda x: x[0:len(attrsnames)]), cntf
         )
 
     @property
@@ -215,7 +224,8 @@ class YatelNetwork(object):
         log : None or bool
             Print the log of the backend to the standar output
         kwargs : a dict of arguments for the ``engine``.
-                Extra arguments for a given ``engine`` (see :py:data:`yatel.db.ENGINE_VARS`)
+                Extra arguments for a given ``engine``
+                (see :py:data:`yatel.db.ENGINE_VARS`)
 
         Examples
         --------
@@ -614,13 +624,7 @@ class YatelNetwork(object):
         def convf(row):
             return dom.Environment(**row)
 
-        def cntf():
-            value = 0
-            for row in self.execute(query):
-                value += 1
-            return value
-
-        return YatelResponse(self, dom.Environment, query, convf, cntf)
+        return YatelResponse(self, query, dom.Environment, convf)
 
     #==========================================================================
     # HAPLOTYPE QUERIES
@@ -639,7 +643,13 @@ class YatelNetwork(object):
 
         """
         query = sql.select([self.haplotypes_table])
-        return YatelResponse(self, dom.Haplotype, query, self._row2hap)
+
+        def cntf():
+            return self.execute(
+                query.alias("cnt").count()
+            ).scalar()
+
+        return YatelResponse(self, query, dom.Haplotype, self._row2hap, cntf)
 
 
     def haplotype_by_id(self, hap_id):
@@ -713,7 +723,13 @@ class YatelNetwork(object):
                 self.facts_table.c.hap_id == self.haplotypes_table.c.hap_id
             )
         ).where(where).distinct()
-        return YatelResponse(self, dom.Haplotype, query, self._row2hap)
+
+        def cntf():
+            return self.execute(
+                query.alias("cnt").count()
+            ).scalar()
+
+        return YatelResponse(self, query, dom.Haplotype, self._row2hap, cntf)
 
 
     #===========================================================================
@@ -733,7 +749,13 @@ class YatelNetwork(object):
 
         """
         query = sql.select([self.edges_table])
-        return YatelResponse(self, dom.Edge, query, self._row2edge)
+
+        def cntf():
+            return self.execute(
+                query.alias("cnt").count()
+            ).scalar()
+
+        return YatelResponse(self, query, dom.Edge, self._row2edge, cntf)
 
 
     def edges_by_environment(self, env=None, **kwargs):
@@ -774,7 +796,12 @@ class YatelNetwork(object):
                 self.edges_table.c[attr] == alias.c.hap_id
             )
 
-        return YatelResponse(self, dom.Edge, query, self._row2edge)
+        def cntf():
+            return self.execute(
+                query.alias("cnt").count()
+            ).scalar()
+
+        return YatelResponse(self, query, dom.Edge, self._row2edge, cntf)
 
     def edges_by_haplotype(self, hap):
         """Iterates over all the edges of a given
@@ -799,7 +826,12 @@ class YatelNetwork(object):
                           if k.startswith("hap_")])
         query = sql.select([self.edges_table]).where(where).distinct()
 
-        return YatelResponse(self, dom.Edge, query, self._row2edge)
+        def cntf():
+            return self.execute(
+                query.alias("cnt").count()
+            ).scalar()
+
+        return YatelResponse(self, query, dom.Edge, self._row2edge, cntf)
 
     #===========================================================================
     # FACTS QUERIES
@@ -811,7 +843,13 @@ class YatelNetwork(object):
 
         """
         query = sql.select([self.facts_table])
-        return YatelResponse(self, dom.Fact, query, self._row2fact)
+
+        def cntf():
+            return self.execute(
+                query.alias("cnt").count()
+            ).scalar()
+
+        return YatelResponse(self, query, dom.Fact, self._row2fact, cntf)
 
     def facts_by_haplotype(self, hap):
         """Return a iterator of all facts of a given
@@ -831,7 +869,13 @@ class YatelNetwork(object):
         query = sql.select([self.facts_table]).where(
             self.facts_table.c.hap_id == hap.hap_id
         ).distinct()
-        return YatelResponse(self, dom.Fact, query, self._row2fact)
+
+        def cntf():
+            return self.execute(
+                query.alias("cnt").count()
+            ).scalar()
+
+        return YatelResponse(self, query, dom.Fact, self._row2fact, cntf)
 
     def facts_by_environment(self, env=None, **kwargs):
         """Iterates over all :py:class:`yatel.dom.Fact` instances of a given
@@ -860,7 +904,13 @@ class YatelNetwork(object):
         where = sql.and_(*[self.facts_table.c[k] == v
                            for k, v in env.items()])
         query = sql.select([self.facts_table]).where(where).distinct()
-        return YatelResponse(self, dom.Fact, query, self._row2fact)
+
+        def cntf():
+            return self.execute(
+                query.alias("cnt").count()
+            ).scalar()
+
+        return YatelResponse(self, query, dom.Fact, self._row2fact, cntf)
 
     #===========================================================================
     # DESCRIPTOR

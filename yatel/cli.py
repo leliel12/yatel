@@ -151,8 +151,8 @@ class Test(script.Command):
     """
     option_list = [
         script.Option(
-            '--level', action="store", dest="level",
-            default=2, type=int, help="Test level [0|1|2]"
+            '--verbosity', action="store", dest="verb",
+            default=2, type=int, help="Test verbosity level [0|1|2]"
         ),
         script.Option(
             '--failfast', action="store_true", dest='failfast', default=False,
@@ -179,13 +179,13 @@ class Test(script.Command):
         ),
     ]
 
-    def run(self, level, failfast, modules, list_modules, extra_dbs, environ):
+    def run(self, verb, failfast, modules, list_modules, extra_dbs, environ):
         if list_modules:
             for mod in tests.collect_modules().keys():
                 print mod
         else:
             response = tests.run_tests(
-                level, modules=modules, failfast=failfast,
+                verb, modules=modules, failfast=failfast,
                 extra_dbs=extra_dbs, environ=environ
             )
             if response.failures or response.errors:
