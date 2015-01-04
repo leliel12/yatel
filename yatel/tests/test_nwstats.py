@@ -34,13 +34,21 @@ from yatel.tests.core import YatelTestCase
 class TestNWStats(YatelTestCase):
 
     def test_haplotypesfreq(self):
-        for env in self.nw.environments():
-            haps, cnt = nwstats.haplotypesfreq(self.nw, env)
+        enviroments = list(self.nw.environments()) + [None]
+        for env in enviroments:
+            haps_ids = collections.defaultdict(int)
+            for fact in self.nw.facts_by_environment(env):
+                haps_ids[fact.hap_id] += 1
+            haps, cnts = nwstats.haplotypesfreq(self.nw, env)
+            self.assertTrue(len(haps) == len(cnts) == len(haps_ids))
+            for idx, hap_id in enumerate(haps):
+                cnt = cnts[idx]
+                self.assertEqual(haps_ids[hap_id], cnt)
 
 
-# ===============================================================================
+# =============================================================================
 # MAIN
-# ===============================================================================
+# =============================================================================
 
 if __name__ == "__main__":
     print(__doc__)
